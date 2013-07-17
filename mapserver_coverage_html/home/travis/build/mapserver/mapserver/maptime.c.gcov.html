@@ -1,0 +1,576 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - /home/travis/build/mapserver/mapserver/maptime.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">home/travis/build/mapserver/mapserver</a> - maptime.c<span style="font-size: 80%;"> (source / <a href="maptime.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">160</td>
+            <td class="headerCovTableEntry">180</td>
+            <td class="headerCovTableEntryMed">88.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">128</td>
+            <td class="headerCovTableEntry">174</td>
+            <td class="headerCovTableEntryLo">73.6 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * $Id$
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Project:  MapServer
+<span class="lineNum">       5 </span>                :            :  * Purpose:  Date/Time utility functions.
+<span class="lineNum">       6 </span>                :            :  * Author:   Steve Lime and the MapServer team.
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  ******************************************************************************
+<span class="lineNum">       9 </span>                :            :  * Copyright (c) 1996-2005 Regents of the University of Minnesota.
+<span class="lineNum">      10 </span>                :            :  *
+<span class="lineNum">      11 </span>                :            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      12 </span>                :            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      13 </span>                :            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      14 </span>                :            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      15 </span>                :            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      16 </span>                :            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      17 </span>                :            :  *
+<span class="lineNum">      18 </span>                :            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      19 </span>                :            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      20 </span>                :            :  *
+<span class="lineNum">      21 </span>                :            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+<span class="lineNum">      22 </span>                :            :  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      23 </span>                :            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+<span class="lineNum">      24 </span>                :            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      25 </span>                :            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      26 </span>                :            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      27 </span>                :            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      28 </span>                :            :  ****************************************************************************/
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            : #define _GNU_SOURCE  /* glibc2 needs this for strptime() */
+<span class="lineNum">      31 </span>                :            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      32 </span>                :            : #include &lt;stdio.h&gt;
+<span class="lineNum">      33 </span>                :            : #include &lt;time.h&gt;
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : #include &quot;mapserver.h&quot;
+<span class="lineNum">      36 </span>                :            : #include &quot;maptime.h&quot;
+<span class="lineNum">      37 </span>                :            : #include &quot;maperror.h&quot;
+<span class="lineNum">      38 </span>                :            : #include &quot;mapthread.h&quot;
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : typedef struct {
+<span class="lineNum">      42 </span>                :            :   char pattern[64];
+<span class="lineNum">      43 </span>                :            :   ms_regex_t *regex;
+<span class="lineNum">      44 </span>                :            :   char  format[32];
+<span class="lineNum">      45 </span>                :            :   char userformat[32];
+<span class="lineNum">      46 </span>                :            :   MS_TIME_RESOLUTION resolution;
+<span class="lineNum">      47 </span>                :            : } timeFormatObj;
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :            : #define MS_NUMTIMEFORMATS 13
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :            : timeFormatObj ms_timeFormats[MS_NUMTIMEFORMATS] = {
+<span class="lineNum">      52 </span>                :            :   {&quot;^[0-9]{8}&quot;, NULL, &quot;%Y%m%d&quot;,&quot;YYYYMMDD&quot;,TIME_RESOLUTION_DAY},
+<span class="lineNum">      53 </span>                :            :   {&quot;^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z&quot;, NULL, &quot;%Y-%m-%dT%H:%M:%SZ&quot;,&quot;YYYY-MM-DDTHH:MM:SSZ&quot;,TIME_RESOLUTION_SECOND},
+<span class="lineNum">      54 </span>                :            :   {&quot;^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}&quot;, NULL, &quot;%Y-%m-%dT%H:%M:%S&quot;, &quot;YYYY-MM-DDTHH:MM:SS&quot;,TIME_RESOLUTION_SECOND},
+<span class="lineNum">      55 </span>                :            :   {&quot;^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}&quot;, NULL, &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;YYYY-MM-DD HH:MM:SS&quot;, TIME_RESOLUTION_SECOND},
+<span class="lineNum">      56 </span>                :            :   {&quot;^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}&quot;, NULL, &quot;%Y-%m-%dT%H:%M&quot;, &quot;YYYY-MM-DDTHH:MM&quot;,TIME_RESOLUTION_MINUTE},
+<span class="lineNum">      57 </span>                :            :   {&quot;^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}&quot;, NULL, &quot;%Y-%m-%d %H:%M&quot;, &quot;YYYY-MM-DD HH:MM&quot;,TIME_RESOLUTION_MINUTE},
+<span class="lineNum">      58 </span>                :            :   {&quot;^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}&quot;, NULL, &quot;%Y-%m-%dT%H&quot;, &quot;YYYY-MM-DDTHH&quot;,TIME_RESOLUTION_HOUR},
+<span class="lineNum">      59 </span>                :            :   {&quot;^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}&quot;, NULL, &quot;%Y-%m-%d %H&quot;, &quot;YYYY-MM-DD HH&quot;,TIME_RESOLUTION_HOUR},
+<span class="lineNum">      60 </span>                :            :   {&quot;^[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;, NULL, &quot;%Y-%m-%d&quot;, &quot;YYYY-MM-DD&quot;, TIME_RESOLUTION_DAY},
+<span class="lineNum">      61 </span>                :            :   {&quot;^[0-9]{4}-[0-9]{2}&quot;, NULL, &quot;%Y-%m&quot;, &quot;YYYY-MM&quot;,TIME_RESOLUTION_MONTH},
+<span class="lineNum">      62 </span>                :            :   {&quot;^[0-9]{4}&quot;, NULL, &quot;%Y&quot;, &quot;YYYY&quot;,TIME_RESOLUTION_YEAR},
+<span class="lineNum">      63 </span>                :            :   {&quot;^T[0-9]{2}:[0-9]{2}:[0-9]{2}Z&quot;, NULL, &quot;T%H:%M:%SZ&quot;, &quot;THH:MM:SSZ&quot;,TIME_RESOLUTION_SECOND},
+<span class="lineNum">      64 </span>                :            :   {&quot;^T[0-9]{2}:[0-9]{2}:[0-9]{2}&quot;, NULL, &quot;T%H:%M:%S&quot;, &quot;THH:MM:SS&quot;, TIME_RESOLUTION_SECOND},
+<span class="lineNum">      65 </span>                :            : };
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>                :            : int *ms_limited_pattern = NULL;
+<span class="lineNum">      68 </span>                :            : int ms_num_limited_pattern;
+<a name="69"><span class="lineNum">      69 </span>                :            : </a>
+<span class="lineNum">      70 </span>                :            : int ms_time_inited = 0;
+<span class="lineNum">      71 </span>                :<span class="lineCov">          1 : int msTimeSetup() {</span>
+<span class="lineNum">      72 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!ms_time_inited) {</span>
+<span class="lineNum">      73 </span>                :            :     msAcquireLock(TLOCK_TIME);
+<span class="lineNum">      74 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(!ms_time_inited) {</span>
+<span class="lineNum">      75 </span>                :            :       int i;
+<span class="lineNum">      76 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(i=0;i&lt;MS_NUMTIMEFORMATS;i++) {</span>
+<span class="lineNum">      77 </span>                :<span class="lineCov">          1 :         ms_timeFormats[i].regex = msSmallMalloc(sizeof(ms_regex_t));</span>
+<span class="lineNum">      78 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(0!=ms_regcomp(ms_timeFormats[i].regex, ms_timeFormats[i].pattern, MS_REG_EXTENDED|MS_REG_NOSUB)) {</span>
+<span class="lineNum">      79 </span>                :<span class="lineNoCov">          0 :           msSetError(MS_REGEXERR, &quot;Failed to compile expression (%s).&quot;, &quot;msTimeSetup()&quot;, ms_timeFormats[i].pattern);</span>
+<span class="lineNum">      80 </span>                :<span class="lineNoCov">          0 :           return MS_FAILURE;</span>
+<span class="lineNum">      81 </span>                :            :           /* TODO: free already inited regexes */
+<span class="lineNum">      82 </span>                :            :         }
+<span class="lineNum">      83 </span>                :            :       }
+<span class="lineNum">      84 </span>                :<span class="lineCov">          1 :       ms_limited_pattern = (int *)msSmallMalloc(sizeof(int)*MS_NUMTIMEFORMATS);</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">          1 :       ms_num_limited_pattern = 0;</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">          1 :       ms_time_inited = 1;</span>
+<span class="lineNum">      87 </span>                :            :     }
+<span class="lineNum">      88 </span>                :            :     msReleaseLock(TLOCK_TIME);
+<span class="lineNum">      89 </span>                :            :   }
+<span class="lineNum">      90 </span>                :            :   return MS_SUCCESS;
+<a name="91"><span class="lineNum">      91 </span>                :            : }</a>
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>                :<span class="lineCov">          1 : void msTimeCleanup() {</span>
+<span class="lineNum">      94 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(ms_time_inited) {</span>
+<span class="lineNum">      95 </span>                :            :     int i;
+<span class="lineNum">      96 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i=0;i&lt;MS_NUMTIMEFORMATS;i++) {</span>
+<span class="lineNum">      97 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(ms_timeFormats[i].regex) {</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">          1 :         ms_regfree(ms_timeFormats[i].regex);</span>
+<span class="lineNum">      99 </span>                :<span class="lineCov">          1 :         msFree(ms_timeFormats[i].regex);</span>
+<span class="lineNum">     100 </span>                :<span class="lineCov">          1 :         ms_timeFormats[i].regex = NULL;</span>
+<span class="lineNum">     101 </span>                :            :       }
+<span class="lineNum">     102 </span>                :            :     }
+<span class="lineNum">     103 </span>                :<span class="lineCov">          1 :     msFree(ms_limited_pattern);</span>
+<span class="lineNum">     104 </span>                :<span class="lineCov">          1 :     ms_time_inited = 0;</span>
+<span class="lineNum">     105 </span>                :            :   }
+<a name="106"><span class="lineNum">     106 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     107 </span>                :            : 
+<span class="lineNum">     108 </span>                :<span class="lineCov">          1 : void msTimeInit(struct tm *time)</span>
+<span class="lineNum">     109 </span>                :            : {
+<span class="lineNum">     110 </span>                :            :   /* set all members to zero */
+<span class="lineNum">     111 </span>                :<span class="lineCov">          1 :   time-&gt;tm_sec = 0;</span>
+<span class="lineNum">     112 </span>                :<span class="lineCov">          1 :   time-&gt;tm_min = 0;</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">          1 :   time-&gt;tm_hour = 0;</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">          1 :   time-&gt;tm_mday = 0;</span>
+<span class="lineNum">     115 </span>                :<span class="lineCov">          1 :   time-&gt;tm_mon = 0;</span>
+<span class="lineNum">     116 </span>                :<span class="lineCov">          1 :   time-&gt;tm_year = 0;</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">          1 :   time-&gt;tm_wday = 0;</span>
+<span class="lineNum">     118 </span>                :<span class="lineCov">          1 :   time-&gt;tm_yday = 0;</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">          1 :   time-&gt;tm_isdst = 0;</span>
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :<span class="lineCov">          1 :   return;</span>
+<span class="lineNum">     122 </span>                :            : }
+<span class="lineNum">     123 </span>                :            : 
+<a name="124"><span class="lineNum">     124 </span>                :            : static int compareIntVals(int a, int b)</a>
+<span class="lineNum">     125 </span>                :            : {
+<span class="lineNum">     126 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(a&lt;b) return -1;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>][<span class="branchCov" title="Branch 6 was taken X times"> + </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchCov" title="Branch 9 was taken X times"> + </span>][<span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken X times"> + </span><span class="branchCov" title="Branch 13 was taken X times"> + </span>][<span class="branchCov" title="Branch 14 was taken X times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 16 was taken X times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     127 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if(a&gt;b) return 1;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>][<span class="branchCov" title="Branch 6 was taken X times"> + </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken X times"> + </span><span class="branchCov" title="Branch 13 was taken X times"> + </span>][<span class="branchCov" title="Branch 14 was taken X times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 16 was taken X times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     128 </span>                :            :   else return 0;
+<span class="lineNum">     129 </span>                :            : }
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :<span class="lineCov">          1 : int msDateCompare(struct tm *time1, struct tm *time2)</span>
+<span class="lineNum">     132 </span>                :            : {
+<span class="lineNum">     133 </span>                :            :   int result;
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((result = compareIntVals(time1-&gt;tm_year, time2-&gt;tm_year)) != 0)</span>
+<span class="lineNum">     136 </span>                :            :     return result; /* not equal based on year */
+<span class="lineNum">     137 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   else if((result = compareIntVals(time1-&gt;tm_mon, time2-&gt;tm_mon)) != 0)</span>
+<span class="lineNum">     138 </span>                :            :     return result; /* not equal based on month */
+<span class="lineNum">     139 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if((result = compareIntVals(time1-&gt;tm_mday, time2-&gt;tm_mday)) != 0)</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">          1 :     return result; /* not equal based on day of month */</span>
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :            :   return(0); /* must be equal */
+<span class="lineNum">     143 </span>                :            : }
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :<span class="lineCov">          1 : int msTimeCompare(struct tm *time1, struct tm *time2)</span>
+<span class="lineNum">     146 </span>                :            : {
+<span class="lineNum">     147 </span>                :            :   int result;
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((result = compareIntVals(time1-&gt;tm_year, time2-&gt;tm_year)) != 0)</span>
+<span class="lineNum">     150 </span>                :            :     return result; /* not equal based on year */
+<span class="lineNum">     151 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if((result = compareIntVals(time1-&gt;tm_mon, time2-&gt;tm_mon)) != 0)</span>
+<span class="lineNum">     152 </span>                :            :     return result; /* not equal based on month */
+<span class="lineNum">     153 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if((result = compareIntVals(time1-&gt;tm_mday, time2-&gt;tm_mday)) != 0)</span>
+<span class="lineNum">     154 </span>                :            :     return result; /* not equal based on day of month */
+<span class="lineNum">     155 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if((result = compareIntVals(time1-&gt;tm_hour, time2-&gt;tm_hour)) != 0)</span>
+<span class="lineNum">     156 </span>                :            :     return result; /* not equal based on hour */
+<span class="lineNum">     157 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if((result = compareIntVals(time1-&gt;tm_min, time2-&gt;tm_min)) != 0)</span>
+<span class="lineNum">     158 </span>                :            :     return result; /* not equal based on minute */
+<span class="lineNum">     159 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if((result = compareIntVals(time1-&gt;tm_sec, time2-&gt;tm_sec)) != 0)</span>
+<span class="lineNum">     160 </span>                :<span class="lineCov">          1 :     return result; /* not equal based on second */</span>
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>                :            :   return(0); /* must be equal */
+<span class="lineNum">     163 </span>                :            : }
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            : #if defined(_WIN32) &amp;&amp; !defined(__CYGWIN__)
+<span class="lineNum">     166 </span>                :            : #include &lt;sys/timeb.h&gt;
+<span class="lineNum">     167 </span>                :            : void msGettimeofday(struct mstimeval* tp, void* tzp)
+<span class="lineNum">     168 </span>                :            : {
+<span class="lineNum">     169 </span>                :            :   struct _timeb theTime;
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :            :   _ftime(&amp;theTime);
+<span class="lineNum">     172 </span>                :            :   tp-&gt;tv_sec = theTime.time;
+<span class="lineNum">     173 </span>                :            :   tp-&gt;tv_usec = theTime.millitm * 1000;
+<span class="lineNum">     174 </span>                :            : }
+<span class="lineNum">     175 </span>                :            : #endif
+<span class="lineNum">     176 </span>                :            : 
+<span class="lineNum">     177 </span>                :            : #if defined(_WIN32) &amp;&amp; !defined(__CYGWIN__)
+<span class="lineNum">     178 </span>                :            : /* we need to provide our own prototype on windows. */
+<span class="lineNum">     179 </span>                :            : char *strptime( const char *buf, const char *format, struct tm *timeptr );
+<a name="180"><span class="lineNum">     180 </span>                :            : #endif</a>
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>                :<span class="lineCov">          1 : char *msStrptime(const char *s, const char *format, struct tm *tm)</span>
+<span class="lineNum">     183 </span>                :            : {
+<span class="lineNum">     184 </span>                :<span class="lineCov">          1 :   return strptime(s, format, tm);</span>
+<span class="lineNum">     185 </span>                :            : }
+<span class="lineNum">     186 </span>                :            : 
+<span class="lineNum">     187 </span>                :            : /**
+<span class="lineNum">     188 </span>                :            :    return MS_TRUE if the time string matchs the timeformat.
+<a name="189"><span class="lineNum">     189 </span>                :            :    else return MS_FALSE.</a>
+<span class="lineNum">     190 </span>                :            :  */
+<span class="lineNum">     191 </span>                :<span class="lineCov">          1 : int msTimeMatchPattern(char *timestring, char *timeformat)</span>
+<span class="lineNum">     192 </span>                :            : {
+<span class="lineNum">     193 </span>                :            :   int i =-1;
+<span class="lineNum">     194 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if(msTimeSetup() != MS_SUCCESS) {</span>
+<span class="lineNum">     195 </span>                :            :     return MS_FALSE;
+<span class="lineNum">     196 </span>                :            :   }
+<span class="lineNum">     197 </span>                :            : 
+<span class="lineNum">     198 </span>                :            :   /* match the pattern format first and then check if the time string  */
+<span class="lineNum">     199 </span>                :            :   /* matchs the pattern. If it is the case retrurn the MS_TRUE */
+<span class="lineNum">     200 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (i=0; i&lt;MS_NUMTIMEFORMATS; i++) {</span>
+<span class="lineNum">     201 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (strcasecmp(ms_timeFormats[i].userformat, timeformat) == 0)</span>
+<span class="lineNum">     202 </span>                :            :       break;
+<span class="lineNum">     203 </span>                :            :   }
+<span class="lineNum">     204 </span>                :            : 
+<span class="lineNum">     205 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (i &gt;= 0 &amp;&amp; i &lt; MS_NUMTIMEFORMATS) {</span>
+<span class="lineNum">     206 </span>                :<span class="lineCov">          1 :     int match = ms_regexec(ms_timeFormats[i].regex, timestring, 0,NULL, 0);</span>
+<span class="lineNum">     207 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(match == 0)</span>
+<span class="lineNum">     208 </span>                :            :       return MS_TRUE;
+<span class="lineNum">     209 </span>                :            :   }
+<span class="lineNum">     210 </span>                :<span class="lineCov">          1 :   return MS_FALSE;</span>
+<span class="lineNum">     211 </span>                :            : }
+<a name="212"><span class="lineNum">     212 </span>                :            : </a>
+<span class="lineNum">     213 </span>                :            : 
+<span class="lineNum">     214 </span>                :<span class="lineCov">          1 : void msUnsetLimitedPatternToUse()</span>
+<span class="lineNum">     215 </span>                :            : {
+<span class="lineNum">     216 </span>                :<span class="lineCov">          1 :   msTimeSetup();</span>
+<span class="lineNum">     217 </span>                :<span class="lineCov">          1 :   ms_num_limited_pattern = 0;</span>
+<a name="218"><span class="lineNum">     218 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :<span class="lineCov">          1 : void msSetLimitedPattersToUse(char *patternstring)</span>
+<span class="lineNum">     221 </span>                :            : {
+<span class="lineNum">     222 </span>                :            :   int *limitedpatternindice = NULL;
+<span class="lineNum">     223 </span>                :<span class="lineCov">          1 :   int numpatterns=0, i=0, j=0, ntmp=0;</span>
+<span class="lineNum">     224 </span>                :            :   char **patterns = NULL;
+<span class="lineNum">     225 </span>                :<span class="lineCov">          1 :   msTimeSetup();</span>
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>                :<span class="lineCov">          1 :   limitedpatternindice = (int *)msSmallMalloc(sizeof(int)*MS_NUMTIMEFORMATS);</span>
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>                :            :   /* free previous setting */
+<span class="lineNum">     230 </span>                :<span class="lineCov">          1 :   msUnsetLimitedPatternToUse();</span>
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (patternstring) {</span>
+<span class="lineNum">     233 </span>                :<span class="lineCov">          1 :     patterns = msStringSplit(patternstring, ',', &amp;ntmp);</span>
+<span class="lineNum">     234 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if (patterns &amp;&amp; ntmp &gt;= 1) {</span>
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for (i=0; i&lt;ntmp; i++) {</span>
+<span class="lineNum">     237 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         for (j=0; j&lt;MS_NUMTIMEFORMATS; j++) {</span>
+<span class="lineNum">     238 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if (strcasecmp( ms_timeFormats[j].userformat, patterns[i]) ==0) {</span>
+<span class="lineNum">     239 </span>                :<span class="lineCov">          1 :             limitedpatternindice[numpatterns] = j;</span>
+<span class="lineNum">     240 </span>                :<span class="lineCov">          1 :             numpatterns++;</span>
+<span class="lineNum">     241 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     242 </span>                :            :           }
+<span class="lineNum">     243 </span>                :            :         }
+<span class="lineNum">     244 </span>                :            :       }
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>                :<span class="lineCov">          1 :       msFreeCharArray(patterns, ntmp);</span>
+<span class="lineNum">     247 </span>                :            :     }
+<span class="lineNum">     248 </span>                :            :   }
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (numpatterns &gt; 0) {</span>
+<span class="lineNum">     251 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for (i=0; i&lt;numpatterns; i++)</span>
+<span class="lineNum">     252 </span>                :<span class="lineCov">          1 :       ms_limited_pattern[i] = limitedpatternindice[i];</span>
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>                :<span class="lineCov">          1 :     ms_num_limited_pattern = numpatterns;</span>
+<span class="lineNum">     255 </span>                :            :   }
+<span class="lineNum">     256 </span>                :<span class="lineCov">          1 :   free (limitedpatternindice);</span>
+<span class="lineNum">     257 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     258 </span>                :            : 
+<a name="259"><span class="lineNum">     259 </span>                :            : </a>
+<span class="lineNum">     260 </span>                :            : 
+<span class="lineNum">     261 </span>                :<span class="lineCov">          1 : int msParseTime(const char *string, struct tm *tm)</span>
+<span class="lineNum">     262 </span>                :            : {
+<span class="lineNum">     263 </span>                :            :   int i, indice = 0;
+<span class="lineNum">     264 </span>                :            :   int num_patterns = 0;
+<span class="lineNum">     265 </span>                :            :   
+<span class="lineNum">     266 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if(msTimeSetup() != MS_SUCCESS) {</span>
+<span class="lineNum">     267 </span>                :            :     return MS_FALSE;
+<span class="lineNum">     268 </span>                :            :   }
+<span class="lineNum">     269 </span>                :            : 
+<span class="lineNum">     270 </span>                :            :   /* if limited patterns are set, use then. Else use all the */
+<span class="lineNum">     271 </span>                :            :   /* patterns defined */
+<span class="lineNum">     272 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (ms_num_limited_pattern &gt; 0)</span>
+<span class="lineNum">     273 </span>                :<span class="lineCov">          1 :     num_patterns = ms_num_limited_pattern;</span>
+<span class="lineNum">     274 </span>                :            :   else
+<span class="lineNum">     275 </span>                :            :     num_patterns = MS_NUMTIMEFORMATS;
+<span class="lineNum">     276 </span>                :            : 
+<span class="lineNum">     277 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;num_patterns; i++) {</span>
+<span class="lineNum">     278 </span>                :            :     int match;
+<span class="lineNum">     279 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (ms_num_limited_pattern &gt; 0)</span>
+<span class="lineNum">     280 </span>                :<span class="lineCov">          1 :       indice = ms_limited_pattern[i];</span>
+<span class="lineNum">     281 </span>                :            :     else
+<span class="lineNum">     282 </span>                :            :       indice = i;
+<span class="lineNum">     283 </span>                :            : 
+<span class="lineNum">     284 </span>                :<span class="lineCov">          1 :     match = ms_regexec(ms_timeFormats[indice].regex, string, 0,NULL, 0);</span>
+<span class="lineNum">     285 </span>                :            :     /* test the expression against the string */
+<span class="lineNum">     286 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(match == 0) {</span>
+<span class="lineNum">     287 </span>                :            :       /* match    */
+<span class="lineNum">     288 </span>                :<span class="lineCov">          1 :       msStrptime(string, ms_timeFormats[indice].format, tm);</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">          1 :       return(MS_TRUE);</span>
+<span class="lineNum">     290 </span>                :            :     }
+<span class="lineNum">     291 </span>                :            :   }
+<span class="lineNum">     292 </span>                :            : 
+<span class="lineNum">     293 </span>                :<span class="lineCov">          1 :   msSetError(MS_REGEXERR, &quot;Unrecognized date or time format (%s).&quot;, &quot;msParseTime()&quot;, string);</span>
+<span class="lineNum">     294 </span>                :<span class="lineCov">          1 :   return(MS_FALSE);</span>
+<span class="lineNum">     295 </span>                :            : }
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>                :            : /**
+<a name="298"><span class="lineNum">     298 </span>                :            :  * Parse the time string and return the reslution</a>
+<span class="lineNum">     299 </span>                :            :  */
+<span class="lineNum">     300 </span>                :<span class="lineCov">          1 : int msTimeGetResolution(const char *timestring)</span>
+<span class="lineNum">     301 </span>                :            : {
+<span class="lineNum">     302 </span>                :            :   int i=0;
+<span class="lineNum">     303 </span>                :            : 
+<span class="lineNum">     304 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!timestring)</span>
+<span class="lineNum">     305 </span>                :            :     return -1;
+<span class="lineNum">     306 </span>                :            : 
+<span class="lineNum">     307 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;MS_NUMTIMEFORMATS; i++) {</span>
+<span class="lineNum">     308 </span>                :<span class="lineCov">          1 :     ms_regex_t *regex = (ms_regex_t *) msSmallMalloc(sizeof(ms_regex_t));</span>
+<span class="lineNum">     309 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(ms_regcomp(regex, ms_timeFormats[i].pattern,</span>
+<span class="lineNum">     310 </span>                :            :                   MS_REG_EXTENDED|MS_REG_NOSUB) != 0) {
+<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_REGEXERR, &quot;Failed to compile expression (%s).&quot;, &quot;msParseTime()&quot;, ms_timeFormats[i].pattern);</span>
+<span class="lineNum">     312 </span>                :<span class="lineNoCov">          0 :       msFree(regex);</span>
+<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :       return -1;</span>
+<span class="lineNum">     314 </span>                :            :     }
+<span class="lineNum">     315 </span>                :            :     /* test the expression against the string */
+<span class="lineNum">     316 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(ms_regexec(regex, timestring, 0, NULL, 0) == 0) {</span>
+<span class="lineNum">     317 </span>                :            :       /* match    */
+<span class="lineNum">     318 </span>                :<span class="lineCov">          1 :       ms_regfree(regex);</span>
+<span class="lineNum">     319 </span>                :<span class="lineCov">          1 :       msFree(regex);</span>
+<span class="lineNum">     320 </span>                :<span class="lineCov">          1 :       return ms_timeFormats[i].resolution;</span>
+<span class="lineNum">     321 </span>                :            :     }
+<span class="lineNum">     322 </span>                :<span class="lineCov">          1 :     ms_regfree(regex);</span>
+<span class="lineNum">     323 </span>                :<span class="lineCov">          1 :     msFree(regex);</span>
+<span class="lineNum">     324 </span>                :            :   }
+<span class="lineNum">     325 </span>                :            : 
+<span class="lineNum">     326 </span>                :            :   return -1;
+<span class="lineNum">     327 </span>                :            : }
+<a name="328"><span class="lineNum">     328 </span>                :            : </a>
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>                :<span class="lineCov">          1 : int _msValidateTime(char *timestring,  const char *timeextent)</span>
+<span class="lineNum">     331 </span>                :            : {
+<span class="lineNum">     332 </span>                :            :   int numelements, numextents, i, numranges;
+<span class="lineNum">     333 </span>                :            :   struct tm  tmtimestart, tmtimeend, tmstart, tmend;
+<span class="lineNum">     334 </span>                :            :   char **atimerange = NULL, **atimeelements= NULL, **atimeextents=NULL;
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!timestring || !timeextent)</span>
+<span class="lineNum">     337 </span>                :            :     return MS_FALSE;
+<span class="lineNum">     338 </span>                :            : 
+<span class="lineNum">     339 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if (strlen(timestring) &lt;= 0 ||</span>
+<span class="lineNum">     340 </span>                :<span class="lineCov">          1 :       strlen(timeextent) &lt;= 0)</span>
+<span class="lineNum">     341 </span>                :            :     return MS_FALSE;
+<span class="lineNum">     342 </span>                :            : 
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>                :            :   /* we first need to parse the timesting that is passed
+<span class="lineNum">     345 </span>                :            :      so that we can determine if it is a descrete time
+<span class="lineNum">     346 </span>                :            :      or a range */
+<span class="lineNum">     347 </span>                :            : 
+<span class="lineNum">     348 </span>                :<span class="lineCov">          1 :   numelements = 0;</span>
+<span class="lineNum">     349 </span>                :<span class="lineCov">          1 :   atimeelements = msStringSplit (timestring, '/', &amp;numelements);</span>
+<span class="lineNum">     350 </span>                :<span class="lineCov">          1 :   msTimeInit(&amp;tmtimestart);</span>
+<span class="lineNum">     351 </span>                :<span class="lineCov">          1 :   msTimeInit(&amp;tmtimeend);</span>
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (numelements == 1) { /*descrete time*/</span>
+<span class="lineNum">     354 </span>                :            :     /*start end end times are the same*/
+<span class="lineNum">     355 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (msParseTime(timestring, &amp;tmtimestart) != MS_TRUE) {</span>
+<span class="lineNum">     356 </span>                :<span class="lineNoCov">          0 :       msFreeCharArray(atimeelements, numelements);</span>
+<span class="lineNum">     357 </span>                :<span class="lineNoCov">          0 :       return  MS_FALSE;</span>
+<span class="lineNum">     358 </span>                :            :     }
+<span class="lineNum">     359 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (msParseTime(timestring, &amp;tmtimeend) != MS_TRUE) {</span>
+<span class="lineNum">     360 </span>                :<span class="lineNoCov">          0 :       msFreeCharArray(atimeelements, numelements);</span>
+<span class="lineNum">     361 </span>                :<span class="lineNoCov">          0 :       return  MS_FALSE;</span>
+<span class="lineNum">     362 </span>                :            :     }
+<span class="lineNum">     363 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   } else if (numelements &gt;=2) { /*range */</span>
+<span class="lineNum">     364 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (msParseTime(atimeelements[0], &amp;tmtimestart) != MS_TRUE) {</span>
+<span class="lineNum">     365 </span>                :<span class="lineNoCov">          0 :       msFreeCharArray(atimeelements, numelements);</span>
+<span class="lineNum">     366 </span>                :<span class="lineNoCov">          0 :       return  MS_FALSE;</span>
+<span class="lineNum">     367 </span>                :            :     }
+<span class="lineNum">     368 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (msParseTime(atimeelements[1], &amp;tmtimeend) != MS_TRUE) {</span>
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :       msFreeCharArray(atimeelements, numelements);</span>
+<span class="lineNum">     370 </span>                :<span class="lineNoCov">          0 :       return  MS_FALSE;</span>
+<span class="lineNum">     371 </span>                :            :     }
+<span class="lineNum">     372 </span>                :            :   }
+<span class="lineNum">     373 </span>                :            : 
+<span class="lineNum">     374 </span>                :<span class="lineCov">          1 :   msFreeCharArray(atimeelements, numelements);</span>
+<span class="lineNum">     375 </span>                :            : 
+<span class="lineNum">     376 </span>                :            : 
+<span class="lineNum">     377 </span>                :            :   /* Now parse the time extent. Extents can be
+<span class="lineNum">     378 </span>                :            :     -  one range (2004-09-21/2004-09-25/resolution)
+<span class="lineNum">     379 </span>                :            :     -  multiple rages 2004-09-21/2004-09-25/res1,2004-09-21/2004-09-25/res2
+<span class="lineNum">     380 </span>                :            :     - one value 2004-09-21
+<span class="lineNum">     381 </span>                :            :     - mutiple values 2004-09-21,2004-09-22,2004-09-23
+<span class="lineNum">     382 </span>                :            :   */
+<span class="lineNum">     383 </span>                :            : 
+<span class="lineNum">     384 </span>                :<span class="lineCov">          1 :   numextents = 0;</span>
+<span class="lineNum">     385 </span>                :<span class="lineCov">          1 :   atimeextents = msStringSplit (timeextent, ',', &amp;numextents);</span>
+<span class="lineNum">     386 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if (atimeextents == NULL || numextents &lt;= 0)</span>
+<span class="lineNum">     387 </span>                :            :     return MS_FALSE;
+<span class="lineNum">     388 </span>                :            : 
+<span class="lineNum">     389 </span>                :            :   /*the time timestring should at be valid in one of the extents
+<span class="lineNum">     390 </span>                :            :     defined */
+<span class="lineNum">     391 </span>                :            : 
+<span class="lineNum">     392 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (i=0; i&lt;numextents; i++) {</span>
+<span class="lineNum">     393 </span>                :            :     /* build time structure for the extents */
+<span class="lineNum">     394 </span>                :<span class="lineCov">          1 :     msTimeInit(&amp;tmstart);</span>
+<span class="lineNum">     395 </span>                :<span class="lineCov">          1 :     msTimeInit(&amp;tmend);</span>
+<span class="lineNum">     396 </span>                :            : 
+<span class="lineNum">     397 </span>                :<span class="lineCov">          1 :     numranges = 0;</span>
+<span class="lineNum">     398 </span>                :<span class="lineCov">          1 :     atimerange = msStringSplit (atimeextents[i], '/', &amp;numranges);</span>
+<span class="lineNum">     399 </span>                :            :     /* - one value 2004-09-21 */
+<span class="lineNum">     400 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (numranges == 1) {</span>
+<span class="lineNum">     401 </span>                :            :       /*time tested can either be descrete or a range */
+<span class="lineNum">     402 </span>                :            : 
+<span class="lineNum">     403 </span>  [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (msParseTime(atimerange[0], &amp;tmstart) == MS_TRUE &amp;&amp;</span>
+<span class="lineNum">     404 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           msParseTime(atimerange[0], &amp;tmend) == MS_TRUE &amp;&amp;</span>
+<span class="lineNum">     405 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           msTimeCompare(&amp;tmstart, &amp;tmtimestart) &lt;= 0 &amp;&amp;</span>
+<span class="lineNum">     406 </span>                :<span class="lineNoCov">          0 :           msTimeCompare(&amp;tmend, &amp;tmtimeend) &gt;= 0) {</span>
+<span class="lineNum">     407 </span>                :<span class="lineNoCov">          0 :         msFreeCharArray(atimerange, numranges);</span>
+<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :         msFreeCharArray(atimeextents, numextents);</span>
+<span class="lineNum">     409 </span>                :<span class="lineNoCov">          0 :         return MS_TRUE;</span>
+<span class="lineNum">     410 </span>                :            :       }
+<span class="lineNum">     411 </span>                :            :     }
+<span class="lineNum">     412 </span>                :            :     /*2004-09-21/2004-09-25/res1*/
+<span class="lineNum">     413 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if (numranges &gt;= 2) {</span>
+<span class="lineNum">     414 </span>  [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          1 :       if (msParseTime(atimerange[0], &amp;tmstart) == MS_TRUE &amp;&amp;</span>
+<span class="lineNum">     415 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :           msParseTime(atimerange[1], &amp;tmend) == MS_TRUE &amp;&amp;</span>
+<span class="lineNum">     416 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :           msTimeCompare(&amp;tmstart, &amp;tmtimestart) &lt;= 0 &amp;&amp;</span>
+<span class="lineNum">     417 </span>                :<span class="lineCov">          1 :           msTimeCompare(&amp;tmend, &amp;tmtimeend) &gt;= 0) {</span>
+<span class="lineNum">     418 </span>                :<span class="lineCov">          1 :         msFreeCharArray(atimerange, numranges);</span>
+<span class="lineNum">     419 </span>                :<span class="lineCov">          1 :         msFreeCharArray(atimeextents, numextents);</span>
+<span class="lineNum">     420 </span>                :<span class="lineCov">          1 :         return MS_TRUE;</span>
+<span class="lineNum">     421 </span>                :            :       }
+<span class="lineNum">     422 </span>                :            :     }
+<span class="lineNum">     423 </span>                :<span class="lineCov">          1 :     msFreeCharArray(atimerange, numranges);</span>
+<span class="lineNum">     424 </span>                :            : 
+<span class="lineNum">     425 </span>                :            : 
+<span class="lineNum">     426 </span>                :            :   }
+<span class="lineNum">     427 </span>                :<span class="lineCov">          1 :   msFreeCharArray(atimeextents, numextents);</span>
+<span class="lineNum">     428 </span>                :<span class="lineCov">          1 :   return MS_FALSE;</span>
+<span class="lineNum">     429 </span>                :            : 
+<span class="lineNum">     430 </span>                :            : }
+<span class="lineNum">     431 </span>                :            : 
+<a name="432"><span class="lineNum">     432 </span>                :            : </a>
+<span class="lineNum">     433 </span>                :            : 
+<span class="lineNum">     434 </span>                :<span class="lineCov">          1 : int msValidateTimeValue(char *timestring, const char *timeextent)</span>
+<span class="lineNum">     435 </span>                :            : {
+<span class="lineNum">     436 </span>                :            :   char **atimes =  NULL;
+<span class="lineNum">     437 </span>                :<span class="lineCov">          1 :   int i, numtimes=0;</span>
+<span class="lineNum">     438 </span>                :            : 
+<span class="lineNum">     439 </span>                :            :   /* we need to validate the time passsed in the request */
+<span class="lineNum">     440 </span>                :            :   /* against the time extent defined */
+<span class="lineNum">     441 </span>                :            : 
+<span class="lineNum">     442 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!timestring || !timeextent)</span>
+<span class="lineNum">     443 </span>                :            :     return MS_FALSE;
+<span class="lineNum">     444 </span>                :            : 
+<span class="lineNum">     445 </span>                :            : 
+<span class="lineNum">     446 </span>                :            :   /* parse the time string. We support descrete times (eg 2004-09-21), */
+<span class="lineNum">     447 </span>                :            :   /* multiple times (2004-09-21, 2004-09-22, ...) */
+<span class="lineNum">     448 </span>                :            :   /* and range(s) (2004-09-21/2004-09-25, 2004-09-27/2004-09-29) */
+<span class="lineNum">     449 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (strstr(timestring, &quot;,&quot;) == NULL &amp;&amp;</span>
+<span class="lineNum">     450 </span>                :<span class="lineCov">          1 :       strstr(timestring, &quot;/&quot;) == NULL) { /* discrete time */</span>
+<span class="lineNum">     451 </span>                :<span class="lineCov">          1 :     return _msValidateTime(timestring,  timeextent);</span>
+<span class="lineNum">     452 </span>                :            : 
+<span class="lineNum">     453 </span>                :            :   } else {
+<span class="lineNum">     454 </span>                :<span class="lineCov">          1 :     atimes = msStringSplit (timestring, ',', &amp;numtimes);</span>
+<span class="lineNum">     455 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (numtimes &gt;=1) { /* multiple times */</span>
+<span class="lineNum">     456 </span>                :            : 
+<span class="lineNum">     457 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (strstr(atimes[0], &quot;/&quot;) == NULL) { /* multiple descrete times */</span>
+<span class="lineNum">     458 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for (i=0; i&lt;numtimes; i++) {</span>
+<span class="lineNum">     459 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :           if (_msValidateTime(atimes[i], timeextent) == MS_FALSE) {</span>
+<span class="lineNum">     460 </span>                :<span class="lineCov">          1 :             msFreeCharArray(atimes, numtimes);</span>
+<span class="lineNum">     461 </span>                :<span class="lineCov">          1 :             return MS_FALSE;</span>
+<span class="lineNum">     462 </span>                :            :           }
+<span class="lineNum">     463 </span>                :            :         }
+<span class="lineNum">     464 </span>                :<span class="lineCov">          1 :         msFreeCharArray(atimes, numtimes);</span>
+<span class="lineNum">     465 </span>                :<span class="lineCov">          1 :         return MS_TRUE;</span>
+<span class="lineNum">     466 </span>                :            :       } else { /* multiple ranges */
+<span class="lineNum">     467 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for (i=0; i&lt;numtimes; i++) {</span>
+<span class="lineNum">     468 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :           if (_msValidateTime(atimes[i], timeextent) == MS_FALSE) {</span>
+<span class="lineNum">     469 </span>                :<span class="lineCov">          1 :             msFreeCharArray(atimes, numtimes);</span>
+<span class="lineNum">     470 </span>                :<span class="lineCov">          1 :             return MS_FALSE;</span>
+<span class="lineNum">     471 </span>                :            :           }
+<span class="lineNum">     472 </span>                :            : 
+<span class="lineNum">     473 </span>                :            :         }
+<span class="lineNum">     474 </span>                :<span class="lineCov">          1 :         msFreeCharArray(atimes, numtimes);</span>
+<span class="lineNum">     475 </span>                :<span class="lineCov">          1 :         return MS_TRUE;</span>
+<span class="lineNum">     476 </span>                :            :       }
+<span class="lineNum">     477 </span>                :            : 
+<span class="lineNum">     478 </span>                :            :     }
+<span class="lineNum">     479 </span>                :            : 
+<span class="lineNum">     480 </span>                :            :   }
+<span class="lineNum">     481 </span>                :            :   return MS_FALSE;
+<span class="lineNum">     482 </span>                :            : }
+<span class="lineNum">     483 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

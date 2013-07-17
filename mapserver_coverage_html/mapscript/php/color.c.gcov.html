@@ -1,0 +1,290 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - mapscript/php/color.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">mapscript/php</a> - color.c<span style="font-size: 80%;"> (source / <a href="color.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">60</td>
+            <td class="headerCovTableEntryLo">6.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryLo">12.5 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">52</td>
+            <td class="headerCovTableEntryLo">1.9 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /**********************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * $Id: php_mapscript.c 9765 2010-01-28 15:32:10Z aboudreault $
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Project:  MapServer
+<span class="lineNum">       5 </span>                :            :  * Purpose:  PHP/MapScript extension for MapServer.  External interface
+<span class="lineNum">       6 </span>                :            :  *           functions
+<span class="lineNum">       7 </span>                :            :  * Author:   Daniel Morissette, DM Solutions Group (dmorissette@dmsolutions.ca)
+<span class="lineNum">       8 </span>                :            :  *           Alan Boudreault, Mapgears
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  **********************************************************************
+<span class="lineNum">      11 </span>                :            :  * Copyright (c) 2000-2010, Daniel Morissette, DM Solutions Group Inc.
+<span class="lineNum">      12 </span>                :            :  *
+<span class="lineNum">      13 </span>                :            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      14 </span>                :            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      15 </span>                :            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      16 </span>                :            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      17 </span>                :            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      18 </span>                :            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      19 </span>                :            :  *
+<span class="lineNum">      20 </span>                :            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      21 </span>                :            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      22 </span>                :            :  *
+<span class="lineNum">      23 </span>                :            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<span class="lineNum">      24 </span>                :            :  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      25 </span>                :            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+<span class="lineNum">      26 </span>                :            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      27 </span>                :            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      28 </span>                :            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      29 </span>                :            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      30 </span>                :            :  **********************************************************************/
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : #include &quot;php_mapscript.h&quot;
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : zend_class_entry *mapscript_ce_color;
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : ZEND_BEGIN_ARG_INFO_EX(color___get_args, 0, 0, 1)
+<span class="lineNum">      37 </span>                :            : ZEND_ARG_INFO(0, property)
+<span class="lineNum">      38 </span>                :            : ZEND_END_ARG_INFO()
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : ZEND_BEGIN_ARG_INFO_EX(color___set_args, 0, 0, 2)
+<span class="lineNum">      41 </span>                :            : ZEND_ARG_INFO(0, property)
+<span class="lineNum">      42 </span>                :            : ZEND_ARG_INFO(0, value)
+<span class="lineNum">      43 </span>                :            : ZEND_END_ARG_INFO()
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            : ZEND_BEGIN_ARG_INFO_EX(color_setRGB_args, 0, 0, 3)
+<span class="lineNum">      46 </span>                :            : ZEND_ARG_INFO(0, red)
+<span class="lineNum">      47 </span>                :            : ZEND_ARG_INFO(0, green)
+<span class="lineNum">      48 </span>                :            : ZEND_ARG_INFO(0, blue)
+<span class="lineNum">      49 </span>                :            : ZEND_END_ARG_INFO()
+<span class="lineNum">      50 </span>                :            : 
+<a name="51"><span class="lineNum">      51 </span>                :            : /* {{{ proto void __construct()</a>
+<span class="lineNum">      52 </span>                :            :    colorObj CANNOT be instanciated, this will throw an exception on use */
+<span class="lineNum">      53 </span>                :<span class="lineNoCov">          0 : PHP_METHOD(colorObj, __construct)</span>
+<span class="lineNum">      54 </span>                :            : {
+<span class="lineNum">      55 </span>                :<span class="lineNoCov">          0 :   mapscript_throw_exception(&quot;colorObj cannot be constructed&quot; TSRMLS_CC);</span>
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="57"><span class="lineNum">      57 </span>                :            : /* }}} */</a>
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 : PHP_METHOD(colorObj, __get)</span>
+<span class="lineNum">      60 </span>                :            : {
+<span class="lineNum">      61 </span>                :            :   char *property;
+<span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 :   long property_len = 0;</span>
+<span class="lineNum">      63 </span>                :            :   zval *zobj = getThis();
+<span class="lineNum">      64 </span>                :            :   php_color_object *php_color;
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :<span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">      67 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;s&quot;,</span>
+<span class="lineNum">      68 </span>                :            :                             &amp;property, &amp;property_len) == FAILURE) {
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">      71 </span>                :            :   }
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :   php_color = (php_color_object *) zend_object_store_get_object(zobj TSRMLS_CC);</span>
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   IF_GET_LONG(&quot;red&quot;, php_color-&gt;color-&gt;red)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">      77 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   else IF_GET_LONG(&quot;green&quot;, php_color-&gt;color-&gt;green)</span>
+<span class="lineNum">      78 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     else IF_GET_LONG(&quot;blue&quot;, php_color-&gt;color-&gt;blue)</span>
+<span class="lineNum">      79 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       else IF_GET_LONG(&quot;alpha&quot;, php_color-&gt;color-&gt;alpha)</span>
+<span class="lineNum">      80 </span>                :            :         else {
+<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 :           mapscript_throw_exception(&quot;Property '%s' does not exist in this object.&quot; TSRMLS_CC, property);</span>
+<span class="lineNum">      82 </span>                :            :         }
+<a name="83"><span class="lineNum">      83 </span>                :            : }</a>
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 : PHP_METHOD(colorObj, __set)</span>
+<span class="lineNum">      86 </span>                :            : {
+<span class="lineNum">      87 </span>                :            :   char *property;
+<span class="lineNum">      88 </span>                :<span class="lineNoCov">          0 :   long property_len = 0;</span>
+<span class="lineNum">      89 </span>                :            :   zval *value;
+<span class="lineNum">      90 </span>                :            :   zval *zobj = getThis();
+<span class="lineNum">      91 </span>                :            :   php_color_object *php_color;
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">      94 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;sz&quot;,</span>
+<span class="lineNum">      95 </span>                :            :                             &amp;property, &amp;property_len, &amp;value) == FAILURE) {
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">      98 </span>                :            :   }
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :   php_color = (php_color_object *) zend_object_store_get_object(zobj TSRMLS_CC);</span>
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   IF_SET_COLOR(&quot;red&quot;, php_color-&gt;color-&gt;red, value)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">     104 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :   else IF_SET_COLOR(&quot;green&quot;, php_color-&gt;color-&gt;green, value)</span>
+<span class="lineNum">     105 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     else IF_SET_COLOR(&quot;blue&quot;, php_color-&gt;color-&gt;blue, value)</span>
+<span class="lineNum">     106 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :       else IF_SET_COLOR(&quot;alpha&quot;, php_color-&gt;color-&gt;alpha, value)</span>
+<span class="lineNum">     107 </span>                :            :         else {
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :           mapscript_throw_exception(&quot;Property '%s' does not exist in this object.&quot; TSRMLS_CC, property);</span>
+<span class="lineNum">     109 </span>                :            :         }
+<span class="lineNum">     110 </span>                :            : 
+<span class="lineNum">     111 </span>                :            : }
+<span class="lineNum">     112 </span>                :            : 
+<a name="113"><span class="lineNum">     113 </span>                :            : /* {{{ proto int color.setRGB(int R, int G, int B)</a>
+<span class="lineNum">     114 </span>                :            :     Set new RGB color. */
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 : PHP_METHOD(colorObj, setRGB)</span>
+<span class="lineNum">     116 </span>                :            : {
+<span class="lineNum">     117 </span>                :            :   zval *zobj = getThis();
+<span class="lineNum">     118 </span>                :            :   long red, green, blue;
+<span class="lineNum">     119 </span>                :            :   php_color_object *php_color;
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     122 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;lll&quot;,</span>
+<span class="lineNum">     123 </span>                :            :                             &amp;red, &amp;green, &amp;blue) == FAILURE) {
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     126 </span>                :            :   }
+<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :   php_color = (php_color_object *) zend_object_store_get_object(zobj TSRMLS_CC);</span>
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :   MS_INIT_COLOR(*(php_color-&gt;color), red, green, blue,255);</span>
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :   RETURN_LONG(MS_SUCCESS);</span>
+<span class="lineNum">     135 </span>                :            : }
+<span class="lineNum">     136 </span>                :            : /* }}} */
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>                :            : zend_function_entry color_functions[] = {
+<span class="lineNum">     139 </span>                :            :   PHP_ME(colorObj, __construct, NULL, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+<span class="lineNum">     140 </span>                :            :   PHP_ME(colorObj, __get, color___get_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     141 </span>                :            :   PHP_ME(colorObj, __set, color___set_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     142 </span>                :            :   PHP_ME(colorObj, setRGB, color_setRGB_args, ZEND_ACC_PUBLIC) {
+<span class="lineNum">     143 </span>                :            :     NULL, NULL, NULL
+<span class="lineNum">     144 </span>                :            :   }
+<span class="lineNum">     145 </span>                :            : };
+<a name="146"><span class="lineNum">     146 </span>                :            : </a>
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 : void mapscript_create_color(colorObj *color, parent_object parent, zval *return_value TSRMLS_DC)</span>
+<span class="lineNum">     149 </span>                :            : {
+<span class="lineNum">     150 </span>                :            :   php_color_object * php_color;
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :   object_init_ex(return_value, mapscript_ce_color);</span>
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :   php_color = (php_color_object *)zend_object_store_get_object(return_value TSRMLS_CC);</span>
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :   php_color-&gt;color = color;</span>
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :   php_color-&gt;parent = parent;</span>
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MAPSCRIPT_ADDREF(parent.val);</span>
+<a name="158"><span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 : static void mapscript_color_object_destroy(void *object TSRMLS_DC)</span>
+<span class="lineNum">     161 </span>                :            : {
+<span class="lineNum">     162 </span>                :            :   php_color_object *php_color = (php_color_object *)object;
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :<span class="lineNoCov">          0 :   MAPSCRIPT_FREE_OBJECT(php_color);</span>
+<span class="lineNum">     165 </span>                :            : 
+<span class="lineNum">     166 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MAPSCRIPT_FREE_PARENT(php_color-&gt;parent);</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     167 </span>                :            : 
+<span class="lineNum">     168 </span>                :            :   /* We don't need to free the colorObj, the mapObj will do it */
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :   efree(object);</span>
+<a name="171"><span class="lineNum">     171 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 : static zend_object_value mapscript_color_object_new(zend_class_entry *ce TSRMLS_DC)</span>
+<span class="lineNum">     174 </span>                :            : {
+<span class="lineNum">     175 </span>                :            :   zend_object_value retval;
+<span class="lineNum">     176 </span>                :            :   php_color_object *php_color;
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :   MAPSCRIPT_ALLOC_OBJECT(php_color, php_color_object);</span>
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :   retval = mapscript_object_new(&amp;php_color-&gt;std, ce,</span>
+<span class="lineNum">     181 </span>                :            :                                 &amp;mapscript_color_object_destroy TSRMLS_CC);
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :   MAPSCRIPT_INIT_PARENT(php_color-&gt;parent);</span>
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :   return retval;</span>
+<a name="186"><span class="lineNum">     186 </span>                :            : }</a>
+<span class="lineNum">     187 </span>                :            : 
+<span class="lineNum">     188 </span>                :<span class="lineCov">          1 : PHP_MINIT_FUNCTION(color)</span>
+<span class="lineNum">     189 </span>                :            : {
+<span class="lineNum">     190 </span>                :            :   zend_class_entry ce;
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   MAPSCRIPT_REGISTER_CLASS(&quot;colorObj&quot;,</span>
+<span class="lineNum">     193 </span>                :            :                            color_functions,
+<span class="lineNum">     194 </span>                :            :                            mapscript_ce_color,
+<span class="lineNum">     195 </span>                :            :                            mapscript_color_object_new);
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :<span class="lineCov">          1 :   mapscript_ce_color-&gt;ce_flags |= ZEND_ACC_FINAL_CLASS;</span>
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :<span class="lineCov">          1 :   return SUCCESS;</span>
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     201 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

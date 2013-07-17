@@ -1,0 +1,433 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - renderers/agg/include/agg_clip_liang_barsky.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">renderers/agg/include</a> - agg_clip_liang_barsky.h<span style="font-size: 80%;"> (source / <a href="agg_clip_liang_barsky.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">106</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : //----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            : // Anti-Grain Geometry - Version 2.4
+<span class="lineNum">       3 </span>                :            : // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
+<span class="lineNum">       4 </span>                :            : //
+<span class="lineNum">       5 </span>                :            : // Permission to copy, use, modify, sell and distribute this software 
+<span class="lineNum">       6 </span>                :            : // is granted provided this copyright notice appears in all copies. 
+<span class="lineNum">       7 </span>                :            : // This software is provided &quot;as is&quot; without express or implied
+<span class="lineNum">       8 </span>                :            : // warranty, and with no claim as to its suitability for any purpose.
+<span class="lineNum">       9 </span>                :            : //
+<span class="lineNum">      10 </span>                :            : //----------------------------------------------------------------------------
+<span class="lineNum">      11 </span>                :            : // Contact: mcseem@antigrain.com
+<span class="lineNum">      12 </span>                :            : //          mcseemagg@yahoo.com
+<span class="lineNum">      13 </span>                :            : //          http://www.antigrain.com
+<span class="lineNum">      14 </span>                :            : //----------------------------------------------------------------------------
+<span class="lineNum">      15 </span>                :            : //
+<span class="lineNum">      16 </span>                :            : // Liang-Barsky clipping 
+<span class="lineNum">      17 </span>                :            : //
+<span class="lineNum">      18 </span>                :            : //----------------------------------------------------------------------------
+<span class="lineNum">      19 </span>                :            : #ifndef AGG_CLIP_LIANG_BARSKY_INCLUDED
+<span class="lineNum">      20 </span>                :            : #define AGG_CLIP_LIANG_BARSKY_INCLUDED
+<span class="lineNum">      21 </span>                :            : 
+<span class="lineNum">      22 </span>                :            : #include &quot;agg_basics.h&quot;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : namespace mapserver
+<span class="lineNum">      25 </span>                :            : {
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :            :     //------------------------------------------------------------------------
+<span class="lineNum">      28 </span>                :            :     enum clipping_flags_e
+<span class="lineNum">      29 </span>                :            :     {
+<span class="lineNum">      30 </span>                :            :         clipping_flags_x1_clipped = 4,
+<span class="lineNum">      31 </span>                :            :         clipping_flags_x2_clipped = 1,
+<span class="lineNum">      32 </span>                :            :         clipping_flags_y1_clipped = 8,
+<span class="lineNum">      33 </span>                :            :         clipping_flags_y2_clipped = 2,
+<span class="lineNum">      34 </span>                :            :         clipping_flags_x_clipped = clipping_flags_x1_clipped | clipping_flags_x2_clipped,
+<span class="lineNum">      35 </span>                :            :         clipping_flags_y_clipped = clipping_flags_y1_clipped | clipping_flags_y2_clipped
+<span class="lineNum">      36 </span>                :            :     };
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            :     //----------------------------------------------------------clipping_flags
+<span class="lineNum">      39 </span>                :            :     // Determine the clipping code of the vertex according to the 
+<span class="lineNum">      40 </span>                :            :     // Cyrus-Beck line clipping algorithm
+<span class="lineNum">      41 </span>                :            :     //
+<span class="lineNum">      42 </span>                :            :     //        |        |
+<span class="lineNum">      43 </span>                :            :     //  0110  |  0010  | 0011
+<span class="lineNum">      44 </span>                :            :     //        |        |
+<span class="lineNum">      45 </span>                :            :     // -------+--------+-------- clip_box.y2
+<span class="lineNum">      46 </span>                :            :     //        |        |
+<span class="lineNum">      47 </span>                :            :     //  0100  |  0000  | 0001
+<span class="lineNum">      48 </span>                :            :     //        |        |
+<span class="lineNum">      49 </span>                :            :     // -------+--------+-------- clip_box.y1
+<span class="lineNum">      50 </span>                :            :     //        |        |
+<span class="lineNum">      51 </span>                :            :     //  1100  |  1000  | 1001
+<span class="lineNum">      52 </span>                :            :     //        |        |
+<span class="lineNum">      53 </span>                :            :     //  clip_box.x1  clip_box.x2
+<span class="lineNum">      54 </span>                :            :     //
+<span class="lineNum">      55 </span>                :            :     // 
+<span class="lineNum">      56 </span>                :            :     template&lt;class T&gt;
+<span class="lineNum">      57 </span>                :            :     inline unsigned clipping_flags(T x, T y, const rect_base&lt;T&gt;&amp; clip_box)
+<span class="lineNum">      58 </span>                :            :     {
+<span class="lineNum">      59 </span>                :            :         return  (x &gt; clip_box.x2) |
+<a name="60"><span class="lineNum">      60 </span>                :            :                ((y &gt; clip_box.y2) &lt;&lt; 1) |</a>
+<span class="lineNum">      61 </span>                :            :                ((x &lt; clip_box.x1) &lt;&lt; 2) |
+<span class="lineNum">      62 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                ((y &lt; clip_box.y1) &lt;&lt; 3);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">      63 </span>                :            :     }
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>                :            :     //--------------------------------------------------------clipping_flags_x
+<span class="lineNum">      66 </span>                :            :     template&lt;class T&gt;
+<span class="lineNum">      67 </span>                :            :     inline unsigned clipping_flags_x(T x, const rect_base&lt;T&gt;&amp; clip_box)
+<span class="lineNum">      68 </span>                :            :     {
+<span class="lineNum">      69 </span>                :            :         return  (x &gt; clip_box.x2) | ((x &lt; clip_box.x1) &lt;&lt; 2);
+<span class="lineNum">      70 </span>                :            :     }
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :            : 
+<a name="73"><span class="lineNum">      73 </span>                :            :     //--------------------------------------------------------clipping_flags_y</a>
+<span class="lineNum">      74 </span>                :            :     template&lt;class T&gt;
+<span class="lineNum">      75 </span>                :<span class="lineNoCov">          0 :     inline unsigned clipping_flags_y(T y, const rect_base&lt;T&gt;&amp; clip_box)</span>
+<span class="lineNum">      76 </span>                :            :     {
+<span class="lineNum">      77 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         return ((y &gt; clip_box.y2) &lt;&lt; 1) | ((y &lt; clip_box.y1) &lt;&lt; 3);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 24 was not executed"> # </span><span class="branchNoExec" title="Branch 25 was not executed"> # </span>][<span class="branchNoExec" title="Branch 26 was not executed"> # </span><span class="branchNoExec" title="Branch 27 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>][<span class="branchNoExec" title="Branch 30 was not executed"> # </span><span class="branchNoExec" title="Branch 31 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 32 was not executed"> # </span><span class="branchNoExec" title="Branch 33 was not executed"> # </span>][<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 36 was not executed"> # </span><span class="branchNoExec" title="Branch 37 was not executed"> # </span>][<span class="branchNoExec" title="Branch 38 was not executed"> # </span><span class="branchNoExec" title="Branch 39 was not executed"> # </span>]
+<span class="lineNum">      78 </span>                :            :     }
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            :     //-------------------------------------------------------clip_liang_barsky
+<span class="lineNum">      82 </span>                :            :     template&lt;class T&gt;
+<span class="lineNum">      83 </span>                :            :     inline unsigned clip_liang_barsky(T x1, T y1, T x2, T y2,
+<span class="lineNum">      84 </span>                :            :                                       const rect_base&lt;T&gt;&amp; clip_box,
+<span class="lineNum">      85 </span>                :            :                                       T* x, T* y)
+<span class="lineNum">      86 </span>                :            :     {
+<span class="lineNum">      87 </span>                :            :         const double nearzero = 1e-30;
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :            :         double deltax = x2 - x1;
+<span class="lineNum">      90 </span>                :            :         double deltay = y2 - y1; 
+<span class="lineNum">      91 </span>                :            :         double xin;
+<span class="lineNum">      92 </span>                :            :         double xout;
+<span class="lineNum">      93 </span>                :            :         double yin;
+<span class="lineNum">      94 </span>                :            :         double yout;
+<span class="lineNum">      95 </span>                :            :         double tinx;
+<span class="lineNum">      96 </span>                :            :         double tiny;
+<span class="lineNum">      97 </span>                :            :         double toutx;
+<span class="lineNum">      98 </span>                :            :         double touty;  
+<span class="lineNum">      99 </span>                :            :         double tin1;
+<span class="lineNum">     100 </span>                :            :         double tin2;
+<span class="lineNum">     101 </span>                :            :         double tout1;
+<span class="lineNum">     102 </span>                :            :         unsigned np = 0;
+<span class="lineNum">     103 </span>                :            : 
+<span class="lineNum">     104 </span>                :            :         if(deltax == 0.0) 
+<span class="lineNum">     105 </span>                :            :         {   
+<span class="lineNum">     106 </span>                :            :             // bump off of the vertical
+<span class="lineNum">     107 </span>                :            :             deltax = (x1 &gt; clip_box.x1) ? -nearzero : nearzero;
+<span class="lineNum">     108 </span>                :            :         }
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :            :         if(deltay == 0.0) 
+<span class="lineNum">     111 </span>                :            :         { 
+<span class="lineNum">     112 </span>                :            :             // bump off of the horizontal 
+<span class="lineNum">     113 </span>                :            :             deltay = (y1 &gt; clip_box.y1) ? -nearzero : nearzero;
+<span class="lineNum">     114 </span>                :            :         }
+<span class="lineNum">     115 </span>                :            :         
+<span class="lineNum">     116 </span>                :            :         if(deltax &gt; 0.0) 
+<span class="lineNum">     117 </span>                :            :         {                
+<span class="lineNum">     118 </span>                :            :             // points to right
+<span class="lineNum">     119 </span>                :            :             xin  = clip_box.x1;
+<span class="lineNum">     120 </span>                :            :             xout = clip_box.x2;
+<span class="lineNum">     121 </span>                :            :         }
+<span class="lineNum">     122 </span>                :            :         else 
+<span class="lineNum">     123 </span>                :            :         {
+<span class="lineNum">     124 </span>                :            :             xin  = clip_box.x2;
+<span class="lineNum">     125 </span>                :            :             xout = clip_box.x1;
+<span class="lineNum">     126 </span>                :            :         }
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :            :         if(deltay &gt; 0.0) 
+<span class="lineNum">     129 </span>                :            :         {
+<span class="lineNum">     130 </span>                :            :             // points up
+<span class="lineNum">     131 </span>                :            :             yin  = clip_box.y1;
+<span class="lineNum">     132 </span>                :            :             yout = clip_box.y2;
+<span class="lineNum">     133 </span>                :            :         }
+<span class="lineNum">     134 </span>                :            :         else 
+<span class="lineNum">     135 </span>                :            :         {
+<span class="lineNum">     136 </span>                :            :             yin  = clip_box.y2;
+<span class="lineNum">     137 </span>                :            :             yout = clip_box.y1;
+<span class="lineNum">     138 </span>                :            :         }
+<span class="lineNum">     139 </span>                :            :         
+<span class="lineNum">     140 </span>                :            :         tinx = (xin - x1) / deltax;
+<span class="lineNum">     141 </span>                :            :         tiny = (yin - y1) / deltay;
+<span class="lineNum">     142 </span>                :            :         
+<span class="lineNum">     143 </span>                :            :         if (tinx &lt; tiny) 
+<span class="lineNum">     144 </span>                :            :         {
+<span class="lineNum">     145 </span>                :            :             // hits x first
+<span class="lineNum">     146 </span>                :            :             tin1 = tinx;
+<span class="lineNum">     147 </span>                :            :             tin2 = tiny;
+<span class="lineNum">     148 </span>                :            :         }
+<span class="lineNum">     149 </span>                :            :         else
+<span class="lineNum">     150 </span>                :            :         {
+<span class="lineNum">     151 </span>                :            :             // hits y first
+<span class="lineNum">     152 </span>                :            :             tin1 = tiny;
+<span class="lineNum">     153 </span>                :            :             tin2 = tinx;
+<span class="lineNum">     154 </span>                :            :         }
+<span class="lineNum">     155 </span>                :            :         
+<span class="lineNum">     156 </span>                :            :         if(tin1 &lt;= 1.0) 
+<span class="lineNum">     157 </span>                :            :         {
+<span class="lineNum">     158 </span>                :            :             if(0.0 &lt; tin1) 
+<span class="lineNum">     159 </span>                :            :             {
+<span class="lineNum">     160 </span>                :            :                 *x++ = (T)xin;
+<span class="lineNum">     161 </span>                :            :                 *y++ = (T)yin;
+<span class="lineNum">     162 </span>                :            :                 ++np;
+<span class="lineNum">     163 </span>                :            :             }
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            :             if(tin2 &lt;= 1.0)
+<span class="lineNum">     166 </span>                :            :             {
+<span class="lineNum">     167 </span>                :            :                 toutx = (xout - x1) / deltax;
+<span class="lineNum">     168 </span>                :            :                 touty = (yout - y1) / deltay;
+<span class="lineNum">     169 </span>                :            :                 
+<span class="lineNum">     170 </span>                :            :                 tout1 = (toutx &lt; touty) ? toutx : touty;
+<span class="lineNum">     171 </span>                :            :                 
+<span class="lineNum">     172 </span>                :            :                 if(tin2 &gt; 0.0 || tout1 &gt; 0.0) 
+<span class="lineNum">     173 </span>                :            :                 {
+<span class="lineNum">     174 </span>                :            :                     if(tin2 &lt;= tout1) 
+<span class="lineNum">     175 </span>                :            :                     {
+<span class="lineNum">     176 </span>                :            :                         if(tin2 &gt; 0.0) 
+<span class="lineNum">     177 </span>                :            :                         {
+<span class="lineNum">     178 </span>                :            :                             if(tinx &gt; tiny) 
+<span class="lineNum">     179 </span>                :            :                             {
+<span class="lineNum">     180 </span>                :            :                                 *x++ = (T)xin;
+<span class="lineNum">     181 </span>                :            :                                 *y++ = (T)(y1 + tinx * deltay);
+<span class="lineNum">     182 </span>                :            :                             }
+<span class="lineNum">     183 </span>                :            :                             else 
+<span class="lineNum">     184 </span>                :            :                             {
+<span class="lineNum">     185 </span>                :            :                                 *x++ = (T)(x1 + tiny * deltax);
+<span class="lineNum">     186 </span>                :            :                                 *y++ = (T)yin;
+<span class="lineNum">     187 </span>                :            :                             }
+<span class="lineNum">     188 </span>                :            :                             ++np;
+<span class="lineNum">     189 </span>                :            :                         }
+<span class="lineNum">     190 </span>                :            : 
+<span class="lineNum">     191 </span>                :            :                         if(tout1 &lt; 1.0) 
+<span class="lineNum">     192 </span>                :            :                         {
+<span class="lineNum">     193 </span>                :            :                             if(toutx &lt; touty) 
+<span class="lineNum">     194 </span>                :            :                             {
+<span class="lineNum">     195 </span>                :            :                                 *x++ = (T)xout;
+<span class="lineNum">     196 </span>                :            :                                 *y++ = (T)(y1 + toutx * deltay);
+<span class="lineNum">     197 </span>                :            :                             }
+<span class="lineNum">     198 </span>                :            :                             else 
+<span class="lineNum">     199 </span>                :            :                             {
+<span class="lineNum">     200 </span>                :            :                                 *x++ = (T)(x1 + touty * deltax);
+<span class="lineNum">     201 </span>                :            :                                 *y++ = (T)yout;
+<span class="lineNum">     202 </span>                :            :                             }
+<span class="lineNum">     203 </span>                :            :                         }
+<span class="lineNum">     204 </span>                :            :                         else 
+<span class="lineNum">     205 </span>                :            :                         {
+<span class="lineNum">     206 </span>                :            :                             *x++ = x2;
+<span class="lineNum">     207 </span>                :            :                             *y++ = y2;
+<span class="lineNum">     208 </span>                :            :                         }
+<span class="lineNum">     209 </span>                :            :                         ++np;
+<span class="lineNum">     210 </span>                :            :                     }
+<span class="lineNum">     211 </span>                :            :                     else 
+<span class="lineNum">     212 </span>                :            :                     {
+<span class="lineNum">     213 </span>                :            :                         if(tinx &gt; tiny) 
+<span class="lineNum">     214 </span>                :            :                         {
+<span class="lineNum">     215 </span>                :            :                             *x++ = (T)xin;
+<span class="lineNum">     216 </span>                :            :                             *y++ = (T)yout;
+<span class="lineNum">     217 </span>                :            :                         }
+<span class="lineNum">     218 </span>                :            :                         else 
+<span class="lineNum">     219 </span>                :            :                         {
+<span class="lineNum">     220 </span>                :            :                             *x++ = (T)xout;
+<span class="lineNum">     221 </span>                :            :                             *y++ = (T)yin;
+<span class="lineNum">     222 </span>                :            :                         }
+<span class="lineNum">     223 </span>                :            :                         ++np;
+<span class="lineNum">     224 </span>                :            :                     }
+<span class="lineNum">     225 </span>                :            :                 }
+<span class="lineNum">     226 </span>                :            :             }
+<span class="lineNum">     227 </span>                :            :         }
+<span class="lineNum">     228 </span>                :            :         return np;
+<span class="lineNum">     229 </span>                :            :     }
+<span class="lineNum">     230 </span>                :            : 
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>                :            :     //----------------------------------------------------------------------------
+<span class="lineNum">     233 </span>                :            :     template&lt;class T&gt;
+<span class="lineNum">     234 </span>                :<span class="lineNoCov">          0 :     bool clip_move_point(T x1, T y1, T x2, T y2, </span>
+<span class="lineNum">     235 </span>                :            :                          const rect_base&lt;T&gt;&amp; clip_box, 
+<span class="lineNum">     236 </span>                :            :                          T* x, T* y, unsigned flags)
+<span class="lineNum">     237 </span>                :            :     {
+<span class="lineNum">     238 </span>                :            :        T bound;
+<span class="lineNum">     239 </span>                :            : 
+<span class="lineNum">     240 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :        if(flags &amp; clipping_flags_x_clipped)</span>
+<span class="lineNum">     241 </span>                :            :        {
+<span class="lineNum">     242 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :            if(x1 == x2)</span>
+<span class="lineNum">     243 </span>                :            :            {
+<span class="lineNum">     244 </span>                :            :                return false;
+<span class="lineNum">     245 </span>                :            :            }
+<span class="lineNum">     246 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :            bound = (flags &amp; clipping_flags_x1_clipped) ? clip_box.x1 : clip_box.x2;</span>
+<span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 :            *y = (T)(double(bound - x1) * (y2 - y1) / (x2 - x1) + y1);</span>
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :            *x = bound;</span>
+<span class="lineNum">     249 </span>                :            :        }
+<span class="lineNum">     250 </span>                :            : 
+<span class="lineNum">     251 </span>                :<span class="lineNoCov">          0 :        flags = clipping_flags_y(*y, clip_box);</span>
+<span class="lineNum">     252 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :        if(flags &amp; clipping_flags_y_clipped)</span>
+<span class="lineNum">     253 </span>                :            :        {
+<span class="lineNum">     254 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :            if(y1 == y2)</span>
+<span class="lineNum">     255 </span>                :            :            {
+<span class="lineNum">     256 </span>                :            :                return false;
+<span class="lineNum">     257 </span>                :            :            }
+<span class="lineNum">     258 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :            bound = (flags &amp; clipping_flags_y1_clipped) ? clip_box.y1 : clip_box.y2;</span>
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :            *x = (T)(double(bound - y1) * (x2 - x1) / (y2 - y1) + x1);</span>
+<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 :            *y = bound;</span>
+<span class="lineNum">     261 </span>                :            :        }
+<span class="lineNum">     262 </span>                :            :        return true;
+<span class="lineNum">     263 </span>                :            :     }
+<span class="lineNum">     264 </span>                :            : 
+<span class="lineNum">     265 </span>                :            :     //-------------------------------------------------------clip_line_segment
+<span class="lineNum">     266 </span>                :            :     // Returns: ret &gt;= 4        - Fully clipped
+<span class="lineNum">     267 </span>                :            :     //          (ret &amp; 1) != 0  - First point has been moved
+<span class="lineNum">     268 </span>                :            :     //          (ret &amp; 2) != 0  - Second point has been moved
+<span class="lineNum">     269 </span>                :            :     //
+<span class="lineNum">     270 </span>                :            :     template&lt;class T&gt;
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :     unsigned clip_line_segment(T* x1, T* y1, T* x2, T* y2,</span>
+<span class="lineNum">     272 </span>                :            :                                const rect_base&lt;T&gt;&amp; clip_box)
+<span class="lineNum">     273 </span>                :            :     {
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 :         unsigned f1 = clipping_flags(*x1, *y1, clip_box);</span>
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :         unsigned f2 = clipping_flags(*x2, *y2, clip_box);</span>
+<span class="lineNum">     276 </span>                :            :         unsigned ret = 0;
+<span class="lineNum">     277 </span>                :            : 
+<span class="lineNum">     278 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if((f2 | f1) == 0)</span>
+<span class="lineNum">     279 </span>                :            :         {
+<span class="lineNum">     280 </span>                :            :             // Fully visible
+<span class="lineNum">     281 </span>                :            :             return 0;
+<span class="lineNum">     282 </span>                :            :         }
+<span class="lineNum">     283 </span>                :            : 
+<span class="lineNum">     284 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if((f1 &amp; clipping_flags_x_clipped) != 0 &amp;&amp; </span>
+<span class="lineNum">     285 </span>                :            :            (f1 &amp; clipping_flags_x_clipped) == (f2 &amp; clipping_flags_x_clipped))
+<span class="lineNum">     286 </span>                :            :         {
+<span class="lineNum">     287 </span>                :            :             // Fully clipped
+<span class="lineNum">     288 </span>                :            :             return 4;
+<span class="lineNum">     289 </span>                :            :         }
+<span class="lineNum">     290 </span>                :            : 
+<span class="lineNum">     291 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if((f1 &amp; clipping_flags_y_clipped) != 0 &amp;&amp; </span>
+<span class="lineNum">     292 </span>                :            :            (f1 &amp; clipping_flags_y_clipped) == (f2 &amp; clipping_flags_y_clipped))
+<span class="lineNum">     293 </span>                :            :         {
+<span class="lineNum">     294 </span>                :            :             // Fully clipped
+<span class="lineNum">     295 </span>                :            :             return 4;
+<span class="lineNum">     296 </span>                :            :         }
+<span class="lineNum">     297 </span>                :            : 
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :         T tx1 = *x1;</span>
+<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :         T ty1 = *y1;</span>
+<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 :         T tx2 = *x2;</span>
+<span class="lineNum">     301 </span>                :<span class="lineNoCov">          0 :         T ty2 = *y2;</span>
+<span class="lineNum">     302 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(f1) </span>
+<span class="lineNum">     303 </span>                :            :         {   
+<span class="lineNum">     304 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if(!clip_move_point(tx1, ty1, tx2, ty2, clip_box, x1, y1, f1)) </span>
+<span class="lineNum">     305 </span>                :            :             {
+<span class="lineNum">     306 </span>                :            :                 return 4;
+<span class="lineNum">     307 </span>                :            :             }
+<span class="lineNum">     308 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if(*x1 == *x2 &amp;&amp; *y1 == *y2) </span>
+<span class="lineNum">     309 </span>                :            :             {
+<span class="lineNum">     310 </span>                :            :                 return 4;
+<span class="lineNum">     311 </span>                :            :             }
+<span class="lineNum">     312 </span>                :            :             ret |= 1;
+<span class="lineNum">     313 </span>                :            :         }
+<span class="lineNum">     314 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(f2) </span>
+<span class="lineNum">     315 </span>                :            :         {
+<span class="lineNum">     316 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if(!clip_move_point(tx1, ty1, tx2, ty2, clip_box, x2, y2, f2))</span>
+<span class="lineNum">     317 </span>                :            :             {
+<span class="lineNum">     318 </span>                :            :                 return 4;
+<span class="lineNum">     319 </span>                :            :             }
+<span class="lineNum">     320 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if(*x1 == *x2 &amp;&amp; *y1 == *y2) </span>
+<span class="lineNum">     321 </span>                :            :             {
+<span class="lineNum">     322 </span>                :            :                 return 4;
+<span class="lineNum">     323 </span>                :            :             }
+<span class="lineNum">     324 </span>                :<span class="lineNoCov">          0 :             ret |= 2;</span>
+<span class="lineNum">     325 </span>                :            :         }
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :         return ret;</span>
+<span class="lineNum">     327 </span>                :            :     }
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>                :            : }
+<span class="lineNum">     331 </span>                :            : 
+<span class="lineNum">     332 </span>                :            : 
+<span class="lineNum">     333 </span>                :            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,956 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - /home/travis/build/mapserver/mapserver/mapcontour.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">home/travis/build/mapserver/mapserver</a> - mapcontour.c<span style="font-size: 80%;"> (source / <a href="mapcontour.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">228</td>
+            <td class="headerCovTableEntry">365</td>
+            <td class="headerCovTableEntryLo">62.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntryLo">63.2 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">70</td>
+            <td class="headerCovTableEntry">216</td>
+            <td class="headerCovTableEntryLo">32.4 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /**********************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * $Id: mapcontour.c 12629 2011-10-06 18:06:34Z aboudreault $
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Project:  MapServer
+<span class="lineNum">       5 </span>                :            :  * Purpose:  Contour Layer
+<span class="lineNum">       6 </span>                :            :  * Author:   Alan Boudreault (aboudreault@mapgears.com)
+<span class="lineNum">       7 </span>                :            :  * Author:   Daniel Morissette (dmorissette@mapgears.com)
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  **********************************************************************
+<span class="lineNum">      10 </span>                :            :  * Copyright (c) 2011, Alan Boudreault, MapGears
+<span class="lineNum">      11 </span>                :            :  *
+<span class="lineNum">      12 </span>                :            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      13 </span>                :            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      14 </span>                :            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      15 </span>                :            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      16 </span>                :            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      17 </span>                :            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      18 </span>                :            :  *
+<span class="lineNum">      19 </span>                :            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      20 </span>                :            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      21 </span>                :            :  *
+<span class="lineNum">      22 </span>                :            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<span class="lineNum">      23 </span>                :            :  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      24 </span>                :            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+<span class="lineNum">      25 </span>                :            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      26 </span>                :            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      27 </span>                :            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      28 </span>                :            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      29 </span>                :            :  **********************************************************************/
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : #include &quot;mapserver.h&quot;
+<span class="lineNum">      32 </span>                :            : #include &quot;mapcopy.h&quot;
+<span class="lineNum">      33 </span>                :            : #include &quot;mapresample.h&quot;
+<span class="lineNum">      34 </span>                :            : #ifdef USE_GDAL
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : #include &quot;ogr_api.h&quot;
+<span class="lineNum">      37 </span>                :            : #include &quot;ogr_srs_api.h&quot;
+<span class="lineNum">      38 </span>                :            : #include &quot;gdal.h&quot;
+<span class="lineNum">      39 </span>                :            : #include &quot;gdal_alg.h&quot;
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : #include &quot;mapthread.h&quot;
+<span class="lineNum">      42 </span>                :            : #include &quot;cpl_string.h&quot;
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :            : #define GEO_TRANS(tr,x,y)  ((tr)[0]+(tr)[1]*(x)+(tr)[2]*(y))
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : extern int InvGeoTransform(double *gt_in, double *gt_out);
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : typedef struct {
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :            :   /* OGR DataSource */
+<span class="lineNum">      51 </span>                :            :   layerObj ogrLayer;
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :            :   /* internal use */
+<span class="lineNum">      54 </span>                :            :   GDALDatasetH hOrigDS;
+<span class="lineNum">      55 </span>                :            :   GDALDatasetH  hDS;
+<span class="lineNum">      56 </span>                :            :   double *buffer; /* memory dataset buffer */
+<span class="lineNum">      57 </span>                :            :   rectObj extent; /* original dataset extent */
+<span class="lineNum">      58 </span>                :            :   OGRDataSourceH hOGRDS;
+<span class="lineNum">      59 </span>                :            :   double cellsize;
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            : } contourLayerInfo;
+<a name="62"><span class="lineNum">      62 </span>                :            : </a>
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :<span class="lineNoCov">          0 : static int msContourLayerInitItemInfo(layerObj *layer)</span>
+<span class="lineNum">      65 </span>                :            : {
+<span class="lineNum">      66 </span>                :<span class="lineNoCov">          0 :   contourLayerInfo *clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (clinfo == NULL) {</span>
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Assertion failed: Contour layer not opened!!!&quot;,</span>
+<span class="lineNum">      70 </span>                :            :                &quot;msContourLayerInitItemInfo()&quot;);
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">      72 </span>                :            :   }
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :   return msLayerInitItemInfo(&amp;clinfo-&gt;ogrLayer);</span>
+<a name="75"><span class="lineNum">      75 </span>                :            : }</a>
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :<span class="lineCov">          1 : static void msContourLayerFreeItemInfo(layerObj *layer)</span>
+<span class="lineNum">      78 </span>                :            : {
+<span class="lineNum">      79 </span>                :<span class="lineCov">          1 :   contourLayerInfo *clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (clinfo == NULL) {</span>
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Assertion failed: Contour layer not opened!!!&quot;,</span>
+<span class="lineNum">      83 </span>                :            :                &quot;msContourLayerFreeItemInfo()&quot;);
+<span class="lineNum">      84 </span>                :<span class="lineCov">          1 :     return;</span>
+<span class="lineNum">      85 </span>                :            :   }
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :<span class="lineCov">          1 :   msLayerFreeItemInfo(&amp;clinfo-&gt;ogrLayer);</span>
+<a name="88"><span class="lineNum">      88 </span>                :            : }</a>
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :<span class="lineCov">          1 : static void msContourLayerInfoInitialize(layerObj *layer)</span>
+<span class="lineNum">      91 </span>                :            : {
+<span class="lineNum">      92 </span>                :<span class="lineCov">          1 :   contourLayerInfo *clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">      93 </span>                :            : 
+<span class="lineNum">      94 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (clinfo != NULL)</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">          1 :     return;</span>
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :<span class="lineCov">          1 :   clinfo = (contourLayerInfo *) msSmallCalloc(1,sizeof(contourLayerInfo));</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">          1 :   layer-&gt;layerinfo = clinfo;</span>
+<span class="lineNum">      99 </span>                :<span class="lineCov">          1 :   clinfo-&gt;hOrigDS = NULL;  </span>
+<span class="lineNum">     100 </span>                :<span class="lineCov">          1 :   clinfo-&gt;hDS = NULL;</span>
+<span class="lineNum">     101 </span>                :<span class="lineCov">          1 :   clinfo-&gt;extent.minx = -1.0;</span>
+<span class="lineNum">     102 </span>                :<span class="lineCov">          1 :   clinfo-&gt;extent.miny = -1.0;</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">          1 :   clinfo-&gt;extent.maxx = -1.0;</span>
+<span class="lineNum">     104 </span>                :<span class="lineCov">          1 :   clinfo-&gt;extent.maxy = -1.0;</span>
+<span class="lineNum">     105 </span>                :            :   
+<span class="lineNum">     106 </span>                :<span class="lineCov">          1 :   initLayer(&amp;clinfo-&gt;ogrLayer, layer-&gt;map);</span>
+<span class="lineNum">     107 </span>                :<span class="lineCov">          1 :   clinfo-&gt;ogrLayer.type = layer-&gt;type;</span>
+<span class="lineNum">     108 </span>                :<span class="lineCov">          1 :   clinfo-&gt;ogrLayer.debug = layer-&gt;debug;</span>
+<span class="lineNum">     109 </span>                :<span class="lineCov">          1 :   clinfo-&gt;ogrLayer.connectiontype = MS_OGR;</span>
+<span class="lineNum">     110 </span>                :<span class="lineCov">          1 :   clinfo-&gt;ogrLayer.name = msStrdup(layer-&gt;name);</span>
+<span class="lineNum">     111 </span>                :<span class="lineCov">          1 :   clinfo-&gt;ogrLayer.connection = (char*)msSmallMalloc(strlen(layer-&gt;name)+13);</span>
+<span class="lineNum">     112 </span>                :<span class="lineCov">          1 :   sprintf(clinfo-&gt;ogrLayer.connection, &quot;__%s_CONTOUR__&quot;, layer-&gt;name);</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">          1 :   clinfo-&gt;ogrLayer.units = layer-&gt;units;</span>
+<a name="114"><span class="lineNum">     114 </span>                :            : }</a>
+<span class="lineNum">     115 </span>                :            : 
+<a name="116"><span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 : static void msContourLayerInfoFree(layerObj *layer)</span></a>
+<span class="lineNum">     117 </span>                :            : {
+<span class="lineNum">     118 </span>                :<span class="lineCov">          1 :   contourLayerInfo *clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     119 </span>                :            : 
+<span class="lineNum">     120 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :   if (clinfo == NULL)</span>
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>                :<span class="lineCov">          1 :   freeLayer(&amp;clinfo-&gt;ogrLayer);</span>
+<span class="lineNum">     124 </span>                :<span class="lineCov">          1 :   free(clinfo);</span>
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :<span class="lineCov">          1 :   layer-&gt;layerinfo = NULL;</span>
+<a name="127"><span class="lineNum">     127 </span>                :            : }</a>
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :<span class="lineCov">          1 : static int msContourLayerReadRaster(layerObj *layer, rectObj rect)</span>
+<span class="lineNum">     130 </span>                :            : {
+<span class="lineNum">     131 </span>                :<span class="lineCov">          1 :   mapObj *map = layer-&gt;map;  </span>
+<span class="lineNum">     132 </span>                :            :   char **bands;
+<span class="lineNum">     133 </span>                :            :   char pointer[64], memDSPointer[128];
+<span class="lineNum">     134 </span>                :            :   int band = 1;
+<span class="lineNum">     135 </span>                :            :   double adfGeoTransform[6], adfInvGeoTransform[6];
+<span class="lineNum">     136 </span>                :            :   double llx, lly, urx, ury;  
+<span class="lineNum">     137 </span>                :            :   rectObj copyRect, mapRect;
+<span class="lineNum">     138 </span>                :            :   int dst_xsize, dst_ysize;
+<span class="lineNum">     139 </span>                :            :   int virtual_grid_step_x, virtual_grid_step_y;
+<span class="lineNum">     140 </span>                :            :   int src_xoff, src_yoff, src_xsize, src_ysize;  
+<span class="lineNum">     141 </span>                :            :   double map_cellsize_x, map_cellsize_y, dst_cellsize_x, dst_cellsize_y;
+<span class="lineNum">     142 </span>                :            :   GDALRasterBandH hBand = NULL;
+<span class="lineNum">     143 </span>                :            :   CPLErr eErr;
+<span class="lineNum">     144 </span>                :            :   
+<span class="lineNum">     145 </span>                :<span class="lineCov">          1 :   contourLayerInfo *clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     146 </span>                :            : 
+<span class="lineNum">     147 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug)</span>
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;Entering msContourLayerReadRaster().\n&quot;);</span>
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (clinfo == NULL || clinfo-&gt;hOrigDS == NULL) {</span>
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Assertion failed: Contour layer not opened!!!&quot;,</span>
+<span class="lineNum">     152 </span>                :            :                &quot;msContourLayerReadRaster()&quot;);
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;    </span>
+<span class="lineNum">     154 </span>                :            :   }
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :<span class="lineCov">          1 :   bands = CSLTokenizeStringComplex(</span>
+<span class="lineNum">     157 </span>                :            :                CSLFetchNameValue(layer-&gt;processing,&quot;BANDS&quot;), &quot; ,&quot;, FALSE, FALSE );
+<span class="lineNum">     158 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if (CSLCount(bands) &gt; 0) {</span>
+<span class="lineNum">     159 </span>                :<span class="lineCov">          1 :     band = atoi(bands[0]);</span>
+<span class="lineNum">     160 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (band &lt; 1 || band &gt; GDALGetRasterCount(clinfo-&gt;hOrigDS)) {</span>
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_IMGERR,</span>
+<span class="lineNum">     162 </span>                :            :                   &quot;BANDS PROCESSING directive includes illegal band '%d', should be from 1 to %d.&quot;,
+<span class="lineNum">     163 </span>                :            :                   &quot;msContourLayerReadRaster()&quot;,
+<span class="lineNum">     164 </span>                :            :                   band, GDALGetRasterCount(clinfo-&gt;hOrigDS));
+<span class="lineNum">     165 </span>                :<span class="lineNoCov">          0 :       CSLDestroy(bands);</span>
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     167 </span>                :            :     }
+<span class="lineNum">     168 </span>                :            :   }
+<span class="lineNum">     169 </span>                :<span class="lineCov">          1 :   CSLDestroy(bands);</span>
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :<span class="lineCov">          1 :   hBand = GDALGetRasterBand(clinfo-&gt;hOrigDS, band);</span>
+<span class="lineNum">     172 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (hBand == NULL)</span>
+<span class="lineNum">     173 </span>                :            :   {
+<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_IMGERR,</span>
+<span class="lineNum">     175 </span>                :            :                &quot;Band %d does not exist on dataset.&quot;,
+<span class="lineNum">     176 </span>                :            :                &quot;msContourLayerReadRaster()&quot;, band);
+<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     178 </span>                :            :   }
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :   if (layer-&gt;projection.numargs &gt; 0 &amp;&amp;</span>
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :       EQUAL(layer-&gt;projection.args[0], &quot;auto&quot;)) {</span>
+<span class="lineNum">     182 </span>                :            :     const char *wkt;
+<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :     wkt = GDALGetProjectionRef(clinfo-&gt;hOrigDS);</span>
+<span class="lineNum">     184 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (wkt != NULL &amp;&amp; strlen(wkt) &gt; 0) {</span>
+<span class="lineNum">     185 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (msOGCWKT2ProjectionObj(wkt, &amp;(layer-&gt;projection),</span>
+<span class="lineNum">     186 </span>                :            :                                  layer-&gt;debug) != MS_SUCCESS) {
+<span class="lineNum">     187 </span>                :            :         char  msg[MESSAGELENGTH*2];
+<span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 :         errorObj *ms_error = msGetErrorObj();</span>
+<span class="lineNum">     189 </span>                :            : 
+<span class="lineNum">     190 </span>                :<span class="lineNoCov">          0 :         snprintf( msg, sizeof(msg),</span>
+<span class="lineNum">     191 </span>                :            :                   &quot;%s\n&quot;
+<span class="lineNum">     192 </span>                :            :                   &quot;PROJECTION AUTO cannot be used for this &quot;
+<span class="lineNum">     193 </span>                :            :                   &quot;GDAL raster (`%s').&quot;,
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 :                   ms_error-&gt;message, layer-&gt;data);</span>
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 :         msg[MESSAGELENGTH-1] = '\0';</span>
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_OGRERR, &quot;%s&quot;,&quot;msDrawRasterLayer()&quot;,</span>
+<span class="lineNum">     198 </span>                :            :                    msg);
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">     200 </span>                :            :       }
+<span class="lineNum">     201 </span>                :            :     }
+<span class="lineNum">     202 </span>                :            :   }
+<span class="lineNum">     203 </span>                :            :   
+<span class="lineNum">     204 </span>                :            :   /*
+<span class="lineNum">     205 </span>                :            :    * Compute the georeferenced window of overlap, and read the source data
+<span class="lineNum">     206 </span>                :            :    * downsampled to match output resolution, or at full resolution if
+<span class="lineNum">     207 </span>                :            :    * output resolution is lower than the source resolution.
+<span class="lineNum">     208 </span>                :            :    *
+<span class="lineNum">     209 </span>                :            :    * A large portion of this overlap calculation code was borrowed from 
+<span class="lineNum">     210 </span>                :            :    * msDrawRasterLayerGDAL(). 
+<span class="lineNum">     211 </span>                :            :    * Would be possible to move some of this to a reusable function?
+<span class="lineNum">     212 </span>                :            :    *
+<span class="lineNum">     213 </span>                :            :    * Note: This code works only if no reprojection is involved. It would
+<span class="lineNum">     214 </span>                :            :    * need rework to support cases where output projection differs from source
+<span class="lineNum">     215 </span>                :            :    * data file projection.
+<span class="lineNum">     216 </span>                :            :    */
+<span class="lineNum">     217 </span>                :            :   
+<span class="lineNum">     218 </span>                :<span class="lineCov">          1 :   src_xsize = GDALGetRasterXSize(clinfo-&gt;hOrigDS);</span>
+<span class="lineNum">     219 </span>                :<span class="lineCov">          1 :   src_ysize = GDALGetRasterYSize(clinfo-&gt;hOrigDS);</span>
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>                :            :   /* set the Dataset extent */
+<span class="lineNum">     222 </span>                :<span class="lineCov">          1 :   msGetGDALGeoTransform(clinfo-&gt;hOrigDS, map, layer, adfGeoTransform);  </span>
+<span class="lineNum">     223 </span>                :<span class="lineCov">          1 :   clinfo-&gt;extent.minx = adfGeoTransform[0];</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">          1 :   clinfo-&gt;extent.maxy = adfGeoTransform[3];</span>
+<span class="lineNum">     225 </span>                :<span class="lineCov">          1 :   clinfo-&gt;extent.maxx = adfGeoTransform[0] + src_xsize * adfGeoTransform[1];</span>
+<span class="lineNum">     226 </span>                :<span class="lineCov">          1 :   clinfo-&gt;extent.miny = adfGeoTransform[3] + src_ysize * adfGeoTransform[5];</span>
+<span class="lineNum">     227 </span>                :            :   
+<span class="lineNum">     228 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (layer-&gt;transform) {</span>
+<span class="lineNum">     229 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (layer-&gt;debug)</span>
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :       msDebug(&quot;msContourLayerReadRaster(): Entering transform.\n&quot;);</span>
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>                :<span class="lineCov">          1 :     InvGeoTransform(adfGeoTransform, adfInvGeoTransform);</span>
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :<span class="lineCov">          1 :     mapRect = rect;</span>
+<span class="lineNum">     235 </span>                :<span class="lineCov">          1 :     map_cellsize_x = map_cellsize_y = map-&gt;cellsize;      </span>
+<span class="lineNum">     236 </span>                :            : #ifdef USE_PROJ
+<span class="lineNum">     237 </span>                :            :     /* if necessary, project the searchrect to source coords */
+<span class="lineNum">     238 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (msProjectionsDiffer( &amp;(map-&gt;projection), &amp;(layer-&gt;projection)))  {</span>
+<span class="lineNum">     239 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if ( msProjectRect(&amp;map-&gt;projection, &amp;layer-&gt;projection, &amp;mapRect)</span>
+<span class="lineNum">     240 </span>                :            :           != MS_SUCCESS ) {
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :         msDebug(&quot;msContourLayerReadRaster(%s): unable to reproject map request rectangle into layer projection, canceling.\n&quot;, layer-&gt;name);</span>
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">     243 </span>                :            :       }
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :       map_cellsize_x = MS_CELLSIZE(mapRect.minx, mapRect.maxx, map-&gt;width);</span>
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :       map_cellsize_y = MS_CELLSIZE(mapRect.miny, mapRect.maxy, map-&gt;height);</span>
+<span class="lineNum">     247 </span>                :            : 
+<span class="lineNum">     248 </span>                :            :       /* if the projection failed to project the extent requested, we need to
+<span class="lineNum">     249 </span>                :            :          calculate the cellsize to preserve the initial map cellsize ratio */
+<span class="lineNum">     250 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if ( (mapRect.minx &lt; GEO_TRANS(adfGeoTransform,0,src_ysize)) ||</span>
+<span class="lineNum">     251 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :            (mapRect.maxx &gt; GEO_TRANS(adfGeoTransform,src_xsize,0)) ||</span>
+<span class="lineNum">     252 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :            (mapRect.miny &lt; GEO_TRANS(adfGeoTransform+3,0,src_ysize)) || </span>
+<span class="lineNum">     253 </span>                :<span class="lineNoCov">          0 :            (mapRect.maxy &gt; GEO_TRANS(adfGeoTransform+3,src_xsize,0)) ) {</span>
+<span class="lineNum">     254 </span>                :            : 
+<span class="lineNum">     255 </span>                :            :         int src_unit, dst_unit;
+<span class="lineNum">     256 </span>                :<span class="lineNoCov">          0 :         src_unit = GetMapserverUnitUsingProj(&amp;map-&gt;projection);</span>
+<span class="lineNum">     257 </span>                :<span class="lineNoCov">          0 :         dst_unit = GetMapserverUnitUsingProj(&amp;layer-&gt;projection);</span>
+<span class="lineNum">     258 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (src_unit == -1 || dst_unit == -1) {</span>
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :           msDebug(&quot;msContourLayerReadRaster(%s): unable to reproject map request rectangle into layer projection, canceling.\n&quot;, layer-&gt;name);</span>
+<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 :           return MS_FAILURE;</span>
+<span class="lineNum">     261 </span>                :            :         }
+<span class="lineNum">     262 </span>                :            : 
+<span class="lineNum">     263 </span>                :<span class="lineNoCov">          0 :         map_cellsize_x =  MS_CONVERT_UNIT(src_unit, dst_unit,</span>
+<span class="lineNum">     264 </span>                :            :                                           MS_CELLSIZE(rect.minx, rect.maxx, map-&gt;width)); 
+<span class="lineNum">     265 </span>                :<span class="lineNoCov">          0 :         map_cellsize_y = MS_CONVERT_UNIT(src_unit, dst_unit,</span>
+<span class="lineNum">     266 </span>                :            :                                          MS_CELLSIZE(rect.miny, rect.maxy, map-&gt;height));
+<span class="lineNum">     267 </span>                :            :       }       
+<span class="lineNum">     268 </span>                :            :     }
+<span class="lineNum">     269 </span>                :            : #endif
+<span class="lineNum">     270 </span>                :            :     
+<span class="lineNum">     271 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (map_cellsize_x == 0 || map_cellsize_y == 0) {</span>
+<span class="lineNum">     272 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (layer-&gt;debug)</span>
+<span class="lineNum">     273 </span>                :<span class="lineNoCov">          0 :         msDebug(&quot;msContourLayerReadRaster(): Cellsize can't be 0.\n&quot;);</span>
+<span class="lineNum">     274 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">     275 </span>                :            :     }
+<span class="lineNum">     276 </span>                :            :     
+<span class="lineNum">     277 </span>                :            :     /* Adjust MapServer pixel model to GDAL pixel model */
+<span class="lineNum">     278 </span>                :<span class="lineCov">          1 :     mapRect.minx -= map_cellsize_x*0.5;</span>
+<span class="lineNum">     279 </span>                :<span class="lineCov">          1 :     mapRect.maxx += map_cellsize_x*0.5;</span>
+<span class="lineNum">     280 </span>                :<span class="lineCov">          1 :     mapRect.miny -= map_cellsize_y*0.5;</span>
+<span class="lineNum">     281 </span>                :<span class="lineCov">          1 :     mapRect.maxy += map_cellsize_y*0.5;</span>
+<span class="lineNum">     282 </span>                :            : 
+<span class="lineNum">     283 </span>                :            : 
+<span class="lineNum">     284 </span>                :            :     /*
+<span class="lineNum">     285 </span>                :            :      * If raw data cellsize (from geotransform) is larger than output map_cellsize
+<span class="lineNum">     286 </span>                :            :      * then we want to extract only enough data to match the output map resolution
+<span class="lineNum">     287 </span>                :            :      * which means that GDAL will automatically sample the data on read.
+<span class="lineNum">     288 </span>                :            :      *
+<span class="lineNum">     289 </span>                :            :      * To prevent bad contour effects on tile edges, we adjust the target cellsize 
+<span class="lineNum">     290 </span>                :            :      * to align the extracted window with a virtual grid based on the origin of the 
+<span class="lineNum">     291 </span>                :            :      * raw data and a virtual grid step size corresponding to an integer sampling step.
+<span class="lineNum">     292 </span>                :            :      *
+<span class="lineNum">     293 </span>                :            :      * If source data has a greater cellsize (i.e. lower res) that requested ouptut map
+<span class="lineNum">     294 </span>                :            :      * then we use the raw data cellsize as target cellsize since there is no point in 
+<span class="lineNum">     295 </span>                :            :      * interpolating the data for contours in this case.
+<span class="lineNum">     296 </span>                :            :      */
+<span class="lineNum">     297 </span>                :            : 
+<span class="lineNum">     298 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     virtual_grid_step_x = (int)floor(map_cellsize_x / ABS(adfGeoTransform[1]));</span>
+<span class="lineNum">     299 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (virtual_grid_step_x &lt; 1)</span>
+<span class="lineNum">     300 </span>                :            :       virtual_grid_step_x = 1; /* Do not interpolate data if grid sampling step &lt; 1 */
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     virtual_grid_step_y = (int)floor(map_cellsize_y / ABS(adfGeoTransform[5]));</span>
+<span class="lineNum">     303 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (virtual_grid_step_y &lt; 1)</span>
+<span class="lineNum">     304 </span>                :            :       virtual_grid_step_y = 1; /* Do not interpolate data if grid sampling step &lt; 1 */
+<span class="lineNum">     305 </span>                :            :     
+<span class="lineNum">     306 </span>                :            :     /* target cellsize is a multiple of raw data cellsize based on grid step*/
+<span class="lineNum">     307 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     dst_cellsize_x = ABS(adfGeoTransform[1]) * virtual_grid_step_x;</span>
+<span class="lineNum">     308 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     dst_cellsize_y = ABS(adfGeoTransform[5]) * virtual_grid_step_y;</span>
+<span class="lineNum">     309 </span>                :            : 
+<span class="lineNum">     310 </span>                :            :     /* Compute overlap between source and target views */
+<span class="lineNum">     311 </span>                :            : 
+<span class="lineNum">     312 </span>                :<span class="lineCov">          1 :     copyRect = mapRect;</span>
+<span class="lineNum">     313 </span>                :            : 
+<span class="lineNum">     314 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (copyRect.minx &lt; GEO_TRANS(adfGeoTransform,0,src_ysize))</span>
+<span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 :       copyRect.minx = GEO_TRANS(adfGeoTransform,0,src_ysize);</span>
+<span class="lineNum">     316 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (copyRect.maxx &gt; GEO_TRANS(adfGeoTransform,src_xsize,0))</span>
+<span class="lineNum">     317 </span>                :<span class="lineCov">          1 :       copyRect.maxx = GEO_TRANS(adfGeoTransform,src_xsize,0);</span>
+<span class="lineNum">     318 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (copyRect.miny &lt; GEO_TRANS(adfGeoTransform+3,0,src_ysize))</span>
+<span class="lineNum">     319 </span>                :<span class="lineCov">          1 :       copyRect.miny = GEO_TRANS(adfGeoTransform+3,0,src_ysize);</span>
+<span class="lineNum">     320 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (copyRect.maxy &gt; GEO_TRANS(adfGeoTransform+3,src_xsize,0))</span>
+<span class="lineNum">     321 </span>                :<span class="lineCov">          1 :       copyRect.maxy = GEO_TRANS(adfGeoTransform+3,src_xsize,0);</span>
+<span class="lineNum">     322 </span>                :            :     
+<span class="lineNum">     323 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (copyRect.minx &gt;= copyRect.maxx || copyRect.miny &gt;= copyRect.maxy) {</span>
+<span class="lineNum">     324 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (layer-&gt;debug)</span>
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :         msDebug(&quot;msContourLayerReadRaster(): Error in overlap calculation.\n&quot;);</span>
+<span class="lineNum">     326 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">     327 </span>                :            :     }
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :            :     /*
+<span class="lineNum">     330 </span>                :            :      * Convert extraction window to raster coordinates
+<span class="lineNum">     331 </span>                :            :      */
+<span class="lineNum">     332 </span>                :<span class="lineCov">          1 :     llx = GEO_TRANS(adfInvGeoTransform+0,copyRect.minx,copyRect.miny);</span>
+<span class="lineNum">     333 </span>                :<span class="lineCov">          1 :     lly = GEO_TRANS(adfInvGeoTransform+3,copyRect.minx,copyRect.miny);</span>
+<span class="lineNum">     334 </span>                :<span class="lineCov">          1 :     urx = GEO_TRANS(adfInvGeoTransform+0,copyRect.maxx,copyRect.maxy);</span>
+<span class="lineNum">     335 </span>                :<span class="lineCov">          1 :     ury = GEO_TRANS(adfInvGeoTransform+3,copyRect.maxx,copyRect.maxy);</span>
+<span class="lineNum">     336 </span>                :            : 
+<span class="lineNum">     337 </span>                :            :     /* 
+<span class="lineNum">     338 </span>                :            :      * Align extraction window with virtual grid 
+<span class="lineNum">     339 </span>                :            :      * (keep in mind raster coordinates origin is at upper-left)
+<span class="lineNum">     340 </span>                :            :      * We also add an extra buffer to fix tile boundarie issues when zoomed
+<span class="lineNum">     341 </span>                :            :      */
+<span class="lineNum">     342 </span>                :<span class="lineCov">          1 :     llx = floor(llx / virtual_grid_step_x) * virtual_grid_step_x - (virtual_grid_step_x*5);</span>
+<span class="lineNum">     343 </span>                :<span class="lineCov">          1 :     urx = ceil(urx / virtual_grid_step_x) * virtual_grid_step_x + (virtual_grid_step_x*5);</span>
+<span class="lineNum">     344 </span>                :<span class="lineCov">          1 :     ury = floor(ury / virtual_grid_step_y) * virtual_grid_step_y - (virtual_grid_step_x*5);</span>
+<span class="lineNum">     345 </span>                :<span class="lineCov">          1 :     lly = ceil(lly / virtual_grid_step_y) * virtual_grid_step_y + (virtual_grid_step_x*5);</span>
+<span class="lineNum">     346 </span>                :            :     
+<span class="lineNum">     347 </span>                :<span class="lineCov">          1 :     src_xoff = MAX(0,(int) floor(llx+0.5));</span>
+<span class="lineNum">     348 </span>                :<span class="lineCov">          1 :     src_yoff = MAX(0,(int) floor(ury+0.5));</span>
+<span class="lineNum">     349 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     src_xsize = MIN(MAX(0,(int) (urx - llx + 0.5)),</span>
+<span class="lineNum">     350 </span>                :            :                     GDALGetRasterXSize(clinfo-&gt;hOrigDS) - src_xoff);
+<span class="lineNum">     351 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     src_ysize = MIN(MAX(0,(int) (lly - ury + 0.5)),</span>
+<span class="lineNum">     352 </span>                :            :                     GDALGetRasterYSize(clinfo-&gt;hOrigDS) - src_yoff);
+<span class="lineNum">     353 </span>                :            : 
+<span class="lineNum">     354 </span>                :            :     /* Update the geographic extent (buffer added) */
+<span class="lineNum">     355 </span>                :            :     /* TODO: a better way to go the geo_trans */
+<span class="lineNum">     356 </span>                :<span class="lineCov">          1 :     copyRect.minx = GEO_TRANS(adfGeoTransform+0,src_xoff,0);</span>
+<span class="lineNum">     357 </span>                :<span class="lineCov">          1 :     copyRect.maxx = GEO_TRANS(adfGeoTransform+0,src_xoff+src_xsize,0);</span>
+<span class="lineNum">     358 </span>                :<span class="lineCov">          1 :     copyRect.miny = GEO_TRANS(adfGeoTransform+3,0,src_yoff+src_ysize);</span>
+<span class="lineNum">     359 </span>                :<span class="lineCov">          1 :     copyRect.maxy = GEO_TRANS(adfGeoTransform+3,0,src_yoff);</span>
+<span class="lineNum">     360 </span>                :            :     
+<span class="lineNum">     361 </span>                :            :     /* 
+<span class="lineNum">     362 </span>                :            :      * If input window is to small then stop here
+<span class="lineNum">     363 </span>                :            :      */
+<span class="lineNum">     364 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (src_xsize &lt; 2 || src_ysize &lt; 2)</span>
+<span class="lineNum">     365 </span>                :            :     {
+<span class="lineNum">     366 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (layer-&gt;debug)</span>
+<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 :         msDebug(&quot;msContourLayerReadRaster(): input window too small, or no apparent overlap between map view and this window(1).\n&quot;);</span>
+<span class="lineNum">     368 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">     369 </span>                :            :     }
+<span class="lineNum">     370 </span>                :            : 
+<span class="lineNum">     371 </span>                :            :     /* Target buffer size */
+<span class="lineNum">     372 </span>                :<span class="lineCov">          1 :     dst_xsize = (int)ceil((copyRect.maxx - copyRect.minx) / dst_cellsize_x);</span>
+<span class="lineNum">     373 </span>                :<span class="lineCov">          1 :     dst_ysize = (int)ceil((copyRect.maxy - copyRect.miny) / dst_cellsize_y);</span>
+<span class="lineNum">     374 </span>                :            : 
+<span class="lineNum">     375 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (dst_xsize == 0 || dst_ysize == 0) {</span>
+<span class="lineNum">     376 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (layer-&gt;debug)</span>
+<span class="lineNum">     377 </span>                :<span class="lineNoCov">          0 :         msDebug(&quot;msContourLayerReadRaster(): no apparent overlap between map view and this window(2).\n&quot;);</span>
+<span class="lineNum">     378 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">     379 </span>                :            :     }
+<span class="lineNum">     380 </span>                :            : 
+<span class="lineNum">     381 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (layer-&gt;debug)</span>
+<span class="lineNum">     382 </span>                :<span class="lineNoCov">          0 :       msDebug( &quot;msContourLayerReadRaster(): src=%d,%d,%d,%d, dst=%d,%d,%d,%d\n&quot;,</span>
+<span class="lineNum">     383 </span>                :            :                src_xoff, src_yoff, src_xsize, src_ysize,
+<span class="lineNum">     384 </span>                :            :                0, 0, dst_xsize, dst_ysize );
+<span class="lineNum">     385 </span>                :            :   } else {
+<span class="lineNum">     386 </span>                :            :     src_xoff = 0;
+<span class="lineNum">     387 </span>                :            :     src_yoff = 0;
+<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :     dst_xsize = src_xsize = MIN(map-&gt;width,src_xsize);</span>
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 :     dst_ysize = src_ysize = MIN(map-&gt;height,src_ysize);</span>
+<span class="lineNum">     390 </span>                :            :   }
+<span class="lineNum">     391 </span>                :            : 
+<span class="lineNum">     392 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     393 </span>                :            :   /*      Allocate buffer, and read data into it.                         */
+<span class="lineNum">     394 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     395 </span>                :            : 
+<span class="lineNum">     396 </span>                :<span class="lineCov">          1 :   clinfo-&gt;buffer = (double *) malloc(sizeof(double) * dst_xsize * dst_ysize);</span>
+<span class="lineNum">     397 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (clinfo-&gt;buffer == NULL) {</span>
+<span class="lineNum">     398 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Malloc(): Out of memory.&quot;, &quot;msContourLayerReadRaster()&quot;);</span>
+<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     400 </span>                :            :   }
+<span class="lineNum">     401 </span>                :            : 
+<span class="lineNum">     402 </span>                :<span class="lineCov">          1 :   eErr = GDALRasterIO(hBand, GF_Read,</span>
+<span class="lineNum">     403 </span>                :            :                       src_xoff, src_yoff, src_xsize, src_ysize,
+<span class="lineNum">     404 </span>                :<span class="lineCov">          1 :                       clinfo-&gt;buffer, dst_xsize, dst_ysize, GDT_Float64,</span>
+<span class="lineNum">     405 </span>                :            :                       0, 0);
+<span class="lineNum">     406 </span>                :            : 
+<span class="lineNum">     407 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (eErr != CE_None) {</span>
+<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_IOERR, &quot;GDALRasterIO() failed: %s&quot;,</span>
+<span class="lineNum">     409 </span>                :            :                 &quot;msContourLayerReadRaster()&quot;, CPLGetLastErrorMsg() );
+<span class="lineNum">     410 </span>                :<span class="lineNoCov">          0 :     free(clinfo-&gt;buffer);</span>
+<span class="lineNum">     411 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     412 </span>                :            :   }
+<span class="lineNum">     413 </span>                :            : 
+<span class="lineNum">     414 </span>                :            :   memset(pointer, 0, sizeof(pointer));
+<span class="lineNum">     415 </span>                :<span class="lineCov">          1 :   CPLPrintPointer(pointer, clinfo-&gt;buffer, sizeof(pointer));</span>
+<span class="lineNum">     416 </span>                :            :   sprintf(memDSPointer,&quot;MEM:::DATAPOINTER=%s,PIXELS=%d,LINES=%d,BANDS=1,DATATYPE=Float64&quot;,
+<span class="lineNum">     417 </span>                :            :           pointer, dst_xsize, dst_ysize);
+<span class="lineNum">     418 </span>                :<span class="lineCov">          1 :   clinfo-&gt;hDS = GDALOpen(memDSPointer,  GA_ReadOnly);</span>
+<span class="lineNum">     419 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (clinfo-&gt;hDS == NULL) {</span>
+<span class="lineNum">     420 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_IMGERR,</span>
+<span class="lineNum">     421 </span>                :            :                &quot;Unable to open GDAL Memory dataset.&quot;,
+<span class="lineNum">     422 </span>                :            :                &quot;msContourLayerReadRaster()&quot;);
+<span class="lineNum">     423 </span>                :<span class="lineNoCov">          0 :     free(clinfo-&gt;buffer);</span>
+<span class="lineNum">     424 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     425 </span>                :            :   }
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :<span class="lineCov">          1 :   adfGeoTransform[0] = copyRect.minx;</span>
+<span class="lineNum">     428 </span>                :<span class="lineCov">          1 :   adfGeoTransform[1] = dst_cellsize_x;</span>
+<span class="lineNum">     429 </span>                :<span class="lineCov">          1 :   adfGeoTransform[2] = 0;</span>
+<span class="lineNum">     430 </span>                :<span class="lineCov">          1 :   adfGeoTransform[3] = copyRect.maxy;</span>
+<span class="lineNum">     431 </span>                :<span class="lineCov">          1 :   adfGeoTransform[4] = 0;</span>
+<span class="lineNum">     432 </span>                :<span class="lineCov">          1 :   adfGeoTransform[5] = -dst_cellsize_y;</span>
+<span class="lineNum">     433 </span>                :            : 
+<span class="lineNum">     434 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   clinfo-&gt;cellsize = MAX(dst_cellsize_x, dst_cellsize_y);</span>
+<span class="lineNum">     435 </span>                :            :   {
+<span class="lineNum">     436 </span>                :            :     char buf[64];
+<span class="lineNum">     437 </span>                :<span class="lineCov">          1 :     sprintf(buf, &quot;%lf&quot;, clinfo-&gt;cellsize);</span>
+<span class="lineNum">     438 </span>                :<span class="lineCov">          1 :     msInsertHashTable(&amp;layer-&gt;metadata, &quot;__data_cellsize__&quot;, buf);</span>
+<span class="lineNum">     439 </span>                :            :   }
+<span class="lineNum">     440 </span>                :            :       
+<span class="lineNum">     441 </span>                :<span class="lineCov">          1 :   GDALSetGeoTransform(clinfo-&gt;hDS, adfGeoTransform);</span>
+<span class="lineNum">     442 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<a name="443"><span class="lineNum">     443 </span>                :            : }</a>
+<span class="lineNum">     444 </span>                :            : 
+<span class="lineNum">     445 </span>                :<span class="lineCov">          1 : static void msContourOGRCloseConnection(void *conn_handle)</span>
+<span class="lineNum">     446 </span>                :            : {
+<span class="lineNum">     447 </span>                :            :   OGRDataSourceH hDS = (OGRDataSourceH) conn_handle;
+<span class="lineNum">     448 </span>                :            : 
+<span class="lineNum">     449 </span>                :            :   msAcquireLock(TLOCK_OGR);
+<span class="lineNum">     450 </span>                :<span class="lineCov">          1 :   OGR_DS_Destroy(hDS);</span>
+<span class="lineNum">     451 </span>                :            :   msReleaseLock(TLOCK_OGR);
+<span class="lineNum">     452 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     453 </span>                :            : 
+<a name="454"><span class="lineNum">     454 </span>                :            : /* Function that parses multiple options in the a list. It also supports</a>
+<span class="lineNum">     455 </span>                :            :    min/maxscaledenom checks. ie. &quot;CONTOUR_INTERVAL=0,3842942:10&quot; */
+<span class="lineNum">     456 </span>                :<span class="lineCov">          1 : static char* msContourGetOption(layerObj *layer, const char *name)</span>
+<span class="lineNum">     457 </span>                :            : {
+<span class="lineNum">     458 </span>                :            :   int c, i, found = MS_FALSE;
+<span class="lineNum">     459 </span>                :            :   char **values, **tmp, **options;
+<span class="lineNum">     460 </span>                :            :   double maxscaledenom, minscaledenom;
+<span class="lineNum">     461 </span>                :            :   char *value = NULL;
+<span class="lineNum">     462 </span>                :            :   
+<span class="lineNum">     463 </span>                :<span class="lineCov">          1 :   options = CSLFetchNameValueMultiple(layer-&gt;processing, name);</span>
+<span class="lineNum">     464 </span>                :<span class="lineCov">          1 :   c = CSLCount(options);</span>
+<span class="lineNum">     465 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :   for (i=0; i&lt;c &amp;&amp; found == MS_FALSE; ++i) {</span>
+<span class="lineNum">     466 </span>                :<span class="lineCov">          1 :     values = CSLTokenizeStringComplex(options[i], &quot;:&quot;, FALSE, FALSE);</span>
+<span class="lineNum">     467 </span>  [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">          1 :     if (CSLCount(values) == 2) {</span>
+<span class="lineNum">     468 </span>                :<span class="lineNoCov">          0 :       tmp = CSLTokenizeStringComplex(values[0], &quot;,&quot;, FALSE, FALSE);</span>
+<span class="lineNum">     469 </span>  [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (CSLCount(tmp) == 2) {</span>
+<span class="lineNum">     470 </span>                :<span class="lineNoCov">          0 :         minscaledenom = atof(tmp[0]);</span>
+<span class="lineNum">     471 </span>                :<span class="lineNoCov">          0 :         maxscaledenom = atof(tmp[1]);</span>
+<span class="lineNum">     472 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (layer-&gt;map-&gt;scaledenom &lt;= 0 ||</span>
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     473 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :             (((maxscaledenom &lt;= 0) || (layer-&gt;map-&gt;scaledenom &lt;= maxscaledenom)) &amp;&amp;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     474 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :              ((minscaledenom &lt;= 0) || (layer-&gt;map-&gt;scaledenom &gt; minscaledenom)))) {</span>
+<span class="lineNum">     475 </span>                :<span class="lineNoCov">          0 :           value = msStrdup(values[1]);</span>
+<span class="lineNum">     476 </span>                :            :           found = MS_TRUE;
+<span class="lineNum">     477 </span>                :            :         }
+<span class="lineNum">     478 </span>                :            :       }
+<span class="lineNum">     479 </span>                :<span class="lineNoCov">          0 :       CSLDestroy(tmp);</span>
+<span class="lineNum">     480 </span>                :            :     }
+<span class="lineNum">     481 </span>                :<span class="lineCov">          1 :     CSLDestroy(values);</span>
+<span class="lineNum">     482 </span>                :            :   }
+<span class="lineNum">     483 </span>                :            : 
+<span class="lineNum">     484 </span>                :<span class="lineCov">          1 :   CSLDestroy(options);</span>
+<span class="lineNum">     485 </span>                :            : 
+<span class="lineNum">     486 </span>                :<span class="lineCov">          1 :   return value;</span>
+<a name="487"><span class="lineNum">     487 </span>                :            : }</a>
+<span class="lineNum">     488 </span>                :            : 
+<span class="lineNum">     489 </span>                :<span class="lineCov">          1 : static int msContourLayerGenerateContour(layerObj *layer)</span>
+<span class="lineNum">     490 </span>                :            : {
+<span class="lineNum">     491 </span>                :            :   OGRSFDriverH hDriver;
+<span class="lineNum">     492 </span>                :            :   OGRFieldDefnH hFld;
+<span class="lineNum">     493 </span>                :            :   OGRLayerH hLayer;
+<span class="lineNum">     494 </span>                :            :   const char *elevItem;
+<span class="lineNum">     495 </span>                :            :   char *option;
+<span class="lineNum">     496 </span>                :            :   double interval = 1.0, levels[1000];
+<span class="lineNum">     497 </span>                :            :   int levelCount = 0;
+<span class="lineNum">     498 </span>                :            :   GDALRasterBandH hBand = NULL;
+<span class="lineNum">     499 </span>                :            :   CPLErr eErr;
+<span class="lineNum">     500 </span>                :            : 
+<span class="lineNum">     501 </span>                :<span class="lineCov">          1 :   contourLayerInfo *clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     502 </span>                :            : 
+<span class="lineNum">     503 </span>                :<span class="lineCov">          1 :   OGRRegisterAll();</span>
+<span class="lineNum">     504 </span>                :            : 
+<span class="lineNum">     505 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (clinfo == NULL) {</span>
+<span class="lineNum">     506 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Assertion failed: Contour layer not opened!!!&quot;,</span>
+<span class="lineNum">     507 </span>                :            :                &quot;msContourLayerCreateOGRDataSource()&quot;);
+<span class="lineNum">     508 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     509 </span>                :            :   }
+<span class="lineNum">     510 </span>                :            : 
+<span class="lineNum">     511 </span>                :<span class="lineCov">          1 :   hBand = GDALGetRasterBand(clinfo-&gt;hDS, 1);</span>
+<span class="lineNum">     512 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (hBand == NULL)</span>
+<span class="lineNum">     513 </span>                :            :   {
+<span class="lineNum">     514 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_IMGERR,</span>
+<span class="lineNum">     515 </span>                :            :                &quot;Band %d does not exist on dataset.&quot;,
+<span class="lineNum">     516 </span>                :            :                &quot;msContourLayerGenerateContour()&quot;, 1);
+<span class="lineNum">     517 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     518 </span>                :            :   }
+<span class="lineNum">     519 </span>                :            : 
+<span class="lineNum">     520 </span>                :            :   /* Create the OGR DataSource */
+<span class="lineNum">     521 </span>                :<span class="lineCov">          1 :   hDriver = OGRGetDriverByName(&quot;Memory&quot;);</span>
+<span class="lineNum">     522 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (hDriver == NULL) {</span>
+<span class="lineNum">     523 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_OGRERR,</span>
+<span class="lineNum">     524 </span>                :            :                &quot;Unable to get OGR driver 'Memory'.&quot;,
+<span class="lineNum">     525 </span>                :            :                &quot;msContourLayerCreateOGRDataSource()&quot;);
+<span class="lineNum">     526 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     527 </span>                :            :   }
+<span class="lineNum">     528 </span>                :            : 
+<span class="lineNum">     529 </span>                :<span class="lineCov">          1 :   clinfo-&gt;hOGRDS = OGR_Dr_CreateDataSource(hDriver, NULL, NULL);</span>
+<span class="lineNum">     530 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (clinfo-&gt;hOGRDS == NULL) {</span>
+<span class="lineNum">     531 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_OGRERR,</span>
+<span class="lineNum">     532 </span>                :            :                &quot;Unable to create OGR DataSource.&quot;,
+<span class="lineNum">     533 </span>                :            :                &quot;msContourLayerCreateOGRDataSource()&quot;);
+<span class="lineNum">     534 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     535 </span>                :            :   }
+<span class="lineNum">     536 </span>                :            : 
+<span class="lineNum">     537 </span>                :<span class="lineCov">          1 :   hLayer = OGR_DS_CreateLayer(clinfo-&gt;hOGRDS, clinfo-&gt;ogrLayer.name, NULL,</span>
+<span class="lineNum">     538 </span>                :            :                               wkbLineString, NULL );
+<span class="lineNum">     539 </span>                :            : 
+<span class="lineNum">     540 </span>                :<span class="lineCov">          1 :   hFld = OGR_Fld_Create(&quot;ID&quot;, OFTInteger);</span>
+<span class="lineNum">     541 </span>                :<span class="lineCov">          1 :   OGR_Fld_SetWidth(hFld, 8);</span>
+<span class="lineNum">     542 </span>                :<span class="lineCov">          1 :   OGR_L_CreateField(hLayer, hFld, FALSE);</span>
+<span class="lineNum">     543 </span>                :<span class="lineCov">          1 :   OGR_Fld_Destroy(hFld);</span>
+<span class="lineNum">     544 </span>                :            : 
+<span class="lineNum">     545 </span>                :            :   /* Check if we have a coutour item specified */
+<span class="lineNum">     546 </span>                :<span class="lineCov">          1 :   elevItem = CSLFetchNameValue(layer-&gt;processing,&quot;CONTOUR_ITEM&quot;);</span>
+<span class="lineNum">     547 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if (elevItem &amp;&amp; strlen(elevItem) &gt; 0) {</span>
+<span class="lineNum">     548 </span>                :<span class="lineCov">          1 :     hFld = OGR_Fld_Create(elevItem, OFTReal);</span>
+<span class="lineNum">     549 </span>                :<span class="lineCov">          1 :     OGR_Fld_SetWidth(hFld, 12);</span>
+<span class="lineNum">     550 </span>                :<span class="lineCov">          1 :     OGR_Fld_SetPrecision(hFld, 3);</span>
+<span class="lineNum">     551 </span>                :<span class="lineCov">          1 :     OGR_L_CreateField(hLayer, hFld, FALSE);</span>
+<span class="lineNum">     552 </span>                :<span class="lineCov">          1 :     OGR_Fld_Destroy(hFld);</span>
+<span class="lineNum">     553 </span>                :            :   }
+<span class="lineNum">     554 </span>                :            :   else {
+<span class="lineNum">     555 </span>                :            :     elevItem = NULL;
+<span class="lineNum">     556 </span>                :            :   }
+<span class="lineNum">     557 </span>                :            : 
+<span class="lineNum">     558 </span>                :<span class="lineCov">          1 :   option = msContourGetOption(layer, &quot;CONTOUR_INTERVAL&quot;);</span>
+<span class="lineNum">     559 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (option) {</span>
+<span class="lineNum">     560 </span>                :            :     interval = atof(option);
+<span class="lineNum">     561 </span>                :<span class="lineNoCov">          0 :     free(option);</span>
+<span class="lineNum">     562 </span>                :            :   }
+<span class="lineNum">     563 </span>                :            : 
+<span class="lineNum">     564 </span>                :<span class="lineCov">          1 :   option = msContourGetOption(layer, &quot;CONTOUR_LEVELS&quot;);</span>
+<span class="lineNum">     565 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (option) {</span>
+<span class="lineNum">     566 </span>                :            :     int i,c;
+<span class="lineNum">     567 </span>                :            :     char **levelsTmp;
+<span class="lineNum">     568 </span>                :<span class="lineNoCov">          0 :     levelsTmp = CSLTokenizeStringComplex(option, &quot;,&quot;, FALSE, FALSE);</span>
+<span class="lineNum">     569 </span>                :<span class="lineNoCov">          0 :     c = CSLCount(levelsTmp);</span>
+<span class="lineNum">     570 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (i=0;i&lt;c &amp;&amp; i&lt;(int)(sizeof(levels)/sizeof(double)) ;++i)</span>
+<span class="lineNum">     571 </span>                :<span class="lineNoCov">          0 :       levels[levelCount++] = atof(levelsTmp[i]);</span>
+<span class="lineNum">     572 </span>                :            : 
+<span class="lineNum">     573 </span>                :<span class="lineNoCov">          0 :     CSLDestroy(levelsTmp);</span>
+<span class="lineNum">     574 </span>                :<span class="lineNoCov">          0 :     free(option);</span>
+<span class="lineNum">     575 </span>                :            :   }
+<span class="lineNum">     576 </span>                :            :     
+<span class="lineNum">     577 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   eErr = GDALContourGenerate( hBand, interval, 0.0,</span>
+<span class="lineNum">     578 </span>                :            :                               levelCount, levels,
+<span class="lineNum">     579 </span>                :            :                               FALSE, 0.0, hLayer,
+<span class="lineNum">     580 </span>                :            :                               OGR_FD_GetFieldIndex(OGR_L_GetLayerDefn( hLayer),
+<span class="lineNum">     581 </span>                :            :                                                     &quot;ID&quot; ),
+<span class="lineNum">     582 </span>                :            :                               (elevItem == NULL) ? -1 :
+<span class="lineNum">     583 </span>                :<span class="lineCov">          1 :                               OGR_FD_GetFieldIndex(OGR_L_GetLayerDefn( hLayer), </span>
+<span class="lineNum">     584 </span>                :            :                                                     elevItem ),
+<span class="lineNum">     585 </span>                :            :                               NULL, NULL );
+<span class="lineNum">     586 </span>                :            : 
+<span class="lineNum">     587 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (eErr != CE_None) {</span>
+<span class="lineNum">     588 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_IOERR, &quot;GDALContourGenerate() failed: %s&quot;,</span>
+<span class="lineNum">     589 </span>                :            :                 &quot;msContourLayerGenerateContour()&quot;, CPLGetLastErrorMsg() );
+<span class="lineNum">     590 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     591 </span>                :            :   }
+<span class="lineNum">     592 </span>                :            :   
+<span class="lineNum">     593 </span>                :<span class="lineCov">          1 :   msConnPoolRegister(&amp;clinfo-&gt;ogrLayer, clinfo-&gt;hOGRDS, msContourOGRCloseConnection);</span>
+<span class="lineNum">     594 </span>                :            : 
+<span class="lineNum">     595 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     596 </span>                :            : 
+<a name="597"><span class="lineNum">     597 </span>                :            : }</a>
+<span class="lineNum">     598 </span>                :            : 
+<span class="lineNum">     599 </span>                :<span class="lineCov">          1 : int msContourLayerOpen(layerObj *layer)</span>
+<span class="lineNum">     600 </span>                :            : {
+<span class="lineNum">     601 </span>                :            :   char *decrypted_path;
+<span class="lineNum">     602 </span>                :            :   char szPath[MS_MAXPATHLEN];  
+<span class="lineNum">     603 </span>                :            :   contourLayerInfo *clinfo;
+<span class="lineNum">     604 </span>                :            : 
+<span class="lineNum">     605 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug)</span>
+<span class="lineNum">     606 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;Entering msContourLayerOpen().\n&quot;);</span>
+<span class="lineNum">     607 </span>                :            : 
+<span class="lineNum">     608 </span>                :            :   /* If we don't have info, initialize an empty one now */
+<span class="lineNum">     609 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (layer-&gt;layerinfo == NULL)</span>
+<span class="lineNum">     610 </span>                :<span class="lineCov">          1 :     msContourLayerInfoInitialize(layer);</span>
+<span class="lineNum">     611 </span>                :            : 
+<span class="lineNum">     612 </span>                :<span class="lineCov">          1 :   clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     613 </span>                :            : 
+<span class="lineNum">     614 </span>                :<span class="lineCov">          1 :   GDALAllRegister();</span>
+<span class="lineNum">     615 </span>                :            : 
+<span class="lineNum">     616 </span>                :            :   /* Open the original Dataset */
+<span class="lineNum">     617 </span>                :<span class="lineCov">          1 :   msTryBuildPath3(szPath, layer-&gt;map-&gt;mappath, layer-&gt;map-&gt;shapepath, layer-&gt;data);</span>
+<span class="lineNum">     618 </span>                :<span class="lineCov">          1 :   decrypted_path = msDecryptStringTokens(layer-&gt;map, szPath);</span>
+<span class="lineNum">     619 </span>                :            : 
+<span class="lineNum">     620 </span>                :            :   msAcquireLock(TLOCK_GDAL);
+<span class="lineNum">     621 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (decrypted_path) {</span>
+<span class="lineNum">     622 </span>                :<span class="lineCov">          1 :     clinfo-&gt;hOrigDS = GDALOpen(decrypted_path, GA_ReadOnly);</span>
+<span class="lineNum">     623 </span>                :<span class="lineCov">          1 :     msFree(decrypted_path);</span>
+<span class="lineNum">     624 </span>                :            :   } else
+<span class="lineNum">     625 </span>                :<span class="lineNoCov">          0 :     clinfo-&gt;hOrigDS = NULL;</span>
+<span class="lineNum">     626 </span>                :            : 
+<span class="lineNum">     627 </span>                :            :   msReleaseLock(TLOCK_GDAL);
+<span class="lineNum">     628 </span>                :            : 
+<span class="lineNum">     629 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (clinfo-&gt;hOrigDS == NULL) {</span>
+<span class="lineNum">     630 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_IMGERR,</span>
+<span class="lineNum">     631 </span>                :            :                &quot;Unable to open GDAL dataset.&quot;,
+<span class="lineNum">     632 </span>                :            :                &quot;msContourLayerOpen()&quot;);
+<span class="lineNum">     633 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     634 </span>                :            :   }
+<span class="lineNum">     635 </span>                :            :   
+<span class="lineNum">     636 </span>                :            :   /* Open the raster source */
+<span class="lineNum">     637 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if (msContourLayerReadRaster(layer, layer-&gt;map-&gt;extent) != MS_SUCCESS)</span>
+<span class="lineNum">     638 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     639 </span>                :            : 
+<span class="lineNum">     640 </span>                :            :   /* Generate Contour Dataset */
+<span class="lineNum">     641 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if (msContourLayerGenerateContour(layer) != MS_SUCCESS)</span>
+<span class="lineNum">     642 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     643 </span>                :            : 
+<span class="lineNum">     644 </span>                :<span class="lineCov">          1 :   GDALClose(clinfo-&gt;hDS);</span>
+<span class="lineNum">     645 </span>                :<span class="lineCov">          1 :   clinfo-&gt;hDS = NULL;  </span>
+<span class="lineNum">     646 </span>                :<span class="lineCov">          1 :   free(clinfo-&gt;buffer);</span>
+<span class="lineNum">     647 </span>                :            : 
+<span class="lineNum">     648 </span>                :            :   /* Open our virtual ogr layer */
+<span class="lineNum">     649 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if (msLayerOpen(&amp;clinfo-&gt;ogrLayer) != MS_SUCCESS)</span>
+<span class="lineNum">     650 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     651 </span>                :            :   
+<span class="lineNum">     652 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<a name="653"><span class="lineNum">     653 </span>                :            : }</a>
+<span class="lineNum">     654 </span>                :            : 
+<span class="lineNum">     655 </span>                :<span class="lineCov">          1 : int msContourLayerIsOpen(layerObj *layer)</span>
+<span class="lineNum">     656 </span>                :            : {
+<span class="lineNum">     657 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (layer-&gt;layerinfo)</span>
+<span class="lineNum">     658 </span>                :            :     return MS_TRUE;
+<span class="lineNum">     659 </span>                :<span class="lineCov">          1 :   return MS_FALSE;</span>
+<span class="lineNum">     660 </span>                :            : }
+<span class="lineNum">     661 </span>                :            :   
+<span class="lineNum">     662 </span>                :<span class="lineCov">          1 : int msContourLayerClose(layerObj *layer)</span>
+<span class="lineNum">     663 </span>                :            : {
+<span class="lineNum">     664 </span>                :<span class="lineCov">          1 :   contourLayerInfo *clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     665 </span>                :            : 
+<span class="lineNum">     666 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug)</span>
+<span class="lineNum">     667 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;Entering msContourLayerClose().\n&quot;);</span>
+<span class="lineNum">     668 </span>                :            : 
+<span class="lineNum">     669 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (clinfo) {</span>
+<span class="lineNum">     670 </span>                :<span class="lineCov">          1 :     msConnPoolRelease(&amp;clinfo-&gt;ogrLayer, clinfo-&gt;hOGRDS);</span>
+<span class="lineNum">     671 </span>                :            : 
+<span class="lineNum">     672 </span>                :<span class="lineCov">          1 :     msLayerClose(&amp;clinfo-&gt;ogrLayer);</span>
+<span class="lineNum">     673 </span>                :            :     
+<span class="lineNum">     674 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (clinfo-&gt;hDS) {</span>
+<span class="lineNum">     675 </span>                :<span class="lineNoCov">          0 :       GDALClose(clinfo-&gt;hDS);</span>
+<span class="lineNum">     676 </span>                :<span class="lineNoCov">          0 :       clinfo-&gt;hDS = NULL;</span>
+<span class="lineNum">     677 </span>                :<span class="lineNoCov">          0 :       free(clinfo-&gt;buffer);      </span>
+<span class="lineNum">     678 </span>                :            :     }
+<span class="lineNum">     679 </span>                :            : 
+<span class="lineNum">     680 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (clinfo-&gt;hOrigDS) {</span>
+<span class="lineNum">     681 </span>                :<span class="lineCov">          1 :       GDALClose(clinfo-&gt;hOrigDS);</span>
+<span class="lineNum">     682 </span>                :<span class="lineCov">          1 :       clinfo-&gt;hOrigDS = NULL;      </span>
+<span class="lineNum">     683 </span>                :            :     }
+<span class="lineNum">     684 </span>                :            : 
+<span class="lineNum">     685 </span>                :            :     msContourLayerInfoFree(layer);
+<span class="lineNum">     686 </span>                :            : 
+<span class="lineNum">     687 </span>                :            :   }
+<span class="lineNum">     688 </span>                :            :   
+<span class="lineNum">     689 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<a name="690"><span class="lineNum">     690 </span>                :            : }</a>
+<span class="lineNum">     691 </span>                :            : 
+<span class="lineNum">     692 </span>                :<span class="lineNoCov">          0 : int msContourLayerGetItems(layerObj *layer)</span>
+<span class="lineNum">     693 </span>                :            : {
+<span class="lineNum">     694 </span>                :<span class="lineNoCov">          0 :   contourLayerInfo *clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     695 </span>                :            : 
+<span class="lineNum">     696 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (clinfo == NULL) {</span>
+<span class="lineNum">     697 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Assertion failed: Contour layer not opened!!!&quot;,</span>
+<span class="lineNum">     698 </span>                :            :                &quot;msContourLayerGetItems()&quot;);
+<span class="lineNum">     699 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     700 </span>                :            :   }
+<span class="lineNum">     701 </span>                :            : 
+<span class="lineNum">     702 </span>                :<span class="lineNoCov">          0 :   return msContourLayerGetItems(&amp;clinfo-&gt;ogrLayer);</span>
+<a name="703"><span class="lineNum">     703 </span>                :            : }</a>
+<span class="lineNum">     704 </span>                :            : 
+<span class="lineNum">     705 </span>                :<span class="lineCov">          1 : int msContourLayerWhichShapes(layerObj *layer, rectObj rect, int isQuery)</span>
+<span class="lineNum">     706 </span>                :            : {
+<span class="lineNum">     707 </span>                :            :   rectObj newRect;
+<span class="lineNum">     708 </span>                :<span class="lineCov">          1 :   contourLayerInfo *clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     709 </span>                :            : 
+<span class="lineNum">     710 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug)</span>
+<span class="lineNum">     711 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;Entering msContourLayerWhichShapes().\n&quot;);</span>
+<span class="lineNum">     712 </span>                :            : 
+<span class="lineNum">     713 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (clinfo == NULL) {</span>
+<span class="lineNum">     714 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Assertion failed: Contour layer not opened!!!&quot;,</span>
+<span class="lineNum">     715 </span>                :            :                &quot;msContourLayerWhichShapes()&quot;);
+<span class="lineNum">     716 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     717 </span>                :            :   }
+<span class="lineNum">     718 </span>                :            : 
+<span class="lineNum">     719 </span>                :<span class="lineCov">          1 :   newRect = rect;</span>
+<span class="lineNum">     720 </span>                :            :   
+<span class="lineNum">     721 </span>                :            : #ifdef USE_PROJ
+<span class="lineNum">     722 </span>                :            :     /* if necessary, project the searchrect to source coords */
+<span class="lineNum">     723 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (msProjectionsDiffer( &amp;(layer-&gt;map-&gt;projection), &amp;(layer-&gt;projection)))  {</span>
+<span class="lineNum">     724 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (msProjectRect(&amp;layer-&gt;projection, &amp;layer-&gt;map-&gt;projection, &amp;newRect)</span>
+<span class="lineNum">     725 </span>                :            :           != MS_SUCCESS ) {
+<span class="lineNum">     726 </span>                :<span class="lineNoCov">          0 :         msDebug(&quot;msContourLayerWhichShapes(%s): unable to reproject map request rectangle into layer projection, canceling.\n&quot;, layer-&gt;name);</span>
+<span class="lineNum">     727 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">     728 </span>                :            :       }
+<span class="lineNum">     729 </span>                :            :     }
+<span class="lineNum">     730 </span>                :            : #endif
+<span class="lineNum">     731 </span>                :            : 
+<span class="lineNum">     732 </span>                :            :   /* regenerate the raster io */
+<span class="lineNum">     733 </span>                :<span class="lineCov">          1 :   msConnPoolRelease(&amp;clinfo-&gt;ogrLayer, clinfo-&gt;hOGRDS);</span>
+<span class="lineNum">     734 </span>                :<span class="lineCov">          1 :   msLayerClose(&amp;clinfo-&gt;ogrLayer);</span>
+<span class="lineNum">     735 </span>                :            :   
+<span class="lineNum">     736 </span>                :            :   /* Open the raster source */
+<span class="lineNum">     737 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if (msContourLayerReadRaster(layer, newRect) != MS_SUCCESS)</span>
+<span class="lineNum">     738 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     739 </span>                :            : 
+<span class="lineNum">     740 </span>                :            :   /* Generate Contour Dataset */
+<span class="lineNum">     741 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if (msContourLayerGenerateContour(layer) != MS_SUCCESS)</span>
+<span class="lineNum">     742 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     743 </span>                :            : 
+<span class="lineNum">     744 </span>                :<span class="lineCov">          1 :   GDALClose(clinfo-&gt;hDS);</span>
+<span class="lineNum">     745 </span>                :<span class="lineCov">          1 :   clinfo-&gt;hDS = NULL;</span>
+<span class="lineNum">     746 </span>                :<span class="lineCov">          1 :   free(clinfo-&gt;buffer);  </span>
+<span class="lineNum">     747 </span>                :            :   
+<span class="lineNum">     748 </span>                :            :   /* Open our virtual ogr layer */
+<span class="lineNum">     749 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if (msLayerOpen(&amp;clinfo-&gt;ogrLayer) != MS_SUCCESS)</span>
+<span class="lineNum">     750 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     751 </span>                :            : 
+<span class="lineNum">     752 </span>                :<span class="lineCov">          1 :   clinfo-&gt;ogrLayer.numitems = layer-&gt;numitems;</span>
+<span class="lineNum">     753 </span>                :<span class="lineCov">          1 :   clinfo-&gt;ogrLayer.items = CSLDuplicate(layer-&gt;items); </span>
+<span class="lineNum">     754 </span>                :            : 
+<span class="lineNum">     755 </span>                :<span class="lineCov">          1 :   return msLayerWhichShapes(&amp;clinfo-&gt;ogrLayer, rect, isQuery);</span>
+<a name="756"><span class="lineNum">     756 </span>                :            : }</a>
+<span class="lineNum">     757 </span>                :            : 
+<span class="lineNum">     758 </span>                :<span class="lineNoCov">          0 : int msContourLayerGetShape(layerObj *layer, shapeObj *shape, resultObj *record)</span>
+<span class="lineNum">     759 </span>                :            : {
+<span class="lineNum">     760 </span>                :<span class="lineNoCov">          0 :   contourLayerInfo *clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     761 </span>                :            : 
+<span class="lineNum">     762 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (layer-&gt;debug)</span>
+<span class="lineNum">     763 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;Entering msContourLayerGetShape().\n&quot;);</span>
+<span class="lineNum">     764 </span>                :            : 
+<span class="lineNum">     765 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (clinfo == NULL) {</span>
+<span class="lineNum">     766 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Assertion failed: Contour layer not opened!!!&quot;,</span>
+<span class="lineNum">     767 </span>                :            :                &quot;msContourLayerGetShape()&quot;);
+<span class="lineNum">     768 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     769 </span>                :            :   }
+<span class="lineNum">     770 </span>                :            : 
+<span class="lineNum">     771 </span>                :<span class="lineNoCov">          0 :   return msLayerGetShape(&amp;clinfo-&gt;ogrLayer, shape, record);</span>
+<a name="772"><span class="lineNum">     772 </span>                :            : }</a>
+<span class="lineNum">     773 </span>                :            : 
+<span class="lineNum">     774 </span>                :<span class="lineCov">          1 : int msContourLayerNextShape(layerObj *layer, shapeObj *shape)</span>
+<span class="lineNum">     775 </span>                :            : {
+<span class="lineNum">     776 </span>                :<span class="lineCov">          1 :   contourLayerInfo *clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     777 </span>                :            : 
+<span class="lineNum">     778 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug)</span>
+<span class="lineNum">     779 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;Entering msContourLayerNextShape().\n&quot;);</span>
+<span class="lineNum">     780 </span>                :            : 
+<span class="lineNum">     781 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (clinfo == NULL) {</span>
+<span class="lineNum">     782 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Assertion failed: Contour layer not opened!!!&quot;,</span>
+<span class="lineNum">     783 </span>                :            :                &quot;msContourLayerNextShape()&quot;);
+<span class="lineNum">     784 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     785 </span>                :            :   }
+<span class="lineNum">     786 </span>                :            : 
+<span class="lineNum">     787 </span>                :<span class="lineCov">          1 :   return msLayerNextShape(&amp;clinfo-&gt;ogrLayer, shape);</span>
+<span class="lineNum">     788 </span>                :            : }
+<span class="lineNum">     789 </span>                :            : 
+<span class="lineNum">     790 </span>                :            : /************************************************************************/
+<span class="lineNum">     791 </span>                :            : /*                       msContourLayerGetExtent()                     */
+<span class="lineNum">     792 </span>                :            : /* Simple copy of the maprasterquery.c file. might change in the future */
+<a name="793"><span class="lineNum">     793 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     794 </span>                :            : 
+<span class="lineNum">     795 </span>                :<span class="lineNoCov">          0 : int msContourLayerGetExtent(layerObj *layer, rectObj *extent)</span>
+<span class="lineNum">     796 </span>                :            : {
+<span class="lineNum">     797 </span>                :<span class="lineNoCov">          0 :   contourLayerInfo *clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     798 </span>                :            : 
+<span class="lineNum">     799 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (layer-&gt;debug)</span>
+<span class="lineNum">     800 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;Entering msContourLayerGetExtent().\n&quot;);</span>
+<span class="lineNum">     801 </span>                :            : 
+<span class="lineNum">     802 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (clinfo == NULL) {</span>
+<span class="lineNum">     803 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Assertion failed: Contour layer not opened!!!&quot;,</span>
+<span class="lineNum">     804 </span>                :            :                &quot;msContourLayerGetExtent()&quot;);
+<span class="lineNum">     805 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     806 </span>                :            :   }
+<span class="lineNum">     807 </span>                :            : 
+<span class="lineNum">     808 </span>                :<span class="lineNoCov">          0 :   MS_COPYRECT(extent, &amp;clinfo-&gt;extent);</span>
+<span class="lineNum">     809 </span>                :            : 
+<span class="lineNum">     810 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<a name="811"><span class="lineNum">     811 </span>                :            : }</a>
+<span class="lineNum">     812 </span>                :            : 
+<span class="lineNum">     813 </span>                :<span class="lineNoCov">          0 : int msContourLayerSetTimeFilter(layerObj *layer, const char *timestring,</span>
+<span class="lineNum">     814 </span>                :            :                                 const char *timefield)
+<span class="lineNum">     815 </span>                :            : {
+<span class="lineNum">     816 </span>                :<span class="lineNoCov">          0 :   contourLayerInfo *clinfo = (contourLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     817 </span>                :            : 
+<span class="lineNum">     818 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (layer-&gt;debug)</span>
+<span class="lineNum">     819 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;Entering msContourLayerSetTimeFilter().\n&quot;);</span>
+<span class="lineNum">     820 </span>                :            : 
+<span class="lineNum">     821 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (clinfo == NULL) {</span>
+<span class="lineNum">     822 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Assertion failed: Contour layer not opened!!!&quot;,</span>
+<span class="lineNum">     823 </span>                :            :                &quot;msContourLayerSetTimeFilter()&quot;);
+<span class="lineNum">     824 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     825 </span>                :            :   }
+<span class="lineNum">     826 </span>                :            : 
+<span class="lineNum">     827 </span>                :<span class="lineNoCov">          0 :   return msLayerSetTimeFilter(&amp;clinfo-&gt;ogrLayer, timestring, timefield);</span>
+<span class="lineNum">     828 </span>                :            : }
+<span class="lineNum">     829 </span>                :            : 
+<span class="lineNum">     830 </span>                :            : 
+<span class="lineNum">     831 </span>                :            : /************************************************************************/
+<span class="lineNum">     832 </span>                :            : /*                msRASTERLayerInitializeVirtualTable()                 */
+<a name="833"><span class="lineNum">     833 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     834 </span>                :            : 
+<span class="lineNum">     835 </span>                :<span class="lineCov">          1 : int msContourLayerInitializeVirtualTable(layerObj *layer)</span>
+<span class="lineNum">     836 </span>                :            : {
+<span class="lineNum">     837 </span>                :            :   assert(layer != NULL);
+<span class="lineNum">     838 </span>                :            :   assert(layer-&gt;vtable != NULL);
+<span class="lineNum">     839 </span>                :            : 
+<span class="lineNum">     840 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msContourLayerInitItemInfo;</span>
+<span class="lineNum">     841 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msContourLayerFreeItemInfo;</span>
+<span class="lineNum">     842 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerOpen = msContourLayerOpen;</span>
+<span class="lineNum">     843 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerIsOpen = msContourLayerIsOpen;</span>
+<span class="lineNum">     844 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msContourLayerWhichShapes;</span>
+<span class="lineNum">     845 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msContourLayerNextShape;</span>
+<span class="lineNum">     846 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msContourLayerGetShape;</span>
+<span class="lineNum">     847 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msContourLayerClose;</span>
+<span class="lineNum">     848 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetItems = msContourLayerGetItems;</span>
+<span class="lineNum">     849 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetExtent = msContourLayerGetExtent;</span>
+<span class="lineNum">     850 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
+<span class="lineNum">     851 </span>                :            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
+<span class="lineNum">     852 </span>                :            :   /*layer-&gt;vtable-&gt;LayerCloseConnection = msContourLayerClose;*/
+<span class="lineNum">     853 </span>                :            :   /* we use backtics for proper tileindex shapefile functioning */
+<span class="lineNum">     854 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msContourLayerSetTimeFilter;</span>
+<span class="lineNum">     855 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
+<span class="lineNum">     856 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
+<span class="lineNum">     857 </span>                :            : 
+<span class="lineNum">     858 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     859 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     860 </span>                :            : 
+<span class="lineNum">     861 </span>                :            : #else
+<span class="lineNum">     862 </span>                :            : int msContourLayerInitializeVirtualTable(layerObj *layer)
+<span class="lineNum">     863 </span>                :            : {
+<span class="lineNum">     864 </span>                :            :   msSetError(MS_MISCERR, &quot;Contour Layer needs GDAL support, but it it not compiled in&quot;, &quot;msContourLayerInitializeVirtualTable()&quot;);
+<span class="lineNum">     865 </span>                :            :   return MS_FAILURE;
+<span class="lineNum">     866 </span>                :            : }
+<span class="lineNum">     867 </span>                :            : #endif
+<span class="lineNum">     868 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

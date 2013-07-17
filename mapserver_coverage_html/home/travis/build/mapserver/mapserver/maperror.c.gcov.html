@@ -1,0 +1,689 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - /home/travis/build/mapserver/mapserver/maperror.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">home/travis/build/mapserver/mapserver</a> - maperror.c<span style="font-size: 80%;"> (source / <a href="maperror.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">130</td>
+            <td class="headerCovTableEntry">150</td>
+            <td class="headerCovTableEntryMed">86.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">72.7 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">61</td>
+            <td class="headerCovTableEntry">104</td>
+            <td class="headerCovTableEntryLo">58.7 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * $Id$
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Project:  MapServer
+<span class="lineNum">       5 </span>                :            :  * Purpose:  Implementation of msSetError(), msDebug() and related functions.
+<span class="lineNum">       6 </span>                :            :  * Author:   Steve Lime and the MapServer team.
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  ******************************************************************************
+<span class="lineNum">       9 </span>                :            :  * Copyright (c) 1996-2005 Regents of the University of Minnesota.
+<span class="lineNum">      10 </span>                :            :  *
+<span class="lineNum">      11 </span>                :            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      12 </span>                :            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      13 </span>                :            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      14 </span>                :            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      15 </span>                :            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      16 </span>                :            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      17 </span>                :            :  *
+<span class="lineNum">      18 </span>                :            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      19 </span>                :            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      20 </span>                :            :  *
+<span class="lineNum">      21 </span>                :            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+<span class="lineNum">      22 </span>                :            :  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      23 </span>                :            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+<span class="lineNum">      24 </span>                :            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      25 </span>                :            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      26 </span>                :            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      27 </span>                :            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      28 </span>                :            :  ****************************************************************************/
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            : #include &quot;mapserver.h&quot;
+<span class="lineNum">      31 </span>                :            : #include &quot;maperror.h&quot;
+<span class="lineNum">      32 </span>                :            : #include &quot;mapthread.h&quot;
+<span class="lineNum">      33 </span>                :            : #include &quot;maptime.h&quot;
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : #include &lt;time.h&gt;
+<span class="lineNum">      36 </span>                :            : #ifndef _WIN32
+<span class="lineNum">      37 </span>                :            : #include &lt;sys/time.h&gt;
+<span class="lineNum">      38 </span>                :            : #include &lt;unistd.h&gt;
+<span class="lineNum">      39 </span>                :            : #endif
+<span class="lineNum">      40 </span>                :            : #include &lt;stdarg.h&gt;
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :            : static char *ms_errorCodes[MS_NUMERRORCODES] = {&quot;&quot;,
+<span class="lineNum">      45 </span>                :            :     &quot;Unable to access file.&quot;,
+<span class="lineNum">      46 </span>                :            :     &quot;Memory allocation error.&quot;,
+<span class="lineNum">      47 </span>                :            :     &quot;Incorrect data type.&quot;,
+<span class="lineNum">      48 </span>                :            :     &quot;Symbol definition error.&quot;,
+<span class="lineNum">      49 </span>                :            :     &quot;Regular expression error.&quot;,
+<span class="lineNum">      50 </span>                :            :     &quot;TrueType Font error.&quot;,
+<span class="lineNum">      51 </span>                :            :     &quot;DBASE file error.&quot;,
+<span class="lineNum">      52 </span>                :            :     &quot;GD library error.&quot;,
+<span class="lineNum">      53 </span>                :            :     &quot;Unknown identifier.&quot;,
+<span class="lineNum">      54 </span>                :            :     &quot;Premature End-of-File.&quot;,
+<span class="lineNum">      55 </span>                :            :     &quot;Projection library error.&quot;,
+<span class="lineNum">      56 </span>                :            :     &quot;General error message.&quot;,
+<span class="lineNum">      57 </span>                :            :     &quot;CGI error.&quot;,
+<span class="lineNum">      58 </span>                :            :     &quot;Web application error.&quot;,
+<span class="lineNum">      59 </span>                :            :     &quot;Image handling error.&quot;,
+<span class="lineNum">      60 </span>                :            :     &quot;Hash table error.&quot;,
+<span class="lineNum">      61 </span>                :            :     &quot;Join error.&quot;,
+<span class="lineNum">      62 </span>                :            :     &quot;Search returned no results.&quot;,
+<span class="lineNum">      63 </span>                :            :     &quot;Shapefile error.&quot;,
+<span class="lineNum">      64 </span>                :            :     &quot;Expression parser error.&quot;,
+<span class="lineNum">      65 </span>                :            :     &quot;SDE error.&quot;,
+<span class="lineNum">      66 </span>                :            :     &quot;OGR error.&quot;,
+<span class="lineNum">      67 </span>                :            :     &quot;Query error.&quot;,
+<span class="lineNum">      68 </span>                :            :     &quot;WMS server error.&quot;,
+<span class="lineNum">      69 </span>                :            :     &quot;WMS connection error.&quot;,
+<span class="lineNum">      70 </span>                :            :     &quot;OracleSpatial error.&quot;,
+<span class="lineNum">      71 </span>                :            :     &quot;WFS server error.&quot;,
+<span class="lineNum">      72 </span>                :            :     &quot;WFS connection error.&quot;,
+<span class="lineNum">      73 </span>                :            :     &quot;WMS Map Context error.&quot;,
+<span class="lineNum">      74 </span>                :            :     &quot;HTTP request error.&quot;,
+<span class="lineNum">      75 </span>                :            :     &quot;Child array error.&quot;,
+<span class="lineNum">      76 </span>                :            :     &quot;WCS server error.&quot;,
+<span class="lineNum">      77 </span>                :            :     &quot;GEOS library error.&quot;,
+<span class="lineNum">      78 </span>                :            :     &quot;Invalid rectangle.&quot;,
+<span class="lineNum">      79 </span>                :            :     &quot;Date/time error.&quot;,
+<span class="lineNum">      80 </span>                :            :     &quot;GML encoding error.&quot;,
+<span class="lineNum">      81 </span>                :            :     &quot;SOS server error.&quot;,
+<span class="lineNum">      82 </span>                :            :     &quot;NULL parent pointer error.&quot;,
+<span class="lineNum">      83 </span>                :            :     &quot;AGG library error.&quot;,
+<span class="lineNum">      84 </span>                :            :     &quot;OWS error.&quot;,
+<span class="lineNum">      85 </span>                :            :     &quot;OpenGL renderer error.&quot;,
+<span class="lineNum">      86 </span>                :            :     &quot;Renderer error.&quot;
+<span class="lineNum">      87 </span>                :            :                                                };
+<span class="lineNum">      88 </span>                :            : 
+<a name="89"><span class="lineNum">      89 </span>                :            : #ifndef USE_THREAD</a>
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>                :<span class="lineCov">          1 : errorObj *msGetErrorObj()</span>
+<span class="lineNum">      92 </span>                :            : {
+<span class="lineNum">      93 </span>                :            :   static errorObj ms_error = {MS_NOERR, &quot;&quot;, &quot;&quot;, MS_FALSE, NULL};
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :<span class="lineCov">          1 :   return &amp;ms_error;</span>
+<span class="lineNum">      96 </span>                :            : }
+<span class="lineNum">      97 </span>                :            : #endif
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>                :            : #ifdef USE_THREAD
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>                :            : typedef struct te_info {
+<span class="lineNum">     102 </span>                :            :   struct te_info *next;
+<span class="lineNum">     103 </span>                :            :   int             thread_id;
+<span class="lineNum">     104 </span>                :            :   errorObj        ms_error;
+<span class="lineNum">     105 </span>                :            : } te_info_t;
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :            : static te_info_t *error_list = NULL;
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :            : errorObj *msGetErrorObj()
+<span class="lineNum">     110 </span>                :            : {
+<span class="lineNum">     111 </span>                :            :   te_info_t *link;
+<span class="lineNum">     112 </span>                :            :   int        thread_id;
+<span class="lineNum">     113 </span>                :            :   errorObj   *ret_obj;
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            :   msAcquireLock( TLOCK_ERROROBJ );
+<span class="lineNum">     116 </span>                :            : 
+<span class="lineNum">     117 </span>                :            :   thread_id = msGetThreadId();
+<span class="lineNum">     118 </span>                :            : 
+<span class="lineNum">     119 </span>                :            :   /* find link for this thread */
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :            :   for( link = error_list;
+<span class="lineNum">     122 </span>                :            :        link != NULL &amp;&amp; link-&gt;thread_id != thread_id
+<span class="lineNum">     123 </span>                :            :        &amp;&amp; link-&gt;next != NULL &amp;&amp; link-&gt;next-&gt;thread_id != thread_id;
+<span class="lineNum">     124 </span>                :            :        link = link-&gt;next ) {}
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :            :   /* If the target thread link is already at the head of the list were ok */
+<span class="lineNum">     127 </span>                :            :   if( error_list != NULL &amp;&amp; error_list-&gt;thread_id == thread_id ) {
+<span class="lineNum">     128 </span>                :            :   }
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :            :   /* We don't have one ... initialize one. */
+<span class="lineNum">     131 </span>                :            :   else if( link == NULL || link-&gt;next == NULL ) {
+<span class="lineNum">     132 </span>                :            :     te_info_t *new_link;
+<span class="lineNum">     133 </span>                :            :     errorObj   error_obj = { MS_NOERR, &quot;&quot;, &quot;&quot;, 0 };
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :            :     new_link = (te_info_t *) malloc(sizeof(te_info_t));
+<span class="lineNum">     136 </span>                :            :     new_link-&gt;next = error_list;
+<span class="lineNum">     137 </span>                :            :     new_link-&gt;thread_id = thread_id;
+<span class="lineNum">     138 </span>                :            :     new_link-&gt;ms_error = error_obj;
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :            :     error_list = new_link;
+<span class="lineNum">     141 </span>                :            :   }
+<span class="lineNum">     142 </span>                :            : 
+<span class="lineNum">     143 </span>                :            :   /* If the link is not already at the head of the list, promote it */
+<span class="lineNum">     144 </span>                :            :   else if( link != NULL &amp;&amp; link-&gt;next != NULL ) {
+<span class="lineNum">     145 </span>                :            :     te_info_t *target = link-&gt;next;
+<span class="lineNum">     146 </span>                :            : 
+<span class="lineNum">     147 </span>                :            :     link-&gt;next = link-&gt;next-&gt;next;
+<span class="lineNum">     148 </span>                :            :     target-&gt;next = error_list;
+<span class="lineNum">     149 </span>                :            :     error_list = target;
+<span class="lineNum">     150 </span>                :            :   }
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>                :            :   ret_obj = &amp;(error_list-&gt;ms_error);
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :            :   msReleaseLock( TLOCK_ERROROBJ );
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :            :   return ret_obj;
+<span class="lineNum">     157 </span>                :            : }
+<span class="lineNum">     158 </span>                :            : #endif
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :            : /* msInsertErrorObj()
+<span class="lineNum">     161 </span>                :            : **
+<span class="lineNum">     162 </span>                :            : ** We maintain a chained list of errorObj in which the first errorObj is
+<span class="lineNum">     163 </span>                :            : ** the most recent (i.e. a stack).  msErrorReset() should be used to clear
+<span class="lineNum">     164 </span>                :            : ** the list.
+<span class="lineNum">     165 </span>                :            : **
+<span class="lineNum">     166 </span>                :            : ** Note that since some code in MapServer will fetch the head of the list and
+<span class="lineNum">     167 </span>                :            : ** keep a handle on it for a while, the head of the chained list is static
+<span class="lineNum">     168 </span>                :            : ** and never changes.
+<span class="lineNum">     169 </span>                :            : ** A new errorObj is always inserted after the head, and only if the
+<span class="lineNum">     170 </span>                :            : ** head of the list already contains some information.  i.e. If the static
+<span class="lineNum">     171 </span>                :            : ** errorObj at the head of the list is empty then it is returned directly,
+<span class="lineNum">     172 </span>                :            : ** otherwise a new object is inserted after the head and the data that was in
+<span class="lineNum">     173 </span>                :            : ** the head is moved to the new errorObj, freeing the head errorObj to receive
+<span class="lineNum">     174 </span>                :            : ** the new error information.
+<span class="lineNum">     175 </span>                :            : */
+<span class="lineNum">     176 </span>                :            : static errorObj *msInsertErrorObj(void)
+<a name="177"><span class="lineNum">     177 </span>                :            : {</a>
+<span class="lineNum">     178 </span>                :            :   errorObj *ms_error;
+<span class="lineNum">     179 </span>                :<span class="lineCov">          1 :   ms_error = msGetErrorObj();</span>
+<span class="lineNum">     180 </span>                :            : 
+<span class="lineNum">     181 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (ms_error-&gt;code != MS_NOERR) {</span>
+<span class="lineNum">     182 </span>                :            :     /* Head of the list already in use, insert a new errorObj after the head
+<span class="lineNum">     183 </span>                :            :      * and move head contents to this new errorObj, freeing the errorObj
+<span class="lineNum">     184 </span>                :            :      * for reuse.
+<span class="lineNum">     185 </span>                :            :      */
+<span class="lineNum">     186 </span>                :            :     errorObj *new_error;
+<span class="lineNum">     187 </span>                :<span class="lineCov">          1 :     new_error = (errorObj *)malloc(sizeof(errorObj));</span>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :            :     /* Note: if malloc() failed then we simply do nothing and the head will
+<span class="lineNum">     190 </span>                :            :      * be overwritten by the caller... we cannot produce an error here
+<span class="lineNum">     191 </span>                :            :      * since we are already inside a msSetError() call.
+<span class="lineNum">     192 </span>                :            :      */
+<span class="lineNum">     193 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (new_error) {</span>
+<span class="lineNum">     194 </span>                :<span class="lineCov">          1 :       new_error-&gt;next = ms_error-&gt;next;</span>
+<span class="lineNum">     195 </span>                :<span class="lineCov">          1 :       new_error-&gt;code = ms_error-&gt;code;</span>
+<span class="lineNum">     196 </span>                :<span class="lineCov">          1 :       new_error-&gt;isreported = ms_error-&gt;isreported;</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">          1 :       strlcpy(new_error-&gt;routine, ms_error-&gt;routine, sizeof(new_error-&gt;routine));</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">          1 :       strlcpy(new_error-&gt;message, ms_error-&gt;message, sizeof(new_error-&gt;message));</span>
+<span class="lineNum">     199 </span>                :            : 
+<span class="lineNum">     200 </span>                :<span class="lineCov">          1 :       ms_error-&gt;next = new_error;</span>
+<span class="lineNum">     201 </span>                :<span class="lineCov">          1 :       ms_error-&gt;code = MS_NOERR;</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">          1 :       ms_error-&gt;isreported = MS_FALSE;</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">          1 :       ms_error-&gt;routine[0] = '\0';</span>
+<span class="lineNum">     204 </span>                :<span class="lineCov">          1 :       ms_error-&gt;message[0] = '\0';</span>
+<span class="lineNum">     205 </span>                :            :     }
+<span class="lineNum">     206 </span>                :            :   }
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>                :            :   return ms_error;
+<span class="lineNum">     209 </span>                :            : }
+<span class="lineNum">     210 </span>                :            : 
+<span class="lineNum">     211 </span>                :            : /* msResetErrorList()
+<span class="lineNum">     212 </span>                :            : **
+<a name="213"><span class="lineNum">     213 </span>                :            : ** Clear the list of error objects.</a>
+<span class="lineNum">     214 </span>                :            : */
+<span class="lineNum">     215 </span>                :<span class="lineCov">          1 : void msResetErrorList()</span>
+<span class="lineNum">     216 </span>                :            : {
+<span class="lineNum">     217 </span>                :            :   errorObj *ms_error, *this_error;
+<span class="lineNum">     218 </span>                :<span class="lineCov">          1 :   ms_error = msGetErrorObj();</span>
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :<span class="lineCov">          1 :   this_error = ms_error-&gt;next;</span>
+<span class="lineNum">     221 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   while( this_error != NULL) {</span>
+<span class="lineNum">     222 </span>                :            :     errorObj *next_error;
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :<span class="lineCov">          1 :     next_error = this_error-&gt;next;</span>
+<span class="lineNum">     225 </span>                :<span class="lineCov">          1 :     msFree(this_error);</span>
+<span class="lineNum">     226 </span>                :            :     this_error = next_error;
+<span class="lineNum">     227 </span>                :            :   }
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>                :<span class="lineCov">          1 :   ms_error-&gt;next = NULL;</span>
+<span class="lineNum">     230 </span>                :<span class="lineCov">          1 :   ms_error-&gt;code = MS_NOERR;</span>
+<span class="lineNum">     231 </span>                :<span class="lineCov">          1 :   ms_error-&gt;routine[0] = '\0';</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">          1 :   ms_error-&gt;message[0] = '\0';</span>
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     235 </span>                :            :   /*      Cleanup our entry in the thread list.  This is mainly           */
+<span class="lineNum">     236 </span>                :            :   /*      imprortant when msCleanup() calls msResetErrorList().           */
+<span class="lineNum">     237 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     238 </span>                :            : #ifdef USE_THREAD
+<span class="lineNum">     239 </span>                :            :   {
+<span class="lineNum">     240 </span>                :            :     int  thread_id = msGetThreadId();
+<span class="lineNum">     241 </span>                :            :     te_info_t *link;
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>                :            :     msAcquireLock( TLOCK_ERROROBJ );
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :            :     /* find link for this thread */
+<span class="lineNum">     246 </span>                :            : 
+<span class="lineNum">     247 </span>                :            :     for( link = error_list;
+<span class="lineNum">     248 </span>                :            :          link != NULL &amp;&amp; link-&gt;thread_id != thread_id
+<span class="lineNum">     249 </span>                :            :          &amp;&amp; link-&gt;next != NULL &amp;&amp; link-&gt;next-&gt;thread_id != thread_id;
+<span class="lineNum">     250 </span>                :            :          link = link-&gt;next ) {}
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>                :            :     if( link-&gt;thread_id == thread_id ) {
+<span class="lineNum">     253 </span>                :            :       /* presumably link is at head of list.  */
+<span class="lineNum">     254 </span>                :            :       if( error_list == link )
+<span class="lineNum">     255 </span>                :            :         error_list = link-&gt;next;
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>                :            :       free( link );
+<span class="lineNum">     258 </span>                :            :     } else if( link-&gt;next != NULL &amp;&amp; link-&gt;next-&gt;thread_id == thread_id ) {
+<span class="lineNum">     259 </span>                :            :       te_info_t *next_link = link-&gt;next;
+<span class="lineNum">     260 </span>                :            :       link-&gt;next = link-&gt;next-&gt;next;
+<span class="lineNum">     261 </span>                :            :       free( next_link );
+<span class="lineNum">     262 </span>                :            :     }
+<span class="lineNum">     263 </span>                :            :     msReleaseLock( TLOCK_ERROROBJ );
+<span class="lineNum">     264 </span>                :            :   }
+<span class="lineNum">     265 </span>                :            : #endif
+<a name="266"><span class="lineNum">     266 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     267 </span>                :            : 
+<span class="lineNum">     268 </span>                :<span class="lineNoCov">          0 : char *msGetErrorCodeString(int code)</span>
+<span class="lineNum">     269 </span>                :            : {
+<span class="lineNum">     270 </span>                :            : 
+<span class="lineNum">     271 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(code&lt;0 || code&gt;MS_NUMERRORCODES-1)</span>
+<span class="lineNum">     272 </span>                :            :     return(&quot;Invalid error code.&quot;);
+<span class="lineNum">     273 </span>                :            : 
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 :   return(ms_errorCodes[code]);</span>
+<span class="lineNum">     275 </span>                :            : }
+<span class="lineNum">     276 </span>                :            : 
+<span class="lineNum">     277 </span>                :            : /* -------------------------------------------------------------------- */
+<span class="lineNum">     278 </span>                :            : /*      Adding the displayable error string to a given string           */
+<span class="lineNum">     279 </span>                :            : /*      and reallocates the memory enough to hold the characters.       */
+<a name="280"><span class="lineNum">     280 </span>                :            : /*      If source is null returns a newly allocated string              */</a>
+<span class="lineNum">     281 </span>                :            : /* -------------------------------------------------------------------- */
+<span class="lineNum">     282 </span>                :<span class="lineCov">          1 : char *msAddErrorDisplayString(char *source, errorObj *error)</span>
+<span class="lineNum">     283 </span>                :            : {
+<span class="lineNum">     284 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if((source = msStringConcatenate(source, error-&gt;routine)) == NULL) return(NULL);</span>
+<span class="lineNum">     285 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if((source = msStringConcatenate(source, &quot;: &quot;)) == NULL) return(NULL);</span>
+<span class="lineNum">     286 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if((source = msStringConcatenate(source, ms_errorCodes[error-&gt;code])) == NULL) return(NULL);</span>
+<span class="lineNum">     287 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if((source = msStringConcatenate(source, &quot; &quot;)) == NULL) return(NULL);</span>
+<span class="lineNum">     288 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if((source = msStringConcatenate(source, error-&gt;message)) == NULL) return(NULL);</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">          1 :   return source;</span>
+<a name="290"><span class="lineNum">     290 </span>                :            : }</a>
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>                :<span class="lineCov">          1 : char *msGetErrorString(char *delimiter)</span>
+<span class="lineNum">     293 </span>                :            : {
+<span class="lineNum">     294 </span>                :            :   char *errstr=NULL;
+<span class="lineNum">     295 </span>                :            : 
+<span class="lineNum">     296 </span>                :<span class="lineCov">          1 :   errorObj *error = msGetErrorObj();</span>
+<span class="lineNum">     297 </span>                :            : 
+<span class="lineNum">     298 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!delimiter || !error) return(NULL);</span>
+<span class="lineNum">     299 </span>                :            : 
+<span class="lineNum">     300 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   while(error &amp;&amp; error-&gt;code != MS_NOERR) {</span>
+<span class="lineNum">     301 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if((errstr = msAddErrorDisplayString(errstr, error)) == NULL) return(NULL);</span>
+<span class="lineNum">     302 </span>                :            : 
+<span class="lineNum">     303 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if(error-&gt;next &amp;&amp; error-&gt;next-&gt;code != MS_NOERR) { /* (peek ahead) more errors, use delimiter */</span>
+<span class="lineNum">     304 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       if((errstr = msStringConcatenate(errstr, delimiter)) == NULL) return(NULL);</span>
+<span class="lineNum">     305 </span>                :            :     }
+<span class="lineNum">     306 </span>                :<span class="lineCov">          1 :     error = error-&gt;next;</span>
+<span class="lineNum">     307 </span>                :            :   }
+<span class="lineNum">     308 </span>                :            : 
+<span class="lineNum">     309 </span>                :            :   return(errstr);
+<span class="lineNum">     310 </span>                :            : }
+<span class="lineNum">     311 </span>                :            : 
+<span class="lineNum">     312 </span>                :<span class="lineCov">          1 : void msSetError(int code, const char *message_fmt, const char *routine, ...)</span>
+<span class="lineNum">     313 </span>                :            : {
+<span class="lineNum">     314 </span>                :            :   errorObj *ms_error = msInsertErrorObj();
+<span class="lineNum">     315 </span>                :            :   va_list args;
+<span class="lineNum">     316 </span>                :            : 
+<span class="lineNum">     317 </span>                :<span class="lineCov">          1 :   ms_error-&gt;code = code;</span>
+<span class="lineNum">     318 </span>                :            : 
+<span class="lineNum">     319 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!routine)</span>
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :     strcpy(ms_error-&gt;routine, &quot;&quot;);</span>
+<span class="lineNum">     321 </span>                :            :   else {
+<span class="lineNum">     322 </span>                :<span class="lineCov">          1 :     strlcpy(ms_error-&gt;routine, routine, sizeof(ms_error-&gt;routine));</span>
+<span class="lineNum">     323 </span>                :            :   }
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!message_fmt)</span>
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :     strcpy(ms_error-&gt;message, &quot;&quot;);</span>
+<span class="lineNum">     327 </span>                :            :   else {
+<span class="lineNum">     328 </span>                :<span class="lineCov">          1 :     va_start(args, routine);</span>
+<span class="lineNum">     329 </span>                :<span class="lineCov">          1 :     vsnprintf( ms_error-&gt;message, MESSAGELENGTH, message_fmt, args );</span>
+<span class="lineNum">     330 </span>                :<span class="lineCov">          1 :     va_end(args);</span>
+<span class="lineNum">     331 </span>                :            :   }
+<span class="lineNum">     332 </span>                :            : 
+<span class="lineNum">     333 </span>                :            :   /* Log a copy of errors to MS_ERRORFILE if set (handled automatically inside msDebug()) */
+<span class="lineNum">     334 </span>                :<span class="lineCov">          1 :   msDebug(&quot;%s: %s %s\n&quot;, ms_error-&gt;routine, ms_errorCodes[ms_error-&gt;code], ms_error-&gt;message);</span>
+<span class="lineNum">     335 </span>                :            : 
+<a name="336"><span class="lineNum">     336 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     337 </span>                :            : 
+<span class="lineNum">     338 </span>                :<span class="lineNoCov">          0 : void msWriteError(FILE *stream)</span>
+<span class="lineNum">     339 </span>                :            : {
+<span class="lineNum">     340 </span>                :<span class="lineNoCov">          0 :   errorObj *ms_error = msGetErrorObj();</span>
+<span class="lineNum">     341 </span>                :            : 
+<span class="lineNum">     342 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   while (ms_error &amp;&amp; ms_error-&gt;code != MS_NOERR) {</span>
+<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 :     msIO_fprintf(stream, &quot;%s: %s %s &lt;br&gt;\n&quot;, ms_error-&gt;routine, ms_errorCodes[ms_error-&gt;code], ms_error-&gt;message);</span>
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :     ms_error-&gt;isreported = MS_TRUE;</span>
+<span class="lineNum">     345 </span>                :<span class="lineNoCov">          0 :     ms_error = ms_error-&gt;next;</span>
+<span class="lineNum">     346 </span>                :            :   }
+<a name="347"><span class="lineNum">     347 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     348 </span>                :            : 
+<span class="lineNum">     349 </span>                :<span class="lineCov">          1 : void msWriteErrorXML(FILE *stream)</span>
+<span class="lineNum">     350 </span>                :            : {
+<span class="lineNum">     351 </span>                :            :   char *message;
+<span class="lineNum">     352 </span>                :<span class="lineCov">          1 :   errorObj *ms_error = msGetErrorObj();</span>
+<span class="lineNum">     353 </span>                :            : 
+<span class="lineNum">     354 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   while (ms_error &amp;&amp; ms_error-&gt;code != MS_NOERR) {</span>
+<span class="lineNum">     355 </span>                :<span class="lineCov">          1 :     message = msEncodeHTMLEntities(ms_error-&gt;message);</span>
+<span class="lineNum">     356 </span>                :            : 
+<span class="lineNum">     357 </span>                :<span class="lineCov">          1 :     msIO_fprintf(stream, &quot;%s: %s %s\n&quot;, ms_error-&gt;routine,</span>
+<span class="lineNum">     358 </span>                :<span class="lineCov">          1 :                  ms_errorCodes[ms_error-&gt;code], message);</span>
+<span class="lineNum">     359 </span>                :<span class="lineCov">          1 :     ms_error-&gt;isreported = MS_TRUE;</span>
+<span class="lineNum">     360 </span>                :<span class="lineCov">          1 :     ms_error = ms_error-&gt;next;</span>
+<span class="lineNum">     361 </span>                :            : 
+<span class="lineNum">     362 </span>                :<span class="lineCov">          1 :     msFree(message);</span>
+<span class="lineNum">     363 </span>                :            :   }
+<a name="364"><span class="lineNum">     364 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     365 </span>                :            : 
+<span class="lineNum">     366 </span>                :<span class="lineCov">          1 : void msWriteErrorImage(mapObj *map, char *filename, int blank)</span>
+<span class="lineNum">     367 </span>                :            : {
+<span class="lineNum">     368 </span>                :            :   imageObj *img;
+<span class="lineNum">     369 </span>                :            :   rendererVTableObj *renderer;
+<span class="lineNum">     370 </span>                :            :   int font_index = 0;
+<span class="lineNum">     371 </span>                :            :   int width=400, height=300;
+<span class="lineNum">     372 </span>                :            :   int nMargin =5;
+<span class="lineNum">     373 </span>                :            :   int nTextLength = 0;
+<span class="lineNum">     374 </span>                :            :   int nUsableWidth = 0;
+<span class="lineNum">     375 </span>                :            :   int nMaxCharsPerLine = 0;
+<span class="lineNum">     376 </span>                :            :   int nLines = 0;
+<span class="lineNum">     377 </span>                :            :   int i = 0;
+<span class="lineNum">     378 </span>                :            :   int nStart = 0;
+<span class="lineNum">     379 </span>                :            :   int nEnd = 0;
+<span class="lineNum">     380 </span>                :            :   int nLength = 0;
+<span class="lineNum">     381 </span>                :            :   char **papszLines = NULL;
+<span class="lineNum">     382 </span>                :            :   int nXPos = 0;
+<span class="lineNum">     383 </span>                :            :   int nYPos = 0;
+<span class="lineNum">     384 </span>                :            :   int nWidthTxt = 0;
+<span class="lineNum">     385 </span>                :            :   outputFormatObj *format = NULL;
+<span class="lineNum">     386 </span>                :<span class="lineCov">          1 :   char *errormsg = msGetErrorString(&quot;; &quot;);</span>
+<span class="lineNum">     387 </span>                :<span class="lineCov">          1 :   errorObj *error = msGetErrorObj();</span>
+<span class="lineNum">     388 </span>                :            :   fontMetrics *font = NULL;
+<span class="lineNum">     389 </span>                :            :   char *imagepath = NULL, *imageurl = NULL;
+<span class="lineNum">     390 </span>                :            :   labelStyleObj ls;
+<span class="lineNum">     391 </span>                :            :   colorObj labelcolor, labeloutlinecolor, imagecolor, *imagecolorptr=NULL;
+<span class="lineNum">     392 </span>                :<span class="lineCov">          1 :   ls.color = &amp;labelcolor;</span>
+<span class="lineNum">     393 </span>                :<span class="lineCov">          1 :   ls.outlinecolor = &amp;labeloutlinecolor;</span>
+<span class="lineNum">     394 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!errormsg) {</span>
+<span class="lineNum">     395 </span>                :<span class="lineNoCov">          0 :     errormsg = msStrdup(&quot;No error found sorry. This is likely a bug&quot;);</span>
+<span class="lineNum">     396 </span>                :            :   }
+<span class="lineNum">     397 </span>                :            : 
+<span class="lineNum">     398 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (map) {</span>
+<span class="lineNum">     399 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if( map-&gt;width &gt; 0 &amp;&amp; map-&gt;height &gt; 0 ) {</span>
+<span class="lineNum">     400 </span>                :<span class="lineCov">          1 :       width = map-&gt;width;</span>
+<span class="lineNum">     401 </span>                :<span class="lineCov">          1 :       height = map-&gt;height;</span>
+<span class="lineNum">     402 </span>                :            :     }
+<span class="lineNum">     403 </span>                :<span class="lineCov">          1 :     format = map-&gt;outputformat;</span>
+<span class="lineNum">     404 </span>                :<span class="lineCov">          1 :     imagepath = map-&gt;web.imagepath;</span>
+<span class="lineNum">     405 </span>                :<span class="lineCov">          1 :     imageurl = map-&gt;web.imageurl;</span>
+<span class="lineNum">     406 </span>                :            :   }
+<span class="lineNum">     407 </span>                :            : 
+<span class="lineNum">     408 </span>                :            :   /* Default to GIF if no suitable GD output format set */
+<span class="lineNum">     409 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if (format == NULL || !MS_RENDERER_PLUGIN(format) || !format-&gt;vtable-&gt;supports_bitmap_fonts)</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>]
+<span class="lineNum">     410 </span>                :<span class="lineNoCov">          0 :     format = msCreateDefaultOutputFormat( NULL, &quot;AGG/PNG8&quot;, &quot;png&quot; );</span>
+<span class="lineNum">     411 </span>                :            : 
+<span class="lineNum">     412 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!format-&gt;transparent) {</span>
+<span class="lineNum">     413 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if(map &amp;&amp; MS_VALID_COLOR(map-&gt;imagecolor)) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken X times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]
+<span class="lineNum">     414 </span>                :<span class="lineCov">          1 :       imagecolorptr = &amp;map-&gt;imagecolor;</span>
+<span class="lineNum">     415 </span>                :            :     } else {
+<span class="lineNum">     416 </span>                :<span class="lineNoCov">          0 :       MS_INIT_COLOR(imagecolor,255,255,255,255);</span>
+<span class="lineNum">     417 </span>                :            :       imagecolorptr = &amp;imagecolor;
+<span class="lineNum">     418 </span>                :            :     }
+<span class="lineNum">     419 </span>                :            :   }
+<span class="lineNum">     420 </span>                :            : 
+<span class="lineNum">     421 </span>                :<span class="lineCov">          1 :   img = msImageCreate(width,height,format,imagepath,imageurl,MS_DEFAULT_RESOLUTION,MS_DEFAULT_RESOLUTION,imagecolorptr);</span>
+<span class="lineNum">     422 </span>                :<span class="lineCov">          1 :   renderer = MS_IMAGE_RENDERER(img);</span>
+<span class="lineNum">     423 </span>                :            : 
+<span class="lineNum">     424 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;5; i++) {</span>
+<span class="lineNum">     425 </span>                :            :     /* use the first font we find */
+<span class="lineNum">     426 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if((font = renderer-&gt;bitmapFontMetrics[font_index]) != NULL) {</span>
+<span class="lineNum">     427 </span>                :<span class="lineCov">          1 :       ls.size = i;</span>
+<span class="lineNum">     428 </span>                :<span class="lineCov">          1 :       MS_INIT_COLOR(*ls.color,0,0,0,255);</span>
+<span class="lineNum">     429 </span>                :<span class="lineCov">          1 :       MS_INIT_COLOR(*ls.outlinecolor,255,255,255,255);</span>
+<span class="lineNum">     430 </span>                :<span class="lineCov">          1 :       ls.outlinewidth = 1;</span>
+<span class="lineNum">     431 </span>                :<span class="lineCov">          1 :       break;</span>
+<span class="lineNum">     432 </span>                :            :     }
+<span class="lineNum">     433 </span>                :            :   }
+<span class="lineNum">     434 </span>                :            :   /* if no font found we can't do much. this shouldn't happen */
+<span class="lineNum">     435 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(font) {</span>
+<span class="lineNum">     436 </span>                :            : 
+<span class="lineNum">     437 </span>                :<span class="lineCov">          1 :     nTextLength = strlen(errormsg);</span>
+<span class="lineNum">     438 </span>                :<span class="lineCov">          1 :     nWidthTxt  =  nTextLength * font-&gt;charWidth;</span>
+<span class="lineNum">     439 </span>                :<span class="lineCov">          1 :     nUsableWidth = width - (nMargin*2);</span>
+<span class="lineNum">     440 </span>                :            : 
+<span class="lineNum">     441 </span>                :            :     /* Check to see if it all fits on one line. If not, split the text on several lines. */
+<span class="lineNum">     442 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(!blank) {</span>
+<span class="lineNum">     443 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if (nWidthTxt &gt; nUsableWidth) {</span>
+<span class="lineNum">     444 </span>                :<span class="lineCov">          1 :         nMaxCharsPerLine =  nUsableWidth/font-&gt;charWidth;</span>
+<span class="lineNum">     445 </span>                :<span class="lineCov">          1 :         nLines = (int) ceil ((double)nTextLength / (double)nMaxCharsPerLine);</span>
+<span class="lineNum">     446 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (nLines &gt; 0) {</span>
+<span class="lineNum">     447 </span>                :<span class="lineCov">          1 :           papszLines = (char **)malloc(nLines*sizeof(char *));</span>
+<span class="lineNum">     448 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           for (i=0; i&lt;nLines; i++) {</span>
+<span class="lineNum">     449 </span>                :<span class="lineCov">          1 :             papszLines[i] = (char *)malloc((nMaxCharsPerLine+1)*sizeof(char));</span>
+<span class="lineNum">     450 </span>                :<span class="lineCov">          1 :             papszLines[i][0] = '\0';</span>
+<span class="lineNum">     451 </span>                :            :           }
+<span class="lineNum">     452 </span>                :            :         }
+<span class="lineNum">     453 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for (i=0; i&lt;nLines; i++) {</span>
+<span class="lineNum">     454 </span>                :<span class="lineCov">          1 :           nStart = i*nMaxCharsPerLine;</span>
+<span class="lineNum">     455 </span>                :<span class="lineCov">          1 :           nEnd = nStart + nMaxCharsPerLine;</span>
+<span class="lineNum">     456 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           if (nStart &lt; nTextLength) {</span>
+<span class="lineNum">     457 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if (nEnd &gt; nTextLength)</span>
+<span class="lineNum">     458 </span>                :            :               nEnd = nTextLength;
+<span class="lineNum">     459 </span>                :<span class="lineCov">          1 :             nLength = nEnd-nStart;</span>
+<span class="lineNum">     460 </span>                :            : 
+<span class="lineNum">     461 </span>                :<span class="lineCov">          1 :             strncpy(papszLines[i], errormsg+nStart, nLength);</span>
+<span class="lineNum">     462 </span>                :<span class="lineCov">          1 :             papszLines[i][nLength] = '\0';</span>
+<span class="lineNum">     463 </span>                :            :           }
+<span class="lineNum">     464 </span>                :            :         }
+<span class="lineNum">     465 </span>                :            :       } else {
+<span class="lineNum">     466 </span>                :            :         nLines = 1;
+<span class="lineNum">     467 </span>                :<span class="lineNoCov">          0 :         papszLines = (char **)malloc(nLines*sizeof(char *));</span>
+<span class="lineNum">     468 </span>                :<span class="lineNoCov">          0 :         papszLines[0] = msStrdup(errormsg);</span>
+<span class="lineNum">     469 </span>                :            :       }
+<span class="lineNum">     470 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for (i=0; i&lt;nLines; i++) {</span>
+<span class="lineNum">     471 </span>                :<span class="lineCov">          1 :         nYPos = (font-&gt;charHeight) * ((i*2) +1);</span>
+<span class="lineNum">     472 </span>                :<span class="lineCov">          1 :         nXPos = font-&gt;charWidth;;</span>
+<span class="lineNum">     473 </span>                :<span class="lineCov">          1 :         renderer-&gt;renderBitmapGlyphs(img, nXPos, nYPos, &amp;ls, papszLines[i]);</span>
+<span class="lineNum">     474 </span>                :            :       }
+<span class="lineNum">     475 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if (papszLines) {</span>
+<span class="lineNum">     476 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for (i=0; i&lt;nLines; i++) {</span>
+<span class="lineNum">     477 </span>                :<span class="lineCov">          1 :           free(papszLines[i]);</span>
+<span class="lineNum">     478 </span>                :            :         }
+<span class="lineNum">     479 </span>                :<span class="lineCov">          1 :         free(papszLines);</span>
+<span class="lineNum">     480 </span>                :            :       }
+<span class="lineNum">     481 </span>                :            :     }
+<span class="lineNum">     482 </span>                :            :   }
+<span class="lineNum">     483 </span>                :            : 
+<span class="lineNum">     484 </span>                :            :   /* actually write the image */
+<span class="lineNum">     485 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!filename) {</span>
+<span class="lineNum">     486 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     msIO_setHeader(&quot;Content-Type&quot;,&quot;%s&quot;, MS_IMAGE_MIME_TYPE(format));</span>
+<span class="lineNum">     487 </span>                :<span class="lineCov">          1 :     msIO_sendHeaders();</span>
+<span class="lineNum">     488 </span>                :            :   }
+<span class="lineNum">     489 </span>                :<span class="lineCov">          1 :   msSaveImage(NULL,img,filename);</span>
+<span class="lineNum">     490 </span>                :<span class="lineCov">          1 :   msFreeImage(img);</span>
+<span class="lineNum">     491 </span>                :            : 
+<span class="lineNum">     492 </span>                :            :   /* the errors are reported */
+<span class="lineNum">     493 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   while(error &amp;&amp; error-&gt;code != MS_NOERR) {</span>
+<span class="lineNum">     494 </span>                :<span class="lineCov">          1 :     error-&gt;isreported = MS_TRUE;</span>
+<span class="lineNum">     495 </span>                :<span class="lineCov">          1 :     error = error-&gt;next;</span>
+<span class="lineNum">     496 </span>                :            :   }
+<span class="lineNum">     497 </span>                :            : 
+<span class="lineNum">     498 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (format-&gt;refcount == 0)</span>
+<span class="lineNum">     499 </span>                :<span class="lineNoCov">          0 :     msFreeOutputFormat(format);</span>
+<span class="lineNum">     500 </span>                :<span class="lineCov">          1 :   msFree(errormsg);</span>
+<a name="501"><span class="lineNum">     501 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     502 </span>                :            : 
+<span class="lineNum">     503 </span>                :<span class="lineCov">          1 : char *msGetVersion()</span>
+<span class="lineNum">     504 </span>                :            : {
+<span class="lineNum">     505 </span>                :            :   static char version[1024];
+<span class="lineNum">     506 </span>                :            : 
+<span class="lineNum">     507 </span>                :            :   sprintf(version, &quot;MapServer version %s&quot;, MS_VERSION);
+<span class="lineNum">     508 </span>                :            : 
+<span class="lineNum">     509 </span>                :            : #ifdef USE_GD_GIF
+<span class="lineNum">     510 </span>                :            :   strcat(version, &quot; OUTPUT=GIF&quot;);
+<span class="lineNum">     511 </span>                :            : #endif
+<span class="lineNum">     512 </span>                :            : #if (defined USE_GD_PNG || defined USE_PNG)
+<span class="lineNum">     513 </span>                :            :   strcat(version, &quot; OUTPUT=PNG&quot;);
+<span class="lineNum">     514 </span>                :            : #endif
+<span class="lineNum">     515 </span>                :            : #if (defined USE_GD_JPEG || defined USE_JPEG)
+<span class="lineNum">     516 </span>                :            :   strcat(version, &quot; OUTPUT=JPEG&quot;);
+<span class="lineNum">     517 </span>                :            : #endif
+<span class="lineNum">     518 </span>                :            : #ifdef USE_KML
+<span class="lineNum">     519 </span>                :            :   strcat(version, &quot; OUTPUT=KML&quot;);
+<span class="lineNum">     520 </span>                :            : #endif
+<span class="lineNum">     521 </span>                :            : #ifdef USE_PROJ
+<span class="lineNum">     522 </span>                :            :   strcat(version, &quot; SUPPORTS=PROJ&quot;);
+<span class="lineNum">     523 </span>                :            : #endif
+<span class="lineNum">     524 </span>                :            : #ifdef USE_GD
+<span class="lineNum">     525 </span>                :            :   strcat(version, &quot; SUPPORTS=GD&quot;);
+<span class="lineNum">     526 </span>                :            : #endif
+<span class="lineNum">     527 </span>                :            :   strcat(version, &quot; SUPPORTS=AGG&quot;);
+<span class="lineNum">     528 </span>                :            :   strcat(version, &quot; SUPPORTS=FREETYPE&quot;);
+<span class="lineNum">     529 </span>                :            : #ifdef USE_CAIRO
+<span class="lineNum">     530 </span>                :            :   strcat(version, &quot; SUPPORTS=CAIRO&quot;);
+<span class="lineNum">     531 </span>                :            : #endif
+<span class="lineNum">     532 </span>                :            : #ifdef USE_SVG_CAIRO
+<span class="lineNum">     533 </span>                :            :   strcat(version, &quot; SUPPORTS=SVG_SYMBOLS&quot;);
+<span class="lineNum">     534 </span>                :            : #endif
+<span class="lineNum">     535 </span>                :            : #ifdef USE_OGL
+<span class="lineNum">     536 </span>                :            :   strcat(version, &quot; SUPPORTS=OPENGL&quot;);
+<span class="lineNum">     537 </span>                :            : #endif
+<span class="lineNum">     538 </span>                :            : #ifdef USE_ICONV
+<span class="lineNum">     539 </span>                :            :   strcat(version, &quot; SUPPORTS=ICONV&quot;);
+<span class="lineNum">     540 </span>                :            : #endif
+<span class="lineNum">     541 </span>                :            : #ifdef USE_EXEMPI
+<span class="lineNum">     542 </span>                :            :   strcat(version, &quot; SUPPORTS=XMP&quot;);
+<span class="lineNum">     543 </span>                :            : #endif
+<span class="lineNum">     544 </span>                :            : #ifdef USE_FRIBIDI
+<span class="lineNum">     545 </span>                :            :   strcat(version, &quot; SUPPORTS=FRIBIDI&quot;);
+<span class="lineNum">     546 </span>                :            : #endif
+<span class="lineNum">     547 </span>                :            : #ifdef USE_WMS_SVR
+<span class="lineNum">     548 </span>                :            :   strcat(version, &quot; SUPPORTS=WMS_SERVER&quot;);
+<span class="lineNum">     549 </span>                :            : #endif
+<span class="lineNum">     550 </span>                :            : #ifdef USE_WMS_LYR
+<span class="lineNum">     551 </span>                :            :   strcat(version, &quot; SUPPORTS=WMS_CLIENT&quot;);
+<span class="lineNum">     552 </span>                :            : #endif
+<span class="lineNum">     553 </span>                :            : #ifdef USE_WFS_SVR
+<span class="lineNum">     554 </span>                :            :   strcat(version, &quot; SUPPORTS=WFS_SERVER&quot;);
+<span class="lineNum">     555 </span>                :            : #endif
+<span class="lineNum">     556 </span>                :            : #ifdef USE_WFS_LYR
+<span class="lineNum">     557 </span>                :            :   strcat(version, &quot; SUPPORTS=WFS_CLIENT&quot;);
+<span class="lineNum">     558 </span>                :            : #endif
+<span class="lineNum">     559 </span>                :            : #ifdef USE_WCS_SVR
+<span class="lineNum">     560 </span>                :            :   strcat(version, &quot; SUPPORTS=WCS_SERVER&quot;);
+<span class="lineNum">     561 </span>                :            : #endif
+<span class="lineNum">     562 </span>                :            : #ifdef USE_SOS_SVR
+<span class="lineNum">     563 </span>                :            :   strcat(version, &quot; SUPPORTS=SOS_SERVER&quot;);
+<span class="lineNum">     564 </span>                :            : #endif
+<span class="lineNum">     565 </span>                :            : #ifdef USE_FASTCGI
+<span class="lineNum">     566 </span>                :            :   strcat(version, &quot; SUPPORTS=FASTCGI&quot;);
+<span class="lineNum">     567 </span>                :            : #endif
+<span class="lineNum">     568 </span>                :            : #ifdef USE_THREAD
+<span class="lineNum">     569 </span>                :            :   strcat(version, &quot; SUPPORTS=THREADS&quot;);
+<span class="lineNum">     570 </span>                :            : #endif
+<span class="lineNum">     571 </span>                :            : #ifdef USE_GEOS
+<span class="lineNum">     572 </span>                :            :   strcat(version, &quot; SUPPORTS=GEOS&quot;);
+<span class="lineNum">     573 </span>                :            : #endif
+<span class="lineNum">     574 </span>                :            : #ifdef USE_POINT_Z_M
+<span class="lineNum">     575 </span>                :            :   strcat(version, &quot; SUPPORTS=POINT_Z_M&quot;);
+<span class="lineNum">     576 </span>                :            : #endif
+<span class="lineNum">     577 </span>                :            : #ifdef USE_JPEG
+<span class="lineNum">     578 </span>                :            :   strcat(version, &quot; INPUT=JPEG&quot;);
+<span class="lineNum">     579 </span>                :            : #endif
+<span class="lineNum">     580 </span>                :            : #ifdef USE_SDE
+<span class="lineNum">     581 </span>                :            :   strcat(version, &quot; INPUT=SDE&quot;);
+<span class="lineNum">     582 </span>                :            : #endif
+<span class="lineNum">     583 </span>                :            : #ifdef USE_POSTGIS
+<span class="lineNum">     584 </span>                :            :   strcat(version, &quot; INPUT=POSTGIS&quot;);
+<span class="lineNum">     585 </span>                :            : #endif
+<span class="lineNum">     586 </span>                :            : #ifdef USE_ORACLESPATIAL
+<span class="lineNum">     587 </span>                :            :   strcat(version, &quot; INPUT=ORACLESPATIAL&quot;);
+<span class="lineNum">     588 </span>                :            : #endif
+<span class="lineNum">     589 </span>                :            : #ifdef USE_OGR
+<span class="lineNum">     590 </span>                :            :   strcat(version, &quot; INPUT=OGR&quot;);
+<span class="lineNum">     591 </span>                :            : #endif
+<span class="lineNum">     592 </span>                :            : #ifdef USE_GDAL
+<span class="lineNum">     593 </span>                :            :   strcat(version, &quot; INPUT=GDAL&quot;);
+<span class="lineNum">     594 </span>                :            : #endif
+<span class="lineNum">     595 </span>                :            :   strcat(version, &quot; INPUT=SHAPEFILE&quot;);
+<span class="lineNum">     596 </span>                :<span class="lineCov">          1 :   return(version);</span>
+<a name="597"><span class="lineNum">     597 </span>                :            : }</a>
+<span class="lineNum">     598 </span>                :            : 
+<span class="lineNum">     599 </span>                :<span class="lineNoCov">          0 : int msGetVersionInt()</span>
+<span class="lineNum">     600 </span>                :            : {
+<span class="lineNum">     601 </span>                :<span class="lineNoCov">          0 :   return MS_VERSION_NUM;</span>
+<span class="lineNum">     602 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

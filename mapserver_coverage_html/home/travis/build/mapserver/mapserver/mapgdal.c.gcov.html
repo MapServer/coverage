@@ -1,0 +1,774 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - /home/travis/build/mapserver/mapserver/mapgdal.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">home/travis/build/mapserver/mapserver</a> - mapgdal.c<span style="font-size: 80%;"> (source / <a href="mapgdal.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">206</td>
+            <td class="headerCovTableEntry">238</td>
+            <td class="headerCovTableEntryMed">86.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">115</td>
+            <td class="headerCovTableEntry">145</td>
+            <td class="headerCovTableEntryMed">79.3 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * $Id$
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Project:  MapServer
+<span class="lineNum">       5 </span>                :            :  * Purpose:  Implementation of support for output using GDAL.
+<span class="lineNum">       6 </span>                :            :  * Author:   Frank Warmerdam, warmerdam@pobox.com
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  ******************************************************************************
+<span class="lineNum">       9 </span>                :            :  * Copyright (c) 2002, Frank Warmerdam
+<span class="lineNum">      10 </span>                :            :  *
+<span class="lineNum">      11 </span>                :            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      12 </span>                :            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      13 </span>                :            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      14 </span>                :            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      15 </span>                :            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      16 </span>                :            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      17 </span>                :            :  *
+<span class="lineNum">      18 </span>                :            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      19 </span>                :            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      20 </span>                :            :  *
+<span class="lineNum">      21 </span>                :            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+<span class="lineNum">      22 </span>                :            :  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      23 </span>                :            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+<span class="lineNum">      24 </span>                :            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      25 </span>                :            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      26 </span>                :            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      27 </span>                :            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      28 </span>                :            :  ****************************************************************************/
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            : #include &quot;mapserver.h&quot;
+<span class="lineNum">      31 </span>                :            : #include &quot;mapthread.h&quot;
+<span class="lineNum">      32 </span>                :            : #include &lt;assert.h&gt;
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : #if defined(USE_GDAL) || defined(USE_OGR)
+<span class="lineNum">      37 </span>                :            : #include &quot;cpl_conv.h&quot;
+<span class="lineNum">      38 </span>                :            : #include &quot;cpl_string.h&quot;
+<span class="lineNum">      39 </span>                :            : #include &quot;ogr_srs_api.h&quot;
+<span class="lineNum">      40 </span>                :            : #endif
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>                :            : #ifdef USE_GDAL
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :            : #include &quot;gdal.h&quot;
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : static int    bGDALInitialized = 0;
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : /************************************************************************/
+<span class="lineNum">      49 </span>                :            : /*                          msGDALInitialize()                          */
+<a name="50"><span class="lineNum">      50 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :<span class="lineCov">          1 : void msGDALInitialize( void )</span>
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :            : {
+<span class="lineNum">      55 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( !bGDALInitialized ) {</span>
+<span class="lineNum">      56 </span>                :            :     msAcquireLock( TLOCK_GDAL );
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :<span class="lineCov">          1 :     GDALAllRegister();</span>
+<span class="lineNum">      59 </span>                :<span class="lineCov">          1 :     CPLPushErrorHandler( CPLQuietErrorHandler );</span>
+<span class="lineNum">      60 </span>                :            :     msReleaseLock( TLOCK_GDAL );
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :<span class="lineCov">          1 :     bGDALInitialized = 1;</span>
+<span class="lineNum">      63 </span>                :            :   }
+<span class="lineNum">      64 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            : /************************************************************************/
+<span class="lineNum">      67 </span>                :            : /*                           msGDALCleanup()                            */
+<a name="68"><span class="lineNum">      68 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :<span class="lineCov">          1 : void msGDALCleanup( void )</span>
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :            : {
+<span class="lineNum">      73 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( bGDALInitialized ) {</span>
+<span class="lineNum">      74 </span>                :            :     int iRepeat = 5;
+<span class="lineNum">      75 </span>                :            :     msAcquireLock( TLOCK_GDAL );
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :            : #if GDAL_RELEASE_DATE &gt; 20101207
+<span class="lineNum">      78 </span>                :            :     {
+<span class="lineNum">      79 </span>                :            :       /*
+<span class="lineNum">      80 </span>                :            :       ** Cleanup any unreferenced but open datasets as will tend
+<span class="lineNum">      81 </span>                :            :       ** to exist due to deferred close requests.  We are careful
+<span class="lineNum">      82 </span>                :            :       ** to only close one file at a time before refecting the
+<span class="lineNum">      83 </span>                :            :       ** list as closing some datasets may cause others to be
+<span class="lineNum">      84 </span>                :            :       ** closed (subdatasets in a VRT for instance).
+<span class="lineNum">      85 </span>                :            :       */
+<span class="lineNum">      86 </span>                :<span class="lineCov">          1 :       GDALDatasetH *pahDSList = NULL;</span>
+<span class="lineNum">      87 </span>                :<span class="lineCov">          1 :       int nDSCount = 0;</span>
+<span class="lineNum">      88 </span>                :            :       int bDidSomething;
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :            :       do {
+<span class="lineNum">      91 </span>                :            :         int i;
+<span class="lineNum">      92 </span>                :<span class="lineCov">          1 :         GDALGetOpenDatasets( &amp;pahDSList, &amp;nDSCount );</span>
+<span class="lineNum">      93 </span>                :            :         bDidSomething = FALSE;
+<span class="lineNum">      94 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for( i = 0; i &lt; nDSCount &amp;&amp; !bDidSomething; i++ ) {</span>
+<span class="lineNum">      95 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :           if( GDALReferenceDataset( pahDSList[i] ) == 1 ) {</span>
+<span class="lineNum">      96 </span>                :<span class="lineCov">          1 :             GDALClose( pahDSList[i] );</span>
+<span class="lineNum">      97 </span>                :            :             bDidSomething = TRUE;
+<span class="lineNum">      98 </span>                :            :           } else
+<span class="lineNum">      99 </span>                :<span class="lineCov">          1 :             GDALDereferenceDataset( pahDSList[i] );</span>
+<span class="lineNum">     100 </span>                :            :         }
+<span class="lineNum">     101 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       } while( bDidSomething );</span>
+<span class="lineNum">     102 </span>                :            :     }
+<span class="lineNum">     103 </span>                :            : #endif
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     while( iRepeat-- )</span>
+<span class="lineNum">     106 </span>                :<span class="lineCov">          1 :       CPLPopErrorHandler();</span>
+<span class="lineNum">     107 </span>                :            : 
+<span class="lineNum">     108 </span>                :            : #if GDAL_RELEASE_DATE &gt; 20021001
+<span class="lineNum">     109 </span>                :<span class="lineCov">          1 :     GDALDestroyDriverManager();</span>
+<span class="lineNum">     110 </span>                :            : #endif
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            :     msReleaseLock( TLOCK_GDAL );
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>                :<span class="lineCov">          1 :     bGDALInitialized = 0;</span>
+<span class="lineNum">     115 </span>                :            :   }
+<span class="lineNum">     116 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :            : /************************************************************************/
+<span class="lineNum">     119 </span>                :            : /*                            CleanVSIDir()                             */
+<span class="lineNum">     120 </span>                :            : /*                                                                      */
+<span class="lineNum">     121 </span>                :            : /*      For the temporary /vsimem/msout directory we need to be sure    */
+<span class="lineNum">     122 </span>                :            : /*      things are clean before we start, and after we are done.        */
+<a name="123"><span class="lineNum">     123 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :<span class="lineCov">          1 : void CleanVSIDir( const char *pszDir )</span>
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :            : {
+<span class="lineNum">     128 </span>                :<span class="lineCov">          1 :   char **papszFiles = CPLReadDir( pszDir );</span>
+<span class="lineNum">     129 </span>                :<span class="lineCov">          1 :   int i, nFileCount = CSLCount( papszFiles );</span>
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for( i = 0; i &lt; nFileCount; i++ ) {</span>
+<span class="lineNum">     132 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( strcasecmp(papszFiles[i],&quot;.&quot;) == 0</span>
+<span class="lineNum">     133 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         || strcasecmp(papszFiles[i],&quot;..&quot;) == 0 )</span>
+<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :       continue;</span>
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>                :<span class="lineCov">          1 :     VSIUnlink( papszFiles[i] );</span>
+<span class="lineNum">     137 </span>                :            :   }
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :<span class="lineCov">          1 :   CSLDestroy( papszFiles );</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :            : /************************************************************************/
+<span class="lineNum">     143 </span>                :            : /*                          msSaveImageGDAL()                           */
+<a name="144"><span class="lineNum">     144 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineCov">          1 : int msSaveImageGDAL( mapObj *map, imageObj *image, char *filename )</span>
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>                :            : {
+<span class="lineNum">     149 </span>                :            :   int  bFileIsTemporary = MS_FALSE;
+<span class="lineNum">     150 </span>                :            :   GDALDatasetH hMemDS, hOutputDS;
+<span class="lineNum">     151 </span>                :            :   GDALDriverH  hMemDriver, hOutputDriver;
+<span class="lineNum">     152 </span>                :            :   int          nBands = 1;
+<span class="lineNum">     153 </span>                :            :   int          iLine;
+<span class="lineNum">     154 </span>                :            :   GByte       *pabyAlphaLine = NULL;
+<span class="lineNum">     155 </span>                :            :   char        **papszOptions = NULL;
+<span class="lineNum">     156 </span>                :<span class="lineCov">          1 :   outputFormatObj *format = image-&gt;format;</span>
+<span class="lineNum">     157 </span>                :            :   rasterBufferObj rb;
+<span class="lineNum">     158 </span>                :            :   GDALDataType eDataType = GDT_Byte;
+<span class="lineNum">     159 </span>                :            :   int bUseXmp = MS_FALSE;
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>                :<span class="lineCov">          1 :   msGDALInitialize();</span>
+<span class="lineNum">     162 </span>                :            :   memset(&amp;rb,0,sizeof(rasterBufferObj));
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :            : #ifdef USE_EXEMPI
+<span class="lineNum">     165 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( map != NULL ) {</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">          1 :     bUseXmp = msXmpPresent(map);</span>
+<span class="lineNum">     167 </span>                :            :   }
+<span class="lineNum">     168 </span>                :            : #endif
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     172 </span>                :            :   /*      Identify the proposed output driver.                            */
+<span class="lineNum">     173 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     174 </span>                :            :   msAcquireLock( TLOCK_GDAL );
+<span class="lineNum">     175 </span>                :<span class="lineCov">          1 :   hOutputDriver = GDALGetDriverByName( format-&gt;driver+5 );</span>
+<span class="lineNum">     176 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( hOutputDriver == NULL ) {</span>
+<span class="lineNum">     177 </span>                :            :     msReleaseLock( TLOCK_GDAL );
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Failed to find %s driver.&quot;,</span>
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :                 &quot;msSaveImageGDAL()&quot;, format-&gt;driver+5 );</span>
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     181 </span>                :            :   }
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     184 </span>                :            :   /*      We will need to write the output to a temporary file and        */
+<span class="lineNum">     185 </span>                :            :   /*      then stream to stdout if no filename is passed.  If the         */
+<span class="lineNum">     186 </span>                :            :   /*      driver supports virtualio then we hold the temporary file in    */
+<span class="lineNum">     187 </span>                :            :   /*      memory, otherwise we try to put it in a reasonable temporary    */
+<span class="lineNum">     188 </span>                :            :   /*      file location.                                                  */
+<span class="lineNum">     189 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     190 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( filename == NULL ) {</span>
+<span class="lineNum">     191 </span>                :<span class="lineCov">          1 :     const char *pszExtension = format-&gt;extension;</span>
+<span class="lineNum">     192 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( pszExtension == NULL )</span>
+<span class="lineNum">     193 </span>                :            :       pszExtension = &quot;img.tmp&quot;;
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken X times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          1 :     if( bUseXmp == MS_FALSE &amp;&amp; GDALGetMetadataItem( hOutputDriver, GDAL_DCAP_VIRTUALIO, NULL )</span>
+<span class="lineNum">     196 </span>                :            :         != NULL ) {
+<span class="lineNum">     197 </span>                :<span class="lineCov">          1 :       CleanVSIDir( &quot;/vsimem/msout&quot; );</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">          1 :       filename = msTmpFile(map, NULL, &quot;/vsimem/msout/&quot;, pszExtension );</span>
+<span class="lineNum">     199 </span>                :            :     }
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( filename == NULL &amp;&amp; map != NULL)</span>
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :       filename = msTmpFile(map, map-&gt;mappath,NULL,pszExtension);</span>
+<span class="lineNum">     203 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     else if( filename == NULL ) {</span>
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :       filename = msTmpFile(map, NULL, NULL, pszExtension );</span>
+<span class="lineNum">     205 </span>                :            :     }
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :            :     bFileIsTemporary = MS_TRUE;
+<span class="lineNum">     208 </span>                :            :   }
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     211 </span>                :            :   /*      Establish the characteristics of our memory, and final          */
+<span class="lineNum">     212 </span>                :            :   /*      dataset.                                                        */
+<span class="lineNum">     213 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( format-&gt;imagemode == MS_IMAGEMODE_RGB ) {</span>
+<span class="lineNum">     216 </span>                :            :     nBands = 3;
+<span class="lineNum">     217 </span>                :            :     assert( MS_RENDERER_PLUGIN(format) &amp;&amp; format-&gt;vtable-&gt;supports_pixel_buffer );
+<span class="lineNum">     218 </span>                :<span class="lineCov">          1 :     format-&gt;vtable-&gt;getRasterBufferHandle(image,&amp;rb);</span>
+<span class="lineNum">     219 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   } else if( format-&gt;imagemode == MS_IMAGEMODE_RGBA ) {</span>
+<span class="lineNum">     220 </span>                :<span class="lineCov">          1 :     pabyAlphaLine = (GByte *) calloc(image-&gt;width,1);</span>
+<span class="lineNum">     221 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (pabyAlphaLine == NULL) {</span>
+<span class="lineNum">     222 </span>                :            :       msReleaseLock( TLOCK_GDAL );
+<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MEMERR, &quot;Out of memory allocating %u bytes.\n&quot;, &quot;msSaveImageGDAL()&quot;, image-&gt;width);</span>
+<span class="lineNum">     224 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     225 </span>                :            :     }
+<span class="lineNum">     226 </span>                :            :     nBands = 4;
+<span class="lineNum">     227 </span>                :            :     assert( MS_RENDERER_PLUGIN(format) &amp;&amp; format-&gt;vtable-&gt;supports_pixel_buffer );
+<span class="lineNum">     228 </span>                :<span class="lineCov">          1 :     format-&gt;vtable-&gt;getRasterBufferHandle(image,&amp;rb);</span>
+<span class="lineNum">     229 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   } else if( format-&gt;imagemode == MS_IMAGEMODE_INT16 ) {</span>
+<span class="lineNum">     230 </span>                :<span class="lineCov">          1 :     nBands = format-&gt;bands;</span>
+<span class="lineNum">     231 </span>                :            :     eDataType = GDT_Int16;
+<span class="lineNum">     232 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   } else if( format-&gt;imagemode == MS_IMAGEMODE_FLOAT32 ) {</span>
+<span class="lineNum">     233 </span>                :<span class="lineCov">          1 :     nBands = format-&gt;bands;</span>
+<span class="lineNum">     234 </span>                :            :     eDataType = GDT_Float32;
+<span class="lineNum">     235 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   } else if( format-&gt;imagemode == MS_IMAGEMODE_BYTE ) {</span>
+<span class="lineNum">     236 </span>                :<span class="lineCov">          1 :     nBands = format-&gt;bands;</span>
+<span class="lineNum">     237 </span>                :            :     eDataType = GDT_Byte;
+<span class="lineNum">     238 </span>                :            :   } else {
+<span class="lineNum">     239 </span>                :            : #ifdef USE_GD
+<span class="lineNum">     240 </span>                :            :     assert( format-&gt;imagemode == MS_IMAGEMODE_PC256
+<span class="lineNum">     241 </span>                :            :             &amp;&amp; format-&gt;renderer == MS_RENDER_WITH_GD );
+<span class="lineNum">     242 </span>                :            : #else
+<span class="lineNum">     243 </span>                :            :     {
+<span class="lineNum">     244 </span>                :            :       msReleaseLock( TLOCK_GDAL );
+<span class="lineNum">     245 </span>                :            :       msSetError( MS_MEMERR, &quot;GD not compiled in. This is a bug.&quot;, &quot;msSaveImageGDAL()&quot;);
+<span class="lineNum">     246 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">     247 </span>                :            :     }
+<span class="lineNum">     248 </span>                :            : #endif
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :            :   }
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     253 </span>                :            :   /*      Create a memory dataset which we can use as a source for a      */
+<span class="lineNum">     254 </span>                :            :   /*      CreateCopy().                                                   */
+<span class="lineNum">     255 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     256 </span>                :<span class="lineCov">          1 :   hMemDriver = GDALGetDriverByName( &quot;MEM&quot; );</span>
+<span class="lineNum">     257 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( hMemDriver == NULL ) {</span>
+<span class="lineNum">     258 </span>                :            :     msReleaseLock( TLOCK_GDAL );
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Failed to find MEM driver.&quot;,</span>
+<span class="lineNum">     260 </span>                :            :                 &quot;msSaveImageGDAL()&quot; );
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     262 </span>                :            :   }
+<span class="lineNum">     263 </span>                :            : 
+<span class="lineNum">     264 </span>                :<span class="lineCov">          1 :   hMemDS = GDALCreate( hMemDriver, &quot;msSaveImageGDAL_temp&quot;,</span>
+<span class="lineNum">     265 </span>                :            :                        image-&gt;width, image-&gt;height, nBands,
+<span class="lineNum">     266 </span>                :            :                        eDataType, NULL );
+<span class="lineNum">     267 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( hMemDS == NULL ) {</span>
+<span class="lineNum">     268 </span>                :            :     msReleaseLock( TLOCK_GDAL );
+<span class="lineNum">     269 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Failed to create MEM dataset.&quot;,</span>
+<span class="lineNum">     270 </span>                :            :                 &quot;msSaveImageGDAL()&quot; );
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     272 </span>                :            :   }
+<span class="lineNum">     273 </span>                :            : 
+<span class="lineNum">     274 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     275 </span>                :            :   /*      Copy the gd image into the memory dataset.                      */
+<span class="lineNum">     276 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     277 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for( iLine = 0; iLine &lt; image-&gt;height; iLine++ ) {</span>
+<span class="lineNum">     278 </span>                :            :     int iBand;
+<span class="lineNum">     279 </span>                :            : 
+<span class="lineNum">     280 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( iBand = 0; iBand &lt; nBands; iBand++ ) {</span>
+<span class="lineNum">     281 </span>                :<span class="lineCov">          1 :       GDALRasterBandH hBand = GDALGetRasterBand( hMemDS, iBand+1 );</span>
+<span class="lineNum">     282 </span>                :            : 
+<span class="lineNum">     283 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( format-&gt;imagemode == MS_IMAGEMODE_INT16 ) {</span>
+<span class="lineNum">     284 </span>                :<span class="lineCov">          1 :         GDALRasterIO( hBand, GF_Write, 0, iLine, image-&gt;width, 1,</span>
+<span class="lineNum">     285 </span>                :<span class="lineCov">          1 :                       image-&gt;img.raw_16bit + iLine * image-&gt;width</span>
+<span class="lineNum">     286 </span>                :<span class="lineCov">          1 :                       + iBand * image-&gt;width * image-&gt;height,</span>
+<span class="lineNum">     287 </span>                :            :                       image-&gt;width, 1, GDT_Int16, 2, 0 );
+<span class="lineNum">     288 </span>                :            : 
+<span class="lineNum">     289 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       } else if( format-&gt;imagemode == MS_IMAGEMODE_FLOAT32 ) {</span>
+<span class="lineNum">     290 </span>                :<span class="lineCov">          1 :         GDALRasterIO( hBand, GF_Write, 0, iLine, image-&gt;width, 1,</span>
+<span class="lineNum">     291 </span>                :<span class="lineCov">          1 :                       image-&gt;img.raw_float + iLine * image-&gt;width</span>
+<span class="lineNum">     292 </span>                :<span class="lineCov">          1 :                       + iBand * image-&gt;width * image-&gt;height,</span>
+<span class="lineNum">     293 </span>                :            :                       image-&gt;width, 1, GDT_Float32, 4, 0 );
+<span class="lineNum">     294 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       } else if( format-&gt;imagemode == MS_IMAGEMODE_BYTE ) {</span>
+<span class="lineNum">     295 </span>                :<span class="lineCov">          1 :         GDALRasterIO( hBand, GF_Write, 0, iLine, image-&gt;width, 1,</span>
+<span class="lineNum">     296 </span>                :<span class="lineCov">          1 :                       image-&gt;img.raw_byte + iLine * image-&gt;width</span>
+<span class="lineNum">     297 </span>                :<span class="lineCov">          1 :                       + iBand * image-&gt;width * image-&gt;height,</span>
+<span class="lineNum">     298 </span>                :            :                       image-&gt;width, 1, GDT_Byte, 1, 0 );
+<span class="lineNum">     299 </span>                :            :       }
+<span class="lineNum">     300 </span>                :            : #ifdef USE_GD
+<span class="lineNum">     301 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       else if(format-&gt;renderer == MS_RENDER_WITH_GD) {</span>
+<span class="lineNum">     302 </span>                :<span class="lineCov">          1 :         gdImagePtr img = (gdImagePtr)image-&gt;img.plugin;</span>
+<span class="lineNum">     303 </span>                :<span class="lineCov">          1 :         GDALRasterIO( hBand, GF_Write, 0, iLine, image-&gt;width, 1,</span>
+<span class="lineNum">     304 </span>                :<span class="lineCov">          1 :                       img-&gt;pixels[iLine],</span>
+<span class="lineNum">     305 </span>                :            :                       image-&gt;width, 1, GDT_Byte, 0, 0 );
+<span class="lineNum">     306 </span>                :            :       }
+<span class="lineNum">     307 </span>                :            : #endif
+<span class="lineNum">     308 </span>                :            :       else {
+<span class="lineNum">     309 </span>                :            :         GByte *pabyData;
+<span class="lineNum">     310 </span>                :            :         unsigned char *pixptr = NULL;
+<span class="lineNum">     311 </span>                :            :         assert( rb.type == MS_BUFFER_BYTE_RGBA );
+<span class="lineNum">     312 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span> :<span class="lineCov">          1 :         switch(iBand) {</span>
+<span class="lineNum">         </span>            <span class="branchNoCov" title="Branch 4 was not taken"> - </span>]
+<span class="lineNum">     313 </span>                :            :           case 0:
+<span class="lineNum">     314 </span>                :<span class="lineCov">          1 :             pixptr = rb.data.rgba.r;</span>
+<span class="lineNum">     315 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     316 </span>                :            :           case 1:
+<span class="lineNum">     317 </span>                :<span class="lineCov">          1 :             pixptr = rb.data.rgba.g;</span>
+<span class="lineNum">     318 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     319 </span>                :            :           case 2:
+<span class="lineNum">     320 </span>                :<span class="lineCov">          1 :             pixptr = rb.data.rgba.b;</span>
+<span class="lineNum">     321 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     322 </span>                :            :           case 3:
+<span class="lineNum">     323 </span>                :<span class="lineCov">          1 :             pixptr = rb.data.rgba.a;</span>
+<span class="lineNum">     324 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     325 </span>                :            :         }
+<span class="lineNum">     326 </span>                :            :         assert(pixptr);
+<span class="lineNum">     327 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( pixptr == NULL ) {</span>
+<span class="lineNum">     328 </span>                :            :           msReleaseLock( TLOCK_GDAL );
+<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 :           msSetError( MS_MISCERR, &quot;Missing RGB or A buffer.\n&quot;,</span>
+<span class="lineNum">     330 </span>                :            :                       &quot;msSaveImageGDAL()&quot; );
+<span class="lineNum">     331 </span>                :<span class="lineNoCov">          0 :           return MS_FAILURE;</span>
+<span class="lineNum">     332 </span>                :            :         }
+<span class="lineNum">     333 </span>                :            : 
+<span class="lineNum">     334 </span>                :<span class="lineCov">          1 :         pabyData = (GByte *)(pixptr + iLine*rb.data.rgba.row_step);</span>
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( rb.data.rgba.a == NULL || iBand == 3 ) {</span>
+<span class="lineNum">     337 </span>                :<span class="lineCov">          1 :           GDALRasterIO( hBand, GF_Write, 0, iLine, image-&gt;width, 1,</span>
+<span class="lineNum">     338 </span>                :            :                         pabyData, image-&gt;width, 1, GDT_Byte,
+<span class="lineNum">     339 </span>                :<span class="lineCov">          1 :                         rb.data.rgba.pixel_step, 0 );</span>
+<span class="lineNum">     340 </span>                :            :         } else { /* We need to un-pre-multiple RGB by alpha. */
+<span class="lineNum">     341 </span>                :<span class="lineCov">          1 :           GByte *pabyUPM = (GByte*) malloc(image-&gt;width);</span>
+<span class="lineNum">     342 </span>                :<span class="lineCov">          1 :           GByte *pabyAlpha= (GByte *)(rb.data.rgba.a + iLine*rb.data.rgba.row_step);</span>
+<span class="lineNum">     343 </span>                :            :           int i;
+<span class="lineNum">     344 </span>                :            : 
+<span class="lineNum">     345 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           for( i = 0; i &lt; image-&gt;width; i++ ) {</span>
+<span class="lineNum">     346 </span>                :<span class="lineCov">          1 :             int alpha = pabyAlpha[i*rb.data.rgba.pixel_step];</span>
+<span class="lineNum">     347 </span>                :            : 
+<span class="lineNum">     348 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if( alpha == 0 )</span>
+<span class="lineNum">     349 </span>                :<span class="lineCov">          1 :               pabyUPM[i] = 0;</span>
+<span class="lineNum">     350 </span>                :            :             else {
+<span class="lineNum">     351 </span>                :<span class="lineCov">          1 :               int result = (pabyData[i*rb.data.rgba.pixel_step] * 255) / alpha;</span>
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :               if( result &gt; 255 )</span>
+<span class="lineNum">     354 </span>                :            :                 result = 255;
+<span class="lineNum">     355 </span>                :            : 
+<span class="lineNum">     356 </span>                :<span class="lineCov">          1 :               pabyUPM[i] = result;</span>
+<span class="lineNum">     357 </span>                :            :             }
+<span class="lineNum">     358 </span>                :            :           }
+<span class="lineNum">     359 </span>                :            : 
+<span class="lineNum">     360 </span>                :<span class="lineCov">          1 :           GDALRasterIO( hBand, GF_Write, 0, iLine, image-&gt;width, 1,</span>
+<span class="lineNum">     361 </span>                :            :                         pabyUPM, image-&gt;width, 1, GDT_Byte, 1, 0 );
+<span class="lineNum">     362 </span>                :<span class="lineCov">          1 :           free( pabyUPM );</span>
+<span class="lineNum">     363 </span>                :            :         }
+<span class="lineNum">     364 </span>                :            :       }
+<span class="lineNum">     365 </span>                :            :     }
+<span class="lineNum">     366 </span>                :            :   }
+<span class="lineNum">     367 </span>                :            : 
+<span class="lineNum">     368 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( pabyAlphaLine != NULL )</span>
+<span class="lineNum">     369 </span>                :<span class="lineCov">          1 :     free( pabyAlphaLine );</span>
+<span class="lineNum">     370 </span>                :            : 
+<span class="lineNum">     371 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     372 </span>                :            :   /*      Attach the palette if appropriate.                              */
+<span class="lineNum">     373 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     374 </span>                :            : #ifdef USE_GD
+<span class="lineNum">     375 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( format-&gt;renderer == MS_RENDER_WITH_GD ) {</span>
+<span class="lineNum">     376 </span>                :            :     GDALColorEntry sEntry;
+<span class="lineNum">     377 </span>                :            :     int  iColor;
+<span class="lineNum">     378 </span>                :            :     GDALColorTableH hCT;
+<span class="lineNum">     379 </span>                :<span class="lineCov">          1 :     gdImagePtr img = (gdImagePtr)image-&gt;img.plugin;</span>
+<span class="lineNum">     380 </span>                :<span class="lineCov">          1 :     hCT = GDALCreateColorTable( GPI_RGB );</span>
+<span class="lineNum">     381 </span>                :            : 
+<span class="lineNum">     382 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( iColor = 0; iColor &lt; img-&gt;colorsTotal; iColor++ ) {</span>
+<span class="lineNum">     383 </span>                :<span class="lineCov">          1 :       sEntry.c1 = img-&gt;red[iColor];</span>
+<span class="lineNum">     384 </span>                :<span class="lineCov">          1 :       sEntry.c2 = img-&gt;green[iColor];</span>
+<span class="lineNum">     385 </span>                :<span class="lineCov">          1 :       sEntry.c3 = img-&gt;blue[iColor];</span>
+<span class="lineNum">     386 </span>                :            : 
+<span class="lineNum">     387 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( iColor == gdImageGetTransparent( img ) )</span>
+<span class="lineNum">     388 </span>                :<span class="lineCov">          1 :         sEntry.c4 = 0;</span>
+<span class="lineNum">     389 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       else if( iColor == 0</span>
+<span class="lineNum">     390 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :                &amp;&amp; gdImageGetTransparent( img ) == -1</span>
+<span class="lineNum">     391 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                &amp;&amp; format-&gt;transparent )</span>
+<span class="lineNum">     392 </span>                :<span class="lineNoCov">          0 :         sEntry.c4 = 0;</span>
+<span class="lineNum">     393 </span>                :            :       else
+<span class="lineNum">     394 </span>                :<span class="lineCov">          1 :         sEntry.c4 = 255;</span>
+<span class="lineNum">     395 </span>                :            : 
+<span class="lineNum">     396 </span>                :<span class="lineCov">          1 :       GDALSetColorEntry( hCT, iColor, &amp;sEntry );</span>
+<span class="lineNum">     397 </span>                :            :     }
+<span class="lineNum">     398 </span>                :            : 
+<span class="lineNum">     399 </span>                :<span class="lineCov">          1 :     GDALSetRasterColorTable( GDALGetRasterBand( hMemDS, 1 ), hCT );</span>
+<span class="lineNum">     400 </span>                :            : 
+<span class="lineNum">     401 </span>                :<span class="lineCov">          1 :     GDALDestroyColorTable( hCT );</span>
+<span class="lineNum">     402 </span>                :            :   } else
+<span class="lineNum">     403 </span>                :            : #endif
+<span class="lineNum">     404 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( format-&gt;imagemode == MS_IMAGEMODE_RGB ) {</span>
+<span class="lineNum">     405 </span>                :<span class="lineCov">          1 :       GDALSetRasterColorInterpretation(</span>
+<span class="lineNum">     406 </span>                :            :         GDALGetRasterBand( hMemDS, 1 ), GCI_RedBand );
+<span class="lineNum">     407 </span>                :<span class="lineCov">          1 :       GDALSetRasterColorInterpretation(</span>
+<span class="lineNum">     408 </span>                :            :         GDALGetRasterBand( hMemDS, 2 ), GCI_GreenBand );
+<span class="lineNum">     409 </span>                :<span class="lineCov">          1 :       GDALSetRasterColorInterpretation(</span>
+<span class="lineNum">     410 </span>                :            :         GDALGetRasterBand( hMemDS, 3 ), GCI_BlueBand );
+<span class="lineNum">     411 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     } else if( format-&gt;imagemode == MS_IMAGEMODE_RGBA ) {</span>
+<span class="lineNum">     412 </span>                :<span class="lineCov">          1 :       GDALSetRasterColorInterpretation(</span>
+<span class="lineNum">     413 </span>                :            :         GDALGetRasterBand( hMemDS, 1 ), GCI_RedBand );
+<span class="lineNum">     414 </span>                :<span class="lineCov">          1 :       GDALSetRasterColorInterpretation(</span>
+<span class="lineNum">     415 </span>                :            :         GDALGetRasterBand( hMemDS, 2 ), GCI_GreenBand );
+<span class="lineNum">     416 </span>                :<span class="lineCov">          1 :       GDALSetRasterColorInterpretation(</span>
+<span class="lineNum">     417 </span>                :            :         GDALGetRasterBand( hMemDS, 3 ), GCI_BlueBand );
+<span class="lineNum">     418 </span>                :<span class="lineCov">          1 :       GDALSetRasterColorInterpretation(</span>
+<span class="lineNum">     419 </span>                :            :         GDALGetRasterBand( hMemDS, 4 ), GCI_AlphaBand );
+<span class="lineNum">     420 </span>                :            :     }
+<span class="lineNum">     421 </span>                :            : 
+<span class="lineNum">     422 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     423 </span>                :            :   /*      Assign the projection and coordinate system to the memory       */
+<span class="lineNum">     424 </span>                :            :   /*      dataset.                                                        */
+<span class="lineNum">     425 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( map != NULL ) {</span>
+<span class="lineNum">     428 </span>                :            :     char *pszWKT;
+<span class="lineNum">     429 </span>                :            : 
+<span class="lineNum">     430 </span>                :<span class="lineCov">          1 :     GDALSetGeoTransform( hMemDS, map-&gt;gt.geotransform );</span>
+<span class="lineNum">     431 </span>                :            : 
+<span class="lineNum">     432 </span>                :<span class="lineCov">          1 :     pszWKT = msProjectionObj2OGCWKT( &amp;(map-&gt;projection) );</span>
+<span class="lineNum">     433 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( pszWKT != NULL ) {</span>
+<span class="lineNum">     434 </span>                :<span class="lineCov">          1 :       GDALSetProjection( hMemDS, pszWKT );</span>
+<span class="lineNum">     435 </span>                :<span class="lineCov">          1 :       msFree( pszWKT );</span>
+<span class="lineNum">     436 </span>                :            :     }
+<span class="lineNum">     437 </span>                :            :   }
+<span class="lineNum">     438 </span>                :            : 
+<span class="lineNum">     439 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     440 </span>                :            :   /*      Possibly assign a nodata value.                                 */
+<span class="lineNum">     441 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     442 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( msGetOutputFormatOption(format,&quot;NULLVALUE&quot;,NULL) != NULL ) {</span>
+<span class="lineNum">     443 </span>                :            :     int iBand;
+<span class="lineNum">     444 </span>                :<span class="lineCov">          1 :     const char *nullvalue = msGetOutputFormatOption(format,</span>
+<span class="lineNum">     445 </span>                :            :                             &quot;NULLVALUE&quot;,NULL);
+<span class="lineNum">     446 </span>                :            : 
+<span class="lineNum">     447 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( iBand = 0; iBand &lt; nBands; iBand++ ) {</span>
+<span class="lineNum">     448 </span>                :<span class="lineCov">          1 :       GDALRasterBandH hBand = GDALGetRasterBand( hMemDS, iBand+1 );</span>
+<span class="lineNum">     449 </span>                :<span class="lineCov">          1 :       GDALSetRasterNoDataValue( hBand, atof(nullvalue) );</span>
+<span class="lineNum">     450 </span>                :            :     }
+<span class="lineNum">     451 </span>                :            :   }
+<span class="lineNum">     452 </span>                :            : 
+<span class="lineNum">     453 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     454 </span>                :            :   /*  Try to save resolution in the output file.                          */
+<span class="lineNum">     455 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     456 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( image-&gt;resolution &gt; 0 ) {</span>
+<span class="lineNum">     457 </span>                :            :     char res[30];
+<span class="lineNum">     458 </span>                :            : 
+<span class="lineNum">     459 </span>                :<span class="lineCov">          1 :     sprintf( res, &quot;%lf&quot;, image-&gt;resolution );</span>
+<span class="lineNum">     460 </span>                :<span class="lineCov">          1 :     GDALSetMetadataItem( hMemDS, &quot;TIFFTAG_XRESOLUTION&quot;, res, NULL );</span>
+<span class="lineNum">     461 </span>                :<span class="lineCov">          1 :     GDALSetMetadataItem( hMemDS, &quot;TIFFTAG_YRESOLUTION&quot;, res, NULL );</span>
+<span class="lineNum">     462 </span>                :<span class="lineCov">          1 :     GDALSetMetadataItem( hMemDS, &quot;TIFFTAG_RESOLUTIONUNIT&quot;, &quot;2&quot;, NULL );</span>
+<span class="lineNum">     463 </span>                :            :   }
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     466 </span>                :            :   /*      Create a disk image in the selected output format from the      */
+<span class="lineNum">     467 </span>                :            :   /*      memory image.                                                   */
+<span class="lineNum">     468 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     469 </span>                :<span class="lineCov">          1 :   papszOptions = (char**)calloc(sizeof(char *),(format-&gt;numformatoptions+1));</span>
+<span class="lineNum">     470 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (papszOptions == NULL) {</span>
+<span class="lineNum">     471 </span>                :            :     msReleaseLock( TLOCK_GDAL );
+<span class="lineNum">     472 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MEMERR, &quot;Out of memory allocating %u bytes.\n&quot;, &quot;msSaveImageGDAL()&quot;,</span>
+<span class="lineNum">     473 </span>                :<span class="lineNoCov">          0 :                 (unsigned int)(sizeof(char *)*(format-&gt;numformatoptions+1)));</span>
+<span class="lineNum">     474 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     475 </span>                :            :   }
+<span class="lineNum">     476 </span>                :            : 
+<span class="lineNum">     477 </span>                :<span class="lineCov">          1 :   memcpy( papszOptions, format-&gt;formatoptions,</span>
+<span class="lineNum">     478 </span>                :<span class="lineCov">          1 :           sizeof(char *) * format-&gt;numformatoptions );</span>
+<span class="lineNum">     479 </span>                :            : 
+<span class="lineNum">     480 </span>                :<span class="lineCov">          1 :   hOutputDS = GDALCreateCopy( hOutputDriver, filename, hMemDS, FALSE,</span>
+<span class="lineNum">     481 </span>                :            :                               papszOptions, NULL, NULL );
+<span class="lineNum">     482 </span>                :            : 
+<span class="lineNum">     483 </span>                :<span class="lineCov">          1 :   free( papszOptions );</span>
+<span class="lineNum">     484 </span>                :            : 
+<span class="lineNum">     485 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( hOutputDS == NULL ) {</span>
+<span class="lineNum">     486 </span>                :<span class="lineNoCov">          0 :     GDALClose( hMemDS );</span>
+<span class="lineNum">     487 </span>                :            :     msReleaseLock( TLOCK_GDAL );
+<span class="lineNum">     488 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Failed to create output %s file.\n%s&quot;,</span>
+<span class="lineNum">     489 </span>                :<span class="lineNoCov">          0 :                 &quot;msSaveImageGDAL()&quot;, format-&gt;driver+5,</span>
+<span class="lineNum">     490 </span>                :            :                 CPLGetLastErrorMsg() );
+<span class="lineNum">     491 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     492 </span>                :            :   }
+<span class="lineNum">     493 </span>                :            : 
+<span class="lineNum">     494 </span>                :            :   /* closing the memory DS also frees all associated resources. */
+<span class="lineNum">     495 </span>                :<span class="lineCov">          1 :   GDALClose( hMemDS );</span>
+<span class="lineNum">     496 </span>                :            : 
+<span class="lineNum">     497 </span>                :<span class="lineCov">          1 :   GDALClose( hOutputDS );</span>
+<span class="lineNum">     498 </span>                :            :   msReleaseLock( TLOCK_GDAL );
+<span class="lineNum">     499 </span>                :            : 
+<span class="lineNum">     500 </span>                :            : 
+<span class="lineNum">     501 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     502 </span>                :            :   /*      Are we writing license info into the image?                     */
+<span class="lineNum">     503 </span>                :            :   /*      If so, add it to the temp file on disk now.                     */
+<span class="lineNum">     504 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     505 </span>                :            : #ifdef USE_EXEMPI
+<span class="lineNum">     506 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if ( bUseXmp == MS_TRUE ) {</span>
+<span class="lineNum">     507 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( msXmpWrite(map, filename) == MS_FAILURE ) {</span>
+<span class="lineNum">     508 </span>                :            :       /* Something bad happened. */
+<span class="lineNum">     509 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR, &quot;XMP write to %s failed.\n&quot;,</span>
+<span class="lineNum">     510 </span>                :            :                   &quot;msSaveImageGDAL()&quot;, filename);
+<span class="lineNum">     511 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     512 </span>                :            :     }
+<span class="lineNum">     513 </span>                :            :   }
+<span class="lineNum">     514 </span>                :            : #endif
+<span class="lineNum">     515 </span>                :            : 
+<span class="lineNum">     516 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     517 </span>                :            :   /*      Is this supposed to be a temporary file?  If so, stream to      */
+<span class="lineNum">     518 </span>                :            :   /*      stdout and delete the file.                                     */
+<span class="lineNum">     519 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     520 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( bFileIsTemporary ) {</span>
+<span class="lineNum">     521 </span>                :            :     FILE *fp;
+<span class="lineNum">     522 </span>                :            :     unsigned char block[4000];
+<span class="lineNum">     523 </span>                :            :     int bytes_read;
+<span class="lineNum">     524 </span>                :            : 
+<span class="lineNum">     525 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if( msIO_needBinaryStdout() == MS_FAILURE )</span>
+<span class="lineNum">     526 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">     527 </span>                :            : 
+<span class="lineNum">     528 </span>                :            :     /* We aren't sure how far back GDAL exports the VSI*L API, so
+<span class="lineNum">     529 </span>                :            :        we only use it if we suspect we need it.  But we do need it if
+<span class="lineNum">     530 </span>                :            :        holding temporary file in memory. */
+<span class="lineNum">     531 </span>                :<span class="lineCov">          1 :     fp = VSIFOpenL( filename, &quot;rb&quot; );</span>
+<span class="lineNum">     532 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( fp == NULL ) {</span>
+<span class="lineNum">     533 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
+<span class="lineNum">     534 </span>                :            :                   &quot;Failed to open %s for streaming to stdout.&quot;,
+<span class="lineNum">     535 </span>                :            :                   &quot;msSaveImageGDAL()&quot;, filename );
+<span class="lineNum">     536 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     537 </span>                :            :     }
+<span class="lineNum">     538 </span>                :            : 
+<span class="lineNum">     539 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     while( (bytes_read = VSIFReadL(block, 1, sizeof(block), fp)) &gt; 0 )</span>
+<span class="lineNum">     540 </span>                :<span class="lineCov">          1 :       msIO_fwrite( block, 1, bytes_read, stdout );</span>
+<span class="lineNum">     541 </span>                :            : 
+<span class="lineNum">     542 </span>                :<span class="lineCov">          1 :     VSIFCloseL( fp );</span>
+<span class="lineNum">     543 </span>                :            : 
+<span class="lineNum">     544 </span>                :<span class="lineCov">          1 :     VSIUnlink( filename );</span>
+<span class="lineNum">     545 </span>                :<span class="lineCov">          1 :     CleanVSIDir( &quot;/vsimem/msout&quot; );</span>
+<span class="lineNum">     546 </span>                :            : 
+<span class="lineNum">     547 </span>                :<span class="lineCov">          1 :     free( filename );</span>
+<span class="lineNum">     548 </span>                :            :   }
+<span class="lineNum">     549 </span>                :            : 
+<span class="lineNum">     550 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">     551 </span>                :            : }
+<span class="lineNum">     552 </span>                :            : 
+<span class="lineNum">     553 </span>                :            : /************************************************************************/
+<span class="lineNum">     554 </span>                :            : /*                       msInitGDALOutputFormat()                       */
+<a name="555"><span class="lineNum">     555 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     556 </span>                :            : 
+<span class="lineNum">     557 </span>                :<span class="lineCov">          1 : int msInitDefaultGDALOutputFormat( outputFormatObj *format )</span>
+<span class="lineNum">     558 </span>                :            : 
+<span class="lineNum">     559 </span>                :            : {
+<span class="lineNum">     560 </span>                :            :   GDALDriverH hDriver;
+<span class="lineNum">     561 </span>                :            : 
+<span class="lineNum">     562 </span>                :<span class="lineCov">          1 :   msGDALInitialize();</span>
+<span class="lineNum">     563 </span>                :            : 
+<span class="lineNum">     564 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     565 </span>                :            :   /*      check that this driver exists.  Note visiting drivers should    */
+<span class="lineNum">     566 </span>                :            :   /*      be pretty threadsafe so don't bother acquiring the GDAL         */
+<span class="lineNum">     567 </span>                :            :   /*      lock.                                                           */
+<span class="lineNum">     568 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     569 </span>                :<span class="lineCov">          1 :   hDriver = GDALGetDriverByName( format-&gt;driver+5 );</span>
+<span class="lineNum">     570 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( hDriver == NULL ) {</span>
+<span class="lineNum">     571 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;No GDAL driver named `%s' available.&quot;,</span>
+<span class="lineNum">     572 </span>                :<span class="lineNoCov">          0 :                 &quot;msInitGDALOutputFormat()&quot;, format-&gt;driver+5 );</span>
+<span class="lineNum">     573 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     574 </span>                :            :   }
+<span class="lineNum">     575 </span>                :            : 
+<span class="lineNum">     576 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( GDALGetMetadataItem( hDriver, GDAL_DCAP_CREATE, NULL ) == NULL</span>
+<span class="lineNum">     577 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       &amp;&amp; GDALGetMetadataItem( hDriver, GDAL_DCAP_CREATECOPY, NULL ) == NULL ) {</span>
+<span class="lineNum">     578 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;GDAL `%s' driver does not support output.&quot;,</span>
+<span class="lineNum">     579 </span>                :<span class="lineNoCov">          0 :                 &quot;msInitGDALOutputFormat()&quot;, format-&gt;driver+5 );</span>
+<span class="lineNum">     580 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     581 </span>                :            :   }
+<span class="lineNum">     582 </span>                :            : 
+<span class="lineNum">     583 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     584 </span>                :            :   /*      Initialize the object.                                          */
+<span class="lineNum">     585 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     586 </span>                :<span class="lineCov">          1 :   format-&gt;imagemode = MS_IMAGEMODE_RGB;</span>
+<span class="lineNum">     587 </span>                :<span class="lineCov">          1 :   format-&gt;renderer = MS_RENDER_WITH_AGG;</span>
+<span class="lineNum">     588 </span>                :            : 
+<span class="lineNum">     589 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( GDALGetMetadataItem( hDriver, GDAL_DMD_MIMETYPE, NULL ) != NULL )</span>
+<span class="lineNum">     590 </span>                :<span class="lineCov">          1 :     format-&gt;mimetype =</span>
+<span class="lineNum">     591 </span>                :<span class="lineCov">          1 :       msStrdup(GDALGetMetadataItem(hDriver,GDAL_DMD_MIMETYPE,NULL));</span>
+<span class="lineNum">     592 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if( GDALGetMetadataItem( hDriver, GDAL_DMD_EXTENSION, NULL ) != NULL )</span>
+<span class="lineNum">     593 </span>                :<span class="lineCov">          1 :     format-&gt;extension =</span>
+<span class="lineNum">     594 </span>                :<span class="lineCov">          1 :       msStrdup(GDALGetMetadataItem(hDriver,GDAL_DMD_EXTENSION,NULL));</span>
+<span class="lineNum">     595 </span>                :            : 
+<span class="lineNum">     596 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">     597 </span>                :            : }
+<span class="lineNum">     598 </span>                :            : 
+<span class="lineNum">     599 </span>                :            : #else
+<span class="lineNum">     600 </span>                :            : 
+<span class="lineNum">     601 </span>                :            : void msGDALInitialize( void ) {}
+<span class="lineNum">     602 </span>                :            : void msGDALCleanup(void) {}
+<span class="lineNum">     603 </span>                :            : 
+<span class="lineNum">     604 </span>                :            : 
+<span class="lineNum">     605 </span>                :            : #endif /* def USE_GDAL */
+<span class="lineNum">     606 </span>                :            : 
+<span class="lineNum">     607 </span>                :            : 
+<span class="lineNum">     608 </span>                :            : /************************************************************************/
+<span class="lineNum">     609 </span>                :            : /*                      msProjectionObj2OGCWKT()                        */
+<span class="lineNum">     610 </span>                :            : /*                                                                      */
+<span class="lineNum">     611 </span>                :            : /*      We stick to the C API for OGRSpatialReference object access     */
+<span class="lineNum">     612 </span>                :            : /*      to allow MapServer+GDAL to be built without C++                 */
+<span class="lineNum">     613 </span>                :            : /*      complications.                                                  */
+<span class="lineNum">     614 </span>                :            : /*                                                                      */
+<span class="lineNum">     615 </span>                :            : /*      Note that this function will return NULL on failure, and the    */
+<span class="lineNum">     616 </span>                :            : /*      returned string should be freed with msFree().                  */
+<a name="617"><span class="lineNum">     617 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     618 </span>                :            : 
+<span class="lineNum">     619 </span>                :<span class="lineCov">          1 : char *msProjectionObj2OGCWKT( projectionObj *projection )</span>
+<span class="lineNum">     620 </span>                :            : 
+<span class="lineNum">     621 </span>                :            : {
+<span class="lineNum">     622 </span>                :            : 
+<span class="lineNum">     623 </span>                :            : #if !defined(USE_GDAL) &amp;&amp; !defined(USE_OGR)
+<span class="lineNum">     624 </span>                :            :   msSetError(MS_OGRERR,
+<span class="lineNum">     625 </span>                :            :              &quot;Not implemented since neither OGR nor GDAL is enabled.&quot;,
+<span class="lineNum">     626 </span>                :            :              &quot;msProjectionObj2OGCWKT()&quot;);
+<span class="lineNum">     627 </span>                :            :   return NULL;
+<span class="lineNum">     628 </span>                :            : 
+<span class="lineNum">     629 </span>                :            : #else /* defined USE_GDAL or USE_OGR */
+<span class="lineNum">     630 </span>                :            : 
+<span class="lineNum">     631 </span>                :            :   OGRSpatialReferenceH hSRS;
+<span class="lineNum">     632 </span>                :<span class="lineCov">          1 :   char *pszWKT=NULL, *pszProj4, *pszInitEpsg=NULL;</span>
+<span class="lineNum">     633 </span>                :            :   int  nLength = 0, i;
+<span class="lineNum">     634 </span>                :            :   OGRErr eErr;
+<span class="lineNum">     635 </span>                :            : 
+<span class="lineNum">     636 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( projection-&gt;proj == NULL )</span>
+<span class="lineNum">     637 </span>                :            :     return NULL;
+<span class="lineNum">     638 </span>                :            : 
+<span class="lineNum">     639 </span>                :<span class="lineCov">          1 :   hSRS = OSRNewSpatialReference( NULL );</span>
+<span class="lineNum">     640 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     641 </span>                :            :   /*      Look for an EPSG-like projection argument                       */
+<span class="lineNum">     642 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     643 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( projection-&gt;numargs == 1 &amp;&amp;</span>
+<span class="lineNum">     644 </span>                :<span class="lineCov">          1 :         (pszInitEpsg = strcasestr(projection-&gt;args[0],&quot;init=epsg:&quot;))) {</span>
+<span class="lineNum">     645 </span>                :<span class="lineCov">          1 :      int nEpsgCode = atoi(pszInitEpsg + strlen(&quot;init=epsg:&quot;));</span>
+<span class="lineNum">     646 </span>                :<span class="lineCov">          1 :      eErr = OSRImportFromEPSG(hSRS, nEpsgCode);</span>
+<span class="lineNum">     647 </span>                :            :   } else {
+<span class="lineNum">     648 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     649 </span>                :            :     /*      Form arguments into a full Proj.4 definition string.            */
+<span class="lineNum">     650 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     651 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = 0; i &lt; projection-&gt;numargs; i++ )</span>
+<span class="lineNum">     652 </span>                :<span class="lineCov">          1 :       nLength += strlen(projection-&gt;args[i]) + 2;</span>
+<span class="lineNum">     653 </span>                :            : 
+<span class="lineNum">     654 </span>                :<span class="lineCov">          1 :     pszProj4 = (char *) CPLMalloc(nLength+2);</span>
+<span class="lineNum">     655 </span>                :<span class="lineCov">          1 :     pszProj4[0] = '\0';</span>
+<span class="lineNum">     656 </span>                :            : 
+<span class="lineNum">     657 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = 0; i &lt; projection-&gt;numargs; i++ ) {</span>
+<span class="lineNum">     658 </span>                :            :       strcat( pszProj4, &quot;+&quot; );
+<span class="lineNum">     659 </span>                :<span class="lineCov">          1 :       strcat( pszProj4, projection-&gt;args[i] );</span>
+<span class="lineNum">     660 </span>                :            :       strcat( pszProj4, &quot; &quot; );
+<span class="lineNum">     661 </span>                :            :     }
+<span class="lineNum">     662 </span>                :            : 
+<span class="lineNum">     663 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     664 </span>                :            :     /*      Ingest the string into OGRSpatialReference.                     */
+<span class="lineNum">     665 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     666 </span>                :<span class="lineCov">          1 :     eErr =  OSRImportFromProj4( hSRS, pszProj4 );</span>
+<span class="lineNum">     667 </span>                :<span class="lineCov">          1 :     CPLFree( pszProj4 );</span>
+<span class="lineNum">     668 </span>                :            :   }
+<span class="lineNum">     669 </span>                :            : 
+<span class="lineNum">     670 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     671 </span>                :            :   /*      Export as a WKT string.                                         */
+<span class="lineNum">     672 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     673 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( eErr == OGRERR_NONE )</span>
+<span class="lineNum">     674 </span>                :<span class="lineCov">          1 :     eErr = OSRExportToWkt( hSRS, &amp;pszWKT );</span>
+<span class="lineNum">     675 </span>                :            : 
+<span class="lineNum">     676 </span>                :<span class="lineCov">          1 :   OSRDestroySpatialReference( hSRS );</span>
+<span class="lineNum">     677 </span>                :            : 
+<span class="lineNum">     678 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( pszWKT ) {</span>
+<span class="lineNum">     679 </span>                :<span class="lineCov">          1 :     char *pszWKT2 = msStrdup(pszWKT);</span>
+<span class="lineNum">     680 </span>                :<span class="lineCov">          1 :     CPLFree( pszWKT );</span>
+<span class="lineNum">     681 </span>                :            : 
+<span class="lineNum">     682 </span>                :<span class="lineCov">          1 :     return pszWKT2;</span>
+<span class="lineNum">     683 </span>                :            :   } else
+<span class="lineNum">     684 </span>                :            :     return NULL;
+<span class="lineNum">     685 </span>                :            : #endif /* defined USE_GDAL or USE_OGR */
+<span class="lineNum">     686 </span>                :            : }
+<span class="lineNum">     687 </span>                :            : 
+<span class="lineNum">     688 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
