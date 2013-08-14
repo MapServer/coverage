@@ -2161,100 +2161,98 @@
 <span class="lineNum">    2090 </span>                :            :   msSDELayerInfo *sde = NULL;
 <span class="lineNum">    2091 </span>                :            :   int i;
 <span class="lineNum">    2092 </span>                :            :   if (!msSDELayerIsOpen(layer)) {
-<span class="lineNum">    2093 </span>                :            :     msSetError( MS_SDEERR,
-<span class="lineNum">    2094 </span>                :            :                 &quot;SDE layer has not been opened.&quot;,
-<span class="lineNum">    2095 </span>                :            :                 &quot;msSDELayerFreeItemInfo()&quot;);
-<span class="lineNum">    2096 </span>                :            :   }
-<span class="lineNum">    2097 </span>                :            :   sde = layer-&gt;layerinfo;
-<span class="lineNum">    2098 </span>                :            :   if (sde-&gt;basedefs) {
-<span class="lineNum">    2099 </span>                :            :     SE_table_free_descriptions(sde-&gt;basedefs);
-<span class="lineNum">    2100 </span>                :            :     sde-&gt;basedefs = NULL;
-<span class="lineNum">    2101 </span>                :            :   }
-<span class="lineNum">    2102 </span>                :            :   if (sde-&gt;joindefs) {
-<span class="lineNum">    2103 </span>                :            :     SE_table_free_descriptions(sde-&gt;joindefs);
-<span class="lineNum">    2104 </span>                :            :     sde-&gt;joindefs = NULL;
-<span class="lineNum">    2105 </span>                :            :   }
-<span class="lineNum">    2106 </span>                :            :   if (layer-&gt;iteminfo) {
-<span class="lineNum">    2107 </span>                :            :     msFree(layer-&gt;iteminfo);
-<span class="lineNum">    2108 </span>                :            :     layer-&gt;iteminfo = NULL;
-<span class="lineNum">    2109 </span>                :            :   }
-<span class="lineNum">    2110 </span>                :            : 
-<span class="lineNum">    2111 </span>                :            :   if (layer-&gt;items) {
-<span class="lineNum">    2112 </span>                :            :     for (i=0; i&lt; layer-&gt;numitems; i++) {
-<span class="lineNum">    2113 </span>                :            :       msFree(layer-&gt;items[i]);
-<span class="lineNum">    2114 </span>                :            :     }
-<span class="lineNum">    2115 </span>                :            :     msFree(layer-&gt;items);
-<span class="lineNum">    2116 </span>                :            :     layer-&gt;items = NULL;
-<span class="lineNum">    2117 </span>                :            :     layer-&gt;numitems = 0;
-<span class="lineNum">    2118 </span>                :            :   }
-<span class="lineNum">    2119 </span>                :            : 
-<span class="lineNum">    2120 </span>                :            : #else
-<span class="lineNum">    2121 </span>                :<span class="lineNoCov">          0 :   msSetError( MS_MISCERR,</span>
-<span class="lineNum">    2122 </span>                :            :               &quot;SDE support is not available.&quot;,
-<span class="lineNum">    2123 </span>                :            :               &quot;msSDELayerFreeItemInfo()&quot;);
-<span class="lineNum">    2124 </span>                :            : #endif
-<span class="lineNum">    2125 </span>                :<span class="lineNoCov">          0 : }</span>
-<span class="lineNum">    2126 </span>                :            : 
-<span class="lineNum">    2127 </span>                :            : #ifdef USE_SDE_PLUGIN
-<span class="lineNum">    2128 </span>                :            : MS_DLL_EXPORT  int
-<span class="lineNum">    2129 </span>                :            : PluginInitializeVirtualTable(layerVTableObj* vtable, layerObj *layer)
-<span class="lineNum">    2130 </span>                :            : {
-<span class="lineNum">    2131 </span>                :            :   assert(layer != NULL);
-<span class="lineNum">    2132 </span>                :            :   assert(vtable != NULL);
-<span class="lineNum">    2133 </span>                :            : 
-<span class="lineNum">    2134 </span>                :            :   vtable-&gt;LayerInitItemInfo = msSDELayerInitItemInfo;
-<span class="lineNum">    2135 </span>                :            :   vtable-&gt;LayerFreeItemInfo = msSDELayerFreeItemInfo;
-<span class="lineNum">    2136 </span>                :            :   vtable-&gt;LayerOpen = msSDELayerOpen;
-<span class="lineNum">    2137 </span>                :            :   vtable-&gt;LayerIsOpen = msSDELayerIsOpen;
-<span class="lineNum">    2138 </span>                :            :   vtable-&gt;LayerWhichShapes = msSDELayerWhichShapes;
-<span class="lineNum">    2139 </span>                :            :   vtable-&gt;LayerNextShape = msSDELayerNextShape;
-<span class="lineNum">    2140 </span>                :            :   vtable-&gt;LayerGetShape = msSDELayerGetShape;
-<span class="lineNum">    2141 </span>                :            :   vtable-&gt;LayerClose = msSDELayerClose;
-<span class="lineNum">    2142 </span>                :            :   vtable-&gt;LayerGetItems = msSDELayerGetItems;
-<span class="lineNum">    2143 </span>                :            :   vtable-&gt;LayerGetExtent = msSDELayerGetExtent;
-<span class="lineNum">    2144 </span>                :            : 
-<span class="lineNum">    2145 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
-<span class="lineNum">    2146 </span>                :            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
-<span class="lineNum">    2147 </span>                :            : 
-<span class="lineNum">    2148 </span>                :            :   /* SDE uses pooled connections, close from msCloseConnections */
-<span class="lineNum">    2149 </span>                :            :   vtable-&gt;LayerCloseConnection = msSDELayerCloseConnection;
-<span class="lineNum">    2150 </span>                :            : 
-<span class="lineNum">    2151 </span>                :            :   vtable-&gt;LayerSetTimeFilter = msLayerMakePlainTimeFilter;
-<span class="lineNum">    2152 </span>                :            :   vtable-&gt;LayerCreateItems = msSDELayerCreateItems;
-<span class="lineNum">    2153 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
-<span class="lineNum">    2154 </span>                :            : 
-<span class="lineNum">    2155 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">    2156 </span>                :            : }
-<span class="lineNum">    2157 </span>                :            : #endif
-<a name="2158"><span class="lineNum">    2158 </span>                :            : </a>
-<span class="lineNum">    2159 </span>                :            : int
-<span class="lineNum">    2160 </span>                :<span class="lineNoCov">          0 : msSDELayerInitializeVirtualTable(layerObj *layer)</span>
-<span class="lineNum">    2161 </span>                :            : {
-<span class="lineNum">    2162 </span>                :            :   assert(layer != NULL);
-<span class="lineNum">    2163 </span>                :            :   assert(layer-&gt;vtable != NULL);
-<span class="lineNum">    2164 </span>                :            : 
-<span class="lineNum">    2165 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msSDELayerInitItemInfo;</span>
-<span class="lineNum">    2166 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msSDELayerFreeItemInfo;</span>
-<span class="lineNum">    2167 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerOpen = msSDELayerOpen;</span>
-<span class="lineNum">    2168 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerIsOpen = msSDELayerIsOpen;</span>
-<span class="lineNum">    2169 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerWhichShapes = msSDELayerWhichShapes;</span>
-<span class="lineNum">    2170 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerNextShape = msSDELayerNextShape;</span>
-<span class="lineNum">    2171 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerGetShape = msSDELayerGetShape;</span>
-<span class="lineNum">    2172 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerClose = msSDELayerClose;</span>
-<span class="lineNum">    2173 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerGetItems = msSDELayerGetItems;</span>
-<span class="lineNum">    2174 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerGetExtent = msSDELayerGetExtent;</span>
-<span class="lineNum">    2175 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
-<span class="lineNum">    2176 </span>                :            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
-<span class="lineNum">    2177 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerCloseConnection = msSDELayerCloseConnection; /* SDE uses pooled connections, close from msCloseConnections */</span>
-<span class="lineNum">    2178 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msLayerMakePlainTimeFilter;</span>
-<span class="lineNum">    2179 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerCreateItems = msSDELayerCreateItems;</span>
-<span class="lineNum">    2180 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
-<span class="lineNum">    2181 </span>                :            : 
-<span class="lineNum">    2182 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">    2183 </span>                :            : }
+<span class="lineNum">    2093 </span>                :            :     msSetError( MS_SDEERR, &quot;SDE layer has not been opened.&quot;, &quot;msSDELayerFreeItemInfo()&quot;);
+<span class="lineNum">    2094 </span>                :            :   }
+<span class="lineNum">    2095 </span>                :            :   sde = layer-&gt;layerinfo;
+<span class="lineNum">    2096 </span>                :            :   if (sde != NULL &amp;&amp; sde-&gt;basedefs) {
+<span class="lineNum">    2097 </span>                :            :     SE_table_free_descriptions(sde-&gt;basedefs);
+<span class="lineNum">    2098 </span>                :            :     sde-&gt;basedefs = NULL;
+<span class="lineNum">    2099 </span>                :            :   }
+<span class="lineNum">    2100 </span>                :            :   if (sde != NULL &amp;&amp; sde-&gt;joindefs) {
+<span class="lineNum">    2101 </span>                :            :     SE_table_free_descriptions(sde-&gt;joindefs);
+<span class="lineNum">    2102 </span>                :            :     sde-&gt;joindefs = NULL;
+<span class="lineNum">    2103 </span>                :            :   }
+<span class="lineNum">    2104 </span>                :            :   if (layer-&gt;iteminfo) {
+<span class="lineNum">    2105 </span>                :            :     msFree(layer-&gt;iteminfo);
+<span class="lineNum">    2106 </span>                :            :     layer-&gt;iteminfo = NULL;
+<span class="lineNum">    2107 </span>                :            :   }
+<span class="lineNum">    2108 </span>                :            : 
+<span class="lineNum">    2109 </span>                :            :   if (layer-&gt;items) {
+<span class="lineNum">    2110 </span>                :            :     for (i=0; i&lt; layer-&gt;numitems; i++) {
+<span class="lineNum">    2111 </span>                :            :       msFree(layer-&gt;items[i]);
+<span class="lineNum">    2112 </span>                :            :     }
+<span class="lineNum">    2113 </span>                :            :     msFree(layer-&gt;items);
+<span class="lineNum">    2114 </span>                :            :     layer-&gt;items = NULL;
+<span class="lineNum">    2115 </span>                :            :     layer-&gt;numitems = 0;
+<span class="lineNum">    2116 </span>                :            :   }
+<span class="lineNum">    2117 </span>                :            : 
+<span class="lineNum">    2118 </span>                :            : #else
+<span class="lineNum">    2119 </span>                :<span class="lineNoCov">          0 :   msSetError( MS_MISCERR,</span>
+<span class="lineNum">    2120 </span>                :            :               &quot;SDE support is not available.&quot;,
+<span class="lineNum">    2121 </span>                :            :               &quot;msSDELayerFreeItemInfo()&quot;);
+<span class="lineNum">    2122 </span>                :            : #endif
+<span class="lineNum">    2123 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    2124 </span>                :            : 
+<span class="lineNum">    2125 </span>                :            : #ifdef USE_SDE_PLUGIN
+<span class="lineNum">    2126 </span>                :            : MS_DLL_EXPORT  int
+<span class="lineNum">    2127 </span>                :            : PluginInitializeVirtualTable(layerVTableObj* vtable, layerObj *layer)
+<span class="lineNum">    2128 </span>                :            : {
+<span class="lineNum">    2129 </span>                :            :   assert(layer != NULL);
+<span class="lineNum">    2130 </span>                :            :   assert(vtable != NULL);
+<span class="lineNum">    2131 </span>                :            : 
+<span class="lineNum">    2132 </span>                :            :   vtable-&gt;LayerInitItemInfo = msSDELayerInitItemInfo;
+<span class="lineNum">    2133 </span>                :            :   vtable-&gt;LayerFreeItemInfo = msSDELayerFreeItemInfo;
+<span class="lineNum">    2134 </span>                :            :   vtable-&gt;LayerOpen = msSDELayerOpen;
+<span class="lineNum">    2135 </span>                :            :   vtable-&gt;LayerIsOpen = msSDELayerIsOpen;
+<span class="lineNum">    2136 </span>                :            :   vtable-&gt;LayerWhichShapes = msSDELayerWhichShapes;
+<span class="lineNum">    2137 </span>                :            :   vtable-&gt;LayerNextShape = msSDELayerNextShape;
+<span class="lineNum">    2138 </span>                :            :   vtable-&gt;LayerGetShape = msSDELayerGetShape;
+<span class="lineNum">    2139 </span>                :            :   vtable-&gt;LayerClose = msSDELayerClose;
+<span class="lineNum">    2140 </span>                :            :   vtable-&gt;LayerGetItems = msSDELayerGetItems;
+<span class="lineNum">    2141 </span>                :            :   vtable-&gt;LayerGetExtent = msSDELayerGetExtent;
+<span class="lineNum">    2142 </span>                :            : 
+<span class="lineNum">    2143 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
+<span class="lineNum">    2144 </span>                :            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
+<span class="lineNum">    2145 </span>                :            : 
+<span class="lineNum">    2146 </span>                :            :   /* SDE uses pooled connections, close from msCloseConnections */
+<span class="lineNum">    2147 </span>                :            :   vtable-&gt;LayerCloseConnection = msSDELayerCloseConnection;
+<span class="lineNum">    2148 </span>                :            : 
+<span class="lineNum">    2149 </span>                :            :   vtable-&gt;LayerSetTimeFilter = msLayerMakePlainTimeFilter;
+<span class="lineNum">    2150 </span>                :            :   vtable-&gt;LayerCreateItems = msSDELayerCreateItems;
+<span class="lineNum">    2151 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
+<span class="lineNum">    2152 </span>                :            : 
+<span class="lineNum">    2153 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">    2154 </span>                :            : }
+<span class="lineNum">    2155 </span>                :            : #endif
+<a name="2156"><span class="lineNum">    2156 </span>                :            : </a>
+<span class="lineNum">    2157 </span>                :            : int
+<span class="lineNum">    2158 </span>                :<span class="lineNoCov">          0 : msSDELayerInitializeVirtualTable(layerObj *layer)</span>
+<span class="lineNum">    2159 </span>                :            : {
+<span class="lineNum">    2160 </span>                :            :   assert(layer != NULL);
+<span class="lineNum">    2161 </span>                :            :   assert(layer-&gt;vtable != NULL);
+<span class="lineNum">    2162 </span>                :            : 
+<span class="lineNum">    2163 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msSDELayerInitItemInfo;</span>
+<span class="lineNum">    2164 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msSDELayerFreeItemInfo;</span>
+<span class="lineNum">    2165 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerOpen = msSDELayerOpen;</span>
+<span class="lineNum">    2166 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerIsOpen = msSDELayerIsOpen;</span>
+<span class="lineNum">    2167 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerWhichShapes = msSDELayerWhichShapes;</span>
+<span class="lineNum">    2168 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerNextShape = msSDELayerNextShape;</span>
+<span class="lineNum">    2169 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerGetShape = msSDELayerGetShape;</span>
+<span class="lineNum">    2170 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerClose = msSDELayerClose;</span>
+<span class="lineNum">    2171 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerGetItems = msSDELayerGetItems;</span>
+<span class="lineNum">    2172 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerGetExtent = msSDELayerGetExtent;</span>
+<span class="lineNum">    2173 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
+<span class="lineNum">    2174 </span>                :            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
+<span class="lineNum">    2175 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerCloseConnection = msSDELayerCloseConnection; /* SDE uses pooled connections, close from msCloseConnections */</span>
+<span class="lineNum">    2176 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msLayerMakePlainTimeFilter;</span>
+<span class="lineNum">    2177 </span>                :<span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerCreateItems = msSDELayerCreateItems;</span>
+<span class="lineNum">    2178 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
+<span class="lineNum">    2179 </span>                :            : 
+<span class="lineNum">    2180 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">    2181 </span>                :            : }
+<span class="lineNum">    2182 </span>                :            : 
+<span class="lineNum">    2183 </span>                :            : 
 <span class="lineNum">    2184 </span>                :            : 
-<span class="lineNum">    2185 </span>                :            : 
-<span class="lineNum">    2186 </span>                :            : 
 </pre>
       </td>
     </tr>
