@@ -1,0 +1,453 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - /home/travis/build/mapserver/mapserver/fontcache.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">home/travis/build/mapserver/mapserver</a> - fontcache.c<span style="font-size: 80%;"> (source / <a href="fontcache.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">137</td>
+            <td class="headerCovTableEntry">147</td>
+            <td class="headerCovTableEntryHi">93.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">226</td>
+            <td class="headerCovTableEntry">386</td>
+            <td class="headerCovTableEntryLo">58.5 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Project:  MapServer
+<span class="lineNum">       4 </span>                :            :  * Purpose:  Freetype Font helper functions
+<span class="lineNum">       5 </span>                :            :  * Author:   Thomas Bonfort and the MapServer team.
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  ******************************************************************************
+<span class="lineNum">       8 </span>                :            :  * Copyright (c) 1996-2013 Regents of the University of Minnesota.
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      11 </span>                :            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      12 </span>                :            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      13 </span>                :            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      14 </span>                :            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      15 </span>                :            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      16 </span>                :            :  *
+<span class="lineNum">      17 </span>                :            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      18 </span>                :            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      19 </span>                :            :  *
+<span class="lineNum">      20 </span>                :            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+<span class="lineNum">      21 </span>                :            :  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      22 </span>                :            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+<span class="lineNum">      23 </span>                :            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      24 </span>                :            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      25 </span>                :            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      26 </span>                :            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      27 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            : #include &quot;mapserver.h&quot;
+<span class="lineNum">      31 </span>                :            : #include &quot;mapthread.h&quot;
+<span class="lineNum">      32 </span>                :            : #include &quot;fontcache.h&quot;
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : typedef struct {
+<span class="lineNum">      35 </span>                :            :   FT_Library library;
+<span class="lineNum">      36 </span>                :            :   face_element *face_cache;
+<span class="lineNum">      37 </span>                :            :   glyph_element *bitmap_glyph_cache;
+<span class="lineNum">      38 </span>                :            : } ft_cache;
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : #ifdef USE_THREAD
+<span class="lineNum">      41 </span>                :            : typedef struct ft_thread_cache ft_thread_cache;
+<span class="lineNum">      42 </span>                :            : struct ft_thread_cache{
+<span class="lineNum">      43 </span>                :            :   int thread_id;
+<span class="lineNum">      44 </span>                :            :   ft_thread_cache *next;
+<span class="lineNum">      45 </span>                :            :   ft_cache cache;
+<span class="lineNum">      46 </span>                :            : };
+<span class="lineNum">      47 </span>                :            : ft_thread_cache *ft_caches;
+<span class="lineNum">      48 </span>                :            : #else
+<span class="lineNum">      49 </span>                :            :   ft_cache global_ft_cache;
+<span class="lineNum">      50 </span>                :            : #endif
+<a name="51"><span class="lineNum">      51 </span>                :            : </a>
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :<span class="lineCov">          1 : void msInitFontCache(ft_cache *c) {</span>
+<span class="lineNum">      54 </span>                :            :   memset(c,0,sizeof(ft_cache));
+<span class="lineNum">      55 </span>                :<span class="lineCov">          1 :   FT_Init_FreeType(&amp;c-&gt;library);</span>
+<a name="56"><span class="lineNum">      56 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :<span class="lineCov">          1 : void msFreeFontCache(ft_cache *c) {</span>
+<span class="lineNum">      59 </span>                :            :   /* ... TODO ... */
+<span class="lineNum">      60 </span>                :            :   face_element *cur_face,*tmp_face;
+<span class="lineNum">      61 </span>                :            :   glyph_element *cur_bitmap, *tmp_bitmap;
+<span class="lineNum">      62 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   UT_HASH_ITER(hh, c-&gt;face_cache, cur_face, tmp_face) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>]
+<span class="lineNum">      63 </span>                :            :       index_element *cur_index,*tmp_index;
+<span class="lineNum">      64 </span>                :            :       outline_element *cur_outline,*tmp_outline;
+<span class="lineNum">      65 </span>                :            :       glyph_element *cur_glyph,*tmp_glyph;
+<span class="lineNum">      66 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       UT_HASH_ITER(hh, cur_face-&gt;index_cache, cur_index, tmp_index) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>]
+<span class="lineNum">      67 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         UT_HASH_DEL(cur_face-&gt;index_cache,cur_index);</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken X times"> + </span><span class="branchCov" title="Branch 13 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 14 was not taken"> - </span><span class="branchCov" title="Branch 15 was taken X times"> + </span>]
+<span class="lineNum">      68 </span>                :<span class="lineCov">          1 :         free(cur_index);</span>
+<span class="lineNum">      69 </span>                :            :       }
+<span class="lineNum">      70 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       UT_HASH_ITER(hh, cur_face-&gt;outline_cache, cur_outline, tmp_outline) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>]
+<span class="lineNum">      71 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         UT_HASH_DEL(cur_face-&gt;outline_cache,cur_outline);</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken X times"> + </span><span class="branchCov" title="Branch 13 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 14 was not taken"> - </span><span class="branchCov" title="Branch 15 was taken X times"> + </span>]
+<span class="lineNum">      72 </span>                :<span class="lineCov">          1 :         FT_Outline_Done(c-&gt;library,&amp;cur_outline-&gt;outline);</span>
+<span class="lineNum">      73 </span>                :<span class="lineCov">          1 :         free(cur_outline);</span>
+<span class="lineNum">      74 </span>                :            :       }
+<span class="lineNum">      75 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       UT_HASH_ITER(hh, cur_face-&gt;glyph_cache, cur_glyph, tmp_glyph) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>]
+<span class="lineNum">      76 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         UT_HASH_DEL(cur_face-&gt;glyph_cache,cur_glyph);</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken X times"> + </span><span class="branchCov" title="Branch 13 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 14 was not taken"> - </span><span class="branchCov" title="Branch 15 was taken X times"> + </span>]
+<span class="lineNum">      77 </span>                :<span class="lineCov">          1 :         free(cur_glyph);</span>
+<span class="lineNum">      78 </span>                :            :       }
+<span class="lineNum">      79 </span>                :            : #ifdef USE_HARFBUZZ
+<span class="lineNum">      80 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(cur_face-&gt;hbfont) {</span>
+<span class="lineNum">      81 </span>                :<span class="lineCov">          1 :         hb_font_destroy(cur_face-&gt;hbfont-&gt;hbfont);</span>
+<span class="lineNum">      82 </span>                :<span class="lineCov">          1 :         hb_font_destroy(cur_face-&gt;hbfont-&gt;hbparentfont);</span>
+<span class="lineNum">      83 </span>                :<span class="lineCov">          1 :         hb_font_funcs_destroy(cur_face-&gt;hbfont-&gt;funcs);</span>
+<span class="lineNum">      84 </span>                :<span class="lineCov">          1 :         free(cur_face-&gt;hbfont);</span>
+<span class="lineNum">      85 </span>                :            :       }
+<span class="lineNum">      86 </span>                :            : #endif
+<span class="lineNum">      87 </span>                :<span class="lineCov">          1 :       FT_Done_Face(cur_face-&gt;face);</span>
+<span class="lineNum">      88 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       UT_HASH_DEL(c-&gt;face_cache,cur_face);</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken X times"> + </span><span class="branchCov" title="Branch 13 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 14 was not taken"> - </span><span class="branchCov" title="Branch 15 was taken X times"> + </span>]
+<span class="lineNum">      89 </span>                :<span class="lineCov">          1 :       free(cur_face);</span>
+<span class="lineNum">      90 </span>                :            :   }
+<span class="lineNum">      91 </span>                :<span class="lineCov">          1 :   FT_Done_FreeType(c-&gt;library);</span>
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   UT_HASH_ITER(hh,c-&gt;bitmap_glyph_cache, cur_bitmap, tmp_bitmap) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>]
+<span class="lineNum">      94 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     UT_HASH_DEL(c-&gt;bitmap_glyph_cache, cur_bitmap);</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken X times"> + </span><span class="branchCov" title="Branch 13 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 14 was not taken"> - </span><span class="branchCov" title="Branch 15 was taken X times"> + </span>]
+<span class="lineNum">      95 </span>                :<span class="lineCov">          1 :     free(cur_bitmap);</span>
+<span class="lineNum">      96 </span>                :            :   }
+<a name="97"><span class="lineNum">      97 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>                :<span class="lineCov">          1 : ft_cache* msGetFontCache() {</span>
+<span class="lineNum">     100 </span>                :            : #ifndef USE_THREAD
+<span class="lineNum">     101 </span>                :            :   return &amp;global_ft_cache;
+<span class="lineNum">     102 </span>                :            : #else
+<span class="lineNum">     103 </span>                :<span class="lineCov">          1 :   int nThreadId = msGetThreadId();</span>
+<span class="lineNum">     104 </span>                :<span class="lineCov">          1 :   ft_thread_cache *prev = NULL, *cur = ft_caches;</span>
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( cur != NULL &amp;&amp; cur-&gt;thread_id == nThreadId )</span>
+<span class="lineNum">     107 </span>                :<span class="lineCov">          1 :     return &amp;cur-&gt;cache;</span>
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     110 </span>                :            :   /*      Search for cache for this thread                                */
+<span class="lineNum">     111 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     112 </span>                :<span class="lineCov">          1 :   msAcquireLock( TLOCK_TTF );</span>
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>                :<span class="lineCov">          1 :   cur = ft_caches;</span>
+<span class="lineNum">     115 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   while( cur != NULL &amp;&amp; cur-&gt;thread_id != nThreadId ) {</span>
+<span class="lineNum">     116 </span>                :            :     prev = cur;
+<span class="lineNum">     117 </span>                :<span class="lineCov">          1 :     cur = cur-&gt;next;</span>
+<span class="lineNum">     118 </span>                :            :   }
+<span class="lineNum">     119 </span>                :            : 
+<span class="lineNum">     120 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     121 </span>                :            :   /*      If we found it, make sure it is pushed to the front of the      */
+<span class="lineNum">     122 </span>                :            :   /*      link for faster finding next time, and return it.               */
+<span class="lineNum">     123 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     124 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( cur != NULL ) {</span>
+<span class="lineNum">     125 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( prev != NULL ) {</span>
+<span class="lineNum">     126 </span>                :<span class="lineCov">          1 :       prev-&gt;next = cur-&gt;next;</span>
+<span class="lineNum">     127 </span>                :<span class="lineCov">          1 :       cur-&gt;next = ft_caches;</span>
+<span class="lineNum">     128 </span>                :<span class="lineCov">          1 :       ft_caches = cur;</span>
+<span class="lineNum">     129 </span>                :            :     }
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :<span class="lineCov">          1 :     msReleaseLock( TLOCK_TTF );</span>
+<span class="lineNum">     132 </span>                :<span class="lineCov">          1 :     return &amp;cur-&gt;cache;</span>
+<span class="lineNum">     133 </span>                :            :   }
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     136 </span>                :            :   /*      Create a new context group for this thread.                     */
+<span class="lineNum">     137 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     138 </span>                :<span class="lineCov">          1 :   cur = msSmallMalloc(sizeof(ft_thread_cache));</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">          1 :   cur-&gt;next = NULL;</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">          1 :   cur-&gt;thread_id = nThreadId;</span>
+<span class="lineNum">     141 </span>                :<span class="lineCov">          1 :   msInitFontCache(&amp;cur-&gt;cache);</span>
+<span class="lineNum">     142 </span>                :<span class="lineCov">          1 :   cur-&gt;next = ft_caches;</span>
+<span class="lineNum">     143 </span>                :<span class="lineCov">          1 :   ft_caches = cur;</span>
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :<span class="lineCov">          1 :   msReleaseLock( TLOCK_TTF );</span>
+<span class="lineNum">     146 </span>                :            : 
+<span class="lineNum">     147 </span>                :<span class="lineCov">          1 :   return &amp;cur-&gt;cache;</span>
+<span class="lineNum">     148 </span>                :            : #endif
+<a name="149"><span class="lineNum">     149 </span>                :            : }</a>
+<span class="lineNum">     150 </span>                :            : 
+<span class="lineNum">     151 </span>                :<span class="lineCov">          1 : void msFontCacheSetup() {</span>
+<span class="lineNum">     152 </span>                :            : #ifndef USE_THREAD
+<span class="lineNum">     153 </span>                :            :   ft_cache *c = msGetFontCache();
+<span class="lineNum">     154 </span>                :            :   msInitFontCache(c);
+<span class="lineNum">     155 </span>                :            : #else
+<span class="lineNum">     156 </span>                :<span class="lineCov">          1 :   ft_caches = NULL;</span>
+<span class="lineNum">     157 </span>                :            : #endif
+<a name="158"><span class="lineNum">     158 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :<span class="lineCov">          1 : void msFontCacheCleanup() {</span>
+<span class="lineNum">     161 </span>                :            : #ifndef USE_THREAD
+<span class="lineNum">     162 </span>                :            :   ft_cache *c = msGetFontCache();
+<span class="lineNum">     163 </span>                :            :   msFreeFontCache(c);
+<span class="lineNum">     164 </span>                :            : #else
+<span class="lineNum">     165 </span>                :            :   ft_thread_cache *cur,*next;
+<span class="lineNum">     166 </span>                :<span class="lineCov">          1 :   msAcquireLock( TLOCK_TTF );</span>
+<span class="lineNum">     167 </span>                :<span class="lineCov">          1 :   cur =  ft_caches;</span>
+<span class="lineNum">     168 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   while( cur != NULL ) {</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">          1 :     msFreeFontCache(&amp;cur-&gt;cache);</span>
+<span class="lineNum">     170 </span>                :<span class="lineCov">          1 :     next = cur-&gt;next;</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">          1 :     free(cur);</span>
+<span class="lineNum">     172 </span>                :            :     cur = next;
+<span class="lineNum">     173 </span>                :            :   }
+<span class="lineNum">     174 </span>                :<span class="lineCov">          1 :   ft_caches = NULL;</span>
+<span class="lineNum">     175 </span>                :<span class="lineCov">          1 :   msReleaseLock( TLOCK_TTF );</span>
+<span class="lineNum">     176 </span>                :            : #endif
+<a name="177"><span class="lineNum">     177 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     178 </span>                :            : 
+<span class="lineNum">     179 </span>                :<span class="lineCov">          1 : unsigned int msGetGlyphIndex(face_element *face, unsigned int unicode) {</span>
+<span class="lineNum">     180 </span>                :            :   index_element *ic;
+<span class="lineNum">     181 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(face-&gt;face-&gt;charmap &amp;&amp; face-&gt;face-&gt;charmap-&gt;encoding == FT_ENCODING_MS_SYMBOL) {</span>
+<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :     unicode |= 0xf000; /* why? */</span>
+<span class="lineNum">     183 </span>                :            :   }
+<span class="lineNum">     184 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   UT_HASH_FIND_INT(face-&gt;index_cache,&amp;unicode,ic);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken X times"> + </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchCov" title="Branch 9 was taken X times"> + </span>][<span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>]
+<span class="lineNum">     185 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!ic) {</span>
+<span class="lineNum">     186 </span>                :<span class="lineCov">          1 :     ic = msSmallMalloc(sizeof(index_element));</span>
+<span class="lineNum">     187 </span>                :<span class="lineCov">          1 :     ic-&gt;codepoint = FT_Get_Char_Index(face-&gt;face,unicode);</span>
+<span class="lineNum">     188 </span>                :<span class="lineCov">          1 :     ic-&gt;unicode = unicode;</span>
+<span class="lineNum">     189 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     UT_HASH_ADD_INT(face-&gt;index_cache,unicode,ic);</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken X times"> + </span>][<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchCov" title="Branch 9 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 10 was not taken"> - </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>][<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 27 was not executed"> # </span><span class="branchNoExec" title="Branch 28 was not executed"> # </span>][<span class="branchNoExec" title="Branch 29 was not executed"> # </span><span class="branchNoExec" title="Branch 30 was not executed"> # </span>]
+<span class="lineNum">     190 </span>                :            :   }
+<span class="lineNum">     191 </span>                :<span class="lineCov">          1 :   return ic-&gt;codepoint;</span>
+<a name="192"><span class="lineNum">     192 </span>                :            : }</a>
+<span class="lineNum">     193 </span>                :            : 
+<span class="lineNum">     194 </span>                :<span class="lineCov">          1 : face_element* msGetFontFace(char *key, fontSetObj *fontset) {</span>
+<span class="lineNum">     195 </span>                :            :   face_element *fc;
+<span class="lineNum">     196 </span>                :            :   int error;
+<span class="lineNum">     197 </span>                :<span class="lineCov">          1 :   ft_cache *cache = msGetFontCache();</span>
+<span class="lineNum">     198 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   UT_HASH_FIND_STR(cache-&gt;face_cache,key,fc);</span>
+<span class="lineNum">         </span>  [<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span> 
+<span class="lineNum">         </span><span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchCov" title="Branch 9 was taken X times"> + </span><span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span><span class="branchCov" title="Branch 12 was taken X times"> + </span> 
+<span class="lineNum">         </span>      <span class="branchNoCov" title="Branch 13 was not taken"> - </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span><span class="branchCov" title="Branch 15 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 16 was taken X times"> + </span><span class="branchCov" title="Branch 17 was taken X times"> + </span>][<span class="branchCov" title="Branch 18 was taken X times"> + </span><span class="branchCov" title="Branch 19 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 20 was taken X times"> + </span><span class="branchCov" title="Branch 21 was taken X times"> + </span>][<span class="branchCov" title="Branch 22 was taken X times"> + </span><span class="branchCov" title="Branch 23 was taken X times"> + </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 24 was taken X times"> + </span><span class="branchCov" title="Branch 25 was taken X times"> + </span>]
+<span class="lineNum">     199 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!fc) {</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">          1 :     char *fontfile = msLookupHashTable(&amp;(fontset-&gt;fonts),key);</span>
+<span class="lineNum">     201 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(!fontfile) {</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">          1 :       msSetError(MS_MISCERR, &quot;Could not find font with key \&quot;%s\&quot; in fontset&quot;, &quot;msGetFontFace()&quot;, key);</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">          1 :       return NULL;</span>
+<span class="lineNum">     204 </span>                :            :     }
+<span class="lineNum">     205 </span>                :<span class="lineCov">          1 :     fc = msSmallCalloc(1,sizeof(face_element));</span>
+<span class="lineNum">     206 </span>                :<span class="lineCov">          1 :     error = FT_New_Face(cache-&gt;library,fontfile,0, &amp;(fc-&gt;face));</span>
+<span class="lineNum">     207 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(error) {</span>
+<span class="lineNum">     208 </span>                :<span class="lineCov">          1 :       msSetError(MS_MISCERR, &quot;Freetype was unable to load font file \&quot;%s\&quot; for key \&quot;%s\&quot;&quot;, &quot;msGetFontFace()&quot;, fontfile, key);</span>
+<span class="lineNum">     209 </span>                :<span class="lineCov">          1 :       free(fc);</span>
+<span class="lineNum">     210 </span>                :<span class="lineCov">          1 :       return NULL;</span>
+<span class="lineNum">     211 </span>                :            :     }
+<span class="lineNum">     212 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(!fc-&gt;face-&gt;charmap) {</span>
+<span class="lineNum">     213 </span>                :            :       /* The font file has no unicode charmap, select an alternate one */
+<span class="lineNum">     214 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if( FT_Select_Charmap(fc-&gt;face, FT_ENCODING_MS_SYMBOL) )</span>
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :         FT_Select_Charmap(fc-&gt;face, FT_ENCODING_APPLE_ROMAN);</span>
+<span class="lineNum">     216 </span>                :            :       /* the previous calls may have failed, we ignore as there's nothing much left to do */
+<span class="lineNum">     217 </span>                :            :     }
+<span class="lineNum">     218 </span>                :<span class="lineCov">          1 :     fc-&gt;font = key;</span>
+<span class="lineNum">     219 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     UT_HASH_ADD_KEYPTR(hh,cache-&gt;face_cache,fc-&gt;font, strlen(key), fc);</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 8 was not taken"> - </span><span class="branchCov" title="Branch 9 was taken X times"> + </span>]
+<span class="lineNum">         </span>  [<span class="branchNoCov" title="Branch 10 was not taken"> - </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span> 
+<span class="lineNum">         </span><span class="branchCov" title="Branch 14 was taken X times"> + </span><span class="branchCov" title="Branch 15 was taken X times"> + </span><span class="branchCov" title="Branch 16 was taken X times"> + </span><span class="branchCov" title="Branch 17 was taken X times"> + </span><span class="branchCov" title="Branch 18 was taken X times"> + </span> 
+<span class="lineNum">         </span>      <span class="branchNoCov" title="Branch 19 was not taken"> - </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 22 was taken X times"> + </span><span class="branchCov" title="Branch 23 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 24 was not taken"> - </span><span class="branchCov" title="Branch 25 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 26 was not executed"> # </span><span class="branchNoExec" title="Branch 27 was not executed"> # </span>][<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 31 was not executed"> # </span><span class="branchNoExec" title="Branch 32 was not executed"> # </span>][<span class="branchNoExec" title="Branch 33 was not executed"> # </span><span class="branchNoExec" title="Branch 34 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 35 was not executed"> # </span><span class="branchNoExec" title="Branch 36 was not executed"> # </span>][<span class="branchNoExec" title="Branch 37 was not executed"> # </span><span class="branchNoExec" title="Branch 38 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 39 was not executed"> # </span><span class="branchNoExec" title="Branch 40 was not executed"> # </span>][<span class="branchNoExec" title="Branch 41 was not executed"> # </span><span class="branchNoExec" title="Branch 42 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 43 was not executed"> # </span><span class="branchNoExec" title="Branch 44 was not executed"> # </span>]
+<span class="lineNum">     220 </span>                :            :   }
+<span class="lineNum">     221 </span>                :<span class="lineCov">          1 :   return fc;</span>
+<a name="222"><span class="lineNum">     222 </span>                :            : }</a>
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :<span class="lineCov">          1 : glyph_element* msGetGlyphByIndex(face_element *face, unsigned int size, unsigned int codepoint) {</span>
+<span class="lineNum">     225 </span>                :            :   glyph_element *gc;
+<span class="lineNum">     226 </span>                :            :   glyph_element_key key;
+<span class="lineNum">     227 </span>                :            :   memset(&amp;key,0,sizeof(glyph_element_key));
+<span class="lineNum">     228 </span>                :<span class="lineCov">          1 :   key.codepoint = codepoint;</span>
+<span class="lineNum">     229 </span>                :<span class="lineCov">          1 :   key.size = size;</span>
+<span class="lineNum">     230 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   UT_HASH_FIND(hh,face-&gt;glyph_cache,&amp;key,sizeof(glyph_element_key),gc);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken X times"> + </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchCov" title="Branch 9 was taken X times"> + </span>][<span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>]
+<span class="lineNum">     231 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!gc) {</span>
+<span class="lineNum">     232 </span>                :            :     FT_Error error;
+<span class="lineNum">     233 </span>                :<span class="lineCov">          1 :     gc = msSmallMalloc(sizeof(glyph_element));</span>
+<span class="lineNum">     234 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(MS_NINT(size * 96.0/72.0) != face-&gt;face-&gt;size-&gt;metrics.x_ppem) {</span>
+<span class="lineNum">     235 </span>                :<span class="lineCov">          1 :       FT_Set_Pixel_Sizes(face-&gt;face,0,MS_NINT(size * 96/72.0));</span>
+<span class="lineNum">     236 </span>                :            :     }
+<span class="lineNum">     237 </span>                :<span class="lineCov">          1 :     error = FT_Load_Glyph(face-&gt;face,key.codepoint,FT_LOAD_DEFAULT|FT_LOAD_NO_BITMAP|FT_LOAD_NO_HINTING|FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH);</span>
+<span class="lineNum">     238 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(error) {</span>
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;unable to load glyph %ud for font \&quot;%s\&quot;&quot;, &quot;msGetGlyphByIndex()&quot;,key.codepoint, face-&gt;font);</span>
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :       free(gc);</span>
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">     242 </span>                :            :     }
+<span class="lineNum">     243 </span>                :<span class="lineCov">          1 :     gc-&gt;metrics.minx = face-&gt;face-&gt;glyph-&gt;metrics.horiBearingX / 64.0;</span>
+<span class="lineNum">     244 </span>                :<span class="lineCov">          1 :     gc-&gt;metrics.maxx = gc-&gt;metrics.minx + face-&gt;face-&gt;glyph-&gt;metrics.width / 64.0;</span>
+<span class="lineNum">     245 </span>                :<span class="lineCov">          1 :     gc-&gt;metrics.maxy = face-&gt;face-&gt;glyph-&gt;metrics.horiBearingY / 64.0;</span>
+<span class="lineNum">     246 </span>                :<span class="lineCov">          1 :     gc-&gt;metrics.miny = gc-&gt;metrics.maxy - face-&gt;face-&gt;glyph-&gt;metrics.height / 64.0;</span>
+<span class="lineNum">     247 </span>                :<span class="lineCov">          1 :     gc-&gt;metrics.advance = face-&gt;face-&gt;glyph-&gt;metrics.horiAdvance / 64.0;</span>
+<span class="lineNum">     248 </span>                :<span class="lineCov">          1 :     gc-&gt;key = key;</span>
+<span class="lineNum">     249 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     UT_HASH_ADD(hh,face-&gt;glyph_cache,key,sizeof(glyph_element_key), gc);</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken X times"> + </span>][<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchCov" title="Branch 9 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 10 was not taken"> - </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>][<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 27 was not executed"> # </span><span class="branchNoExec" title="Branch 28 was not executed"> # </span>][<span class="branchNoExec" title="Branch 29 was not executed"> # </span><span class="branchNoExec" title="Branch 30 was not executed"> # </span>]
+<span class="lineNum">     250 </span>                :            :   }
+<span class="lineNum">     251 </span>                :<span class="lineCov">          1 :   return gc;</span>
+<a name="252"><span class="lineNum">     252 </span>                :            : }</a>
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>                :<span class="lineCov">          1 : outline_element* msGetGlyphOutline(face_element *face, glyph_element *glyph) {</span>
+<span class="lineNum">     255 </span>                :            :   outline_element *oc;
+<span class="lineNum">     256 </span>                :            :   outline_element_key key;
+<span class="lineNum">     257 </span>                :<span class="lineCov">          1 :   ft_cache *cache = msGetFontCache();</span>
+<span class="lineNum">     258 </span>                :            :   memset(&amp;key,0,sizeof(outline_element_key));
+<span class="lineNum">     259 </span>                :<span class="lineCov">          1 :   key.glyph = glyph;</span>
+<span class="lineNum">     260 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   UT_HASH_FIND(hh,face-&gt;outline_cache,&amp;key, sizeof(outline_element_key),oc);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken X times"> + </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchCov" title="Branch 9 was taken X times"> + </span>][<span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>]
+<span class="lineNum">     261 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!oc) {</span>
+<span class="lineNum">     262 </span>                :            :     FT_Error error;
+<span class="lineNum">     263 </span>                :<span class="lineCov">          1 :     oc = msSmallMalloc(sizeof(outline_element));</span>
+<span class="lineNum">     264 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(MS_NINT(glyph-&gt;key.size * 96.0/72.0) != face-&gt;face-&gt;size-&gt;metrics.x_ppem) {</span>
+<span class="lineNum">     265 </span>                :<span class="lineCov">          1 :       FT_Set_Pixel_Sizes(face-&gt;face,0,MS_NINT(glyph-&gt;key.size * 96/72.0));</span>
+<span class="lineNum">     266 </span>                :            :     }
+<span class="lineNum">     267 </span>                :<span class="lineCov">          1 :     error = FT_Load_Glyph(face-&gt;face,glyph-&gt;key.codepoint,FT_LOAD_DEFAULT/*|FT_LOAD_IGNORE_TRANSFORM*/|FT_LOAD_NO_HINTING|FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH);</span>
+<span class="lineNum">     268 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(error) {</span>
+<span class="lineNum">     269 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;unable to load glyph %ud for font \&quot;%s\&quot;&quot;, &quot;msGetGlyphByIndex()&quot;,glyph-&gt;key.codepoint, face-&gt;font);</span>
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">     271 </span>                :            :     }
+<span class="lineNum">     272 </span>                :<span class="lineCov">          1 :     error = FT_Outline_New(cache-&gt;library, face-&gt;face-&gt;glyph-&gt;outline.n_points,</span>
+<span class="lineNum">     273 </span>                :<span class="lineCov">          1 :         face-&gt;face-&gt;glyph-&gt;outline.n_contours, &amp;oc-&gt;outline);</span>
+<span class="lineNum">     274 </span>                :<span class="lineCov">          1 :     FT_Outline_Copy(&amp;face-&gt;face-&gt;glyph-&gt;outline, &amp;oc-&gt;outline);</span>
+<span class="lineNum">     275 </span>                :<span class="lineCov">          1 :     oc-&gt;key = key;</span>
+<span class="lineNum">     276 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     UT_HASH_ADD(hh,face-&gt;outline_cache,key,sizeof(outline_element_key), oc);</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken X times"> + </span>][<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchCov" title="Branch 9 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 10 was not taken"> - </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>][<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 27 was not executed"> # </span><span class="branchNoExec" title="Branch 28 was not executed"> # </span>][<span class="branchNoExec" title="Branch 29 was not executed"> # </span><span class="branchNoExec" title="Branch 30 was not executed"> # </span>]
+<span class="lineNum">     277 </span>                :            :   }
+<span class="lineNum">     278 </span>                :<span class="lineCov">          1 :   return oc;</span>
+<a name="279"><span class="lineNum">     279 </span>                :            : }</a>
+<span class="lineNum">     280 </span>                :            : 
+<span class="lineNum">     281 </span>                :<span class="lineCov">          1 : glyph_element* msGetBitmapGlyph(rendererVTableObj *renderer, unsigned int size, unsigned int unicode) {</span>
+<span class="lineNum">     282 </span>                :            :   glyph_element *gm;
+<span class="lineNum">     283 </span>                :            :   glyph_element_key key;
+<span class="lineNum">     284 </span>                :<span class="lineCov">          1 :   ft_cache *cache = msGetFontCache();</span>
+<span class="lineNum">     285 </span>                :            :   assert(renderer-&gt;supports_bitmap_fonts &amp;&amp; renderer-&gt;getBitmapGlyphMetrics);
+<span class="lineNum">     286 </span>                :<span class="lineCov">          1 :   key.codepoint = unicode;</span>
+<span class="lineNum">     287 </span>                :<span class="lineCov">          1 :   key.size = size;</span>
+<span class="lineNum">     288 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   UT_HASH_FIND(hh,cache-&gt;bitmap_glyph_cache,&amp;key,sizeof(glyph_element_key),gm);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken X times"> + </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchCov" title="Branch 9 was taken X times"> + </span>][<span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>]
+<span class="lineNum">     289 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!gm) {</span>
+<span class="lineNum">     290 </span>                :            :     /* query the renderer for the metrics and indice of this unicode glyph */
+<span class="lineNum">     291 </span>                :<span class="lineCov">          1 :     gm = msSmallMalloc(sizeof(glyph_element));</span>
+<span class="lineNum">     292 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(UNLIKELY(MS_FAILURE == renderer-&gt;getBitmapGlyphMetrics(size, unicode, &amp;gm-&gt;metrics))) {</span>
+<span class="lineNum">     293 </span>                :<span class="lineNoCov">          0 :       free(gm);</span>
+<span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">     295 </span>                :            :     }
+<span class="lineNum">     296 </span>                :<span class="lineCov">          1 :     gm-&gt;key = key;</span>
+<span class="lineNum">     297 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     UT_HASH_ADD(hh,cache-&gt;bitmap_glyph_cache,key,sizeof(glyph_element_key), gm);</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken X times"> + </span>][<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchCov" title="Branch 9 was taken X times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 10 was not taken"> - </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>][<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 27 was not executed"> # </span><span class="branchNoExec" title="Branch 28 was not executed"> # </span>][<span class="branchNoExec" title="Branch 29 was not executed"> # </span><span class="branchNoExec" title="Branch 30 was not executed"> # </span>]
+<span class="lineNum">     298 </span>                :            :   }
+<span class="lineNum">     299 </span>                :<span class="lineCov">          1 :   return gm;</span>
+<span class="lineNum">     300 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

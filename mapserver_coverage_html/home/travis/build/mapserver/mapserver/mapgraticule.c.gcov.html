@@ -31,8 +31,8 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">273</td>
-            <td class="headerCovTableEntry">550</td>
+            <td class="headerCovTableEntry">275</td>
+            <td class="headerCovTableEntry">554</td>
             <td class="headerCovTableEntryLo">49.6 %</td>
           </tr>
           <tr>
@@ -1119,165 +1119,175 @@
 <span class="lineNum">    1045 </span>                :            :   rectObj rectLabel;
 <span class="lineNum">    1046 </span>                :            :   pointObj ptPoint;
 <span class="lineNum">    1047 </span>                :            :   double size = -1;
-<span class="lineNum">    1048 </span>                :            : 
-<span class="lineNum">    1049 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( pInfo == NULL || pShape == NULL ) {</span>
-<span class="lineNum">    1050 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Assertion failed: Null shape or layerinfo!, &quot;, &quot;_AdjustLabelPosition()&quot;);</span>
-<span class="lineNum">    1051 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1052 </span>                :            :   }
-<span class="lineNum">    1053 </span>                :            : 
-<span class="lineNum">    1054 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if(msCheckParentPointer(pLayer-&gt;map,&quot;map&quot;)==MS_FAILURE)</span>
-<span class="lineNum">    1055 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">    1048 </span>                :            :   char *labeltxt;
+<span class="lineNum">    1049 </span>                :            : 
+<span class="lineNum">    1050 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( pInfo == NULL || pShape == NULL ) {</span>
+<span class="lineNum">    1051 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Assertion failed: Null shape or layerinfo!, &quot;, &quot;_AdjustLabelPosition()&quot;);</span>
+<span class="lineNum">    1052 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1053 </span>                :            :   }
+<span class="lineNum">    1054 </span>                :            : 
+<span class="lineNum">    1055 </span>                :            :   assert(pLayer-&gt;class[0]-&gt;numlabels &gt;= 1);
 <span class="lineNum">    1056 </span>                :            : 
-<span class="lineNum">    1057 </span>                :<span class="lineCov">          1 :   ptPoint = pShape-&gt;line-&gt;point[0];</span>
-<span class="lineNum">    1058 </span>                :            : 
-<span class="lineNum">    1059 </span>                :            : #ifdef USE_PROJ
-<span class="lineNum">    1060 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken X times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          1 :   if(pLayer-&gt;project &amp;&amp; msProjectionsDiffer( &amp;pLayer-&gt;projection, &amp;pLayer-&gt;map-&gt;projection ))</span>
-<span class="lineNum">    1061 </span>                :<span class="lineCov">          1 :     msProjectShape( &amp;pLayer-&gt;projection, &amp;pLayer-&gt;map-&gt;projection, pShape );</span>
-<span class="lineNum">    1062 </span>                :            : #endif
-<span class="lineNum">    1063 </span>                :            : 
-<span class="lineNum">    1064 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(pLayer-&gt;transform) {</span>
-<span class="lineNum">    1065 </span>                :<span class="lineCov">          1 :     msTransformShapeToPixelRound(pShape, pLayer-&gt;map-&gt;extent, pLayer-&gt;map-&gt;cellsize);</span>
-<span class="lineNum">    1066 </span>                :            :   }
-<span class="lineNum">    1067 </span>                :            : 
-<span class="lineNum">    1068 </span>                :<span class="lineCov">          1 :   size = pLayer-&gt;class[0]-&gt;labels[0]-&gt;size; /* TODO TBT: adjust minsize/maxsize/resolution. TODO RFC 77: ok to use first label? */</span>
-<span class="lineNum">    1069 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if(msGetLabelSize(pLayer-&gt;map, pLayer-&gt;class[0]-&gt;labels[0], pShape-&gt;text, size, &amp;rectLabel, NULL) != MS_SUCCESS)</span>
-<span class="lineNum">    1070 </span>                :            :     return MS_FAILURE;  /* msSetError already called */
-<span class="lineNum">    1071 </span>                :            : 
-<span class="lineNum">    1072 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span> :<span class="lineCov">          1 :   switch( ePosition ) {</span>
+<span class="lineNum">    1057 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if(msCheckParentPointer(pLayer-&gt;map,&quot;map&quot;)==MS_FAILURE)</span>
+<span class="lineNum">    1058 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">    1059 </span>                :            : 
+<span class="lineNum">    1060 </span>                :<span class="lineCov">          1 :   ptPoint = pShape-&gt;line-&gt;point[0];</span>
+<span class="lineNum">    1061 </span>                :            : 
+<span class="lineNum">    1062 </span>                :            : #ifdef USE_PROJ
+<span class="lineNum">    1063 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken X times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          1 :   if(pLayer-&gt;project &amp;&amp; msProjectionsDiffer( &amp;pLayer-&gt;projection, &amp;pLayer-&gt;map-&gt;projection ))</span>
+<span class="lineNum">    1064 </span>                :<span class="lineCov">          1 :     msProjectShape( &amp;pLayer-&gt;projection, &amp;pLayer-&gt;map-&gt;projection, pShape );</span>
+<span class="lineNum">    1065 </span>                :            : #endif
+<span class="lineNum">    1066 </span>                :            : 
+<span class="lineNum">    1067 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(pLayer-&gt;transform) {</span>
+<span class="lineNum">    1068 </span>                :<span class="lineCov">          1 :     msTransformShapeToPixelRound(pShape, pLayer-&gt;map-&gt;extent, pLayer-&gt;map-&gt;cellsize);</span>
+<span class="lineNum">    1069 </span>                :            :   }
+<span class="lineNum">    1070 </span>                :            :   
+<span class="lineNum">    1071 </span>                :<span class="lineCov">          1 :   size = pLayer-&gt;class[0]-&gt;labels[0]-&gt;size; /* TODO someday: adjust minsize/maxsize/resolution*/</span>
+<span class="lineNum">    1072 </span>                :            :   /* We only use the first label as there's no use (yet) in defining multiple lables for GRID layers,
+<span class="lineNum">    1073 </span>                :            :    as the only label to represent is the longitude or latitude */
+<span class="lineNum">    1074 </span>                :<span class="lineCov">          1 :   labeltxt = msShapeGetLabelAnnotation(pLayer, pShape, pLayer-&gt;class[0]-&gt;labels[0]);</span>
+<span class="lineNum">    1075 </span>                :            :   assert(labeltxt);
+<span class="lineNum">    1076 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(msGetStringSize(pLayer-&gt;map, pLayer-&gt;class[0]-&gt;labels[0], size, labeltxt, &amp;rectLabel) != MS_SUCCESS) {</span>
+<span class="lineNum">    1077 </span>                :<span class="lineNoCov">          0 :     free(labeltxt);</span>
+<span class="lineNum">    1078 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;  /* msSetError already called */</span>
+<span class="lineNum">    1079 </span>                :            :   }
+<span class="lineNum">    1080 </span>                :<span class="lineCov">          1 :   free(labeltxt);</span>
+<span class="lineNum">    1081 </span>                :            : 
+<span class="lineNum">    1082 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span> :<span class="lineCov">          1 :   switch( ePosition ) {</span>
 <span class="lineNum">         </span>            <span class="branchNoCov" title="Branch 4 was not taken"> - </span>]
-<span class="lineNum">    1073 </span>                :            :     case posBottom:
-<span class="lineNum">    1074 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[1].y = pLayer-&gt;map-&gt;height;</span>
-<span class="lineNum">    1075 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[0].y = pLayer-&gt;map-&gt;height - (fabs(rectLabel.maxy - rectLabel.miny) * 2 + 5);</span>
-<span class="lineNum">    1076 </span>                :<span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    1077 </span>                :            :     case posTop:
-<span class="lineNum">    1078 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[1].y = 0;</span>
-<span class="lineNum">    1079 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[0].y = fabs(rectLabel.maxy - rectLabel.miny) * 2 + 5;</span>
-<span class="lineNum">    1080 </span>                :<span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    1081 </span>                :            :     case posLeft:
-<span class="lineNum">    1082 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[1].x = 0;</span>
-<span class="lineNum">    1083 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[0].x = fabs(rectLabel.maxx - rectLabel.minx) * 2 + 5;</span>
-<span class="lineNum">    1084 </span>                :<span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    1085 </span>                :            :     case posRight:
-<span class="lineNum">    1086 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[1].x = pLayer-&gt;map-&gt;width;</span>
-<span class="lineNum">    1087 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[0].x = pLayer-&gt;map-&gt;width - (fabs(rectLabel.maxx - rectLabel.minx) * 2 + 5);</span>
-<span class="lineNum">    1088 </span>                :<span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    1089 </span>                :            :   }
-<span class="lineNum">    1090 </span>                :            : 
-<span class="lineNum">    1091 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(pLayer-&gt;transform)</span>
-<span class="lineNum">    1092 </span>                :<span class="lineCov">          1 :     msTransformPixelToShape( pShape, pLayer-&gt;map-&gt;extent, pLayer-&gt;map-&gt;cellsize );</span>
-<span class="lineNum">    1093 </span>                :            : 
-<span class="lineNum">    1094 </span>                :            : #ifdef USE_PROJ
-<span class="lineNum">    1095 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken X times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          1 :   if(pLayer-&gt;project &amp;&amp; msProjectionsDiffer( &amp;pLayer-&gt;map-&gt;projection, &amp;pLayer-&gt;projection ))</span>
-<span class="lineNum">    1096 </span>                :<span class="lineCov">          1 :     msProjectShape( &amp;pLayer-&gt;map-&gt;projection, &amp;pLayer-&gt;projection, pShape );</span>
-<span class="lineNum">    1097 </span>                :            : #endif
-<span class="lineNum">    1098 </span>                :            : 
-<span class="lineNum">    1099 </span>     [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   switch( ePosition ) {</span>
-<span class="lineNum">    1100 </span>                :            :     case posBottom:
-<span class="lineNum">    1101 </span>                :            :     case posTop:
-<span class="lineNum">    1102 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[1].x = ptPoint.x;</span>
-<span class="lineNum">    1103 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[0].x = ptPoint.x;</span>
-<span class="lineNum">    1104 </span>                :<span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    1105 </span>                :            :     case posLeft:
-<span class="lineNum">    1106 </span>                :            :     case posRight:
-<span class="lineNum">    1107 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[1].y = ptPoint.y;</span>
-<span class="lineNum">    1108 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[0].y = ptPoint.y;</span>
-<span class="lineNum">    1109 </span>                :<span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    1110 </span>                :            :   }
-<span class="lineNum">    1111 </span>                :            : 
-<span class="lineNum">    1112 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">    1113 </span>                :            : }
-<span class="lineNum">    1114 </span>                :            : 
-<span class="lineNum">    1115 </span>                :            : /**********************************************************************************************************************
-<span class="lineNum">    1116 </span>                :            :  **********************************************************************************************************************
-<span class="lineNum">    1117 </span>                :            :  * DefineAxes - Copyright (c) 2000, Michael P.D. Bramley.
-<span class="lineNum">    1118 </span>                :            :  *
-<span class="lineNum">    1119 </span>                :            :  * Permission is granted to use this code without restriction as long as
-<span class="lineNum">    1120 </span>                :            :  * this copyright notice appears in all source files.
-<span class="lineNum">    1121 </span>                :            :  *
-<a name="1122"><span class="lineNum">    1122 </span>                :            :  * Minor tweaks to incrment calculations - jnovak</a>
-<span class="lineNum">    1123 </span>                :            :  */
-<span class="lineNum">    1124 </span>                :<span class="lineCov">          1 : void DefineAxis( int iTickCountTarget, double *Min, double *Max, double *Inc )</span>
-<span class="lineNum">    1125 </span>                :            : {
-<span class="lineNum">    1126 </span>                :            :   /* define local variables... */
-<span class="lineNum">    1127 </span>                :            : 
-<span class="lineNum">    1128 </span>                :            :   double Test_inc,    /* candidate increment value */
-<span class="lineNum">    1129 </span>                :            :          Test_min,    /* minimum scale value */
-<span class="lineNum">    1130 </span>                :            :          Test_max,    /* maximum scale value */
-<span class="lineNum">    1131 </span>                :<span class="lineCov">          1 :          Range = *Max - *Min ;  /* range of data */</span>
-<span class="lineNum">    1132 </span>                :            : 
-<span class="lineNum">    1133 </span>                :            :   int i = 0 ;   /* counter */
-<span class="lineNum">    1134 </span>                :            : 
-<span class="lineNum">    1135 </span>                :            :   /* don't create problems -- solve them */
-<span class="lineNum">    1136 </span>                :            : 
-<span class="lineNum">    1137 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( Range &lt; 0 )  {</span>
-<span class="lineNum">    1138 </span>                :<span class="lineNoCov">          0 :     *Inc = 0 ;</span>
-<span class="lineNum">    1139 </span>                :<span class="lineNoCov">          0 :     return ;</span>
-<span class="lineNum">    1140 </span>                :            :   }
-<span class="lineNum">    1141 </span>                :            : 
-<span class="lineNum">    1142 </span>                :            :   /* handle special case of repeated values */
-<span class="lineNum">    1143 </span>                :            : 
-<span class="lineNum">    1144 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if( Range == 0)  {</span>
-<span class="lineNum">    1145 </span>                :<span class="lineNoCov">          0 :     *Min = ceil(*Max) - 1 ;</span>
-<span class="lineNum">    1146 </span>                :<span class="lineNoCov">          0 :     *Max = *Min + 1 ;</span>
-<span class="lineNum">    1147 </span>                :<span class="lineNoCov">          0 :     *Inc = 1 ;</span>
-<span class="lineNum">    1148 </span>                :<span class="lineNoCov">          0 :     return ;</span>
-<span class="lineNum">    1149 </span>                :            :   }
-<span class="lineNum">    1150 </span>                :            : 
-<span class="lineNum">    1151 </span>                :            :   /* compute candidate for increment */
-<span class="lineNum">    1152 </span>                :            : 
-<span class="lineNum">    1153 </span>                :<span class="lineCov">          1 :   Test_inc = pow( 10.0, ceil( log10( Range/10 ) ) ) ;</span>
-<span class="lineNum">    1154 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(*Inc &gt; 0 &amp;&amp; ( Test_inc &lt; *Inc || Test_inc &gt; *Inc ))</span>
-<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
-<span class="lineNum">    1155 </span>                :<span class="lineCov">          1 :     Test_inc = *Inc;</span>
-<span class="lineNum">    1156 </span>                :            : 
-<span class="lineNum">    1157 </span>                :            :   /* establish maximum scale value... */
-<span class="lineNum">    1158 </span>                :<span class="lineCov">          1 :   Test_max = ( (long)(*Max / Test_inc)) * Test_inc ;</span>
-<span class="lineNum">    1159 </span>                :            : 
-<span class="lineNum">    1160 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( Test_max &lt; *Max )</span>
-<span class="lineNum">    1161 </span>                :<span class="lineCov">          1 :     Test_max += Test_inc ;</span>
+<span class="lineNum">    1083 </span>                :            :     case posBottom:
+<span class="lineNum">    1084 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[1].y = pLayer-&gt;map-&gt;height;</span>
+<span class="lineNum">    1085 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[0].y = pLayer-&gt;map-&gt;height - (fabs(rectLabel.maxy - rectLabel.miny) * 2 + 5);</span>
+<span class="lineNum">    1086 </span>                :<span class="lineCov">          1 :       break;</span>
+<span class="lineNum">    1087 </span>                :            :     case posTop:
+<span class="lineNum">    1088 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[1].y = 0;</span>
+<span class="lineNum">    1089 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[0].y = fabs(rectLabel.maxy - rectLabel.miny) * 2 + 5;</span>
+<span class="lineNum">    1090 </span>                :<span class="lineCov">          1 :       break;</span>
+<span class="lineNum">    1091 </span>                :            :     case posLeft:
+<span class="lineNum">    1092 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[1].x = 0;</span>
+<span class="lineNum">    1093 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[0].x = fabs(rectLabel.maxx - rectLabel.minx) * 2 + 5;</span>
+<span class="lineNum">    1094 </span>                :<span class="lineCov">          1 :       break;</span>
+<span class="lineNum">    1095 </span>                :            :     case posRight:
+<span class="lineNum">    1096 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[1].x = pLayer-&gt;map-&gt;width;</span>
+<span class="lineNum">    1097 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[0].x = pLayer-&gt;map-&gt;width - (fabs(rectLabel.maxx - rectLabel.minx) * 2 + 5);</span>
+<span class="lineNum">    1098 </span>                :<span class="lineCov">          1 :       break;</span>
+<span class="lineNum">    1099 </span>                :            :   }
+<span class="lineNum">    1100 </span>                :            : 
+<span class="lineNum">    1101 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(pLayer-&gt;transform)</span>
+<span class="lineNum">    1102 </span>                :<span class="lineCov">          1 :     msTransformPixelToShape( pShape, pLayer-&gt;map-&gt;extent, pLayer-&gt;map-&gt;cellsize );</span>
+<span class="lineNum">    1103 </span>                :            : 
+<span class="lineNum">    1104 </span>                :            : #ifdef USE_PROJ
+<span class="lineNum">    1105 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken X times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          1 :   if(pLayer-&gt;project &amp;&amp; msProjectionsDiffer( &amp;pLayer-&gt;map-&gt;projection, &amp;pLayer-&gt;projection ))</span>
+<span class="lineNum">    1106 </span>                :<span class="lineCov">          1 :     msProjectShape( &amp;pLayer-&gt;map-&gt;projection, &amp;pLayer-&gt;projection, pShape );</span>
+<span class="lineNum">    1107 </span>                :            : #endif
+<span class="lineNum">    1108 </span>                :            : 
+<span class="lineNum">    1109 </span>     [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   switch( ePosition ) {</span>
+<span class="lineNum">    1110 </span>                :            :     case posBottom:
+<span class="lineNum">    1111 </span>                :            :     case posTop:
+<span class="lineNum">    1112 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[1].x = ptPoint.x;</span>
+<span class="lineNum">    1113 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[0].x = ptPoint.x;</span>
+<span class="lineNum">    1114 </span>                :<span class="lineCov">          1 :       break;</span>
+<span class="lineNum">    1115 </span>                :            :     case posLeft:
+<span class="lineNum">    1116 </span>                :            :     case posRight:
+<span class="lineNum">    1117 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[1].y = ptPoint.y;</span>
+<span class="lineNum">    1118 </span>                :<span class="lineCov">          1 :       pShape-&gt;line-&gt;point[0].y = ptPoint.y;</span>
+<span class="lineNum">    1119 </span>                :<span class="lineCov">          1 :       break;</span>
+<span class="lineNum">    1120 </span>                :            :   }
+<span class="lineNum">    1121 </span>                :            : 
+<span class="lineNum">    1122 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">    1123 </span>                :            : }
+<span class="lineNum">    1124 </span>                :            : 
+<span class="lineNum">    1125 </span>                :            : /**********************************************************************************************************************
+<span class="lineNum">    1126 </span>                :            :  **********************************************************************************************************************
+<span class="lineNum">    1127 </span>                :            :  * DefineAxes - Copyright (c) 2000, Michael P.D. Bramley.
+<span class="lineNum">    1128 </span>                :            :  *
+<span class="lineNum">    1129 </span>                :            :  * Permission is granted to use this code without restriction as long as
+<span class="lineNum">    1130 </span>                :            :  * this copyright notice appears in all source files.
+<span class="lineNum">    1131 </span>                :            :  *
+<a name="1132"><span class="lineNum">    1132 </span>                :            :  * Minor tweaks to incrment calculations - jnovak</a>
+<span class="lineNum">    1133 </span>                :            :  */
+<span class="lineNum">    1134 </span>                :<span class="lineCov">          1 : void DefineAxis( int iTickCountTarget, double *Min, double *Max, double *Inc )</span>
+<span class="lineNum">    1135 </span>                :            : {
+<span class="lineNum">    1136 </span>                :            :   /* define local variables... */
+<span class="lineNum">    1137 </span>                :            : 
+<span class="lineNum">    1138 </span>                :            :   double Test_inc,    /* candidate increment value */
+<span class="lineNum">    1139 </span>                :            :          Test_min,    /* minimum scale value */
+<span class="lineNum">    1140 </span>                :            :          Test_max,    /* maximum scale value */
+<span class="lineNum">    1141 </span>                :<span class="lineCov">          1 :          Range = *Max - *Min ;  /* range of data */</span>
+<span class="lineNum">    1142 </span>                :            : 
+<span class="lineNum">    1143 </span>                :            :   int i = 0 ;   /* counter */
+<span class="lineNum">    1144 </span>                :            : 
+<span class="lineNum">    1145 </span>                :            :   /* don't create problems -- solve them */
+<span class="lineNum">    1146 </span>                :            : 
+<span class="lineNum">    1147 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( Range &lt; 0 )  {</span>
+<span class="lineNum">    1148 </span>                :<span class="lineNoCov">          0 :     *Inc = 0 ;</span>
+<span class="lineNum">    1149 </span>                :<span class="lineNoCov">          0 :     return ;</span>
+<span class="lineNum">    1150 </span>                :            :   }
+<span class="lineNum">    1151 </span>                :            : 
+<span class="lineNum">    1152 </span>                :            :   /* handle special case of repeated values */
+<span class="lineNum">    1153 </span>                :            : 
+<span class="lineNum">    1154 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if( Range == 0)  {</span>
+<span class="lineNum">    1155 </span>                :<span class="lineNoCov">          0 :     *Min = ceil(*Max) - 1 ;</span>
+<span class="lineNum">    1156 </span>                :<span class="lineNoCov">          0 :     *Max = *Min + 1 ;</span>
+<span class="lineNum">    1157 </span>                :<span class="lineNoCov">          0 :     *Inc = 1 ;</span>
+<span class="lineNum">    1158 </span>                :<span class="lineNoCov">          0 :     return ;</span>
+<span class="lineNum">    1159 </span>                :            :   }
+<span class="lineNum">    1160 </span>                :            : 
+<span class="lineNum">    1161 </span>                :            :   /* compute candidate for increment */
 <span class="lineNum">    1162 </span>                :            : 
-<span class="lineNum">    1163 </span>                :            :   /* establish minimum scale value... */
-<span class="lineNum">    1164 </span>                :            :   Test_min = Test_max ;
-<span class="lineNum">    1165 </span>                :            :   do {
-<span class="lineNum">    1166 </span>                :<span class="lineCov">          1 :     ++i ;</span>
-<span class="lineNum">    1167 </span>                :<span class="lineCov">          1 :     Test_min -= Test_inc ;</span>
-<span class="lineNum">    1168 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   } while( Test_min &gt; *Min ) ;</span>
+<span class="lineNum">    1163 </span>                :<span class="lineCov">          1 :   Test_inc = pow( 10.0, ceil( log10( Range/10 ) ) ) ;</span>
+<span class="lineNum">    1164 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(*Inc &gt; 0 &amp;&amp; ( Test_inc &lt; *Inc || Test_inc &gt; *Inc ))</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
+<span class="lineNum">    1165 </span>                :<span class="lineCov">          1 :     Test_inc = *Inc;</span>
+<span class="lineNum">    1166 </span>                :            : 
+<span class="lineNum">    1167 </span>                :            :   /* establish maximum scale value... */
+<span class="lineNum">    1168 </span>                :<span class="lineCov">          1 :   Test_max = ( (long)(*Max / Test_inc)) * Test_inc ;</span>
 <span class="lineNum">    1169 </span>                :            : 
-<span class="lineNum">    1170 </span>                :            :   /* subtracting small values can screw up the scale limits, */
-<span class="lineNum">    1171 </span>                :            :   /* eg: if DefineAxis is called with (min,max)=(0.01, 0.1), */
-<span class="lineNum">    1172 </span>                :            :   /* then the calculated scale is 1.0408E17 TO 0.05 BY 0.01. */
-<span class="lineNum">    1173 </span>                :            :   /* the following if statment corrects for this... */
-<span class="lineNum">    1174 </span>                :            : 
-<span class="lineNum">    1175 </span>                :            :   /* if(fabs(Test_min) &lt; 1E-10) */
-<span class="lineNum">    1176 </span>                :            :   /* Test_min = 0 ; */
-<span class="lineNum">    1177 </span>                :            : 
-<span class="lineNum">    1178 </span>                :            :   /* adjust for too few tick marks */
+<span class="lineNum">    1170 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( Test_max &lt; *Max )</span>
+<span class="lineNum">    1171 </span>                :<span class="lineCov">          1 :     Test_max += Test_inc ;</span>
+<span class="lineNum">    1172 </span>                :            : 
+<span class="lineNum">    1173 </span>                :            :   /* establish minimum scale value... */
+<span class="lineNum">    1174 </span>                :            :   Test_min = Test_max ;
+<span class="lineNum">    1175 </span>                :            :   do {
+<span class="lineNum">    1176 </span>                :<span class="lineCov">          1 :     ++i ;</span>
+<span class="lineNum">    1177 </span>                :<span class="lineCov">          1 :     Test_min -= Test_inc ;</span>
+<span class="lineNum">    1178 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   } while( Test_min &gt; *Min ) ;</span>
 <span class="lineNum">    1179 </span>                :            : 
-<span class="lineNum">    1180 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(iTickCountTarget &lt;= 0)</span>
-<span class="lineNum">    1181 </span>                :            :     iTickCountTarget   = MAPGRATICULE_ARC_MINIMUM;
-<span class="lineNum">    1182 </span>                :            : 
-<span class="lineNum">    1183 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   while(i &lt; iTickCountTarget) {</span>
-<span class="lineNum">    1184 </span>                :<span class="lineNoCov">          0 :     Test_inc /= 2 ;</span>
-<span class="lineNum">    1185 </span>                :<span class="lineNoCov">          0 :     i *= 2 ;</span>
-<span class="lineNum">    1186 </span>                :            :   }
+<span class="lineNum">    1180 </span>                :            :   /* subtracting small values can screw up the scale limits, */
+<span class="lineNum">    1181 </span>                :            :   /* eg: if DefineAxis is called with (min,max)=(0.01, 0.1), */
+<span class="lineNum">    1182 </span>                :            :   /* then the calculated scale is 1.0408E17 TO 0.05 BY 0.01. */
+<span class="lineNum">    1183 </span>                :            :   /* the following if statment corrects for this... */
+<span class="lineNum">    1184 </span>                :            : 
+<span class="lineNum">    1185 </span>                :            :   /* if(fabs(Test_min) &lt; 1E-10) */
+<span class="lineNum">    1186 </span>                :            :   /* Test_min = 0 ; */
 <span class="lineNum">    1187 </span>                :            : 
-<span class="lineNum">    1188 </span>                :            :   if(i &lt; 6 &amp;&amp; 0) {
-<span class="lineNum">    1189 </span>                :            :     Test_inc /= 2 ;
-<span class="lineNum">    1190 </span>                :            :     if((Test_min + Test_inc) &lt;= *Min)
-<span class="lineNum">    1191 </span>                :            :       Test_min += Test_inc ;
-<span class="lineNum">    1192 </span>                :            :     if((Test_max - Test_inc) &gt;= *Max)
-<span class="lineNum">    1193 </span>                :            :       Test_max -= Test_inc ;
-<span class="lineNum">    1194 </span>                :            :   }
-<span class="lineNum">    1195 </span>                :            : 
-<span class="lineNum">    1196 </span>                :            :   /* pass back axis definition to caller */
+<span class="lineNum">    1188 </span>                :            :   /* adjust for too few tick marks */
+<span class="lineNum">    1189 </span>                :            : 
+<span class="lineNum">    1190 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(iTickCountTarget &lt;= 0)</span>
+<span class="lineNum">    1191 </span>                :            :     iTickCountTarget   = MAPGRATICULE_ARC_MINIMUM;
+<span class="lineNum">    1192 </span>                :            : 
+<span class="lineNum">    1193 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   while(i &lt; iTickCountTarget) {</span>
+<span class="lineNum">    1194 </span>                :<span class="lineNoCov">          0 :     Test_inc /= 2 ;</span>
+<span class="lineNum">    1195 </span>                :<span class="lineNoCov">          0 :     i *= 2 ;</span>
+<span class="lineNum">    1196 </span>                :            :   }
 <span class="lineNum">    1197 </span>                :            : 
-<span class="lineNum">    1198 </span>                :<span class="lineCov">          1 :   *Min = Test_min;</span>
-<span class="lineNum">    1199 </span>                :<span class="lineCov">          1 :   *Max = Test_max;</span>
-<span class="lineNum">    1200 </span>                :<span class="lineCov">          1 :   *Inc = Test_inc;</span>
-<span class="lineNum">    1201 </span>                :<span class="lineCov">          1 : }</span>
-<span class="lineNum">    1202 </span>                :            : 
-<span class="lineNum">    1203 </span>                :            : /**********************************************************************************************************************
-<span class="lineNum">    1204 </span>                :            :  **********************************************************************************************************************/
+<span class="lineNum">    1198 </span>                :            :   if(i &lt; 6 &amp;&amp; 0) {
+<span class="lineNum">    1199 </span>                :            :     Test_inc /= 2 ;
+<span class="lineNum">    1200 </span>                :            :     if((Test_min + Test_inc) &lt;= *Min)
+<span class="lineNum">    1201 </span>                :            :       Test_min += Test_inc ;
+<span class="lineNum">    1202 </span>                :            :     if((Test_max - Test_inc) &gt;= *Max)
+<span class="lineNum">    1203 </span>                :            :       Test_max -= Test_inc ;
+<span class="lineNum">    1204 </span>                :            :   }
+<span class="lineNum">    1205 </span>                :            : 
+<span class="lineNum">    1206 </span>                :            :   /* pass back axis definition to caller */
+<span class="lineNum">    1207 </span>                :            : 
+<span class="lineNum">    1208 </span>                :<span class="lineCov">          1 :   *Min = Test_min;</span>
+<span class="lineNum">    1209 </span>                :<span class="lineCov">          1 :   *Max = Test_max;</span>
+<span class="lineNum">    1210 </span>                :<span class="lineCov">          1 :   *Inc = Test_inc;</span>
+<span class="lineNum">    1211 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">    1212 </span>                :            : 
+<span class="lineNum">    1213 </span>                :            : /**********************************************************************************************************************
+<span class="lineNum">    1214 </span>                :            :  **********************************************************************************************************************/
 </pre>
       </td>
     </tr>

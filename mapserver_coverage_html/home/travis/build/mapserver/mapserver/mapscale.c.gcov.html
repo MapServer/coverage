@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">171</td>
-            <td class="headerCovTableEntry">255</td>
-            <td class="headerCovTableEntryLo">67.1 %</td>
+            <td class="headerCovTableEntry">177</td>
+            <td class="headerCovTableEntry">266</td>
+            <td class="headerCovTableEntryLo">66.5 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -49,9 +49,9 @@
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">68</td>
-            <td class="headerCovTableEntry">156</td>
-            <td class="headerCovTableEntryLo">43.6 %</td>
+            <td class="headerCovTableEntry">72</td>
+            <td class="headerCovTableEntry">170</td>
+            <td class="headerCovTableEntryLo">42.4 %</td>
           </tr>
           <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -216,436 +216,475 @@
 <span class="lineNum">     145 </span>                :            : }
 <span class="lineNum">     146 </span>                :            : 
 <span class="lineNum">     147 </span>                :            : 
-<span class="lineNum">     148 </span>                :            : #define X_STEP_SIZE 5
-<a name="149"><span class="lineNum">     149 </span>                :            : </a>
-<span class="lineNum">     150 </span>                :            : /* TODO : the will be msDrawScalebarGD */
-<span class="lineNum">     151 </span>                :<span class="lineCov">          1 : imageObj *msDrawScalebar(mapObj *map)</span>
-<span class="lineNum">     152 </span>                :            : {
-<span class="lineNum">     153 </span>                :            :   int status;
-<span class="lineNum">     154 </span>                :            :   char label[32];
-<span class="lineNum">     155 </span>                :            :   double i, msx;
-<span class="lineNum">     156 </span>                :            :   int j;
-<span class="lineNum">     157 </span>                :            :   int isx, sx, sy, ox, oy, state, dsx;
-<span class="lineNum">     158 </span>                :            :   pointObj p;
-<span class="lineNum">     159 </span>                :            :   rectObj r;
-<span class="lineNum">     160 </span>                :            :   imageObj      *image = NULL;
-<span class="lineNum">     161 </span>                :            :   double fontWidth, fontHeight;
-<span class="lineNum">     162 </span>                :<span class="lineCov">          1 :   outputFormatObj *format = NULL;</span>
-<span class="lineNum">     163 </span>                :            :   strokeStyleObj strokeStyle;
-<span class="lineNum">     164 </span>                :            :   shapeObj shape;
-<span class="lineNum">     165 </span>                :            :   lineObj line;
-<span class="lineNum">     166 </span>                :            :   pointObj points[5];
+<a name="148"><span class="lineNum">     148 </span>                :            : #define X_STEP_SIZE 5</a>
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :<span class="lineCov">          1 : imageObj *msDrawScalebar(mapObj *map)</span>
+<span class="lineNum">     151 </span>                :            : {
+<span class="lineNum">     152 </span>                :            :   int status;
+<span class="lineNum">     153 </span>                :            :   char label[32];
+<span class="lineNum">     154 </span>                :            :   double i, msx;
+<span class="lineNum">     155 </span>                :            :   int j;
+<span class="lineNum">     156 </span>                :            :   int isx, sx, sy, ox, oy, state, dsx;
+<span class="lineNum">     157 </span>                :            :   pointObj p;
+<span class="lineNum">     158 </span>                :            :   rectObj r;
+<span class="lineNum">     159 </span>                :            :   imageObj      *image = NULL;
+<span class="lineNum">     160 </span>                :            :   double fontWidth, fontHeight;
+<span class="lineNum">     161 </span>                :<span class="lineCov">          1 :   outputFormatObj *format = NULL;</span>
+<span class="lineNum">     162 </span>                :            :   strokeStyleObj strokeStyle;
+<span class="lineNum">     163 </span>                :            :   shapeObj shape;
+<span class="lineNum">     164 </span>                :            :   lineObj line;
+<span class="lineNum">     165 </span>                :            :   pointObj points[5];
+<span class="lineNum">     166 </span>                :            :   textSymbolObj ts;
 <span class="lineNum">     167 </span>                :            :   rendererVTableObj *renderer;
 <span class="lineNum">     168 </span>                :            : 
 <span class="lineNum">     169 </span>                :<span class="lineCov">          1 :   strokeStyle.patternlength=0;</span>
-<span class="lineNum">     170 </span>                :            : 
-<span class="lineNum">     171 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(map-&gt;units == -1) {</span>
-<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Map units not set.&quot;, &quot;msDrawScalebar()&quot;);</span>
-<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :     return(NULL);</span>
-<span class="lineNum">     174 </span>                :            :   }
-<span class="lineNum">     175 </span>                :            : 
-<span class="lineNum">     176 </span>                :<span class="lineCov">          1 :   renderer = MS_MAP_RENDERER(map);</span>
-<span class="lineNum">     177 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!renderer || !MS_MAP_RENDERER(map)-&gt;supports_pixel_buffer) {</span>
-<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Outputformat not supported for scalebar&quot;, &quot;msDrawScalebar()&quot;);</span>
-<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :     return(NULL);</span>
-<span class="lineNum">     180 </span>                :            :   }
-<span class="lineNum">     181 </span>                :            : 
-<span class="lineNum">     182 </span>                :            :   /*
-<span class="lineNum">     183 </span>                :            :    *  A string containing the ten decimal digits is rendered to compute an average cell size
-<span class="lineNum">     184 </span>                :            :    *  for each number, which is used later to place labels on the scalebar.
-<span class="lineNum">     185 </span>                :            :    */
-<span class="lineNum">     186 </span>                :            : 
-<span class="lineNum">     187 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if(msGetLabelSize(map,&amp;map-&gt;scalebar.label,&quot;0123456789&quot;,map-&gt;scalebar.label.size,&amp;r,NULL) != MS_SUCCESS) {</span>
-<span class="lineNum">     188 </span>                :            :     return NULL;
-<span class="lineNum">     189 </span>                :            :   }
-<span class="lineNum">     190 </span>                :<span class="lineCov">          1 :   fontWidth = (r.maxx-r.minx)/10.0;</span>
-<span class="lineNum">     191 </span>                :<span class="lineCov">          1 :   fontHeight = r.maxy -r.miny;</span>
-<span class="lineNum">     192 </span>                :            : 
-<span class="lineNum">     193 </span>                :<span class="lineCov">          1 :   map-&gt;cellsize = msAdjustExtent(&amp;(map-&gt;extent), map-&gt;width, map-&gt;height);</span>
-<span class="lineNum">     194 </span>                :<span class="lineCov">          1 :   status = msCalculateScale(map-&gt;extent, map-&gt;units, map-&gt;width, map-&gt;height, map-&gt;resolution, &amp;map-&gt;scaledenom);</span>
-<span class="lineNum">     195 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(status != MS_SUCCESS) {</span>
-<span class="lineNum">     196 </span>                :            :     return(NULL);
-<span class="lineNum">     197 </span>                :            :   }
-<span class="lineNum">     198 </span>                :<span class="lineCov">          1 :   dsx = map-&gt;scalebar.width - 2*HMARGIN;</span>
-<span class="lineNum">     199 </span>                :            :   do {
-<span class="lineNum">     200 </span>                :<span class="lineCov">          1 :     msx = (map-&gt;cellsize * dsx)/(msInchesPerUnit(map-&gt;scalebar.units,0)/msInchesPerUnit(map-&gt;units,0));</span>
-<span class="lineNum">     201 </span>                :<span class="lineCov">          1 :     i = roundInterval(msx/map-&gt;scalebar.intervals);</span>
-<span class="lineNum">     202 </span>                :<span class="lineCov">          1 :     snprintf(label, sizeof(label), &quot;%g&quot;, map-&gt;scalebar.intervals*i); /* last label */</span>
-<span class="lineNum">     203 </span>                :<span class="lineCov">          1 :     isx = MS_NINT((i/(msInchesPerUnit(map-&gt;units,0)/msInchesPerUnit(map-&gt;scalebar.units,0)))/map-&gt;cellsize);</span>
-<span class="lineNum">     204 </span>                :<span class="lineCov">          1 :     sx = (map-&gt;scalebar.intervals*isx) + MS_NINT((1.5 + strlen(label)/2.0 + strlen(unitText[map-&gt;scalebar.units]))*fontWidth);</span>
-<span class="lineNum">     205 </span>                :            : 
-<span class="lineNum">     206 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(sx &lt;= (map-&gt;scalebar.width - 2*HMARGIN)) break; /* it will fit */</span>
-<span class="lineNum">     207 </span>                :            : 
-<span class="lineNum">     208 </span>                :<span class="lineCov">          1 :     dsx -= X_STEP_SIZE; /* change the desired size in hopes that it will fit in user supplied width */</span>
-<span class="lineNum">     209 </span>                :<span class="lineCov">          1 :   } while(1);</span>
-<span class="lineNum">     210 </span>                :            : 
-<span class="lineNum">     211 </span>                :<span class="lineCov">          1 :   sy = (2*VMARGIN) + MS_NINT(VSPACING*fontHeight) + fontHeight + map-&gt;scalebar.height - VSLOP;</span>
-<span class="lineNum">     212 </span>                :            : 
-<span class="lineNum">     213 </span>                :            :   /*Ensure we have an image format representing the options for the scalebar.*/
-<span class="lineNum">     214 </span>                :<span class="lineCov">          1 :   msApplyOutputFormat( &amp;format, map-&gt;outputformat,</span>
-<span class="lineNum">     215 </span>                :            :                        map-&gt;scalebar.transparent,
-<span class="lineNum">     216 </span>                :            :                        map-&gt;scalebar.interlace,
-<span class="lineNum">     217 </span>                :            :                        MS_NOOVERRIDE );
-<span class="lineNum">     218 </span>                :            : 
-<span class="lineNum">     219 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(map-&gt;scalebar.transparent == MS_OFF) {</span>
-<span class="lineNum">     220 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :     if(!MS_VALID_COLOR(map-&gt;scalebar.imagecolor))</span>
+<span class="lineNum">     170 </span>                :<span class="lineCov">          1 :   initTextSymbol(&amp;ts);</span>
+<span class="lineNum">     171 </span>                :            : 
+<span class="lineNum">     172 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(map-&gt;units == -1) {</span>
+<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Map units not set.&quot;, &quot;msDrawScalebar()&quot;);</span>
+<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :     return(NULL);</span>
+<span class="lineNum">     175 </span>                :            :   }
+<span class="lineNum">     176 </span>                :            : 
+<span class="lineNum">     177 </span>                :<span class="lineCov">          1 :   renderer = MS_MAP_RENDERER(map);</span>
+<span class="lineNum">     178 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!renderer || !MS_MAP_RENDERER(map)-&gt;supports_pixel_buffer) {</span>
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Outputformat not supported for scalebar&quot;, &quot;msDrawScalebar()&quot;);</span>
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :     return(NULL);</span>
+<span class="lineNum">     181 </span>                :            :   }
+<span class="lineNum">     182 </span>                :            :   
+<span class="lineNum">     183 </span>                :<span class="lineCov">          1 :   msPopulateTextSymbolForLabelAndString(&amp;ts,&amp;map-&gt;scalebar.label,msStrdup(&quot;0123456789&quot;),1.0,map-&gt;resolution/map-&gt;defresolution, 0);</span>
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>                :            :   /*
+<span class="lineNum">     186 </span>                :            :    *  A string containing the ten decimal digits is rendered to compute an average cell size
+<span class="lineNum">     187 </span>                :            :    *  for each number, which is used later to place labels on the scalebar.
+<span class="lineNum">     188 </span>                :            :    */
+<span class="lineNum">     189 </span>                :            :   
+<span class="lineNum">     190 </span>                :            : 
+<span class="lineNum">     191 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if(msGetTextSymbolSize(map,&amp;ts,&amp;r) != MS_SUCCESS) {</span>
+<span class="lineNum">     192 </span>                :            :     return NULL;
+<span class="lineNum">     193 </span>                :            :   }
+<span class="lineNum">     194 </span>                :<span class="lineCov">          1 :   fontWidth = (r.maxx-r.minx)/10.0;</span>
+<span class="lineNum">     195 </span>                :<span class="lineCov">          1 :   fontHeight = r.maxy -r.miny;</span>
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :<span class="lineCov">          1 :   map-&gt;cellsize = msAdjustExtent(&amp;(map-&gt;extent), map-&gt;width, map-&gt;height);</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">          1 :   status = msCalculateScale(map-&gt;extent, map-&gt;units, map-&gt;width, map-&gt;height, map-&gt;resolution, &amp;map-&gt;scaledenom);</span>
+<span class="lineNum">     199 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(status != MS_SUCCESS) {</span>
+<span class="lineNum">     200 </span>                :            :     return(NULL);
+<span class="lineNum">     201 </span>                :            :   }
+<span class="lineNum">     202 </span>                :<span class="lineCov">          1 :   dsx = map-&gt;scalebar.width - 2*HMARGIN;</span>
+<span class="lineNum">     203 </span>                :            :   do {
+<span class="lineNum">     204 </span>                :<span class="lineCov">          1 :     msx = (map-&gt;cellsize * dsx)/(msInchesPerUnit(map-&gt;scalebar.units,0)/msInchesPerUnit(map-&gt;units,0));</span>
+<span class="lineNum">     205 </span>                :<span class="lineCov">          1 :     i = roundInterval(msx/map-&gt;scalebar.intervals);</span>
+<span class="lineNum">     206 </span>                :<span class="lineCov">          1 :     snprintf(label, sizeof(label), &quot;%g&quot;, map-&gt;scalebar.intervals*i); /* last label */</span>
+<span class="lineNum">     207 </span>                :<span class="lineCov">          1 :     isx = MS_NINT((i/(msInchesPerUnit(map-&gt;units,0)/msInchesPerUnit(map-&gt;scalebar.units,0)))/map-&gt;cellsize);</span>
+<span class="lineNum">     208 </span>                :<span class="lineCov">          1 :     sx = (map-&gt;scalebar.intervals*isx) + MS_NINT((1.5 + strlen(label)/2.0 + strlen(unitText[map-&gt;scalebar.units]))*fontWidth);</span>
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(sx &lt;= (map-&gt;scalebar.width - 2*HMARGIN)) break; /* it will fit */</span>
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>                :<span class="lineCov">          1 :     dsx -= X_STEP_SIZE; /* change the desired size in hopes that it will fit in user supplied width */</span>
+<span class="lineNum">     213 </span>                :<span class="lineCov">          1 :   } while(1);</span>
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :<span class="lineCov">          1 :   sy = (2*VMARGIN) + MS_NINT(VSPACING*fontHeight) + fontHeight + map-&gt;scalebar.height - VSLOP;</span>
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :            :   /*Ensure we have an image format representing the options for the scalebar.*/
+<span class="lineNum">     218 </span>                :<span class="lineCov">          1 :   msApplyOutputFormat( &amp;format, map-&gt;outputformat,</span>
+<span class="lineNum">     219 </span>                :            :                        map-&gt;scalebar.transparent,
+<span class="lineNum">     220 </span>                :            :                        map-&gt;scalebar.interlace,
+<span class="lineNum">     221 </span>                :            :                        MS_NOOVERRIDE );
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(map-&gt;scalebar.transparent == MS_OFF) {</span>
+<span class="lineNum">     224 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :     if(!MS_VALID_COLOR(map-&gt;scalebar.imagecolor))</span>
 <span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
-<span class="lineNum">     221 </span>                :<span class="lineCov">          1 :       MS_INIT_COLOR(map-&gt;scalebar.imagecolor,255,255,255,255);</span>
-<span class="lineNum">     222 </span>                :            :   }
-<span class="lineNum">     223 </span>                :<span class="lineCov">          1 :   image = msImageCreate(map-&gt;scalebar.width, sy, format,</span>
-<span class="lineNum">     224 </span>                :            :                         map-&gt;web.imagepath, map-&gt;web.imageurl, map-&gt;resolution, map-&gt;defresolution, &amp;map-&gt;scalebar.imagecolor);
-<span class="lineNum">     225 </span>                :            : 
-<span class="lineNum">     226 </span>                :            :   /* drop this reference to output format */
-<span class="lineNum">     227 </span>                :<span class="lineCov">          1 :   msApplyOutputFormat( &amp;format, NULL,</span>
-<span class="lineNum">     228 </span>                :            :                        MS_NOOVERRIDE, MS_NOOVERRIDE, MS_NOOVERRIDE );
-<span class="lineNum">     229 </span>                :            : 
-<span class="lineNum">     230 </span>                :            :   /* did we succeed in creating the image? */
-<span class="lineNum">     231 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!image) {</span>
-<span class="lineNum">     232 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Unable to initialize image.&quot;, &quot;msDrawScalebar()&quot;);</span>
-<span class="lineNum">     233 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
-<span class="lineNum">     234 </span>                :            :   }
-<span class="lineNum">     235 </span>                :            : 
-<span class="lineNum">     236 </span>     [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   switch(map-&gt;scalebar.align) {</span>
-<span class="lineNum">     237 </span>                :            :     case(MS_ALIGN_LEFT):
-<span class="lineNum">     238 </span>                :            :       ox = HMARGIN;
-<span class="lineNum">     239 </span>                :            :       break;
-<span class="lineNum">     240 </span>                :            :     case(MS_ALIGN_RIGHT):
-<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :       ox = MS_NINT((map-&gt;scalebar.width - sx) + fontWidth);</span>
-<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :       break;</span>
-<span class="lineNum">     243 </span>                :            :     default:
-<span class="lineNum">     244 </span>                :<span class="lineCov">          1 :       ox = MS_NINT((map-&gt;scalebar.width - sx)/2.0 + fontWidth/2.0); /* center the computed scalebar */</span>
-<span class="lineNum">     245 </span>                :            :   }
-<span class="lineNum">     246 </span>                :            :   oy = VMARGIN;
-<span class="lineNum">     247 </span>                :            : 
-<span class="lineNum">     248 </span>     [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   switch(map-&gt;scalebar.style) {</span>
-<span class="lineNum">     249 </span>                :            :     case(0): {
-<span class="lineNum">     250 </span>                :            : 
-<span class="lineNum">     251 </span>                :<span class="lineCov">          1 :       line.numpoints = 5;</span>
-<span class="lineNum">     252 </span>                :<span class="lineCov">          1 :       line.point = points;</span>
-<span class="lineNum">     253 </span>                :<span class="lineCov">          1 :       shape.line = &amp;line;</span>
-<span class="lineNum">     254 </span>                :<span class="lineCov">          1 :       shape.numlines = 1;</span>
-<span class="lineNum">     255 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :       if(MS_VALID_COLOR(map-&gt;scalebar.color)) {</span>
+<span class="lineNum">     225 </span>                :<span class="lineCov">          1 :       MS_INIT_COLOR(map-&gt;scalebar.imagecolor,255,255,255,255);</span>
+<span class="lineNum">     226 </span>                :            :   }
+<span class="lineNum">     227 </span>                :<span class="lineCov">          1 :   image = msImageCreate(map-&gt;scalebar.width, sy, format,</span>
+<span class="lineNum">     228 </span>                :            :                         map-&gt;web.imagepath, map-&gt;web.imageurl, map-&gt;resolution, map-&gt;defresolution, &amp;map-&gt;scalebar.imagecolor);
+<span class="lineNum">     229 </span>                :<span class="lineCov">          1 :   image-&gt;map = map;</span>
+<span class="lineNum">     230 </span>                :            : 
+<span class="lineNum">     231 </span>                :            :   /* drop this reference to output format */
+<span class="lineNum">     232 </span>                :<span class="lineCov">          1 :   msApplyOutputFormat( &amp;format, NULL,</span>
+<span class="lineNum">     233 </span>                :            :                        MS_NOOVERRIDE, MS_NOOVERRIDE, MS_NOOVERRIDE );
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>                :            :   /* did we succeed in creating the image? */
+<span class="lineNum">     236 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!image) {</span>
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Unable to initialize image.&quot;, &quot;msDrawScalebar()&quot;);</span>
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">     239 </span>                :            :   }
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>     [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   switch(map-&gt;scalebar.align) {</span>
+<span class="lineNum">     242 </span>                :            :     case(MS_ALIGN_LEFT):
+<span class="lineNum">     243 </span>                :            :       ox = HMARGIN;
+<span class="lineNum">     244 </span>                :            :       break;
+<span class="lineNum">     245 </span>                :            :     case(MS_ALIGN_RIGHT):
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :       ox = MS_NINT((map-&gt;scalebar.width - sx) + fontWidth);</span>
+<span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     248 </span>                :            :     default:
+<span class="lineNum">     249 </span>                :<span class="lineCov">          1 :       ox = MS_NINT((map-&gt;scalebar.width - sx)/2.0 + fontWidth/2.0); /* center the computed scalebar */</span>
+<span class="lineNum">     250 </span>                :            :   }
+<span class="lineNum">     251 </span>                :            :   oy = VMARGIN;
+<span class="lineNum">     252 </span>                :            : 
+<span class="lineNum">     253 </span>     [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   switch(map-&gt;scalebar.style) {</span>
+<span class="lineNum">     254 </span>                :            :     case(0): {
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :<span class="lineCov">          1 :       line.numpoints = 5;</span>
+<span class="lineNum">     257 </span>                :<span class="lineCov">          1 :       line.point = points;</span>
+<span class="lineNum">     258 </span>                :<span class="lineCov">          1 :       shape.line = &amp;line;</span>
+<span class="lineNum">     259 </span>                :<span class="lineCov">          1 :       shape.numlines = 1;</span>
+<span class="lineNum">     260 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :       if(MS_VALID_COLOR(map-&gt;scalebar.color)) {</span>
 <span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
-<span class="lineNum">     256 </span>                :<span class="lineCov">          1 :         INIT_STROKE_STYLE(strokeStyle);</span>
-<span class="lineNum">     257 </span>                :<span class="lineCov">          1 :         strokeStyle.color = &amp;map-&gt;scalebar.outlinecolor;</span>
-<span class="lineNum">     258 </span>                :<span class="lineCov">          1 :         strokeStyle.color-&gt;alpha = 255;</span>
-<span class="lineNum">     259 </span>                :<span class="lineCov">          1 :         strokeStyle.width = 1;</span>
-<span class="lineNum">     260 </span>                :            :       }
-<span class="lineNum">     261 </span>                :<span class="lineCov">          1 :       map-&gt;scalebar.backgroundcolor.alpha = 255;</span>
-<span class="lineNum">     262 </span>                :<span class="lineCov">          1 :       map-&gt;scalebar.color.alpha = 255;</span>
-<span class="lineNum">     263 </span>                :            :       state = 1; /* 1 means filled */
-<span class="lineNum">     264 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(j=0; j&lt;map-&gt;scalebar.intervals; j++) {</span>
-<span class="lineNum">     265 </span>                :<span class="lineCov">          1 :         points[0].x = points[4].x = points[3].x = ox + j*isx + 0.5;</span>
-<span class="lineNum">     266 </span>                :<span class="lineCov">          1 :         points[0].y = points[4].y = points[1].y = oy + 0.5;</span>
-<span class="lineNum">     267 </span>                :<span class="lineCov">          1 :         points[1].x = points[2].x = ox + (j+1)*isx + 0.5;</span>
-<span class="lineNum">     268 </span>                :<span class="lineCov">          1 :         points[2].y = points[3].y = oy + map-&gt;scalebar.height + 0.5;</span>
-<span class="lineNum">     269 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(state == 1 &amp;&amp; MS_VALID_COLOR(map-&gt;scalebar.color))</span>
+<span class="lineNum">     261 </span>                :<span class="lineCov">          1 :         INIT_STROKE_STYLE(strokeStyle);</span>
+<span class="lineNum">     262 </span>                :<span class="lineCov">          1 :         strokeStyle.color = &amp;map-&gt;scalebar.outlinecolor;</span>
+<span class="lineNum">     263 </span>                :<span class="lineCov">          1 :         strokeStyle.color-&gt;alpha = 255;</span>
+<span class="lineNum">     264 </span>                :<span class="lineCov">          1 :         strokeStyle.width = 1;</span>
+<span class="lineNum">     265 </span>                :            :       }
+<span class="lineNum">     266 </span>                :<span class="lineCov">          1 :       map-&gt;scalebar.backgroundcolor.alpha = 255;</span>
+<span class="lineNum">     267 </span>                :<span class="lineCov">          1 :       map-&gt;scalebar.color.alpha = 255;</span>
+<span class="lineNum">     268 </span>                :            :       state = 1; /* 1 means filled */
+<span class="lineNum">     269 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(j=0; j&lt;map-&gt;scalebar.intervals; j++) {</span>
+<span class="lineNum">     270 </span>                :<span class="lineCov">          1 :         points[0].x = points[4].x = points[3].x = ox + j*isx + 0.5;</span>
+<span class="lineNum">     271 </span>                :<span class="lineCov">          1 :         points[0].y = points[4].y = points[1].y = oy + 0.5;</span>
+<span class="lineNum">     272 </span>                :<span class="lineCov">          1 :         points[1].x = points[2].x = ox + (j+1)*isx + 0.5;</span>
+<span class="lineNum">     273 </span>                :<span class="lineCov">          1 :         points[2].y = points[3].y = oy + map-&gt;scalebar.height + 0.5;</span>
+<span class="lineNum">     274 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(state == 1 &amp;&amp; MS_VALID_COLOR(map-&gt;scalebar.color))</span>
 <span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken X times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]
-<span class="lineNum">     270 </span>                :<span class="lineCov">          1 :           renderer-&gt;renderPolygon(image,&amp;shape,&amp;map-&gt;scalebar.color);</span>
-<span class="lineNum">     271 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         else if(MS_VALID_COLOR(map-&gt;scalebar.backgroundcolor))</span>
+<span class="lineNum">     275 </span>                :<span class="lineCov">          1 :           status = renderer-&gt;renderPolygon(image,&amp;shape,&amp;map-&gt;scalebar.color);</span>
+<span class="lineNum">     276 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         else if(MS_VALID_COLOR(map-&gt;scalebar.backgroundcolor))</span>
 <span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
-<span class="lineNum">     272 </span>                :<span class="lineCov">          1 :           renderer-&gt;renderPolygon(image,&amp;shape,&amp;map-&gt;scalebar.backgroundcolor);</span>
-<span class="lineNum">     273 </span>                :            : 
-<span class="lineNum">     274 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if(strokeStyle.color)</span>
-<span class="lineNum">     275 </span>                :<span class="lineCov">          1 :           renderer-&gt;renderLine(image,&amp;shape,&amp;strokeStyle);</span>
-<span class="lineNum">     276 </span>                :            : 
-<span class="lineNum">     277 </span>                :<span class="lineCov">          1 :         sprintf(label, &quot;%g&quot;, j*i);</span>
-<span class="lineNum">     278 </span>                :<span class="lineCov">          1 :         map-&gt;scalebar.label.position = MS_CC;</span>
-<span class="lineNum">     279 </span>                :<span class="lineCov">          1 :         p.x = ox + j*isx; /* + MS_NINT(fontPtr-&gt;w/2); */</span>
-<span class="lineNum">     280 </span>                :<span class="lineCov">          1 :         p.y = oy + map-&gt;scalebar.height + MS_NINT(VSPACING*fontHeight);</span>
-<span class="lineNum">     281 </span>                :<span class="lineCov">          1 :         msDrawLabel(map,image,p,label,&amp;map-&gt;scalebar.label,1.0);</span>
-<span class="lineNum">     282 </span>                :<span class="lineCov">          1 :         state = -state;</span>
-<span class="lineNum">     283 </span>                :            :       }
-<span class="lineNum">     284 </span>                :<span class="lineCov">          1 :       sprintf(label, &quot;%g&quot;, j*i);</span>
-<span class="lineNum">     285 </span>                :<span class="lineCov">          1 :       ox = ox + j*isx - MS_NINT((strlen(label)*fontWidth)/2.0);</span>
-<span class="lineNum">     286 </span>                :<span class="lineCov">          1 :       sprintf(label, &quot;%g %s&quot;, j*i, unitText[map-&gt;scalebar.units]);</span>
-<span class="lineNum">     287 </span>                :<span class="lineCov">          1 :       map-&gt;scalebar.label.position = MS_CR;</span>
-<span class="lineNum">     288 </span>                :<span class="lineCov">          1 :       p.x = ox; /* + MS_NINT(fontPtr-&gt;w/2); */</span>
-<span class="lineNum">     289 </span>                :<span class="lineCov">          1 :       p.y = oy + map-&gt;scalebar.height + MS_NINT(VSPACING*fontHeight);</span>
-<span class="lineNum">     290 </span>                :<span class="lineCov">          1 :       msDrawLabel(map,image,p,label,&amp;map-&gt;scalebar.label,1.0);</span>
-<span class="lineNum">     291 </span>                :            : 
-<span class="lineNum">     292 </span>                :<span class="lineCov">          1 :       break;</span>
-<span class="lineNum">     293 </span>                :            :     }
-<span class="lineNum">     294 </span>                :            :     case(1): {
-<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 :       line.numpoints = 2;</span>
-<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :       line.point = points;</span>
-<span class="lineNum">     297 </span>                :<span class="lineNoCov">          0 :       shape.line = &amp;line;</span>
-<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :       shape.numlines = 1;</span>
-<span class="lineNum">     299 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(MS_VALID_COLOR(map-&gt;scalebar.color)) {</span>
+<span class="lineNum">     277 </span>                :<span class="lineCov">          1 :           status = renderer-&gt;renderPolygon(image,&amp;shape,&amp;map-&gt;scalebar.backgroundcolor);</span>
+<span class="lineNum">     278 </span>                :            : 
+<span class="lineNum">     279 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if(UNLIKELY(status == MS_FAILURE)) {</span>
+<span class="lineNum">     280 </span>                :            :           goto scale_cleanup;
+<span class="lineNum">     281 </span>                :            :         }
+<span class="lineNum">     282 </span>                :            : 
+<span class="lineNum">     283 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if(strokeStyle.color) {</span>
+<span class="lineNum">     284 </span>                :<span class="lineCov">          1 :           status = renderer-&gt;renderLine(image,&amp;shape,&amp;strokeStyle);</span>
+<span class="lineNum">     285 </span>                :            : 
+<span class="lineNum">     286 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           if(UNLIKELY(status == MS_FAILURE)) {</span>
+<span class="lineNum">     287 </span>                :            :             goto scale_cleanup;
+<span class="lineNum">     288 </span>                :            :           }
+<span class="lineNum">     289 </span>                :            :         }
+<span class="lineNum">     290 </span>                :            : 
+<span class="lineNum">     291 </span>                :<span class="lineCov">          1 :         sprintf(label, &quot;%g&quot;, j*i);</span>
+<span class="lineNum">     292 </span>                :<span class="lineCov">          1 :         map-&gt;scalebar.label.position = MS_CC;</span>
+<span class="lineNum">     293 </span>                :<span class="lineCov">          1 :         p.x = ox + j*isx; /* + MS_NINT(fontPtr-&gt;w/2); */</span>
+<span class="lineNum">     294 </span>                :<span class="lineCov">          1 :         p.y = oy + map-&gt;scalebar.height + MS_NINT(VSPACING*fontHeight);</span>
+<span class="lineNum">     295 </span>                :<span class="lineCov">          1 :         status = msDrawLabel(map,image,p,msStrdup(label),&amp;map-&gt;scalebar.label,1.0);</span>
+<span class="lineNum">     296 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if(UNLIKELY(status == MS_FAILURE)) {</span>
+<span class="lineNum">     297 </span>                :            :           goto scale_cleanup;
+<span class="lineNum">     298 </span>                :            :         }
+<span class="lineNum">     299 </span>                :<span class="lineCov">          1 :         state = -state;</span>
+<span class="lineNum">     300 </span>                :            :       }
+<span class="lineNum">     301 </span>                :<span class="lineCov">          1 :       sprintf(label, &quot;%g&quot;, j*i);</span>
+<span class="lineNum">     302 </span>                :<span class="lineCov">          1 :       ox = ox + j*isx - MS_NINT((strlen(label)*fontWidth)/2.0);</span>
+<span class="lineNum">     303 </span>                :<span class="lineCov">          1 :       sprintf(label, &quot;%g %s&quot;, j*i, unitText[map-&gt;scalebar.units]);</span>
+<span class="lineNum">     304 </span>                :<span class="lineCov">          1 :       map-&gt;scalebar.label.position = MS_CR;</span>
+<span class="lineNum">     305 </span>                :<span class="lineCov">          1 :       p.x = ox; /* + MS_NINT(fontPtr-&gt;w/2); */</span>
+<span class="lineNum">     306 </span>                :<span class="lineCov">          1 :       p.y = oy + map-&gt;scalebar.height + MS_NINT(VSPACING*fontHeight);</span>
+<span class="lineNum">     307 </span>                :<span class="lineCov">          1 :       status = msDrawLabel(map,image,p,msStrdup(label),&amp;map-&gt;scalebar.label,1.0);</span>
+<span class="lineNum">     308 </span>                :            :       if(UNLIKELY(status == MS_FAILURE)) {
+<span class="lineNum">     309 </span>                :            :         goto scale_cleanup;
+<span class="lineNum">     310 </span>                :            :       }
+<span class="lineNum">     311 </span>                :            :       break;
+<span class="lineNum">     312 </span>                :            :     }
+<span class="lineNum">     313 </span>                :            :     case(1): {
+<span class="lineNum">     314 </span>                :<span class="lineNoCov">          0 :       line.numpoints = 2;</span>
+<span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 :       line.point = points;</span>
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :       shape.line = &amp;line;</span>
+<span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 :       shape.numlines = 1;</span>
+<span class="lineNum">     318 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(MS_VALID_COLOR(map-&gt;scalebar.color)) {</span>
 <span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
-<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 :         strokeStyle.width = 1;</span>
-<span class="lineNum">     301 </span>                :<span class="lineNoCov">          0 :         strokeStyle.color = &amp;map-&gt;scalebar.color;</span>
-<span class="lineNum">     302 </span>                :            :       }
-<span class="lineNum">     303 </span>                :            : 
-<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :       points[0].y = points[1].y = oy;</span>
-<span class="lineNum">     305 </span>                :<span class="lineNoCov">          0 :       points[0].x = ox;</span>
-<span class="lineNum">     306 </span>                :<span class="lineNoCov">          0 :       points[1].x = ox + isx*map-&gt;scalebar.intervals;</span>
-<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 :       renderer-&gt;renderLine(image,&amp;shape,&amp;strokeStyle);</span>
-<span class="lineNum">     308 </span>                :            : 
-<span class="lineNum">     309 </span>                :<span class="lineNoCov">          0 :       points[0].y = oy;</span>
-<span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :       points[1].y = oy + map-&gt;scalebar.height;</span>
-<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 :       p.y = oy + map-&gt;scalebar.height + MS_NINT(VSPACING*fontHeight);</span>
-<span class="lineNum">     312 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(j=0; j&lt;=map-&gt;scalebar.intervals; j++) {</span>
-<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :         points[0].x = points[1].x = ox + j*isx;</span>
-<span class="lineNum">     314 </span>                :<span class="lineNoCov">          0 :         renderer-&gt;renderLine(image,&amp;shape,&amp;strokeStyle);</span>
-<span class="lineNum">     315 </span>                :            : 
-<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :         sprintf(label, &quot;%g&quot;, j*i);</span>
-<span class="lineNum">     317 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(j!=map-&gt;scalebar.intervals) {</span>
-<span class="lineNum">     318 </span>                :<span class="lineNoCov">          0 :           map-&gt;scalebar.label.position = MS_CC;</span>
-<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :           p.x = ox + j*isx; /* + MS_NINT(fontPtr-&gt;w/2); */</span>
-<span class="lineNum">     320 </span>                :            :         } else {
-<span class="lineNum">     321 </span>                :<span class="lineNoCov">          0 :           sprintf(label, &quot;%g %s&quot;, j*i, unitText[map-&gt;scalebar.units]);</span>
-<span class="lineNum">     322 </span>                :<span class="lineNoCov">          0 :           map-&gt;scalebar.label.position = MS_CR;</span>
-<span class="lineNum">     323 </span>                :<span class="lineNoCov">          0 :           p.x = ox + j*isx - MS_NINT((strlen(label)*fontWidth)/2.0);</span>
-<span class="lineNum">     324 </span>                :            :         }
-<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :         msDrawLabel(map,image,p,label,&amp;map-&gt;scalebar.label,1.0);</span>
-<span class="lineNum">     326 </span>                :            :       }
-<span class="lineNum">     327 </span>                :            :       break;
-<span class="lineNum">     328 </span>                :            :     }
-<span class="lineNum">     329 </span>                :            :     default:
-<span class="lineNum">     330 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Unsupported scalebar style.&quot;, &quot;msDrawScalebar()&quot;);</span>
-<span class="lineNum">     331 </span>                :<span class="lineCov">          1 :       return(NULL);</span>
-<span class="lineNum">     332 </span>                :            :   }
-<span class="lineNum">     333 </span>                :            :   return(image);
-<span class="lineNum">     334 </span>                :            : 
-<a name="335"><span class="lineNum">     335 </span>                :            : }</a>
-<span class="lineNum">     336 </span>                :            : 
-<span class="lineNum">     337 </span>                :<span class="lineCov">          1 : int msEmbedScalebar(mapObj *map, imageObj *img)</span>
-<span class="lineNum">     338 </span>                :            : {
-<span class="lineNum">     339 </span>                :            :   int l,index,s;
-<span class="lineNum">     340 </span>                :            :   pointObj point;
-<span class="lineNum">     341 </span>                :            :   imageObj *image = NULL;
-<span class="lineNum">     342 </span>                :            :   rendererVTableObj *renderer;
-<span class="lineNum">     343 </span>                :            :   symbolObj *embededSymbol;
-<span class="lineNum">     344 </span>                :            :   char* imageType = NULL;
-<span class="lineNum">     345 </span>                :            : 
-<span class="lineNum">     346 </span>                :<span class="lineCov">          1 :   index = msGetSymbolIndex(&amp;(map-&gt;symbolset), &quot;scalebar&quot;, MS_FALSE);</span>
-<span class="lineNum">     347 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(index != -1)</span>
-<span class="lineNum">     348 </span>                :<span class="lineNoCov">          0 :     msRemoveSymbol(&amp;(map-&gt;symbolset), index); /* remove cached symbol in case the function is called multiple</span>
-<span class="lineNum">     349 </span>                :            :                       times with different zoom levels */
-<span class="lineNum">     350 </span>                :            : 
-<span class="lineNum">     351 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if((embededSymbol=msGrowSymbolSet(&amp;map-&gt;symbolset)) == NULL)</span>
-<span class="lineNum">     352 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     353 </span>                :            : 
-<span class="lineNum">     354 </span>                :<span class="lineCov">          1 :   s = map-&gt;symbolset.numsymbols;</span>
-<span class="lineNum">     355 </span>                :<span class="lineCov">          1 :   map-&gt;symbolset.numsymbols++;</span>
-<span class="lineNum">     356 </span>                :            : 
-<span class="lineNum">     357 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!MS_RENDERER_PLUGIN(map-&gt;outputformat) || !MS_MAP_RENDERER(map)-&gt;supports_pixel_buffer) {</span>
-<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :     imageType = msStrdup(map-&gt;imagetype); /* save format */</span>
-<span class="lineNum">     359 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if MS_DRIVER_CAIRO(map-&gt;outputformat)</span>
-<span class="lineNum">     360 </span>                :<span class="lineNoCov">          0 :       map-&gt;outputformat = msSelectOutputFormat( map, &quot;cairopng&quot; );</span>
-<span class="lineNum">     361 </span>                :            :     else
-<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 :       map-&gt;outputformat = msSelectOutputFormat( map, &quot;png&quot; );</span>
-<span class="lineNum">     363 </span>                :            :     
-<span class="lineNum">     364 </span>                :<span class="lineNoCov">          0 :     msInitializeRendererVTable(map-&gt;outputformat);</span>
-<span class="lineNum">     365 </span>                :            :   }
-<span class="lineNum">     366 </span>                :<span class="lineCov">          1 :   renderer = MS_MAP_RENDERER(map);</span>
-<span class="lineNum">     367 </span>                :            : 
-<span class="lineNum">     368 </span>                :<span class="lineCov">          1 :   image = msDrawScalebar(map);</span>
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :         strokeStyle.width = 1;</span>
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :         strokeStyle.color = &amp;map-&gt;scalebar.color;</span>
+<span class="lineNum">     321 </span>                :            :       }
+<span class="lineNum">     322 </span>                :            : 
+<span class="lineNum">     323 </span>                :<span class="lineNoCov">          0 :       points[0].y = points[1].y = oy;</span>
+<span class="lineNum">     324 </span>                :<span class="lineNoCov">          0 :       points[0].x = ox;</span>
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :       points[1].x = ox + isx*map-&gt;scalebar.intervals;</span>
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :       status = renderer-&gt;renderLine(image,&amp;shape,&amp;strokeStyle);</span>
+<span class="lineNum">     327 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(UNLIKELY(status == MS_FAILURE)) {</span>
+<span class="lineNum">     328 </span>                :            :         goto scale_cleanup;
+<span class="lineNum">     329 </span>                :            :       }
+<span class="lineNum">     330 </span>                :            : 
+<span class="lineNum">     331 </span>                :<span class="lineNoCov">          0 :       points[0].y = oy;</span>
+<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :       points[1].y = oy + map-&gt;scalebar.height;</span>
+<span class="lineNum">     333 </span>                :<span class="lineNoCov">          0 :       p.y = oy + map-&gt;scalebar.height + MS_NINT(VSPACING*fontHeight);</span>
+<span class="lineNum">     334 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(j=0; j&lt;=map-&gt;scalebar.intervals; j++) {</span>
+<span class="lineNum">     335 </span>                :<span class="lineNoCov">          0 :         points[0].x = points[1].x = ox + j*isx;</span>
+<span class="lineNum">     336 </span>                :<span class="lineNoCov">          0 :         status = renderer-&gt;renderLine(image,&amp;shape,&amp;strokeStyle);</span>
+<span class="lineNum">     337 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(UNLIKELY(status == MS_FAILURE)) {</span>
+<span class="lineNum">     338 </span>                :            :           goto scale_cleanup;
+<span class="lineNum">     339 </span>                :            :         }
+<span class="lineNum">     340 </span>                :            : 
+<span class="lineNum">     341 </span>                :<span class="lineNoCov">          0 :         sprintf(label, &quot;%g&quot;, j*i);</span>
+<span class="lineNum">     342 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(j!=map-&gt;scalebar.intervals) {</span>
+<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 :           map-&gt;scalebar.label.position = MS_CC;</span>
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :           p.x = ox + j*isx; /* + MS_NINT(fontPtr-&gt;w/2); */</span>
+<span class="lineNum">     345 </span>                :            :         } else {
+<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 :           sprintf(label, &quot;%g %s&quot;, j*i, unitText[map-&gt;scalebar.units]);</span>
+<span class="lineNum">     347 </span>                :<span class="lineNoCov">          0 :           map-&gt;scalebar.label.position = MS_CR;</span>
+<span class="lineNum">     348 </span>                :<span class="lineNoCov">          0 :           p.x = ox + j*isx - MS_NINT((strlen(label)*fontWidth)/2.0);</span>
+<span class="lineNum">     349 </span>                :            :         }
+<span class="lineNum">     350 </span>                :<span class="lineNoCov">          0 :         status = msDrawLabel(map,image,p,msStrdup(label),&amp;map-&gt;scalebar.label,1.0);</span>
+<span class="lineNum">     351 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(UNLIKELY(status == MS_FAILURE)) {</span>
+<span class="lineNum">     352 </span>                :            :           goto scale_cleanup;
+<span class="lineNum">     353 </span>                :            :         }
+<span class="lineNum">     354 </span>                :            :       }
+<span class="lineNum">     355 </span>                :            :       break;
+<span class="lineNum">     356 </span>                :            :     }
+<span class="lineNum">     357 </span>                :            :     default:
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Unsupported scalebar style.&quot;, &quot;msDrawScalebar()&quot;);</span>
+<span class="lineNum">     359 </span>                :<span class="lineNoCov">          0 :       return(NULL);</span>
+<span class="lineNum">     360 </span>                :            :   }
+<span class="lineNum">     361 </span>                :            : 
+<span class="lineNum">     362 </span>                :            : scale_cleanup:
+<span class="lineNum">     363 </span>                :<span class="lineCov">          1 :   freeTextSymbol(&amp;ts);</span>
+<span class="lineNum">     364 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(UNLIKELY(status == MS_FAILURE)) {</span>
+<span class="lineNum">     365 </span>                :<span class="lineNoCov">          0 :     msFreeImage(image);</span>
+<span class="lineNum">     366 </span>                :<span class="lineCov">          1 :     return NULL;</span>
+<span class="lineNum">     367 </span>                :            :   }
+<span class="lineNum">     368 </span>                :            :   return(image);
 <span class="lineNum">     369 </span>                :            : 
-<span class="lineNum">     370 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (imageType) {</span>
-<span class="lineNum">     371 </span>                :<span class="lineNoCov">          0 :     map-&gt;outputformat = msSelectOutputFormat( map, imageType ); /* restore format */</span>
-<span class="lineNum">     372 </span>                :<span class="lineNoCov">          0 :     msFree(imageType);</span>
-<span class="lineNum">     373 </span>                :            :   }
-<span class="lineNum">     374 </span>                :            : 
-<span class="lineNum">     375 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!image) {</span>
-<span class="lineNum">     376 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     377 </span>                :            :   }
-<span class="lineNum">     378 </span>                :<span class="lineCov">          1 :   embededSymbol-&gt;pixmap_buffer = calloc(1,sizeof(rasterBufferObj));</span>
-<span class="lineNum">     379 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_CHECK_ALLOC(embededSymbol-&gt;pixmap_buffer, sizeof(rasterBufferObj), MS_FAILURE);</span>
+<a name="370"><span class="lineNum">     370 </span>                :            : }</a>
+<span class="lineNum">     371 </span>                :            : 
+<span class="lineNum">     372 </span>                :<span class="lineCov">          1 : int msEmbedScalebar(mapObj *map, imageObj *img)</span>
+<span class="lineNum">     373 </span>                :            : {
+<span class="lineNum">     374 </span>                :            :   int l,index,s,status = MS_SUCCESS;
+<span class="lineNum">     375 </span>                :            :   pointObj point;
+<span class="lineNum">     376 </span>                :            :   imageObj *image = NULL;
+<span class="lineNum">     377 </span>                :            :   rendererVTableObj *renderer;
+<span class="lineNum">     378 </span>                :            :   symbolObj *embededSymbol;
+<span class="lineNum">     379 </span>                :            :   char* imageType = NULL;
 <span class="lineNum">     380 </span>                :            : 
-<span class="lineNum">     381 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if(MS_SUCCESS != renderer-&gt;getRasterBufferCopy(image,embededSymbol-&gt;pixmap_buffer)) {</span>
-<span class="lineNum">     382 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     383 </span>                :            :   }
-<span class="lineNum">     384 </span>                :            : 
-<span class="lineNum">     385 </span>                :<span class="lineCov">          1 :   embededSymbol-&gt;type = MS_SYMBOL_PIXMAP; /* intialize a few things */</span>
-<span class="lineNum">     386 </span>                :<span class="lineCov">          1 :   embededSymbol-&gt;name = msStrdup(&quot;scalebar&quot;);</span>
-<span class="lineNum">     387 </span>                :<span class="lineCov">          1 :   embededSymbol-&gt;sizex = embededSymbol-&gt;pixmap_buffer-&gt;width;</span>
-<span class="lineNum">     388 </span>                :<span class="lineCov">          1 :   embededSymbol-&gt;sizey = embededSymbol-&gt;pixmap_buffer-&gt;height;</span>
-<span class="lineNum">     389 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(map-&gt;scalebar.transparent) {</span>
-<span class="lineNum">     390 </span>                :<span class="lineCov">          1 :     embededSymbol-&gt;transparent = MS_TRUE;</span>
-<span class="lineNum">     391 </span>                :<span class="lineCov">          1 :     embededSymbol-&gt;transparentcolor = 0;</span>
-<span class="lineNum">     392 </span>                :            :   }
-<span class="lineNum">     393 </span>                :            : 
-<span class="lineNum">     394 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span> :<span class="lineCov">          1 :   switch(map-&gt;scalebar.position) {</span>
+<span class="lineNum">     381 </span>                :<span class="lineCov">          1 :   index = msGetSymbolIndex(&amp;(map-&gt;symbolset), &quot;scalebar&quot;, MS_FALSE);</span>
+<span class="lineNum">     382 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(index != -1)</span>
+<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :     msRemoveSymbol(&amp;(map-&gt;symbolset), index); /* remove cached symbol in case the function is called multiple</span>
+<span class="lineNum">     384 </span>                :            :                       times with different zoom levels */
+<span class="lineNum">     385 </span>                :            : 
+<span class="lineNum">     386 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if((embededSymbol=msGrowSymbolSet(&amp;map-&gt;symbolset)) == NULL)</span>
+<span class="lineNum">     387 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     388 </span>                :            : 
+<span class="lineNum">     389 </span>                :<span class="lineCov">          1 :   s = map-&gt;symbolset.numsymbols;</span>
+<span class="lineNum">     390 </span>                :<span class="lineCov">          1 :   map-&gt;symbolset.numsymbols++;</span>
+<span class="lineNum">     391 </span>                :            : 
+<span class="lineNum">     392 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!MS_RENDERER_PLUGIN(map-&gt;outputformat) || !MS_MAP_RENDERER(map)-&gt;supports_pixel_buffer) {</span>
+<span class="lineNum">     393 </span>                :<span class="lineNoCov">          0 :     imageType = msStrdup(map-&gt;imagetype); /* save format */</span>
+<span class="lineNum">     394 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if MS_DRIVER_CAIRO(map-&gt;outputformat)</span>
+<span class="lineNum">     395 </span>                :<span class="lineNoCov">          0 :       map-&gt;outputformat = msSelectOutputFormat( map, &quot;cairopng&quot; );</span>
+<span class="lineNum">     396 </span>                :            :     else
+<span class="lineNum">     397 </span>                :<span class="lineNoCov">          0 :       map-&gt;outputformat = msSelectOutputFormat( map, &quot;png&quot; );</span>
+<span class="lineNum">     398 </span>                :            :     
+<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 :     msInitializeRendererVTable(map-&gt;outputformat);</span>
+<span class="lineNum">     400 </span>                :            :   }
+<span class="lineNum">     401 </span>                :<span class="lineCov">          1 :   renderer = MS_MAP_RENDERER(map);</span>
+<span class="lineNum">     402 </span>                :            : 
+<span class="lineNum">     403 </span>                :<span class="lineCov">          1 :   image = msDrawScalebar(map);</span>
+<span class="lineNum">     404 </span>                :            : 
+<span class="lineNum">     405 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (imageType) {</span>
+<span class="lineNum">     406 </span>                :<span class="lineNoCov">          0 :     map-&gt;outputformat = msSelectOutputFormat( map, imageType ); /* restore format */</span>
+<span class="lineNum">     407 </span>                :<span class="lineNoCov">          0 :     msFree(imageType);</span>
+<span class="lineNum">     408 </span>                :            :   }
+<span class="lineNum">     409 </span>                :            : 
+<span class="lineNum">     410 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!image) {</span>
+<span class="lineNum">     411 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     412 </span>                :            :   }
+<span class="lineNum">     413 </span>                :<span class="lineCov">          1 :   embededSymbol-&gt;pixmap_buffer = calloc(1,sizeof(rasterBufferObj));</span>
+<span class="lineNum">     414 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_CHECK_ALLOC(embededSymbol-&gt;pixmap_buffer, sizeof(rasterBufferObj), MS_FAILURE);</span>
+<span class="lineNum">     415 </span>                :            : 
+<span class="lineNum">     416 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if(MS_SUCCESS != renderer-&gt;getRasterBufferCopy(image,embededSymbol-&gt;pixmap_buffer)) {</span>
+<span class="lineNum">     417 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     418 </span>                :            :   }
+<span class="lineNum">     419 </span>                :            : 
+<span class="lineNum">     420 </span>                :<span class="lineCov">          1 :   embededSymbol-&gt;type = MS_SYMBOL_PIXMAP; /* intialize a few things */</span>
+<span class="lineNum">     421 </span>                :<span class="lineCov">          1 :   embededSymbol-&gt;name = msStrdup(&quot;scalebar&quot;);</span>
+<span class="lineNum">     422 </span>                :<span class="lineCov">          1 :   embededSymbol-&gt;sizex = embededSymbol-&gt;pixmap_buffer-&gt;width;</span>
+<span class="lineNum">     423 </span>                :<span class="lineCov">          1 :   embededSymbol-&gt;sizey = embededSymbol-&gt;pixmap_buffer-&gt;height;</span>
+<span class="lineNum">     424 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(map-&gt;scalebar.transparent) {</span>
+<span class="lineNum">     425 </span>                :<span class="lineCov">          1 :     embededSymbol-&gt;transparent = MS_TRUE;</span>
+<span class="lineNum">     426 </span>                :<span class="lineCov">          1 :     embededSymbol-&gt;transparentcolor = 0;</span>
+<span class="lineNum">     427 </span>                :            :   }
+<span class="lineNum">     428 </span>                :            : 
+<span class="lineNum">     429 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span> :<span class="lineCov">          1 :   switch(map-&gt;scalebar.position) {</span>
 <span class="lineNum">         </span>      <span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]
-<span class="lineNum">     395 </span>                :            :     case(MS_LL):
-<span class="lineNum">     396 </span>                :<span class="lineCov">          1 :       point.x = MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;width/2.0);</span>
-<span class="lineNum">     397 </span>                :<span class="lineCov">          1 :       point.y = map-&gt;height - MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;height/2.0);</span>
-<span class="lineNum">     398 </span>                :<span class="lineCov">          1 :       break;</span>
-<span class="lineNum">     399 </span>                :            :     case(MS_LR):
-<span class="lineNum">     400 </span>                :<span class="lineCov">          1 :       point.x = map-&gt;width - MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;width/2.0);</span>
-<span class="lineNum">     401 </span>                :<span class="lineCov">          1 :       point.y = map-&gt;height - MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;height/2.0);</span>
-<span class="lineNum">     402 </span>                :<span class="lineCov">          1 :       break;</span>
-<span class="lineNum">     403 </span>                :            :     case(MS_LC):
-<span class="lineNum">     404 </span>                :<span class="lineNoCov">          0 :       point.x = MS_NINT(map-&gt;width/2.0);</span>
-<span class="lineNum">     405 </span>                :<span class="lineNoCov">          0 :       point.y = map-&gt;height - MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;height/2.0);</span>
-<span class="lineNum">     406 </span>                :<span class="lineNoCov">          0 :       break;</span>
-<span class="lineNum">     407 </span>                :            :     case(MS_UR):
-<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :       point.x = map-&gt;width - MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;width/2.0);</span>
-<span class="lineNum">     409 </span>                :<span class="lineNoCov">          0 :       point.y = MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;height/2.0);</span>
-<span class="lineNum">     410 </span>                :<span class="lineNoCov">          0 :       break;</span>
-<span class="lineNum">     411 </span>                :            :     case(MS_UL):
-<span class="lineNum">     412 </span>                :<span class="lineNoCov">          0 :       point.x = MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;width/2.0);</span>
-<span class="lineNum">     413 </span>                :<span class="lineNoCov">          0 :       point.y = MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;height/2.0);</span>
-<span class="lineNum">     414 </span>                :<span class="lineNoCov">          0 :       break;</span>
-<span class="lineNum">     415 </span>                :            :     case(MS_UC):
-<span class="lineNum">     416 </span>                :<span class="lineNoCov">          0 :       point.x = MS_NINT(map-&gt;width/2.0);</span>
-<span class="lineNum">     417 </span>                :<span class="lineNoCov">          0 :       point.y = MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;height/2.0);</span>
-<span class="lineNum">     418 </span>                :<span class="lineNoCov">          0 :       break;</span>
-<span class="lineNum">     419 </span>                :            :   }
-<span class="lineNum">     420 </span>                :            : 
-<span class="lineNum">     421 </span>                :<span class="lineCov">          1 :   l = msGetLayerIndex(map, &quot;__embed__scalebar&quot;);</span>
-<span class="lineNum">     422 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(l == -1) {</span>
-<span class="lineNum">     423 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if (msGrowMapLayers(map) == NULL)</span>
-<span class="lineNum">     424 </span>                :            :       return(-1);
-<span class="lineNum">     425 </span>                :<span class="lineCov">          1 :     l = map-&gt;numlayers;</span>
-<span class="lineNum">     426 </span>                :<span class="lineCov">          1 :     map-&gt;numlayers++;</span>
-<span class="lineNum">     427 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if(initLayer((GET_LAYER(map, l)), map) == -1) return(-1);</span>
-<span class="lineNum">     428 </span>                :<span class="lineCov">          1 :     GET_LAYER(map, l)-&gt;name = msStrdup(&quot;__embed__scalebar&quot;);</span>
-<span class="lineNum">     429 </span>                :<span class="lineCov">          1 :     GET_LAYER(map, l)-&gt;type = MS_LAYER_POINT;</span>
-<span class="lineNum">     430 </span>                :            : 
-<span class="lineNum">     431 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if (msGrowLayerClasses( GET_LAYER(map, l) ) == NULL)</span>
-<span class="lineNum">     432 </span>                :            :       return(-1);
-<span class="lineNum">     433 </span>                :            : 
-<span class="lineNum">     434 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if(initClass(GET_LAYER(map, l)-&gt;class[0]) == -1) return(-1);</span>
-<span class="lineNum">     435 </span>                :<span class="lineCov">          1 :     GET_LAYER(map, l)-&gt;numclasses = 1; /* so we make sure to free it */</span>
-<span class="lineNum">     436 </span>                :            : 
-<span class="lineNum">     437 </span>                :            :     /* update the layer order list with the layer's index. */
-<span class="lineNum">     438 </span>                :<span class="lineCov">          1 :     map-&gt;layerorder[l] = l;</span>
-<span class="lineNum">     439 </span>                :            :   }
-<span class="lineNum">     440 </span>                :            : 
-<span class="lineNum">     441 </span>                :<span class="lineCov">          1 :   GET_LAYER(map, l)-&gt;status = MS_ON;</span>
-<span class="lineNum">     442 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(map-&gt;scalebar.postlabelcache) { /* add it directly to the image */</span>
-<span class="lineNum">     443 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if(msMaybeAllocateClassStyle(GET_LAYER(map, l)-&gt;class[0], 0)==MS_FAILURE) return MS_FAILURE;</span>
-<span class="lineNum">     444 </span>                :<span class="lineCov">          1 :     GET_LAYER(map, l)-&gt;class[0]-&gt;styles[0]-&gt;symbol = s;</span>
-<span class="lineNum">     445 </span>                :<span class="lineCov">          1 :     msDrawMarkerSymbol(&amp;map-&gt;symbolset, img, &amp;point, GET_LAYER(map, l)-&gt;class[0]-&gt;styles[0], 1.0);</span>
-<span class="lineNum">     446 </span>                :            :   } else {
-<span class="lineNum">     447 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(!GET_LAYER(map, l)-&gt;class[0]-&gt;labels) {</span>
-<span class="lineNum">     448 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       if(msGrowClassLabels(GET_LAYER(map, l)-&gt;class[0]) == NULL) return MS_FAILURE;</span>
-<span class="lineNum">     449 </span>                :<span class="lineCov">          1 :       initLabel(GET_LAYER(map, l)-&gt;class[0]-&gt;labels[0]);</span>
-<span class="lineNum">     450 </span>                :<span class="lineCov">          1 :       GET_LAYER(map, l)-&gt;class[0]-&gt;numlabels = 1;</span>
-<span class="lineNum">     451 </span>                :<span class="lineCov">          1 :       GET_LAYER(map, l)-&gt;class[0]-&gt;labels[0]-&gt;force = MS_TRUE;</span>
-<span class="lineNum">     452 </span>                :<span class="lineCov">          1 :       GET_LAYER(map, l)-&gt;class[0]-&gt;labels[0]-&gt;size = MS_MEDIUM; /* must set a size to have a valid label definition */</span>
-<span class="lineNum">     453 </span>                :<span class="lineCov">          1 :       GET_LAYER(map, l)-&gt;class[0]-&gt;labels[0]-&gt;priority = MS_MAX_LABEL_PRIORITY;</span>
-<span class="lineNum">     454 </span>                :<span class="lineCov">          1 :       GET_LAYER(map, l)-&gt;class[0]-&gt;labels[0]-&gt;annotext = NULL;</span>
-<span class="lineNum">     455 </span>                :            :     }
-<span class="lineNum">     456 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(GET_LAYER(map, l)-&gt;class[0]-&gt;labels[0]-&gt;numstyles == 0) {</span>
-<span class="lineNum">     457 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       if(msGrowLabelStyles(GET_LAYER(map,l)-&gt;class[0]-&gt;labels[0]) == NULL)</span>
-<span class="lineNum">     458 </span>                :            :         return(MS_FAILURE);
-<span class="lineNum">     459 </span>                :<span class="lineCov">          1 :       GET_LAYER(map,l)-&gt;class[0]-&gt;labels[0]-&gt;numstyles = 1;</span>
-<span class="lineNum">     460 </span>                :<span class="lineCov">          1 :       initStyle(GET_LAYER(map,l)-&gt;class[0]-&gt;labels[0]-&gt;styles[0]);</span>
-<span class="lineNum">     461 </span>                :<span class="lineCov">          1 :       GET_LAYER(map,l)-&gt;class[0]-&gt;labels[0]-&gt;styles[0]-&gt;_geomtransform.type = MS_GEOMTRANSFORM_LABELPOINT;</span>
-<span class="lineNum">     462 </span>                :            :     }
-<span class="lineNum">     463 </span>                :<span class="lineCov">          1 :     GET_LAYER(map,l)-&gt;class[0]-&gt;labels[0]-&gt;styles[0]-&gt;symbol = s;</span>
-<span class="lineNum">     464 </span>                :<span class="lineCov">          1 :     msAddLabel(map, GET_LAYER(map, l)-&gt;class[0]-&gt;labels[0], l, 0, NULL, &amp;point, NULL, -1);</span>
-<span class="lineNum">     465 </span>                :            :   }
-<span class="lineNum">     466 </span>                :            : 
-<span class="lineNum">     467 </span>                :            : 
-<span class="lineNum">     468 </span>                :            :   /* Mark layer as deleted so that it doesn't interfere with html legends or with saving maps */
-<span class="lineNum">     469 </span>                :<span class="lineCov">          1 :   GET_LAYER(map, l)-&gt;status = MS_DELETE;</span>
-<span class="lineNum">     470 </span>                :            : 
+<span class="lineNum">     430 </span>                :            :     case(MS_LL):
+<span class="lineNum">     431 </span>                :<span class="lineCov">          1 :       point.x = MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;width/2.0);</span>
+<span class="lineNum">     432 </span>                :<span class="lineCov">          1 :       point.y = map-&gt;height - MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;height/2.0);</span>
+<span class="lineNum">     433 </span>                :<span class="lineCov">          1 :       break;</span>
+<span class="lineNum">     434 </span>                :            :     case(MS_LR):
+<span class="lineNum">     435 </span>                :<span class="lineCov">          1 :       point.x = map-&gt;width - MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;width/2.0);</span>
+<span class="lineNum">     436 </span>                :<span class="lineCov">          1 :       point.y = map-&gt;height - MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;height/2.0);</span>
+<span class="lineNum">     437 </span>                :<span class="lineCov">          1 :       break;</span>
+<span class="lineNum">     438 </span>                :            :     case(MS_LC):
+<span class="lineNum">     439 </span>                :<span class="lineNoCov">          0 :       point.x = MS_NINT(map-&gt;width/2.0);</span>
+<span class="lineNum">     440 </span>                :<span class="lineNoCov">          0 :       point.y = map-&gt;height - MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;height/2.0);</span>
+<span class="lineNum">     441 </span>                :<span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     442 </span>                :            :     case(MS_UR):
+<span class="lineNum">     443 </span>                :<span class="lineNoCov">          0 :       point.x = map-&gt;width - MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;width/2.0);</span>
+<span class="lineNum">     444 </span>                :<span class="lineNoCov">          0 :       point.y = MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;height/2.0);</span>
+<span class="lineNum">     445 </span>                :<span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     446 </span>                :            :     case(MS_UL):
+<span class="lineNum">     447 </span>                :<span class="lineNoCov">          0 :       point.x = MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;width/2.0);</span>
+<span class="lineNum">     448 </span>                :<span class="lineNoCov">          0 :       point.y = MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;height/2.0);</span>
+<span class="lineNum">     449 </span>                :<span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     450 </span>                :            :     case(MS_UC):
+<span class="lineNum">     451 </span>                :<span class="lineNoCov">          0 :       point.x = MS_NINT(map-&gt;width/2.0);</span>
+<span class="lineNum">     452 </span>                :<span class="lineNoCov">          0 :       point.y = MS_NINT(embededSymbol-&gt;pixmap_buffer-&gt;height/2.0);</span>
+<span class="lineNum">     453 </span>                :<span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     454 </span>                :            :   }
+<span class="lineNum">     455 </span>                :            : 
+<span class="lineNum">     456 </span>                :<span class="lineCov">          1 :   l = msGetLayerIndex(map, &quot;__embed__scalebar&quot;);</span>
+<span class="lineNum">     457 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(l == -1) {</span>
+<span class="lineNum">     458 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if (msGrowMapLayers(map) == NULL)</span>
+<span class="lineNum">     459 </span>                :            :       return(-1);
+<span class="lineNum">     460 </span>                :<span class="lineCov">          1 :     l = map-&gt;numlayers;</span>
+<span class="lineNum">     461 </span>                :<span class="lineCov">          1 :     map-&gt;numlayers++;</span>
+<span class="lineNum">     462 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if(initLayer((GET_LAYER(map, l)), map) == -1) return(-1);</span>
+<span class="lineNum">     463 </span>                :<span class="lineCov">          1 :     GET_LAYER(map, l)-&gt;name = msStrdup(&quot;__embed__scalebar&quot;);</span>
+<span class="lineNum">     464 </span>                :<span class="lineCov">          1 :     GET_LAYER(map, l)-&gt;type = MS_LAYER_POINT;</span>
+<span class="lineNum">     465 </span>                :            : 
+<span class="lineNum">     466 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if (msGrowLayerClasses( GET_LAYER(map, l) ) == NULL)</span>
+<span class="lineNum">     467 </span>                :            :       return(-1);
+<span class="lineNum">     468 </span>                :            : 
+<span class="lineNum">     469 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if(initClass(GET_LAYER(map, l)-&gt;class[0]) == -1) return(-1);</span>
+<span class="lineNum">     470 </span>                :<span class="lineCov">          1 :     GET_LAYER(map, l)-&gt;numclasses = 1; /* so we make sure to free it */</span>
 <span class="lineNum">     471 </span>                :            : 
-<span class="lineNum">     472 </span>                :<span class="lineCov">          1 :   msFreeImage( image );</span>
-<span class="lineNum">     473 </span>                :<span class="lineCov">          1 :   return(0);</span>
-<span class="lineNum">     474 </span>                :            : }
+<span class="lineNum">     472 </span>                :            :     /* update the layer order list with the layer's index. */
+<span class="lineNum">     473 </span>                :<span class="lineCov">          1 :     map-&gt;layerorder[l] = l;</span>
+<span class="lineNum">     474 </span>                :            :   }
 <span class="lineNum">     475 </span>                :            : 
-<span class="lineNum">     476 </span>                :            : /************************************************************************/
-<span class="lineNum">     477 </span>                :            : /* These two functions are used in PHP/Mapscript and Swig/Mapscript     */
-<span class="lineNum">     478 </span>                :            : /************************************************************************/
-<span class="lineNum">     479 </span>                :            : 
-<span class="lineNum">     480 </span>                :            : /************************************************************************/
-<span class="lineNum">     481 </span>                :            : /*  double GetDeltaExtentsUsingScale(double scale, int units,           */
-<span class="lineNum">     482 </span>                :            : /*                                   double centerLat, int width,       */
-<span class="lineNum">     483 </span>                :            : /*                                   double resolution)                 */
-<span class="lineNum">     484 </span>                :            : /*                                                                      */
-<span class="lineNum">     485 </span>                :            : /*      Utility function to return the maximum extent using the         */
-<span class="lineNum">     486 </span>                :            : /*      scale and the width of the image.                               */
-<span class="lineNum">     487 </span>                :            : /*                                                                      */
-<a name="488"><span class="lineNum">     488 </span>                :            : /*      Base on the function msCalculateScale (mapscale.c)              */</a>
-<span class="lineNum">     489 </span>                :            : /************************************************************************/
-<span class="lineNum">     490 </span>                :<span class="lineNoCov">          0 : double GetDeltaExtentsUsingScale(double scale, int units, double centerLat, int width, double resolution)</span>
-<span class="lineNum">     491 </span>                :            : {
-<span class="lineNum">     492 </span>                :            :   double md = 0.0;
-<span class="lineNum">     493 </span>                :            :   double dfDelta = -1.0;
-<span class="lineNum">     494 </span>                :            : 
-<span class="lineNum">     495 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (scale &lt;= 0 || width &lt;=0)</span>
-<span class="lineNum">     496 </span>                :            :     return -1;
-<span class="lineNum">     497 </span>                :            : 
-<span class="lineNum">     498 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   switch (units) {</span>
-<span class="lineNum">     499 </span>                :            :     case(MS_DD):
-<span class="lineNum">     500 </span>                :            :     case(MS_METERS):
-<span class="lineNum">     501 </span>                :            :     case(MS_KILOMETERS):
-<span class="lineNum">     502 </span>                :            :     case(MS_MILES):
-<span class="lineNum">     503 </span>                :            :     case(MS_NAUTICALMILES):
-<span class="lineNum">     504 </span>                :            :     case(MS_INCHES):
-<span class="lineNum">     505 </span>                :            :     case(MS_FEET):
-<span class="lineNum">     506 </span>                :            :       /* remember, we use a pixel-center to pixel-center extent, hence the width-1 */
-<span class="lineNum">     507 </span>                :<span class="lineNoCov">          0 :       md = (width-1)/(resolution*msInchesPerUnit(units,centerLat));</span>
-<span class="lineNum">     508 </span>                :<span class="lineNoCov">          0 :       dfDelta = md * scale;</span>
-<span class="lineNum">     509 </span>                :<span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     476 </span>                :<span class="lineCov">          1 :   GET_LAYER(map, l)-&gt;status = MS_ON;</span>
+<span class="lineNum">     477 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(map-&gt;scalebar.postlabelcache) { /* add it directly to the image */</span>
+<span class="lineNum">     478 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if(msMaybeAllocateClassStyle(GET_LAYER(map, l)-&gt;class[0], 0)==MS_FAILURE) return MS_FAILURE;</span>
+<span class="lineNum">     479 </span>                :<span class="lineCov">          1 :     GET_LAYER(map, l)-&gt;class[0]-&gt;styles[0]-&gt;symbol = s;</span>
+<span class="lineNum">     480 </span>                :<span class="lineCov">          1 :     status = msDrawMarkerSymbol(map, img, &amp;point, GET_LAYER(map, l)-&gt;class[0]-&gt;styles[0], 1.0);</span>
+<span class="lineNum">     481 </span>                :            :     if(UNLIKELY(status == MS_FAILURE)) {
+<span class="lineNum">     482 </span>                :            :       goto embed_cleanup;
+<span class="lineNum">     483 </span>                :            :     }
+<span class="lineNum">     484 </span>                :            :   } else {
+<span class="lineNum">     485 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(!GET_LAYER(map, l)-&gt;class[0]-&gt;labels) {</span>
+<span class="lineNum">     486 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       if(msGrowClassLabels(GET_LAYER(map, l)-&gt;class[0]) == NULL) return MS_FAILURE;</span>
+<span class="lineNum">     487 </span>                :<span class="lineCov">          1 :       initLabel(GET_LAYER(map, l)-&gt;class[0]-&gt;labels[0]);</span>
+<span class="lineNum">     488 </span>                :<span class="lineCov">          1 :       GET_LAYER(map, l)-&gt;class[0]-&gt;numlabels = 1;</span>
+<span class="lineNum">     489 </span>                :<span class="lineCov">          1 :       GET_LAYER(map, l)-&gt;class[0]-&gt;labels[0]-&gt;force = MS_TRUE;</span>
+<span class="lineNum">     490 </span>                :<span class="lineCov">          1 :       GET_LAYER(map, l)-&gt;class[0]-&gt;labels[0]-&gt;size = MS_MEDIUM; /* must set a size to have a valid label definition */</span>
+<span class="lineNum">     491 </span>                :<span class="lineCov">          1 :       GET_LAYER(map, l)-&gt;class[0]-&gt;labels[0]-&gt;priority = MS_MAX_LABEL_PRIORITY;</span>
+<span class="lineNum">     492 </span>                :            :     }
+<span class="lineNum">     493 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(GET_LAYER(map, l)-&gt;class[0]-&gt;labels[0]-&gt;numstyles == 0) {</span>
+<span class="lineNum">     494 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       if(msGrowLabelStyles(GET_LAYER(map,l)-&gt;class[0]-&gt;labels[0]) == NULL)</span>
+<span class="lineNum">     495 </span>                :            :         return(MS_FAILURE);
+<span class="lineNum">     496 </span>                :<span class="lineCov">          1 :       GET_LAYER(map,l)-&gt;class[0]-&gt;labels[0]-&gt;numstyles = 1;</span>
+<span class="lineNum">     497 </span>                :<span class="lineCov">          1 :       initStyle(GET_LAYER(map,l)-&gt;class[0]-&gt;labels[0]-&gt;styles[0]);</span>
+<span class="lineNum">     498 </span>                :<span class="lineCov">          1 :       GET_LAYER(map,l)-&gt;class[0]-&gt;labels[0]-&gt;styles[0]-&gt;_geomtransform.type = MS_GEOMTRANSFORM_LABELPOINT;</span>
+<span class="lineNum">     499 </span>                :            :     }
+<span class="lineNum">     500 </span>                :<span class="lineCov">          1 :     GET_LAYER(map,l)-&gt;class[0]-&gt;labels[0]-&gt;styles[0]-&gt;symbol = s;</span>
+<span class="lineNum">     501 </span>                :<span class="lineCov">          1 :     status = msAddLabel(map, img, GET_LAYER(map, l)-&gt;class[0]-&gt;labels[0], l, 0, NULL, &amp;point, -1, NULL);</span>
+<span class="lineNum">     502 </span>                :            :     if(UNLIKELY(status == MS_FAILURE)) {
+<span class="lineNum">     503 </span>                :            :       goto embed_cleanup;
+<span class="lineNum">     504 </span>                :            :     }
+<span class="lineNum">     505 </span>                :            :   }
+<span class="lineNum">     506 </span>                :            : 
+<span class="lineNum">     507 </span>                :            : embed_cleanup:
+<span class="lineNum">     508 </span>                :            :   /* Mark layer as deleted so that it doesn't interfere with html legends or with saving maps */
+<span class="lineNum">     509 </span>                :<span class="lineCov">          1 :   GET_LAYER(map, l)-&gt;status = MS_DELETE;</span>
 <span class="lineNum">     510 </span>                :            : 
-<span class="lineNum">     511 </span>                :            :     default:
-<span class="lineNum">     512 </span>                :            :       break;
-<span class="lineNum">     513 </span>                :            :   }
+<span class="lineNum">     511 </span>                :<span class="lineCov">          1 :   msFreeImage( image );</span>
+<span class="lineNum">     512 </span>                :<span class="lineCov">          1 :   return status;</span>
+<span class="lineNum">     513 </span>                :            : }
 <span class="lineNum">     514 </span>                :            : 
-<span class="lineNum">     515 </span>                :<span class="lineNoCov">          0 :   return dfDelta;</span>
-<span class="lineNum">     516 </span>                :            : }
-<span class="lineNum">     517 </span>                :            : 
-<span class="lineNum">     518 </span>                :            : /************************************************************************/
-<span class="lineNum">     519 </span>                :            : /*    static double Pix2Georef(int nPixPos, int nPixMin, double nPixMax,*/
-<span class="lineNum">     520 </span>                :            : /*                              double dfGeoMin, double dfGeoMax,       */
-<span class="lineNum">     521 </span>                :            : /*                              bool bULisYOrig)                        */
-<span class="lineNum">     522 </span>                :            : /*                                                                      */
-<span class="lineNum">     523 </span>                :            : /*      Utility function to convert a pixel pos to georef pos. If       */
-<span class="lineNum">     524 </span>                :            : /*      bULisYOrig parameter is set to true then the upper left is      */
-<span class="lineNum">     525 </span>                :            : /*      considered to be the Y origin.                                  */
-<a name="526"><span class="lineNum">     526 </span>                :            : /*                                                                      */</a>
-<span class="lineNum">     527 </span>                :            : /************************************************************************/
-<span class="lineNum">     528 </span>                :<span class="lineCov">          1 : double Pix2Georef(int nPixPos, int nPixMin, int nPixMax,</span>
-<span class="lineNum">     529 </span>                :            :                   double dfGeoMin, double dfGeoMax, int bULisYOrig)
+<span class="lineNum">     515 </span>                :            : /************************************************************************/
+<span class="lineNum">     516 </span>                :            : /* These two functions are used in PHP/Mapscript and Swig/Mapscript     */
+<span class="lineNum">     517 </span>                :            : /************************************************************************/
+<span class="lineNum">     518 </span>                :            : 
+<span class="lineNum">     519 </span>                :            : /************************************************************************/
+<span class="lineNum">     520 </span>                :            : /*  double GetDeltaExtentsUsingScale(double scale, int units,           */
+<span class="lineNum">     521 </span>                :            : /*                                   double centerLat, int width,       */
+<span class="lineNum">     522 </span>                :            : /*                                   double resolution)                 */
+<span class="lineNum">     523 </span>                :            : /*                                                                      */
+<span class="lineNum">     524 </span>                :            : /*      Utility function to return the maximum extent using the         */
+<span class="lineNum">     525 </span>                :            : /*      scale and the width of the image.                               */
+<span class="lineNum">     526 </span>                :            : /*                                                                      */
+<a name="527"><span class="lineNum">     527 </span>                :            : /*      Base on the function msCalculateScale (mapscale.c)              */</a>
+<span class="lineNum">     528 </span>                :            : /************************************************************************/
+<span class="lineNum">     529 </span>                :<span class="lineNoCov">          0 : double GetDeltaExtentsUsingScale(double scale, int units, double centerLat, int width, double resolution)</span>
 <span class="lineNum">     530 </span>                :            : {
-<span class="lineNum">     531 </span>                :            :   double      dfWidthGeo = 0.0;
-<span class="lineNum">     532 </span>                :            :   int         nWidthPix = 0;
-<span class="lineNum">     533 </span>                :            :   double      dfPixToGeo = 0.0;
-<span class="lineNum">     534 </span>                :            :   double      dfPosGeo = 0.0;
-<span class="lineNum">     535 </span>                :            :   double      dfDeltaGeo = 0.0;
-<span class="lineNum">     536 </span>                :            :   int         nDeltaPix = 0;
-<span class="lineNum">     537 </span>                :            : 
-<span class="lineNum">     538 </span>                :<span class="lineCov">          1 :   dfWidthGeo = dfGeoMax - dfGeoMin;</span>
-<span class="lineNum">     539 </span>                :<span class="lineCov">          1 :   nWidthPix = nPixMax - nPixMin;</span>
-<span class="lineNum">     540 </span>                :            : 
-<span class="lineNum">     541 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (dfWidthGeo &gt; 0.0 &amp;&amp; nWidthPix &gt; 0) {</span>
-<span class="lineNum">     542 </span>                :<span class="lineCov">          1 :     dfPixToGeo = dfWidthGeo / (double)nWidthPix;</span>
-<span class="lineNum">     543 </span>                :            : 
-<span class="lineNum">     544 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (!bULisYOrig)</span>
-<span class="lineNum">     545 </span>                :<span class="lineCov">          1 :       nDeltaPix = nPixPos - nPixMin;</span>
-<span class="lineNum">     546 </span>                :            :     else
-<span class="lineNum">     547 </span>                :<span class="lineCov">          1 :       nDeltaPix = nPixMax - nPixPos;</span>
-<span class="lineNum">     548 </span>                :            : 
-<span class="lineNum">     549 </span>                :<span class="lineCov">          1 :     dfDeltaGeo = nDeltaPix * dfPixToGeo;</span>
-<span class="lineNum">     550 </span>                :            : 
-<span class="lineNum">     551 </span>                :<span class="lineCov">          1 :     dfPosGeo = dfGeoMin + dfDeltaGeo;</span>
+<span class="lineNum">     531 </span>                :            :   double md = 0.0;
+<span class="lineNum">     532 </span>                :            :   double dfDelta = -1.0;
+<span class="lineNum">     533 </span>                :            : 
+<span class="lineNum">     534 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (scale &lt;= 0 || width &lt;=0)</span>
+<span class="lineNum">     535 </span>                :            :     return -1;
+<span class="lineNum">     536 </span>                :            : 
+<span class="lineNum">     537 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   switch (units) {</span>
+<span class="lineNum">     538 </span>                :            :     case(MS_DD):
+<span class="lineNum">     539 </span>                :            :     case(MS_METERS):
+<span class="lineNum">     540 </span>                :            :     case(MS_KILOMETERS):
+<span class="lineNum">     541 </span>                :            :     case(MS_MILES):
+<span class="lineNum">     542 </span>                :            :     case(MS_NAUTICALMILES):
+<span class="lineNum">     543 </span>                :            :     case(MS_INCHES):
+<span class="lineNum">     544 </span>                :            :     case(MS_FEET):
+<span class="lineNum">     545 </span>                :            :       /* remember, we use a pixel-center to pixel-center extent, hence the width-1 */
+<span class="lineNum">     546 </span>                :<span class="lineNoCov">          0 :       md = (width-1)/(resolution*msInchesPerUnit(units,centerLat));</span>
+<span class="lineNum">     547 </span>                :<span class="lineNoCov">          0 :       dfDelta = md * scale;</span>
+<span class="lineNum">     548 </span>                :<span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     549 </span>                :            : 
+<span class="lineNum">     550 </span>                :            :     default:
+<span class="lineNum">     551 </span>                :            :       break;
 <span class="lineNum">     552 </span>                :            :   }
-<span class="lineNum">     553 </span>                :<span class="lineCov">          1 :   return (dfPosGeo);</span>
-<span class="lineNum">     554 </span>                :            : }
-<span class="lineNum">     555 </span>                :            : 
-<span class="lineNum">     556 </span>                :            : /* This function converts a pixel value in geo ref. The return value is in
-<a name="557"><span class="lineNum">     557 </span>                :            :  * layer units. This function has been added for the purpose of the ticket #1340 */</a>
-<span class="lineNum">     558 </span>                :            : 
-<span class="lineNum">     559 </span>                :<span class="lineNoCov">          0 : double Pix2LayerGeoref(mapObj *map, layerObj *layer, int value)</span>
-<span class="lineNum">     560 </span>                :            : {
-<span class="lineNum">     561 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   double cellsize = MS_MAX(MS_CELLSIZE(map-&gt;extent.minx, map-&gt;extent.maxx, map-&gt;width),</span>
-<span class="lineNum">     562 </span>                :            :                            MS_CELLSIZE(map-&gt;extent.miny, map-&gt;extent.maxy, map-&gt;height));
-<span class="lineNum">     563 </span>                :            : 
-<span class="lineNum">     564 </span>                :<span class="lineNoCov">          0 :   double resolutionFactor = map-&gt;resolution/map-&gt;defresolution;</span>
-<span class="lineNum">     565 </span>                :            :   double unitsFactor = 1;
-<span class="lineNum">     566 </span>                :            : 
-<span class="lineNum">     567 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (layer-&gt;sizeunits != MS_PIXELS)</span>
-<span class="lineNum">     568 </span>                :<span class="lineNoCov">          0 :     unitsFactor = msInchesPerUnit(map-&gt;units,0)/msInchesPerUnit(layer-&gt;sizeunits,0);</span>
-<span class="lineNum">     569 </span>                :            : 
-<span class="lineNum">     570 </span>                :<span class="lineNoCov">          0 :   return value*cellsize*resolutionFactor*unitsFactor;</span>
-<span class="lineNum">     571 </span>                :            : }
+<span class="lineNum">     553 </span>                :            : 
+<span class="lineNum">     554 </span>                :<span class="lineNoCov">          0 :   return dfDelta;</span>
+<span class="lineNum">     555 </span>                :            : }
+<span class="lineNum">     556 </span>                :            : 
+<span class="lineNum">     557 </span>                :            : /************************************************************************/
+<span class="lineNum">     558 </span>                :            : /*    static double Pix2Georef(int nPixPos, int nPixMin, double nPixMax,*/
+<span class="lineNum">     559 </span>                :            : /*                              double dfGeoMin, double dfGeoMax,       */
+<span class="lineNum">     560 </span>                :            : /*                              bool bULisYOrig)                        */
+<span class="lineNum">     561 </span>                :            : /*                                                                      */
+<span class="lineNum">     562 </span>                :            : /*      Utility function to convert a pixel pos to georef pos. If       */
+<span class="lineNum">     563 </span>                :            : /*      bULisYOrig parameter is set to true then the upper left is      */
+<span class="lineNum">     564 </span>                :            : /*      considered to be the Y origin.                                  */
+<a name="565"><span class="lineNum">     565 </span>                :            : /*                                                                      */</a>
+<span class="lineNum">     566 </span>                :            : /************************************************************************/
+<span class="lineNum">     567 </span>                :<span class="lineCov">          1 : double Pix2Georef(int nPixPos, int nPixMin, int nPixMax,</span>
+<span class="lineNum">     568 </span>                :            :                   double dfGeoMin, double dfGeoMax, int bULisYOrig)
+<span class="lineNum">     569 </span>                :            : {
+<span class="lineNum">     570 </span>                :            :   double      dfWidthGeo = 0.0;
+<span class="lineNum">     571 </span>                :            :   int         nWidthPix = 0;
+<span class="lineNum">     572 </span>                :            :   double      dfPixToGeo = 0.0;
+<span class="lineNum">     573 </span>                :            :   double      dfPosGeo = 0.0;
+<span class="lineNum">     574 </span>                :            :   double      dfDeltaGeo = 0.0;
+<span class="lineNum">     575 </span>                :            :   int         nDeltaPix = 0;
+<span class="lineNum">     576 </span>                :            : 
+<span class="lineNum">     577 </span>                :<span class="lineCov">          1 :   dfWidthGeo = dfGeoMax - dfGeoMin;</span>
+<span class="lineNum">     578 </span>                :<span class="lineCov">          1 :   nWidthPix = nPixMax - nPixMin;</span>
+<span class="lineNum">     579 </span>                :            : 
+<span class="lineNum">     580 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (dfWidthGeo &gt; 0.0 &amp;&amp; nWidthPix &gt; 0) {</span>
+<span class="lineNum">     581 </span>                :<span class="lineCov">          1 :     dfPixToGeo = dfWidthGeo / (double)nWidthPix;</span>
+<span class="lineNum">     582 </span>                :            : 
+<span class="lineNum">     583 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (!bULisYOrig)</span>
+<span class="lineNum">     584 </span>                :<span class="lineCov">          1 :       nDeltaPix = nPixPos - nPixMin;</span>
+<span class="lineNum">     585 </span>                :            :     else
+<span class="lineNum">     586 </span>                :<span class="lineCov">          1 :       nDeltaPix = nPixMax - nPixPos;</span>
+<span class="lineNum">     587 </span>                :            : 
+<span class="lineNum">     588 </span>                :<span class="lineCov">          1 :     dfDeltaGeo = nDeltaPix * dfPixToGeo;</span>
+<span class="lineNum">     589 </span>                :            : 
+<span class="lineNum">     590 </span>                :<span class="lineCov">          1 :     dfPosGeo = dfGeoMin + dfDeltaGeo;</span>
+<span class="lineNum">     591 </span>                :            :   }
+<span class="lineNum">     592 </span>                :<span class="lineCov">          1 :   return (dfPosGeo);</span>
+<span class="lineNum">     593 </span>                :            : }
+<span class="lineNum">     594 </span>                :            : 
+<span class="lineNum">     595 </span>                :            : /* This function converts a pixel value in geo ref. The return value is in
+<a name="596"><span class="lineNum">     596 </span>                :            :  * layer units. This function has been added for the purpose of the ticket #1340 */</a>
+<span class="lineNum">     597 </span>                :            : 
+<span class="lineNum">     598 </span>                :<span class="lineNoCov">          0 : double Pix2LayerGeoref(mapObj *map, layerObj *layer, int value)</span>
+<span class="lineNum">     599 </span>                :            : {
+<span class="lineNum">     600 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   double cellsize = MS_MAX(MS_CELLSIZE(map-&gt;extent.minx, map-&gt;extent.maxx, map-&gt;width),</span>
+<span class="lineNum">     601 </span>                :            :                            MS_CELLSIZE(map-&gt;extent.miny, map-&gt;extent.maxy, map-&gt;height));
+<span class="lineNum">     602 </span>                :            : 
+<span class="lineNum">     603 </span>                :<span class="lineNoCov">          0 :   double resolutionFactor = map-&gt;resolution/map-&gt;defresolution;</span>
+<span class="lineNum">     604 </span>                :            :   double unitsFactor = 1;
+<span class="lineNum">     605 </span>                :            : 
+<span class="lineNum">     606 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (layer-&gt;sizeunits != MS_PIXELS)</span>
+<span class="lineNum">     607 </span>                :<span class="lineNoCov">          0 :     unitsFactor = msInchesPerUnit(map-&gt;units,0)/msInchesPerUnit(layer-&gt;sizeunits,0);</span>
+<span class="lineNum">     608 </span>                :            : 
+<span class="lineNum">     609 </span>                :<span class="lineNoCov">          0 :   return value*cellsize*resolutionFactor*unitsFactor;</span>
+<span class="lineNum">     610 </span>                :            : }
 </pre>
       </td>
     </tr>
