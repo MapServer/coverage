@@ -1,0 +1,1474 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - /home/travis/build/mapserver/mapserver/mapwfs20.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">home/travis/build/mapserver/mapserver</a> - mapwfs20.c<span style="font-size: 80%;"> (source / <a href="mapwfs20.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">536</td>
+            <td class="headerCovTableEntry">555</td>
+            <td class="headerCovTableEntryHi">96.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">193</td>
+            <td class="headerCovTableEntry">240</td>
+            <td class="headerCovTableEntryMed">80.4 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /**********************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * $Id$
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Project:  MapServer
+<span class="lineNum">       5 </span>                :            :  * Purpose:  OGC WFS 2.0.0 implementation. This file holds some WFS 2.0.0
+<span class="lineNum">       6 </span>                :            :  *           specific functions but other parts are still implemented in mapwfs.c.
+<span class="lineNum">       7 </span>                :            :  * Author:   Even Rouault
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  **********************************************************************
+<span class="lineNum">      10 </span>                :            :  * Copyright (c) 2013, Even Rouault
+<span class="lineNum">      11 </span>                :            :  *
+<span class="lineNum">      12 </span>                :            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      13 </span>                :            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      14 </span>                :            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      15 </span>                :            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      16 </span>                :            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      17 </span>                :            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      18 </span>                :            :  *
+<span class="lineNum">      19 </span>                :            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      20 </span>                :            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      21 </span>                :            :  *
+<span class="lineNum">      22 </span>                :            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<span class="lineNum">      23 </span>                :            :  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      24 </span>                :            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+<span class="lineNum">      25 </span>                :            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      26 </span>                :            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      27 </span>                :            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      28 </span>                :            :  ****************************************************************************/
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            : #include &quot;mapserver.h&quot;
+<span class="lineNum">      31 </span>                :            : #include &quot;mapows.h&quot;
+<span class="lineNum">      32 </span>                :            : 
+<span class="lineNum">      33 </span>                :            : #if defined(USE_WFS_SVR) &amp;&amp; defined(USE_LIBXML2)
+<span class="lineNum">      34 </span>                :            : #include &quot;maplibxml2.h&quot;
+<span class="lineNum">      35 </span>                :            : #include &quot;mapowscommon.h&quot;
+<span class="lineNum">      36 </span>                :            : #include &quot;mapogcfilter.h&quot;
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : #define MS_OWS_11_NAMESPACE_PREFIX       MS_OWSCOMMON_OWS_NAMESPACE_PREFIX
+<span class="lineNum">      39 </span>                :            : #define MS_OWS_11_NAMESPACE_URI          MS_OWSCOMMON_OWS_110_NAMESPACE_URI
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : #define URN_GET_FEATURE_BY_ID &quot;urn:ogc:def:query:OGC-WFS::GetFeatureById&quot;
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            : #define GET_FEATURE_BY_ID \
+<span class="lineNum">      44 </span>                :            : &quot;&lt;StoredQueryDescription id=\&quot;&quot; URN_GET_FEATURE_BY_ID &quot;\&quot;&gt;&quot; \
+<span class="lineNum">      45 </span>                :            : &quot;&lt;Title&gt;Get feature by identifier&lt;/Title&gt;&quot; \
+<span class="lineNum">      46 </span>                :            : &quot;&lt;Abstract&gt;Returns the single feature whose value is equal to the specified value of the ID argument&lt;/Abstract&gt;&quot; \
+<span class="lineNum">      47 </span>                :            : &quot;&lt;Parameter name=\&quot;ID\&quot; xmlns:xs=\&quot;http://www.w3.org/2001/XMLSchema\&quot; type=\&quot;xs:string\&quot;/&gt;&quot; \
+<span class="lineNum">      48 </span>                :            : &quot;&lt;QueryExpressionText isPrivate=\&quot;true\&quot; language=\&quot;urn:ogc:def:queryLanguage:OGC-WFS::WFS_QueryExpression\&quot; returnFeatureTypes=\&quot;\&quot;&gt;&quot; \
+<span class="lineNum">      49 </span>                :            : &quot;&lt;Query xmlns:fes=\&quot;http://www.opengis.net/fes/2.0\&quot; typeNames=\&quot;?\&quot;&gt;&quot; \
+<span class="lineNum">      50 </span>                :            : &quot;&lt;fes:Filter&gt;&lt;fes:ResourceId rid=\&quot;${ID}\&quot;/&gt;&lt;/fes:Filter&gt;&quot; \
+<span class="lineNum">      51 </span>                :            : &quot;&lt;/Query&gt;&quot; \
+<span class="lineNum">      52 </span>                :            : &quot;&lt;/QueryExpressionText&gt;&quot; \
+<span class="lineNum">      53 </span>                :            : &quot;&lt;/StoredQueryDescription&gt;&quot;
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            : /************************************************************************/
+<span class="lineNum">      56 </span>                :            : /*                          msWFSException20()                          */
+<a name="57"><span class="lineNum">      57 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :<span class="lineCov">          1 : int msWFSException20(mapObj *map, const char *locator,</span>
+<span class="lineNum">      60 </span>                :            :                      const char *exceptionCode)
+<span class="lineNum">      61 </span>                :            : {
+<span class="lineNum">      62 </span>                :<span class="lineCov">          1 :   int size = 0;</span>
+<span class="lineNum">      63 </span>                :            :   char *errorString     = NULL;
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>                :            :   xmlDocPtr  psDoc      = NULL;
+<span class="lineNum">      66 </span>                :            :   xmlNodePtr psRootNode = NULL;
+<span class="lineNum">      67 </span>                :            :   xmlNsPtr   psNsOws    = NULL;
+<span class="lineNum">      68 </span>                :<span class="lineCov">          1 :   xmlChar *buffer       = NULL;</span>
+<span class="lineNum">      69 </span>                :            :   const char* status    = NULL;
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :<span class="lineCov">          1 :   psNsOws = xmlNewNs(NULL, BAD_CAST MS_OWS_11_NAMESPACE_URI, BAD_CAST MS_OWS_11_NAMESPACE_PREFIX);</span>
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>                :<span class="lineCov">          1 :   errorString = msGetErrorString(&quot;\n&quot;);</span>
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>                :<span class="lineCov">          1 :   psDoc = xmlNewDoc(BAD_CAST &quot;1.0&quot;);</span>
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :<span class="lineCov">          1 :   psRootNode = msOWSCommonExceptionReport(psNsOws, OWS_1_1_0, msOWSGetSchemasLocation(map), &quot;2.0.0&quot;, msOWSGetLanguage(map, &quot;exception&quot;), exceptionCode, locator, errorString);</span>
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :<span class="lineCov">          1 :   xmlDocSetRootElement(psDoc, psRootNode);</span>
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :<span class="lineCov">          1 :   xmlNewNs(psRootNode, BAD_CAST MS_OWS_11_NAMESPACE_URI, BAD_CAST MS_OWS_11_NAMESPACE_PREFIX);</span>
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :            :   /* Table D.2 OGC 09-025r1 - For CITE compliance */
+<span class="lineNum">      84 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if( EQUAL(exceptionCode, MS_OWS_ERROR_OPERATION_NOT_SUPPORTED) ||</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">          1 :       EQUAL(exceptionCode, MS_OWS_ERROR_OPTION_NOT_SUPPORTED) ) {</span>
+<span class="lineNum">      86 </span>                :            :     status = &quot;400 Not Implemented&quot;;
+<span class="lineNum">      87 </span>                :            :   }
+<span class="lineNum">      88 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if( EQUAL(exceptionCode, MS_OWS_ERROR_MISSING_PARAMETER_VALUE) ||</span>
+<span class="lineNum">      89 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :            EQUAL(exceptionCode, MS_OWS_ERROR_INVALID_PARAMETER_VALUE) ||</span>
+<span class="lineNum">      90 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :            EQUAL(exceptionCode, MS_OWS_ERROR_VERSION_NEGOTIATION_FAILED) ||</span>
+<span class="lineNum">      91 </span>                :<span class="lineCov">          1 :            EQUAL(exceptionCode, MS_OWS_ERROR_INVALID_UPDATE_SEQUENCE) ) {</span>
+<span class="lineNum">      92 </span>                :            :     status = &quot;400 Bad request&quot;;
+<span class="lineNum">      93 </span>                :            :   }
+<span class="lineNum">      94 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if( EQUAL(exceptionCode, MS_WFS_ERROR_OPERATION_PROCESSING_FAILED) ) {</span>
+<span class="lineNum">      95 </span>                :            :     status = &quot;403 Server processing failed&quot;;
+<span class="lineNum">      96 </span>                :            :   }
+<span class="lineNum">      97 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if( EQUAL(exceptionCode, MS_OWS_ERROR_NO_APPLICABLE_CODE) ) {</span>
+<span class="lineNum">      98 </span>                :            :     status = &quot;400 Internal Server Error&quot;;
+<span class="lineNum">      99 </span>                :            :   }
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( status != NULL )</span>
+<span class="lineNum">     102 </span>                :            :   {
+<span class="lineNum">     103 </span>                :<span class="lineCov">          1 :     msIO_setHeader(&quot;Status&quot;, &quot;%s&quot;, status);</span>
+<span class="lineNum">     104 </span>                :            :   }
+<span class="lineNum">     105 </span>                :<span class="lineCov">          1 :   msIO_setHeader(&quot;Content-Type&quot;,&quot;text/xml; charset=UTF-8&quot;);</span>
+<span class="lineNum">     106 </span>                :<span class="lineCov">          1 :   msIO_sendHeaders();</span>
+<span class="lineNum">     107 </span>                :            : 
+<span class="lineNum">     108 </span>                :<span class="lineCov">          1 :   xmlDocDumpFormatMemoryEnc(psDoc, &amp;buffer, &amp;size, &quot;UTF-8&quot;, 1);</span>
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :<span class="lineCov">          1 :   msIO_printf(&quot;%s&quot;, buffer);</span>
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            :   /*free buffer and the document */
+<span class="lineNum">     113 </span>                :<span class="lineCov">          1 :   free(errorString);</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">          1 :   xmlFree(buffer);</span>
+<span class="lineNum">     115 </span>                :<span class="lineCov">          1 :   xmlFreeDoc(psDoc);</span>
+<span class="lineNum">     116 </span>                :<span class="lineCov">          1 :   xmlFreeNs(psNsOws);</span>
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :            :   /* clear error since we have already reported it */
+<span class="lineNum">     119 </span>                :<span class="lineCov">          1 :   msResetErrorList();</span>
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :<span class="lineCov">          1 :   return MS_FAILURE;</span>
+<span class="lineNum">     122 </span>                :            : }
+<span class="lineNum">     123 </span>                :            : 
+<span class="lineNum">     124 </span>                :            : /************************************************************************/
+<a name="125"><span class="lineNum">     125 </span>                :            : /*                          msWFSIncludeSection                         */</a>
+<span class="lineNum">     126 </span>                :            : /************************************************************************/
+<span class="lineNum">     127 </span>                :<span class="lineCov">          1 : static int msWFSIncludeSection(wfsParamsObj *params, const char* pszSection)</span>
+<span class="lineNum">     128 </span>                :            : {
+<span class="lineNum">     129 </span>                :            :     int i;
+<span class="lineNum">     130 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :     if( params-&gt;pszSections == NULL )</span>
+<span class="lineNum">     131 </span>                :            :         return TRUE;
+<span class="lineNum">     132 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :     for(i = 0; params-&gt;pszSections[i] != '\0'; i++ )</span>
+<span class="lineNum">     133 </span>                :            :     {
+<span class="lineNum">     134 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :         if( strncasecmp( params-&gt;pszSections + i, &quot;All&quot;, strlen(&quot;All&quot;)) == 0 )</span>
+<span class="lineNum">     135 </span>                :            :             return TRUE;
+<span class="lineNum">     136 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :         if( strncasecmp( params-&gt;pszSections + i, pszSection, strlen(pszSection)) == 0 )</span>
+<span class="lineNum">     137 </span>                :            :             return TRUE;
+<span class="lineNum">     138 </span>                :            :     }
+<span class="lineNum">     139 </span>                :            :     return FALSE;
+<span class="lineNum">     140 </span>                :            : }
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :            : /************************************************************************/
+<span class="lineNum">     143 </span>                :            : /*                       msWFSAddGlobalSRSNameParam                     */
+<a name="144"><span class="lineNum">     144 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 : static void msWFSAddGlobalSRSNameParam(xmlNodePtr psMainNode,</span>
+<span class="lineNum">     147 </span>                :            :                                        xmlNsPtr psNsOws,
+<span class="lineNum">     148 </span>                :            :                                        mapObj* map)
+<span class="lineNum">     149 </span>                :            : {
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>                :            : /************************************************************************/
+<span class="lineNum">     153 </span>                :            : /*                       msWFSConstraintDefaultValue                    */
+<span class="lineNum">     154 </span>                :            : /************************************************************************/
+<a name="155"><span class="lineNum">     155 </span>                :            : </a>
+<span class="lineNum">     156 </span>                :            : static
+<span class="lineNum">     157 </span>                :<span class="lineCov">          1 : xmlNodePtr msWFSConstraintDefaultValue(xmlNsPtr psNs, xmlNsPtr psNsOws, const char *name, const char* value)</span>
+<span class="lineNum">     158 </span>                :            : {
+<span class="lineNum">     159 </span>                :            :   xmlNodePtr psRootNode = NULL;
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>                :<span class="lineCov">          1 :   psRootNode = xmlNewNode(psNs, BAD_CAST &quot;Constraint&quot;);</span>
+<span class="lineNum">     162 </span>                :            : 
+<span class="lineNum">     163 </span>                :<span class="lineCov">          1 :   xmlNewProp(psRootNode, BAD_CAST &quot;name&quot;, BAD_CAST name);</span>
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :<span class="lineCov">          1 :   xmlNewChild(psRootNode, psNsOws, BAD_CAST &quot;NoValues&quot;, NULL );</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">          1 :   xmlNewChild(psRootNode, psNsOws, BAD_CAST &quot;DefaultValue&quot;, BAD_CAST value);</span>
+<span class="lineNum">     167 </span>                :            : 
+<span class="lineNum">     168 </span>                :<span class="lineCov">          1 :   return psRootNode;</span>
+<span class="lineNum">     169 </span>                :            : }
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :            : /************************************************************************/
+<span class="lineNum">     172 </span>                :            : /*                              msWFSOperator                           */
+<span class="lineNum">     173 </span>                :            : /************************************************************************/
+<a name="174"><span class="lineNum">     174 </span>                :            : </a>
+<span class="lineNum">     175 </span>                :            : static
+<span class="lineNum">     176 </span>                :<span class="lineCov">          1 : xmlNodePtr msWFSOperator(xmlNsPtr psNsFES, const char* pszOperatorType, const char* pszOperator)</span>
+<span class="lineNum">     177 </span>                :            : {
+<span class="lineNum">     178 </span>                :<span class="lineCov">          1 :     xmlNodePtr psNode = xmlNewNode(psNsFES, BAD_CAST pszOperatorType);</span>
+<span class="lineNum">     179 </span>                :<span class="lineCov">          1 :     xmlNewProp(psNode, BAD_CAST &quot;name&quot;, BAD_CAST pszOperator);</span>
+<span class="lineNum">     180 </span>                :<span class="lineCov">          1 :     return psNode;</span>
+<span class="lineNum">     181 </span>                :            : }
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>                :            : /************************************************************************/
+<span class="lineNum">     184 </span>                :            : /*                       msWFS20FilterCapabilities                      */
+<span class="lineNum">     185 </span>                :            : /************************************************************************/
+<a name="186"><span class="lineNum">     186 </span>                :            : </a>
+<span class="lineNum">     187 </span>                :            : static
+<span class="lineNum">     188 </span>                :<span class="lineCov">          1 : xmlNodePtr msWFS20FilterCapabilities(xmlNsPtr psNsFES, xmlNsPtr psNsOws,</span>
+<span class="lineNum">     189 </span>                :            :                                      int bImplementsSorting)
+<span class="lineNum">     190 </span>                :            : {
+<span class="lineNum">     191 </span>                :            :   xmlNodePtr psRootNode = NULL, psNode = NULL, psSubNode = NULL;
+<span class="lineNum">     192 </span>                :            : 
+<span class="lineNum">     193 </span>                :<span class="lineCov">          1 :   psRootNode = xmlNewNode(psNsFES, BAD_CAST &quot;Filter_Capabilities&quot;);</span>
+<span class="lineNum">     194 </span>                :            :   
+<span class="lineNum">     195 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psRootNode, psNsFES, BAD_CAST &quot;Conformance&quot;, NULL);</span>
+<span class="lineNum">     196 </span>                :            :   
+<span class="lineNum">     197 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsQuery&quot;, &quot;TRUE&quot;));</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsAdHocQuery&quot;, &quot;TRUE&quot;));</span>
+<span class="lineNum">     199 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsFunctions&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsResourceId&quot;, &quot;TRUE&quot;));</span>
+<span class="lineNum">     201 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsMinStandardFilter&quot;, &quot;TRUE&quot;));</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsStandardFilter&quot;, &quot;TRUE&quot;));</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsMinSpatialFilter&quot;, &quot;TRUE&quot;));</span>
+<span class="lineNum">     204 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsSpatialFilter&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     205 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsMinTemporalFilter&quot;, &quot;TRUE&quot;));</span>
+<span class="lineNum">     206 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsTemporalFilter&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     207 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsVersionNav&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     208 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsSorting&quot;, ( bImplementsSorting ) ? &quot;TRUE&quot; : &quot;FALSE&quot;));</span>
+<span class="lineNum">     209 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsExtendedOperators&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     210 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsMinimumXPath&quot;, &quot;TRUE&quot;));</span>
+<span class="lineNum">     211 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msWFSConstraintDefaultValue(psNsFES, psNsOws, &quot;ImplementsSchemaElementFunc&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psRootNode, psNsFES, BAD_CAST &quot;Id_Capabilities&quot;, NULL);</span>
+<span class="lineNum">     214 </span>                :<span class="lineCov">          1 :     psSubNode = xmlNewChild(psNode, psNsFES, BAD_CAST &quot;ResourceIdentifier&quot;, NULL );</span>
+<span class="lineNum">     215 </span>                :<span class="lineCov">          1 :     xmlNewProp(psSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;fes:ResourceId&quot;);</span>
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psRootNode, psNsFES, BAD_CAST &quot;Scalar_Capabilities&quot;, NULL);</span>
+<span class="lineNum">     218 </span>                :<span class="lineCov">          1 :   xmlNewChild(psNode, psNsFES, BAD_CAST &quot;LogicalOperators&quot;, NULL);</span>
+<span class="lineNum">     219 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psNode, psNsFES, BAD_CAST &quot;ComparisonOperators&quot;, NULL);</span>
+<span class="lineNum">     220 </span>                :<span class="lineCov">          1 :   xmlAddChild(psNode, msWFSOperator(psNsFES, &quot;ComparisonOperator&quot;, &quot;PropertyIsEqualTo&quot;));</span>
+<span class="lineNum">     221 </span>                :<span class="lineCov">          1 :   xmlAddChild(psNode, msWFSOperator(psNsFES, &quot;ComparisonOperator&quot;, &quot;PropertyIsNotEqualTo&quot;));</span>
+<span class="lineNum">     222 </span>                :<span class="lineCov">          1 :   xmlAddChild(psNode, msWFSOperator(psNsFES, &quot;ComparisonOperator&quot;, &quot;PropertyIsLessThan&quot;));</span>
+<span class="lineNum">     223 </span>                :<span class="lineCov">          1 :   xmlAddChild(psNode, msWFSOperator(psNsFES, &quot;ComparisonOperator&quot;, &quot;PropertyIsGreaterThan&quot;));</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">          1 :   xmlAddChild(psNode, msWFSOperator(psNsFES, &quot;ComparisonOperator&quot;, &quot;PropertyIsLessThanOrEqualTo&quot;));</span>
+<span class="lineNum">     225 </span>                :<span class="lineCov">          1 :   xmlAddChild(psNode, msWFSOperator(psNsFES, &quot;ComparisonOperator&quot;, &quot;PropertyIsGreaterThanOrEqualTo&quot;));</span>
+<span class="lineNum">     226 </span>                :<span class="lineCov">          1 :   xmlAddChild(psNode, msWFSOperator(psNsFES, &quot;ComparisonOperator&quot;, &quot;PropertyIsLike&quot;));</span>
+<span class="lineNum">     227 </span>                :<span class="lineCov">          1 :   xmlAddChild(psNode, msWFSOperator(psNsFES, &quot;ComparisonOperator&quot;, &quot;PropertyIsBetween&quot;));</span>
+<span class="lineNum">     228 </span>                :            :   /* Missing: PropertyIsNull, PropertyIsNil */
+<span class="lineNum">     229 </span>                :            : 
+<span class="lineNum">     230 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psRootNode, psNsFES, BAD_CAST &quot;Spatial_Capabilities&quot;, NULL);</span>
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsFES, BAD_CAST &quot;GeometryOperands&quot;, NULL);</span>
+<span class="lineNum">     233 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;GeometryOperand&quot;, &quot;gml:Point&quot;));</span>
+<span class="lineNum">     234 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;GeometryOperand&quot;, &quot;gml:MultiPoint&quot;));</span>
+<span class="lineNum">     235 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;GeometryOperand&quot;, &quot;gml:LineString&quot;));</span>
+<span class="lineNum">     236 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;GeometryOperand&quot;, &quot;gml:MultiLineString&quot;));</span>
+<span class="lineNum">     237 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;GeometryOperand&quot;, &quot;gml:Curve&quot;));</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;GeometryOperand&quot;, &quot;gml:MultiCurve&quot;));</span>
+<span class="lineNum">     239 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;GeometryOperand&quot;, &quot;gml:Polygon&quot;));</span>
+<span class="lineNum">     240 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;GeometryOperand&quot;, &quot;gml:MultiPolygon&quot;));</span>
+<span class="lineNum">     241 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;GeometryOperand&quot;, &quot;gml:Surface&quot;));</span>
+<span class="lineNum">     242 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;GeometryOperand&quot;, &quot;gml:MultiSurface&quot;));</span>
+<span class="lineNum">     243 </span>                :            :   /* xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;GeometryOperand&quot;, &quot;gml:MultiGeometry&quot;)); */
+<span class="lineNum">     244 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;GeometryOperand&quot;, &quot;gml:Box&quot;));</span>
+<span class="lineNum">     245 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;GeometryOperand&quot;, &quot;gml:Envelope&quot;));</span>
+<span class="lineNum">     246 </span>                :            : 
+<span class="lineNum">     247 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsFES, BAD_CAST &quot;SpatialOperators&quot;, NULL);</span>
+<span class="lineNum">     248 </span>                :            : #ifdef USE_GEOS
+<span class="lineNum">     249 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;SpatialOperator&quot;, &quot;Equals&quot;));</span>
+<span class="lineNum">     250 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;SpatialOperator&quot;, &quot;Disjoint&quot;));</span>
+<span class="lineNum">     251 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;SpatialOperator&quot;, &quot;Touches&quot;));</span>
+<span class="lineNum">     252 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;SpatialOperator&quot;, &quot;Within&quot;));</span>
+<span class="lineNum">     253 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;SpatialOperator&quot;, &quot;Overlaps&quot;));</span>
+<span class="lineNum">     254 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;SpatialOperator&quot;, &quot;Crosses&quot;));</span>
+<span class="lineNum">     255 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;SpatialOperator&quot;, &quot;Intersects&quot;));</span>
+<span class="lineNum">     256 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;SpatialOperator&quot;, &quot;Contains&quot;));</span>
+<span class="lineNum">     257 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;SpatialOperator&quot;, &quot;DWithin&quot;));</span>
+<span class="lineNum">     258 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;SpatialOperator&quot;, &quot;Beyond&quot;));</span>
+<span class="lineNum">     259 </span>                :            : #endif
+<span class="lineNum">     260 </span>                :<span class="lineCov">          1 :   xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;SpatialOperator&quot;, &quot;BBOX&quot;));</span>
+<span class="lineNum">     261 </span>                :            : 
+<span class="lineNum">     262 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psRootNode, psNsFES, BAD_CAST &quot;Temporal_Capabilities&quot;, NULL);</span>
+<span class="lineNum">     263 </span>                :<span class="lineCov">          1 :     psSubNode = xmlNewChild(psNode, psNsFES, BAD_CAST &quot;TemporalOperands&quot;, NULL);</span>
+<span class="lineNum">     264 </span>                :<span class="lineCov">          1 :     xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;TemporalOperand&quot;, &quot;gml:TimePeriod&quot;));</span>
+<span class="lineNum">     265 </span>                :<span class="lineCov">          1 :     xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;TemporalOperand&quot;, &quot;gml:TimeInstant&quot;));</span>
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>                :<span class="lineCov">          1 :     psSubNode = xmlNewChild(psNode, psNsFES, BAD_CAST &quot;TemporalOperators&quot;, NULL);</span>
+<span class="lineNum">     268 </span>                :<span class="lineCov">          1 :     xmlAddChild(psSubNode, msWFSOperator(psNsFES, &quot;TemporalOperator&quot;, &quot;During&quot;));</span>
+<span class="lineNum">     269 </span>                :            : 
+<span class="lineNum">     270 </span>                :<span class="lineCov">          1 :   return psRootNode;</span>
+<span class="lineNum">     271 </span>                :            : }
+<span class="lineNum">     272 </span>                :            : 
+<span class="lineNum">     273 </span>                :            : /************************************************************************/
+<span class="lineNum">     274 </span>                :            : /*                          msXMLStripIndentation                       */
+<span class="lineNum">     275 </span>                :            : /************************************************************************/
+<span class="lineNum">     276 </span>                :            : 
+<span class="lineNum">     277 </span>                :            : static void msXMLStripIndentation(char* ptr)
+<span class="lineNum">     278 </span>                :            : {
+<a name="279"><span class="lineNum">     279 </span>                :            :     /* Remove spaces between &gt; and &lt; to get properly indented result */</a>
+<span class="lineNum">     280 </span>                :            :     char* afterLastClosingBracket = NULL;
+<span class="lineNum">     281 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( *ptr == ' ' )</span>
+<span class="lineNum">     282 </span>                :            :         afterLastClosingBracket = ptr;
+<span class="lineNum">     283 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     while( *ptr != '\0' )</span>
+<span class="lineNum">     284 </span>                :            :     {
+<span class="lineNum">     285 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( *ptr == '&lt;' &amp;&amp; afterLastClosingBracket != NULL )</span>
+<span class="lineNum">     286 </span>                :            :         {
+<span class="lineNum">     287 </span>                :<span class="lineCov">          1 :             memmove(afterLastClosingBracket, ptr, strlen(ptr) + 1);</span>
+<span class="lineNum">     288 </span>                :            :             ptr = afterLastClosingBracket;
+<span class="lineNum">     289 </span>                :            :         }
+<span class="lineNum">     290 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         else if( *ptr == '&gt;' )</span>
+<span class="lineNum">     291 </span>                :            :         {
+<span class="lineNum">     292 </span>                :<span class="lineCov">          1 :             afterLastClosingBracket = ptr + 1;</span>
+<span class="lineNum">     293 </span>                :            :         }
+<span class="lineNum">     294 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         else if( *ptr != ' ' &amp;&amp;  *ptr != '\n' )</span>
+<span class="lineNum">     295 </span>                :            :             afterLastClosingBracket = NULL;
+<span class="lineNum">     296 </span>                :<span class="lineCov">          1 :         ptr ++;</span>
+<span class="lineNum">     297 </span>                :            :     }
+<span class="lineNum">     298 </span>                :            : }
+<span class="lineNum">     299 </span>                :            : 
+<span class="lineNum">     300 </span>                :            : /************************************************************************/
+<span class="lineNum">     301 </span>                :            : /*                          msWFSAddInspireDSID                         */
+<a name="302"><span class="lineNum">     302 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     303 </span>                :            : 
+<span class="lineNum">     304 </span>                :<span class="lineCov">          1 : static void msWFSAddInspireDSID(mapObj *map,</span>
+<span class="lineNum">     305 </span>                :            :                                 xmlNsPtr psNsInspireDls,
+<span class="lineNum">     306 </span>                :            :                                 xmlNsPtr psNsInspireCommon,
+<span class="lineNum">     307 </span>                :            :                                 xmlNodePtr pDlsExtendedCapabilities)
+<span class="lineNum">     308 </span>                :            : {
+<span class="lineNum">     309 </span>                :<span class="lineCov">          1 :     const char* dsid_code = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;inspire_dsid_code&quot;);</span>
+<span class="lineNum">     310 </span>                :<span class="lineCov">          1 :     const char* dsid_ns = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;inspire_dsid_ns&quot;);</span>
+<span class="lineNum">     311 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( dsid_code == NULL )</span>
+<span class="lineNum">     312 </span>                :            :     {
+<span class="lineNum">     313 </span>                :<span class="lineCov">          1 :         xmlAddChild(pDlsExtendedCapabilities, xmlNewComment(BAD_CAST &quot;WARNING: Required metadata \&quot;inspire_dsid_code\&quot; missing&quot;));</span>
+<span class="lineNum">     314 </span>                :            :     }
+<span class="lineNum">     315 </span>                :            :     else
+<span class="lineNum">     316 </span>                :            :     {
+<span class="lineNum">     317 </span>                :<span class="lineCov">          1 :         int ntokensCode = 0, ntokensNS = 0;</span>
+<span class="lineNum">     318 </span>                :            :         char** tokensCode;
+<span class="lineNum">     319 </span>                :            :         char** tokensNS = NULL;
+<span class="lineNum">     320 </span>                :            :         int i;
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>                :<span class="lineCov">          1 :         tokensCode = msStringSplit(dsid_code, ',', &amp;ntokensCode);</span>
+<span class="lineNum">     323 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( dsid_ns != NULL )</span>
+<span class="lineNum">     324 </span>                :<span class="lineCov">          1 :             tokensNS = msStringSplitComplex( dsid_ns, &quot;,&quot;, &amp;ntokensNS, MS_ALLOWEMPTYTOKENS);</span>
+<span class="lineNum">     325 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( ntokensNS &gt; 0 &amp;&amp; ntokensNS != ntokensCode )</span>
+<span class="lineNum">     326 </span>                :            :         {
+<span class="lineNum">     327 </span>                :<span class="lineNoCov">          0 :             xmlAddChild(pDlsExtendedCapabilities,</span>
+<span class="lineNum">     328 </span>                :            :                         xmlNewComment(BAD_CAST &quot;WARNING: \&quot;inspire_dsid_code\&quot; and \&quot;inspire_dsid_ns\&quot; have not the same number of elements. Ignoring inspire_dsid_ns&quot;));
+<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 :             msFreeCharArray(tokensNS, ntokensNS);</span>
+<span class="lineNum">     330 </span>                :            :             tokensNS = NULL;
+<span class="lineNum">     331 </span>                :<span class="lineNoCov">          0 :             ntokensNS = 0;</span>
+<span class="lineNum">     332 </span>                :            :         }
+<span class="lineNum">     333 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for(i = 0; i&lt;ntokensCode; i++ )</span>
+<span class="lineNum">     334 </span>                :            :         {
+<span class="lineNum">     335 </span>                :<span class="lineCov">          1 :             xmlNodePtr pSDSI = xmlNewNode(psNsInspireDls, BAD_CAST &quot;SpatialDataSetIdentifier&quot;);</span>
+<span class="lineNum">     336 </span>                :<span class="lineCov">          1 :             xmlAddChild(pDlsExtendedCapabilities, pSDSI);</span>
+<span class="lineNum">     337 </span>                :<span class="lineCov">          1 :             xmlNewChild(pSDSI, psNsInspireCommon, BAD_CAST &quot;Code&quot;, BAD_CAST tokensCode[i]);</span>
+<span class="lineNum">     338 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :             if( ntokensNS &gt; 0 &amp;&amp; tokensNS[i][0] != '\0' )</span>
+<span class="lineNum">     339 </span>                :<span class="lineCov">          1 :                 xmlNewChild(pSDSI, psNsInspireCommon, BAD_CAST &quot;Namespace&quot;, BAD_CAST tokensNS[i]);</span>
+<span class="lineNum">     340 </span>                :            :         }
+<span class="lineNum">     341 </span>                :<span class="lineCov">          1 :         msFreeCharArray(tokensCode, ntokensCode);</span>
+<span class="lineNum">     342 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( ntokensNS &gt; 0 )</span>
+<span class="lineNum">     343 </span>                :<span class="lineCov">          1 :             msFreeCharArray(tokensNS, ntokensNS);</span>
+<span class="lineNum">     344 </span>                :            :     }
+<span class="lineNum">     345 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     346 </span>                :            : 
+<span class="lineNum">     347 </span>                :            : 
+<span class="lineNum">     348 </span>                :            : 
+<span class="lineNum">     349 </span>                :            : /************************************************************************/
+<span class="lineNum">     350 </span>                :            : /*                          msWFSGetCapabilities20                      */
+<span class="lineNum">     351 </span>                :            : /*                                                                      */
+<span class="lineNum">     352 </span>                :            : /*      Return the capabilities document for WFS 2.0.0                  */
+<span class="lineNum">     353 </span>                :            : /************************************************************************/
+<span class="lineNum">     354 </span>                :<span class="lineCov">          1 : int msWFSGetCapabilities20(mapObj *map, wfsParamsObj *params,</span>
+<span class="lineNum">     355 </span>                :            :                            cgiRequestObj *req, owsRequestObj *ows_request)
+<span class="lineNum">     356 </span>                :            : {
+<span class="lineNum">     357 </span>                :            :   xmlDocPtr psDoc = NULL;       /* document pointer */
+<span class="lineNum">     358 </span>                :            :   xmlNodePtr psRootNode, psMainNode, psNode, psFtNode = NULL;
+<span class="lineNum">     359 </span>                :            :   const char *updatesequence=NULL;
+<span class="lineNum">     360 </span>                :            :   xmlNsPtr psNsOws, psNsXLink;
+<span class="lineNum">     361 </span>                :            :   xmlNsPtr psNsFES = NULL;
+<span class="lineNum">     362 </span>                :            :   xmlNsPtr psNsInspireCommon = NULL;
+<span class="lineNum">     363 </span>                :            :   xmlNsPtr psNsInspireDls = NULL;
+<span class="lineNum">     364 </span>                :            :   xmlDocPtr pInspireTmpDoc = NULL;
+<span class="lineNum">     365 </span>                :            :   char *xsi_schemaLocation = NULL;
+<span class="lineNum">     366 </span>                :            :   const char *user_namespace_prefix = NULL;
+<span class="lineNum">     367 </span>                :            :   const char *user_namespace_uri = NULL;
+<span class="lineNum">     368 </span>                :            :   gmlNamespaceListObj *namespaceList=NULL; /* for external application schema support */
+<span class="lineNum">     369 </span>                :            : 
+<span class="lineNum">     370 </span>                :            :   char *script_url=NULL, *formats_list;
+<span class="lineNum">     371 </span>                :            :   const char *value = NULL;
+<span class="lineNum">     372 </span>                :            : 
+<span class="lineNum">     373 </span>                :<span class="lineCov">          1 :   xmlChar *buffer = NULL;</span>
+<span class="lineNum">     374 </span>                :<span class="lineCov">          1 :   int size = 0, i;</span>
+<span class="lineNum">     375 </span>                :            :   msIOContext *context = NULL;
+<span class="lineNum">     376 </span>                :            : 
+<span class="lineNum">     377 </span>                :            :   int ows_version = OWS_1_1_0;
+<span class="lineNum">     378 </span>                :            :   int ret;
+<span class="lineNum">     379 </span>                :            : 
+<span class="lineNum">     380 </span>                :            :   char* validated_language;
+<span class="lineNum">     381 </span>                :            :   int bImplementsSorting = MS_FALSE;
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     384 </span>                :            :   /*      Handle updatesequence                                           */
+<span class="lineNum">     385 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     386 </span>                :<span class="lineCov">          1 :   ret = msWFSHandleUpdateSequence(map, params, &quot;msWFSGetCapabilities20()&quot;);</span>
+<span class="lineNum">     387 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( ret != MS_SUCCESS )</span>
+<span class="lineNum">     388 </span>                :            :       return ret;
+<span class="lineNum">     389 </span>                :            : 
+<span class="lineNum">     390 </span>                :<span class="lineCov">          1 :   validated_language = msOWSGetLanguageFromList(map, &quot;FO&quot;, params-&gt;pszLanguage);</span>
+<span class="lineNum">     391 </span>                :            : 
+<span class="lineNum">     392 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     393 </span>                :            :   /*      Create document.                                                */
+<span class="lineNum">     394 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     395 </span>                :<span class="lineCov">          1 :   psDoc = xmlNewDoc(BAD_CAST &quot;1.0&quot;);</span>
+<span class="lineNum">     396 </span>                :            : 
+<span class="lineNum">     397 </span>                :<span class="lineCov">          1 :   psRootNode = xmlNewNode(NULL, BAD_CAST &quot;WFS_Capabilities&quot;);</span>
+<span class="lineNum">     398 </span>                :            : 
+<span class="lineNum">     399 </span>                :<span class="lineCov">          1 :   xmlDocSetRootElement(psDoc, psRootNode);</span>
+<span class="lineNum">     400 </span>                :            : 
+<span class="lineNum">     401 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     402 </span>                :            :   /*      Name spaces                                                     */
+<span class="lineNum">     403 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     404 </span>                :            :   
+<span class="lineNum">     405 </span>                :            :   /*default name space*/
+<span class="lineNum">     406 </span>                :<span class="lineCov">          1 :   xmlNewProp(psRootNode, BAD_CAST &quot;xmlns&quot;, BAD_CAST MS_OWSCOMMON_WFS_20_NAMESPACE_URI);</span>
+<span class="lineNum">     407 </span>                :            : 
+<span class="lineNum">     408 </span>                :<span class="lineCov">          1 :   xmlSetNs(psRootNode, xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_GML_32_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_GML_NAMESPACE_PREFIX));</span>
+<span class="lineNum">     409 </span>                :<span class="lineCov">          1 :   xmlSetNs(psRootNode, xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_WFS_20_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_WFS_NAMESPACE_PREFIX));</span>
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>                :<span class="lineCov">          1 :   psNsOws = xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_OWS_110_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_OWS_NAMESPACE_PREFIX);</span>
+<span class="lineNum">     412 </span>                :<span class="lineCov">          1 :   psNsXLink = xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_W3C_XLINK_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_W3C_XLINK_NAMESPACE_PREFIX);</span>
+<span class="lineNum">     413 </span>                :<span class="lineCov">          1 :   xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_W3C_XSI_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_W3C_XSI_NAMESPACE_PREFIX);</span>
+<span class="lineNum">     414 </span>                :<span class="lineCov">          1 :   xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_FES_20_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_FES_20_NAMESPACE_PREFIX );</span>
+<span class="lineNum">     415 </span>                :            : 
+<span class="lineNum">     416 </span>                :<span class="lineCov">          1 :   value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;namespace_uri&quot;);</span>
+<span class="lineNum">     417 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(value)</span>
+<span class="lineNum">     418 </span>                :            :       user_namespace_uri = value;
+<span class="lineNum">     419 </span>                :            :   else
+<span class="lineNum">     420 </span>                :            :       user_namespace_uri = MS_DEFAULT_NAMESPACE_URI;
+<span class="lineNum">     421 </span>                :            : 
+<span class="lineNum">     422 </span>                :<span class="lineCov">          1 :   value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;namespace_prefix&quot;);</span>
+<span class="lineNum">     423 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(value)</span>
+<span class="lineNum">     424 </span>                :            :       user_namespace_prefix = value;
+<span class="lineNum">     425 </span>                :            :   else
+<span class="lineNum">     426 </span>                :            :       user_namespace_prefix = MS_DEFAULT_NAMESPACE_PREFIX;
+<span class="lineNum">     427 </span>                :            : 
+<span class="lineNum">     428 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(user_namespace_prefix != NULL &amp;&amp; msIsXMLTagValid(user_namespace_prefix) == MS_FALSE)</span>
+<span class="lineNum">     429 </span>                :<span class="lineNoCov">          0 :     msIO_printf(&quot;&lt;!-- WARNING: The value '%s' is not valid XML namespace. --&gt;\n&quot;, user_namespace_prefix);</span>
+<span class="lineNum">     430 </span>                :            :   else
+<span class="lineNum">     431 </span>                :<span class="lineCov">          1 :     xmlNewNs(psRootNode, BAD_CAST user_namespace_uri, BAD_CAST user_namespace_prefix);</span>
+<span class="lineNum">     432 </span>                :            : 
+<span class="lineNum">     433 </span>                :            :   /* any additional namespaces */
+<span class="lineNum">     434 </span>                :<span class="lineCov">          1 :   namespaceList = msGMLGetNamespaces(&amp;(map-&gt;web), &quot;G&quot;);</span>
+<span class="lineNum">     435 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;namespaceList-&gt;numnamespaces; i++) {</span>
+<span class="lineNum">     436 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(namespaceList-&gt;namespaces[i].uri) {</span>
+<span class="lineNum">     437 </span>                :<span class="lineNoCov">          0 :       xmlNewNs(psRootNode, BAD_CAST namespaceList-&gt;namespaces[i].uri, BAD_CAST namespaceList-&gt;namespaces[i].prefix);</span>
+<span class="lineNum">     438 </span>                :            :     }
+<span class="lineNum">     439 </span>                :            :   }
+<span class="lineNum">     440 </span>                :<span class="lineCov">          1 :   msGMLFreeNamespaces(namespaceList);</span>
+<span class="lineNum">     441 </span>                :            : 
+<span class="lineNum">     442 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if ( msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;inspire_capabilities&quot;) ) {</span>
+<span class="lineNum">     443 </span>                :<span class="lineCov">          1 :       psNsInspireCommon = xmlNewNs(psRootNode, BAD_CAST MS_INSPIRE_COMMON_NAMESPACE_URI, BAD_CAST MS_INSPIRE_COMMON_NAMESPACE_PREFIX);</span>
+<span class="lineNum">     444 </span>                :<span class="lineCov">          1 :       psNsInspireDls = xmlNewNs(psRootNode, BAD_CAST MS_INSPIRE_DLS_NAMESPACE_URI, BAD_CAST MS_INSPIRE_DLS_NAMESPACE_PREFIX);</span>
+<span class="lineNum">     445 </span>                :            :   }
+<span class="lineNum">     446 </span>                :            : 
+<span class="lineNum">     447 </span>                :<span class="lineCov">          1 :   xmlNewProp(psRootNode, BAD_CAST &quot;version&quot;, BAD_CAST params-&gt;pszVersion );</span>
+<span class="lineNum">     448 </span>                :            : 
+<span class="lineNum">     449 </span>                :<span class="lineCov">          1 :   updatesequence = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;updatesequence&quot;);</span>
+<span class="lineNum">     450 </span>                :            : 
+<span class="lineNum">     451 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (updatesequence)</span>
+<span class="lineNum">     452 </span>                :<span class="lineCov">          1 :     xmlNewProp(psRootNode, BAD_CAST &quot;updateSequence&quot;, BAD_CAST updatesequence);</span>
+<span class="lineNum">     453 </span>                :            : 
+<span class="lineNum">     454 </span>                :            :   /*schema*/
+<span class="lineNum">     455 </span>                :<span class="lineCov">          1 :   xsi_schemaLocation = msStrdup(MS_OWSCOMMON_WFS_20_NAMESPACE_URI);</span>
+<span class="lineNum">     456 </span>                :<span class="lineCov">          1 :   xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, &quot; &quot;);</span>
+<span class="lineNum">     457 </span>                :<span class="lineCov">          1 :   xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, msOWSGetSchemasLocation(map));</span>
+<span class="lineNum">     458 </span>                :<span class="lineCov">          1 :   xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, MS_OWSCOMMON_WFS_20_SCHEMA_LOCATION);</span>
+<span class="lineNum">     459 </span>                :            : 
+<span class="lineNum">     460 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( psNsInspireDls != NULL )</span>
+<span class="lineNum">     461 </span>                :            :   {
+<span class="lineNum">     462 </span>                :<span class="lineCov">          1 :       xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, &quot; &quot;);</span>
+<span class="lineNum">     463 </span>                :<span class="lineCov">          1 :       xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, MS_INSPIRE_DLS_NAMESPACE_URI);</span>
+<span class="lineNum">     464 </span>                :<span class="lineCov">          1 :       xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, &quot; &quot;);</span>
+<span class="lineNum">     465 </span>                :<span class="lineCov">          1 :       xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, msOWSGetInspireSchemasLocation(map));</span>
+<span class="lineNum">     466 </span>                :<span class="lineCov">          1 :       xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, MS_INSPIRE_DLS_SCHEMA_LOCATION);</span>
+<span class="lineNum">     467 </span>                :<span class="lineCov">          1 :       xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, &quot; &quot;);</span>
+<span class="lineNum">     468 </span>                :<span class="lineCov">          1 :       xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, MS_INSPIRE_COMMON_NAMESPACE_URI);</span>
+<span class="lineNum">     469 </span>                :<span class="lineCov">          1 :       xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, &quot; &quot;);</span>
+<span class="lineNum">     470 </span>                :<span class="lineCov">          1 :       xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, msOWSGetInspireSchemasLocation(map));</span>
+<span class="lineNum">     471 </span>                :<span class="lineCov">          1 :       xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, MS_INSPIRE_COMMON_SCHEMA_LOCATION);</span>
+<span class="lineNum">     472 </span>                :            :   }
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>                :<span class="lineCov">          1 :   xmlNewNsProp(psRootNode, NULL, BAD_CAST &quot;xsi:schemaLocation&quot;, BAD_CAST xsi_schemaLocation);</span>
+<span class="lineNum">     475 </span>                :<span class="lineCov">          1 :   free(xsi_schemaLocation);</span>
+<span class="lineNum">     476 </span>                :            : 
+<span class="lineNum">     477 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     478 </span>                :            :   /*      Service metadata.                                               */
+<span class="lineNum">     479 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     480 </span>                :            : 
+<span class="lineNum">     481 </span>                :            :   /* TODO? : also add 1.1.0 and 1.0.0 as extra &lt;ows:ServiceTypeVersion&gt;. The OWS */
+<span class="lineNum">     482 </span>                :            :   /* schema would suggest to do so, and also the example */
+<span class="lineNum">     483 </span>                :            :   /* http://schemas.opengis.net/wfs/2.0/examples/GetCapabilities/GetCapabilities_Res_01.xml */
+<span class="lineNum">     484 </span>                :            :   /* and Deegree too, but GeoServer also only lists the current version. */
+<span class="lineNum">     485 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( msWFSIncludeSection(params, &quot;ServiceIdentification&quot;) )</span>
+<span class="lineNum">     486 </span>                :            :   {
+<span class="lineNum">     487 </span>                :<span class="lineCov">          1 :     xmlAddChild(psRootNode,</span>
+<span class="lineNum">     488 </span>                :            :                 msOWSCommonServiceIdentification(psNsOws, map, &quot;WFS&quot;,
+<span class="lineNum">     489 </span>                :<span class="lineCov">          1 :                                                  params-&gt;pszVersion, &quot;FO&quot;, validated_language));</span>
+<span class="lineNum">     490 </span>                :            :   }
+<span class="lineNum">     491 </span>                :            : 
+<span class="lineNum">     492 </span>                :            :   /*service provider*/
+<span class="lineNum">     493 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( msWFSIncludeSection(params, &quot;ServiceProvider&quot;) )</span>
+<span class="lineNum">     494 </span>                :            :   {
+<span class="lineNum">     495 </span>                :<span class="lineCov">          1 :     xmlAddChild(psRootNode, msOWSCommonServiceProvider(</span>
+<span class="lineNum">     496 </span>                :            :                             psNsOws, psNsXLink, map, &quot;FO&quot;, validated_language));
+<span class="lineNum">     497 </span>                :            :   }
+<span class="lineNum">     498 </span>                :            : 
+<span class="lineNum">     499 </span>                :            :   /*operation metadata */
+<span class="lineNum">     500 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( msWFSIncludeSection(params, &quot;OperationsMetadata&quot;) )</span>
+<span class="lineNum">     501 </span>                :            :   {
+<span class="lineNum">     502 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if ((script_url=msOWSGetOnlineResource2(map, &quot;FO&quot;, &quot;onlineresource&quot;, req, validated_language)) == NULL) {</span>
+<span class="lineNum">     503 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_WFSERR, &quot;Server URL not found&quot;, &quot;msWFSGetCapabilities20()&quot;);</span>
+<span class="lineNum">     504 </span>                :<span class="lineNoCov">          0 :         return msWFSException11(map, &quot;mapserv&quot;, MS_OWS_ERROR_NO_APPLICABLE_CODE, params-&gt;pszVersion);</span>
+<span class="lineNum">     505 </span>                :            :     }
+<span class="lineNum">     506 </span>                :            :     
+<span class="lineNum">     507 </span>                :            : 
+<span class="lineNum">     508 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     509 </span>                :            :     /*      Operations metadata.                                            */
+<span class="lineNum">     510 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     511 </span>                :<span class="lineCov">          1 :     psMainNode= xmlAddChild(psRootNode,msOWSCommonOperationsMetadata(psNsOws));</span>
+<span class="lineNum">     512 </span>                :            :     
+<span class="lineNum">     513 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     514 </span>                :            :     /*      GetCapabilities                                                 */
+<span class="lineNum">     515 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     516 </span>                :<span class="lineCov">          1 :     psNode = xmlAddChild(psMainNode,</span>
+<span class="lineNum">     517 </span>                :            :                         msOWSCommonOperationsMetadataOperation(psNsOws,psNsXLink,&quot;GetCapabilities&quot;,
+<span class="lineNum">     518 </span>                :            :                             OWS_METHOD_GETPOST, script_url));
+<span class="lineNum">     519 </span>                :            : 
+<span class="lineNum">     520 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, psNode);</span>
+<span class="lineNum">     521 </span>                :            : 
+<span class="lineNum">     522 </span>                :            :     /*accept version*/
+<span class="lineNum">     523 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     524 </span>                :            :                 &quot;Parameter&quot;, &quot;AcceptVersions&quot;,
+<span class="lineNum">     525 </span>                :            :                 &quot;2.0.0,1.1.0,1.0.0&quot;));
+<span class="lineNum">     526 </span>                :            :     /*format*/
+<span class="lineNum">     527 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     528 </span>                :            :                 &quot;Parameter&quot;, &quot;AcceptFormats&quot;,
+<span class="lineNum">     529 </span>                :            :                 &quot;text/xml&quot;));
+<span class="lineNum">     530 </span>                :            :     /*sections*/
+<span class="lineNum">     531 </span>                :<span class="lineCov">          1 :     xmlAddChild(psNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     532 </span>                :            :                 &quot;Parameter&quot;, &quot;Sections&quot;,
+<span class="lineNum">     533 </span>                :            :                 &quot;ServiceIdentification,ServiceProvider,OperationsMetadata,FeatureTypeList,Filter_Capabilities&quot;));
+<span class="lineNum">     534 </span>                :            : 
+<span class="lineNum">     535 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     536 </span>                :            :     /*      DescribeFeatureType                                             */
+<span class="lineNum">     537 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     538 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if (msOWSRequestIsEnabled(map, NULL, &quot;F&quot;, &quot;DescribeFeatureType&quot;, MS_TRUE)) {</span>
+<span class="lineNum">     539 </span>                :<span class="lineCov">          1 :         psNode = xmlAddChild(psMainNode,</span>
+<span class="lineNum">     540 </span>                :            :                             msOWSCommonOperationsMetadataOperation(psNsOws,psNsXLink,&quot;DescribeFeatureType&quot;,
+<span class="lineNum">     541 </span>                :            :                                 OWS_METHOD_GETPOST, script_url));
+<span class="lineNum">     542 </span>                :<span class="lineCov">          1 :         xmlAddChild(psMainNode, psNode);</span>
+<span class="lineNum">     543 </span>                :            : 
+<span class="lineNum">     544 </span>                :            :         /*output format*/
+<span class="lineNum">     545 </span>                :<span class="lineCov">          1 :         xmlAddChild(psNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     546 </span>                :            :                     &quot;Parameter&quot;, &quot;outputFormat&quot;,
+<span class="lineNum">     547 </span>                :            :                     &quot;application/gml+xml; version=3.2,&quot;
+<span class="lineNum">     548 </span>                :            :                     &quot;text/xml; subtype=gml/3.2.1,&quot;
+<span class="lineNum">     549 </span>                :            :                     &quot;text/xml; subtype=gml/3.1.1,&quot;
+<span class="lineNum">     550 </span>                :            :                     &quot;text/xml; subtype=gml/2.1.2&quot;));
+<span class="lineNum">     551 </span>                :            :     }
+<span class="lineNum">     552 </span>                :            : 
+<span class="lineNum">     553 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     554 </span>                :            :     /*      GetFeature                                                      */
+<span class="lineNum">     555 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     556 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if (msOWSRequestIsEnabled(map, NULL, &quot;F&quot;, &quot;GetFeature&quot;, MS_TRUE)) {</span>
+<span class="lineNum">     557 </span>                :            : 
+<span class="lineNum">     558 </span>                :<span class="lineCov">          1 :         psNode = xmlAddChild(psMainNode,</span>
+<span class="lineNum">     559 </span>                :            :                             msOWSCommonOperationsMetadataOperation(psNsOws,psNsXLink,&quot;GetFeature&quot;,
+<span class="lineNum">     560 </span>                :            :                                 OWS_METHOD_GETPOST, script_url));
+<span class="lineNum">     561 </span>                :<span class="lineCov">          1 :         xmlAddChild(psMainNode, psNode);</span>
+<span class="lineNum">     562 </span>                :            : 
+<span class="lineNum">     563 </span>                :<span class="lineCov">          1 :         formats_list = msWFSGetOutputFormatList( map, NULL, OWS_2_0_0 );</span>
+<span class="lineNum">     564 </span>                :<span class="lineCov">          1 :         xmlAddChild(psNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     565 </span>                :            :                     &quot;Parameter&quot;, &quot;outputFormat&quot;,
+<span class="lineNum">     566 </span>                :            :                     formats_list));
+<span class="lineNum">     567 </span>                :<span class="lineCov">          1 :         msFree( formats_list );</span>
+<span class="lineNum">     568 </span>                :            :     }
+<span class="lineNum">     569 </span>                :            : 
+<span class="lineNum">     570 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     571 </span>                :            :     /*      GetPropertyValue                                                */
+<span class="lineNum">     572 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     573 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if (msOWSRequestIsEnabled(map, NULL, &quot;F&quot;, &quot;GetPropertyValue&quot;, MS_TRUE)) {</span>
+<span class="lineNum">     574 </span>                :            : 
+<span class="lineNum">     575 </span>                :<span class="lineCov">          1 :         psNode = xmlAddChild(psMainNode,</span>
+<span class="lineNum">     576 </span>                :            :                             msOWSCommonOperationsMetadataOperation(psNsOws,psNsXLink,&quot;GetPropertyValue&quot;,
+<span class="lineNum">     577 </span>                :            :                                 OWS_METHOD_GETPOST, script_url));
+<span class="lineNum">     578 </span>                :<span class="lineCov">          1 :         xmlAddChild(psMainNode, psNode);</span>
+<span class="lineNum">     579 </span>                :            : 
+<span class="lineNum">     580 </span>                :            :         /* Only advertize built-in GML formats for GetPropertyValue. Not sure */
+<span class="lineNum">     581 </span>                :            :         /* it makes sense to advertize OGR formats. */
+<span class="lineNum">     582 </span>                :<span class="lineCov">          1 :         xmlAddChild(psNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     583 </span>                :            :                     &quot;Parameter&quot;, &quot;outputFormat&quot;,
+<span class="lineNum">     584 </span>                :            :                     &quot;application/gml+xml; version=3.2,&quot;
+<span class="lineNum">     585 </span>                :            :                     &quot;text/xml; subtype=gml/3.2.1,&quot;
+<span class="lineNum">     586 </span>                :            :                     &quot;text/xml; subtype=gml/3.1.1,&quot;
+<span class="lineNum">     587 </span>                :            :                     &quot;text/xml; subtype=gml/2.1.2&quot;));
+<span class="lineNum">     588 </span>                :            :     }
+<span class="lineNum">     589 </span>                :            : 
+<span class="lineNum">     590 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     591 </span>                :            :     /*      ListStoredQueries                                               */
+<span class="lineNum">     592 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     593 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if (msOWSRequestIsEnabled(map, NULL, &quot;F&quot;, &quot;ListStoredQueries&quot;, MS_TRUE)) {</span>
+<span class="lineNum">     594 </span>                :            : 
+<span class="lineNum">     595 </span>                :<span class="lineCov">          1 :         psNode = xmlAddChild(psMainNode,</span>
+<span class="lineNum">     596 </span>                :            :                             msOWSCommonOperationsMetadataOperation(psNsOws,psNsXLink,&quot;ListStoredQueries&quot;,
+<span class="lineNum">     597 </span>                :            :                                 OWS_METHOD_GETPOST, script_url));
+<span class="lineNum">     598 </span>                :<span class="lineCov">          1 :         xmlAddChild(psMainNode, psNode);</span>
+<span class="lineNum">     599 </span>                :            :     }
+<span class="lineNum">     600 </span>                :            : 
+<span class="lineNum">     601 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     602 </span>                :            :     /*      DescribeStoredQueries                                           */
+<span class="lineNum">     603 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     604 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if (msOWSRequestIsEnabled(map, NULL, &quot;F&quot;, &quot;DescribeStoredQueries&quot;, MS_TRUE)) {</span>
+<span class="lineNum">     605 </span>                :            : 
+<span class="lineNum">     606 </span>                :<span class="lineCov">          1 :         psNode = xmlAddChild(psMainNode,</span>
+<span class="lineNum">     607 </span>                :            :                             msOWSCommonOperationsMetadataOperation(psNsOws,psNsXLink,&quot;DescribeStoredQueries&quot;,
+<span class="lineNum">     608 </span>                :            :                                 OWS_METHOD_GETPOST, script_url));
+<span class="lineNum">     609 </span>                :<span class="lineCov">          1 :         xmlAddChild(psMainNode, psNode);</span>
+<span class="lineNum">     610 </span>                :            :     }
+<span class="lineNum">     611 </span>                :            : 
+<span class="lineNum">     612 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     613 </span>                :            :                 &quot;Parameter&quot;, &quot;version&quot;,
+<span class="lineNum">     614 </span>                :            :                 &quot;2.0.0,1.1.0,1.0.0&quot;));
+<span class="lineNum">     615 </span>                :            : 
+<span class="lineNum">     616 </span>                :            :     msWFSAddGlobalSRSNameParam(psMainNode, psNsOws, map);
+<span class="lineNum">     617 </span>                :            : 
+<span class="lineNum">     618 </span>                :            :     /* Conformance declaration */
+<span class="lineNum">     619 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;ImplementsBasicWFS&quot;, &quot;TRUE&quot;));</span>
+<span class="lineNum">     620 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;ImplementsTransactionalWFS&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     621 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;ImplementsLockingWFS&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     622 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;KVPEncoding&quot;, &quot;TRUE&quot;));</span>
+<span class="lineNum">     623 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;XMLEncoding&quot;, &quot;TRUE&quot;));</span>
+<span class="lineNum">     624 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;SOAPEncoding&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     625 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;ImplementsInheritance&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     626 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;ImplementsRemoteResolve&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     627 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;ImplementsResultPaging&quot;, &quot;TRUE&quot;));</span>
+<span class="lineNum">     628 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;ImplementsStandardJoins&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     629 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;ImplementsSpatialJoins&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     630 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;ImplementsTemporalJoins&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     631 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;ImplementsFeatureVersioning&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     632 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;ManageStoredQueries&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     633 </span>                :            : 
+<span class="lineNum">     634 </span>                :            :     /* Capacity declaration */
+<span class="lineNum">     635 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;PagingIsTransactionSafe&quot;, &quot;FALSE&quot;));</span>
+<span class="lineNum">     636 </span>                :            : 
+<span class="lineNum">     637 </span>                :<span class="lineCov">          1 :     value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;maxfeatures&quot;);</span>
+<span class="lineNum">     638 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (value) {</span>
+<span class="lineNum">     639 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msWFSConstraintDefaultValue(psNsOws, psNsOws, &quot;CountDefault&quot;, value));</span>
+<span class="lineNum">     640 </span>                :            :     }
+<span class="lineNum">     641 </span>                :            : 
+<span class="lineNum">     642 </span>                :<span class="lineCov">          1 :     xmlAddChild(psMainNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     643 </span>                :            :                 &quot;Constraint&quot;, &quot;QueryExpressions&quot;,&quot;wfs:Query,wfs:StoredQuery&quot;));
+<span class="lineNum">     644 </span>                :            : 
+<span class="lineNum">     645 </span>                :            :     /* Add Inspire Download Services extended capabilities */
+<span class="lineNum">     646 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( psNsInspireDls != NULL )</span>
+<span class="lineNum">     647 </span>                :            :     {
+<span class="lineNum">     648 </span>                :            :         msIOContext* old_context;
+<span class="lineNum">     649 </span>                :            :         msIOContext* new_context;
+<span class="lineNum">     650 </span>                :            :         msIOBuffer* buffer;
+<span class="lineNum">     651 </span>                :            :         xmlNodePtr pRoot;
+<span class="lineNum">     652 </span>                :            :         xmlNodePtr pOWSExtendedCapabilities;
+<span class="lineNum">     653 </span>                :            :         xmlNodePtr pDlsExtendedCapabilities;
+<span class="lineNum">     654 </span>                :            :         xmlNodePtr pChild;
+<span class="lineNum">     655 </span>                :            : 
+<span class="lineNum">     656 </span>                :<span class="lineCov">          1 :         old_context = msIO_pushStdoutToBufferAndGetOldContext();</span>
+<span class="lineNum">     657 </span>                :<span class="lineCov">          1 :         msOWSPrintInspireCommonExtendedCapabilities(stdout, map, &quot;FO&quot;, OWS_WARN,</span>
+<span class="lineNum">     658 </span>                :            :                                                     &quot;foo&quot;,
+<span class="lineNum">     659 </span>                :            :                                                     &quot;xmlns:&quot; MS_INSPIRE_COMMON_NAMESPACE_PREFIX &quot;=\&quot;&quot; MS_INSPIRE_COMMON_NAMESPACE_URI &quot;\&quot; &quot;
+<span class="lineNum">     660 </span>                :            :                                                     &quot;xmlns:&quot; MS_INSPIRE_DLS_NAMESPACE_PREFIX &quot;=\&quot;&quot; MS_INSPIRE_DLS_NAMESPACE_URI &quot;\&quot; &quot;
+<span class="lineNum">     661 </span>                :            :                                                     &quot;xmlns:xsi=\&quot;&quot; MS_OWSCOMMON_W3C_XSI_NAMESPACE_URI &quot;\&quot;&quot;, validated_language, OWS_WFS);
+<span class="lineNum">     662 </span>                :            : 
+<span class="lineNum">     663 </span>                :<span class="lineCov">          1 :         new_context = msIO_getHandler(stdout);</span>
+<span class="lineNum">     664 </span>                :<span class="lineCov">          1 :         buffer = (msIOBuffer *) new_context-&gt;cbData;</span>
+<span class="lineNum">     665 </span>                :            : 
+<span class="lineNum">     666 </span>                :            :         /* Remove spaces between &gt; and &lt; to get properly indented result */
+<span class="lineNum">     667 </span>                :<span class="lineCov">          1 :         msXMLStripIndentation( (char*) buffer-&gt;data );</span>
+<span class="lineNum">     668 </span>                :            : 
+<span class="lineNum">     669 </span>                :<span class="lineCov">          1 :         pInspireTmpDoc = xmlParseDoc((const xmlChar *)buffer-&gt;data);</span>
+<span class="lineNum">     670 </span>                :<span class="lineCov">          1 :         pRoot = xmlDocGetRootElement(pInspireTmpDoc);</span>
+<span class="lineNum">     671 </span>                :<span class="lineCov">          1 :         xmlReconciliateNs(psDoc, pRoot);</span>
+<span class="lineNum">     672 </span>                :            : 
+<span class="lineNum">     673 </span>                :<span class="lineCov">          1 :         pOWSExtendedCapabilities = xmlNewNode(psNsOws, BAD_CAST &quot;ExtendedCapabilities&quot;);</span>
+<span class="lineNum">     674 </span>                :<span class="lineCov">          1 :         xmlAddChild(psMainNode, pOWSExtendedCapabilities);</span>
+<span class="lineNum">     675 </span>                :            : 
+<span class="lineNum">     676 </span>                :<span class="lineCov">          1 :         pDlsExtendedCapabilities = xmlNewNode(psNsInspireDls, BAD_CAST &quot;ExtendedCapabilities&quot;);</span>
+<span class="lineNum">     677 </span>                :<span class="lineCov">          1 :         xmlAddChild(pOWSExtendedCapabilities, pDlsExtendedCapabilities);</span>
+<span class="lineNum">     678 </span>                :            : 
+<span class="lineNum">     679 </span>                :<span class="lineCov">          1 :         pChild = pRoot-&gt;children;</span>
+<span class="lineNum">     680 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         while(pChild != NULL)</span>
+<span class="lineNum">     681 </span>                :            :         {
+<span class="lineNum">     682 </span>                :<span class="lineCov">          1 :             xmlNodePtr pNext = pChild-&gt;next;</span>
+<span class="lineNum">     683 </span>                :<span class="lineCov">          1 :             xmlUnlinkNode(pChild);</span>
+<span class="lineNum">     684 </span>                :<span class="lineCov">          1 :             xmlAddChild(pDlsExtendedCapabilities, pChild);</span>
+<span class="lineNum">     685 </span>                :            :             pChild = pNext;
+<span class="lineNum">     686 </span>                :            :         }
+<span class="lineNum">     687 </span>                :            : 
+<span class="lineNum">     688 </span>                :<span class="lineCov">          1 :         msWFSAddInspireDSID(map, psNsInspireDls, psNsInspireCommon, pDlsExtendedCapabilities);</span>
+<span class="lineNum">     689 </span>                :            : 
+<span class="lineNum">     690 </span>                :<span class="lineCov">          1 :         msIO_restoreOldStdoutContext(old_context);</span>
+<span class="lineNum">     691 </span>                :            :     }
+<span class="lineNum">     692 </span>                :            :   }
+<span class="lineNum">     693 </span>                :            : 
+<span class="lineNum">     694 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     695 </span>                :            :   /*      FeatureTypeList                                                 */
+<span class="lineNum">     696 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     697 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( msWFSIncludeSection(params, &quot;FeatureTypeList&quot;) )</span>
+<span class="lineNum">     698 </span>                :            :   {
+<span class="lineNum">     699 </span>                :<span class="lineCov">          1 :     psFtNode = xmlNewNode(NULL, BAD_CAST &quot;FeatureTypeList&quot;);</span>
+<span class="lineNum">     700 </span>                :<span class="lineCov">          1 :     xmlAddChild(psRootNode, psFtNode);</span>
+<span class="lineNum">     701 </span>                :            :   }
+<span class="lineNum">     702 </span>                :            : 
+<span class="lineNum">     703 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;map-&gt;numlayers; i++) {</span>
+<span class="lineNum">     704 </span>                :            :         layerObj *lp;
+<span class="lineNum">     705 </span>                :<span class="lineCov">          1 :         lp = GET_LAYER(map, i);</span>
+<span class="lineNum">     706 </span>                :            : 
+<span class="lineNum">     707 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :         if (!msIntegerInArray(lp-&gt;index, ows_request-&gt;enabled_layers, ows_request-&gt;numlayers))</span>
+<span class="lineNum">     708 </span>                :<span class="lineCov">          1 :             continue;</span>
+<span class="lineNum">     709 </span>                :            : 
+<span class="lineNum">     710 </span>                :            :         /* List only vector layers in which DUMP=TRUE */
+<span class="lineNum">     711 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (msWFSIsLayerSupported(lp))</span>
+<span class="lineNum">     712 </span>                :            :         {
+<span class="lineNum">     713 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if( psFtNode != NULL ) {</span>
+<span class="lineNum">     714 </span>                :<span class="lineCov">          1 :             xmlAddChild(psFtNode, msWFSDumpLayer11(map, lp, psNsOws, OWS_2_0_0, validated_language));</span>
+<span class="lineNum">     715 </span>                :            :           }
+<span class="lineNum">     716 </span>                :            : 
+<span class="lineNum">     717 </span>                :            :           /* As soon as at least one layer supports sorting, advertize sorting */
+<span class="lineNum">     718 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :           if( msLayerSupportsSorting(lp) )</span>
+<span class="lineNum">     719 </span>                :            :               bImplementsSorting = MS_TRUE;
+<span class="lineNum">     720 </span>                :            :         }
+<span class="lineNum">     721 </span>                :            :   }
+<span class="lineNum">     722 </span>                :            : 
+<span class="lineNum">     723 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     724 </span>                :            :   /*      Filter capabilities.                                            */
+<span class="lineNum">     725 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     726 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( msWFSIncludeSection(params, &quot;Filter_Capabilities&quot;) )</span>
+<span class="lineNum">     727 </span>                :            :   {
+<span class="lineNum">     728 </span>                :<span class="lineCov">          1 :     psNsFES = xmlNewNs(NULL, BAD_CAST MS_OWSCOMMON_FES_20_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_FES_20_NAMESPACE_PREFIX);</span>
+<span class="lineNum">     729 </span>                :<span class="lineCov">          1 :     xmlAddChild(psRootNode, msWFS20FilterCapabilities(psNsFES, psNsOws, bImplementsSorting));</span>
+<span class="lineNum">     730 </span>                :            :   }
+<span class="lineNum">     731 </span>                :            : 
+<span class="lineNum">     732 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     733 </span>                :            :   /*      Write out the document.                                         */
+<span class="lineNum">     734 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     735 </span>                :            : 
+<span class="lineNum">     736 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if( msIO_needBinaryStdout() == MS_FAILURE )</span>
+<span class="lineNum">     737 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     738 </span>                :            : 
+<span class="lineNum">     739 </span>                :<span class="lineCov">          1 :   msIO_setHeader(&quot;Content-Type&quot;,&quot;text/xml; charset=UTF-8&quot;);</span>
+<span class="lineNum">     740 </span>                :<span class="lineCov">          1 :   msIO_sendHeaders();</span>
+<span class="lineNum">     741 </span>                :            : 
+<span class="lineNum">     742 </span>                :<span class="lineCov">          1 :   context = msIO_getHandler(stdout);</span>
+<span class="lineNum">     743 </span>                :            : 
+<span class="lineNum">     744 </span>                :<span class="lineCov">          1 :   xmlDocDumpFormatMemoryEnc(psDoc, &amp;buffer, &amp;size, (&quot;UTF-8&quot;), 1);</span>
+<span class="lineNum">     745 </span>                :<span class="lineCov">          1 :   msIO_contextWrite(context, buffer, size);</span>
+<span class="lineNum">     746 </span>                :<span class="lineCov">          1 :   xmlFree(buffer);</span>
+<span class="lineNum">     747 </span>                :            : 
+<span class="lineNum">     748 </span>                :            :   /*free buffer and the document */
+<span class="lineNum">     749 </span>                :            :   /*xmlFree(buffer);*/
+<span class="lineNum">     750 </span>                :<span class="lineCov">          1 :   xmlFreeDoc(psDoc);</span>
+<span class="lineNum">     751 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( psNsFES != NULL )</span>
+<span class="lineNum">     752 </span>                :<span class="lineCov">          1 :       xmlFreeNs(psNsFES);</span>
+<span class="lineNum">     753 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( pInspireTmpDoc != NULL )</span>
+<span class="lineNum">     754 </span>                :<span class="lineCov">          1 :       xmlFreeDoc(pInspireTmpDoc);</span>
+<span class="lineNum">     755 </span>                :            : 
+<span class="lineNum">     756 </span>                :<span class="lineCov">          1 :   free(script_url);</span>
+<span class="lineNum">     757 </span>                :<span class="lineCov">          1 :   msFree(validated_language);</span>
+<span class="lineNum">     758 </span>                :            : 
+<span class="lineNum">     759 </span>                :<span class="lineCov">          1 :   xmlCleanupParser();</span>
+<span class="lineNum">     760 </span>                :            : 
+<span class="lineNum">     761 </span>                :<span class="lineCov">          1 :   return(MS_SUCCESS);</span>
+<span class="lineNum">     762 </span>                :            : }
+<span class="lineNum">     763 </span>                :            : 
+<span class="lineNum">     764 </span>                :            : /************************************************************************/
+<span class="lineNum">     765 </span>                :            : /*                       msWFSGetStoredQueries                          */
+<span class="lineNum">     766 </span>                :            : /*                                                                      */
+<span class="lineNum">     767 </span>                :            : /* Result must be freed with msFreeCharArray()                          */
+<a name="768"><span class="lineNum">     768 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     769 </span>                :            : 
+<span class="lineNum">     770 </span>                :<span class="lineCov">          1 : static char** msWFSGetStoredQueries(mapObj *map, int* pn)</span>
+<span class="lineNum">     771 </span>                :            : {
+<span class="lineNum">     772 </span>                :            :   const char* value;
+<span class="lineNum">     773 </span>                :            :   char** tokens;
+<span class="lineNum">     774 </span>                :            :   int i,n;
+<span class="lineNum">     775 </span>                :            :   
+<span class="lineNum">     776 </span>                :<span class="lineCov">          1 :   value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;F&quot;, &quot;storedqueries&quot;);</span>
+<span class="lineNum">     777 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( value != NULL )</span>
+<span class="lineNum">     778 </span>                :            :   {
+<span class="lineNum">     779 </span>                :<span class="lineCov">          1 :     tokens = msStringSplit(value, ',', &amp;n);</span>
+<span class="lineNum">     780 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i=0;i&lt;n;i++)</span>
+<span class="lineNum">     781 </span>                :            :     {
+<span class="lineNum">     782 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if( strcasecmp(tokens[i], URN_GET_FEATURE_BY_ID) == 0 )</span>
+<span class="lineNum">     783 </span>                :            :             break;
+<span class="lineNum">     784 </span>                :            :     }
+<span class="lineNum">     785 </span>                :            :     /* Add mandatory GetFeatureById stored query if not found */
+<span class="lineNum">     786 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(i == n)</span>
+<span class="lineNum">     787 </span>                :            :     {
+<span class="lineNum">     788 </span>                :<span class="lineCov">          1 :         tokens = (char**) realloc(tokens, (n+1) * sizeof(char*));</span>
+<span class="lineNum">     789 </span>                :<span class="lineCov">          1 :         memmove(tokens + 1, tokens, n * sizeof(char**));</span>
+<span class="lineNum">     790 </span>                :<span class="lineCov">          1 :         tokens[0] = msStrdup(URN_GET_FEATURE_BY_ID);</span>
+<span class="lineNum">     791 </span>                :<span class="lineCov">          1 :         n ++;</span>
+<span class="lineNum">     792 </span>                :            :     }
+<span class="lineNum">     793 </span>                :            :   }
+<span class="lineNum">     794 </span>                :            :   else
+<span class="lineNum">     795 </span>                :            :   {
+<span class="lineNum">     796 </span>                :<span class="lineCov">          1 :       tokens = (char**) malloc(sizeof(char**));</span>
+<span class="lineNum">     797 </span>                :<span class="lineCov">          1 :       tokens[0] = msStrdup(URN_GET_FEATURE_BY_ID);</span>
+<span class="lineNum">     798 </span>                :<span class="lineCov">          1 :       n = 1;</span>
+<span class="lineNum">     799 </span>                :            :   }
+<span class="lineNum">     800 </span>                :<span class="lineCov">          1 :   *pn = n;</span>
+<span class="lineNum">     801 </span>                :<span class="lineCov">          1 :   return tokens;</span>
+<span class="lineNum">     802 </span>                :            : }
+<span class="lineNum">     803 </span>                :            : 
+<span class="lineNum">     804 </span>                :            : /************************************************************************/
+<span class="lineNum">     805 </span>                :            : /*                       msWFSGetStoredQuery                            */
+<span class="lineNum">     806 </span>                :            : /*                                                                      */
+<span class="lineNum">     807 </span>                :            : /* Result must be freed with msFree()                                   */
+<a name="808"><span class="lineNum">     808 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     809 </span>                :            : 
+<span class="lineNum">     810 </span>                :<span class="lineCov">          1 : static char* msWFSGetStoredQuery(mapObj *map, const char* pszURN)</span>
+<span class="lineNum">     811 </span>                :            : {
+<span class="lineNum">     812 </span>                :            :     const char* value;
+<span class="lineNum">     813 </span>                :            :     char szKey[256];
+<span class="lineNum">     814 </span>                :            :     
+<span class="lineNum">     815 </span>                :            :     snprintf(szKey, sizeof(szKey), &quot;%s_inlinedef&quot;, pszURN);
+<span class="lineNum">     816 </span>                :<span class="lineCov">          1 :     value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;F&quot;, szKey);</span>
+<span class="lineNum">     817 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( value != NULL )</span>
+<span class="lineNum">     818 </span>                :<span class="lineCov">          1 :         return msStrdup(value);</span>
+<span class="lineNum">     819 </span>                :            :     
+<span class="lineNum">     820 </span>                :            :     snprintf(szKey, sizeof(szKey), &quot;%s_filedef&quot;, pszURN);
+<span class="lineNum">     821 </span>                :<span class="lineCov">          1 :     value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;F&quot;, szKey);</span>
+<span class="lineNum">     822 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( value != NULL )</span>
+<span class="lineNum">     823 </span>                :            :     {
+<span class="lineNum">     824 </span>                :<span class="lineCov">          1 :         FILE* f = fopen(value, &quot;rb&quot;);</span>
+<span class="lineNum">     825 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if( f != NULL )</span>
+<span class="lineNum">     826 </span>                :            :         {
+<span class="lineNum">     827 </span>                :<span class="lineCov">          1 :             char* pszBuffer = (char*) msSmallMalloc(32000);</span>
+<span class="lineNum">     828 </span>                :<span class="lineCov">          1 :             int nread = fread(pszBuffer, 1, 32000-1, f);</span>
+<span class="lineNum">     829 </span>                :<span class="lineCov">          1 :             fclose(f);</span>
+<span class="lineNum">     830 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :             if( nread &gt; 0 )</span>
+<span class="lineNum">     831 </span>                :            :             {
+<span class="lineNum">     832 </span>                :<span class="lineCov">          1 :                 pszBuffer[nread-1] = '\0';</span>
+<span class="lineNum">     833 </span>                :<span class="lineCov">          1 :                 return pszBuffer;</span>
+<span class="lineNum">     834 </span>                :            :             }
+<span class="lineNum">     835 </span>                :<span class="lineNoCov">          0 :             msFree(pszBuffer);</span>
+<span class="lineNum">     836 </span>                :            :         }
+<span class="lineNum">     837 </span>                :            :         else
+<span class="lineNum">     838 </span>                :            :         {
+<span class="lineNum">     839 </span>                :<span class="lineNoCov">          0 :             msSetError(MS_WFSERR, &quot;Cannot open %s&quot;, &quot;msWFSGetStoredQuery()&quot;, value);</span>
+<span class="lineNum">     840 </span>                :            :         }
+<span class="lineNum">     841 </span>                :            :     }
+<span class="lineNum">     842 </span>                :            : 
+<span class="lineNum">     843 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( strcasecmp(pszURN, URN_GET_FEATURE_BY_ID) == 0 )</span>
+<span class="lineNum">     844 </span>                :<span class="lineCov">          1 :         return msStrdup(GET_FEATURE_BY_ID);</span>
+<span class="lineNum">     845 </span>                :            :     return NULL;
+<span class="lineNum">     846 </span>                :            : }
+<span class="lineNum">     847 </span>                :            : 
+<span class="lineNum">     848 </span>                :            : /************************************************************************/
+<span class="lineNum">     849 </span>                :            : /*                     msWFSGetResolvedStoredQuery20                    */
+<span class="lineNum">     850 </span>                :            : /*                                                                      */
+<span class="lineNum">     851 </span>                :            : /* Result must be freed with msFree()                                   */
+<a name="852"><span class="lineNum">     852 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     853 </span>                :            : 
+<span class="lineNum">     854 </span>                :<span class="lineCov">          1 : char* msWFSGetResolvedStoredQuery20(mapObj *map,</span>
+<span class="lineNum">     855 </span>                :            :                                     wfsParamsObj *wfsparams,
+<span class="lineNum">     856 </span>                :            :                                     const char* id,
+<span class="lineNum">     857 </span>                :            :                                     hashTableObj* hashTable)
+<span class="lineNum">     858 </span>                :            : {
+<span class="lineNum">     859 </span>                :            :     char* storedQuery;
+<span class="lineNum">     860 </span>                :            :     xmlDocPtr psStoredQueryDoc;
+<span class="lineNum">     861 </span>                :            :     xmlNodePtr psStoredQueryRoot, pChild;
+<span class="lineNum">     862 </span>                :            : 
+<span class="lineNum">     863 </span>                :<span class="lineCov">          1 :     storedQuery = msWFSGetStoredQuery(map, id);</span>
+<span class="lineNum">     864 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( storedQuery == NULL )</span>
+<span class="lineNum">     865 </span>                :            :     {
+<span class="lineNum">     866 </span>                :<span class="lineCov">          1 :         msSetError(MS_WFSERR, &quot;Unknown stored query id: %s&quot;, &quot;msWFSGetResolvedStoredQuery20()&quot;,</span>
+<span class="lineNum">     867 </span>                :            :                    id);
+<span class="lineNum">     868 </span>                :<span class="lineCov">          1 :         msWFSException(map, &quot;storedqueryid&quot;, MS_OWS_ERROR_INVALID_PARAMETER_VALUE, wfsparams-&gt;pszVersion);</span>
+<span class="lineNum">     869 </span>                :<span class="lineCov">          1 :         return NULL;</span>
+<span class="lineNum">     870 </span>                :            :     }
+<span class="lineNum">     871 </span>                :            : 
+<span class="lineNum">     872 </span>                :<span class="lineCov">          1 :     psStoredQueryDoc = xmlParseDoc((const xmlChar*) storedQuery);</span>
+<span class="lineNum">     873 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( psStoredQueryDoc == NULL )</span>
+<span class="lineNum">     874 </span>                :            :     {
+<span class="lineNum">     875 </span>                :<span class="lineCov">          1 :         msSetError(MS_WFSERR, &quot;Definition for stored query '%s' is invalid&quot;, &quot;msWFSGetResolvedStoredQuery20()&quot;, id);</span>
+<span class="lineNum">     876 </span>                :<span class="lineCov">          1 :         msWFSException(map, &quot;mapserv&quot;, MS_OWS_ERROR_NO_APPLICABLE_CODE, wfsparams-&gt;pszVersion);</span>
+<span class="lineNum">     877 </span>                :<span class="lineCov">          1 :         msFree(storedQuery);</span>
+<span class="lineNum">     878 </span>                :<span class="lineCov">          1 :         return NULL;</span>
+<span class="lineNum">     879 </span>                :            :     }
+<span class="lineNum">     880 </span>                :            : 
+<span class="lineNum">     881 </span>                :<span class="lineCov">          1 :     psStoredQueryRoot = xmlDocGetRootElement(psStoredQueryDoc);</span>
+<span class="lineNum">     882 </span>                :            : 
+<span class="lineNum">     883 </span>                :            :     /* Check that all parameters are provided */
+<span class="lineNum">     884 </span>                :<span class="lineCov">          1 :     pChild = psStoredQueryRoot-&gt;children;</span>
+<span class="lineNum">     885 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     while(pChild != NULL)</span>
+<span class="lineNum">     886 </span>                :            :     {
+<span class="lineNum">     887 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( pChild-&gt;type == XML_ELEMENT_NODE &amp;&amp;</span>
+<span class="lineNum">     888 </span>                :<span class="lineCov">          1 :             strcmp((const char*) pChild-&gt;name, &quot;Parameter&quot;) == 0 )</span>
+<span class="lineNum">     889 </span>                :            :         {
+<span class="lineNum">     890 </span>                :<span class="lineCov">          1 :             xmlChar* parameterName = xmlGetProp(pChild, BAD_CAST &quot;name&quot;);</span>
+<span class="lineNum">     891 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :             if( parameterName != NULL )</span>
+<span class="lineNum">     892 </span>                :            :             {
+<span class="lineNum">     893 </span>                :            :                 char szTmp[256];
+<span class="lineNum">     894 </span>                :<span class="lineCov">          1 :                 const char* value = msLookupHashTable(hashTable, (const char*)parameterName);</span>
+<span class="lineNum">     895 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                 if( value == NULL )</span>
+<span class="lineNum">     896 </span>                :            :                 {
+<span class="lineNum">     897 </span>                :<span class="lineCov">          1 :                     msSetError(MS_WFSERR, &quot;Stored query '%s' requires parameter '%s'&quot;, &quot;msWFSParseRequest()&quot;,</span>
+<span class="lineNum">     898 </span>                :            :                                id, (const char*)parameterName);
+<span class="lineNum">     899 </span>                :<span class="lineCov">          1 :                     msWFSException(map, (const char*)parameterName, MS_OWS_ERROR_MISSING_PARAMETER_VALUE, wfsparams-&gt;pszVersion);</span>
+<span class="lineNum">     900 </span>                :<span class="lineCov">          1 :                     msFree(storedQuery);</span>
+<span class="lineNum">     901 </span>                :<span class="lineCov">          1 :                     xmlFree(parameterName);</span>
+<span class="lineNum">     902 </span>                :<span class="lineCov">          1 :                     xmlFreeDoc(psStoredQueryDoc);</span>
+<span class="lineNum">     903 </span>                :<span class="lineCov">          1 :                     return NULL;</span>
+<span class="lineNum">     904 </span>                :            :                 }
+<span class="lineNum">     905 </span>                :            : 
+<span class="lineNum">     906 </span>                :            :                 snprintf(szTmp, sizeof(szTmp), &quot;${%s}&quot;, (const char*)parameterName);
+<span class="lineNum">     907 </span>                :<span class="lineCov">          1 :                 storedQuery = msReplaceSubstring(storedQuery, szTmp, value);</span>
+<span class="lineNum">     908 </span>                :            :             }
+<span class="lineNum">     909 </span>                :<span class="lineCov">          1 :             xmlFree(parameterName);</span>
+<span class="lineNum">     910 </span>                :            :         }
+<span class="lineNum">     911 </span>                :<span class="lineCov">          1 :         pChild = pChild-&gt;next;</span>
+<span class="lineNum">     912 </span>                :            :     }
+<span class="lineNum">     913 </span>                :            : 
+<span class="lineNum">     914 </span>                :<span class="lineCov">          1 :     xmlFreeDoc(psStoredQueryDoc);</span>
+<span class="lineNum">     915 </span>                :            : 
+<span class="lineNum">     916 </span>                :<span class="lineCov">          1 :     return storedQuery;</span>
+<span class="lineNum">     917 </span>                :            : }
+<span class="lineNum">     918 </span>                :            : 
+<span class="lineNum">     919 </span>                :            : /************************************************************************/
+<span class="lineNum">     920 </span>                :            : /*                       msWFSListStoredQueries20                       */
+<a name="921"><span class="lineNum">     921 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     922 </span>                :            : 
+<span class="lineNum">     923 </span>                :<span class="lineCov">          1 : int msWFSListStoredQueries20(mapObj *map, wfsParamsObj *params,</span>
+<span class="lineNum">     924 </span>                :            :                              cgiRequestObj *req, owsRequestObj *ows_request)
+<span class="lineNum">     925 </span>                :            : {
+<span class="lineNum">     926 </span>                :            :   xmlDocPtr psDoc;
+<span class="lineNum">     927 </span>                :<span class="lineCov">          1 :   xmlChar *buffer = NULL;</span>
+<span class="lineNum">     928 </span>                :<span class="lineCov">          1 :   int size = 0;</span>
+<span class="lineNum">     929 </span>                :            :   msIOContext *context = NULL;
+<span class="lineNum">     930 </span>                :            :   xmlNodePtr psRootNode;
+<span class="lineNum">     931 </span>                :            :   char *xsi_schemaLocation = NULL;
+<span class="lineNum">     932 </span>                :            :   int i, j;
+<span class="lineNum">     933 </span>                :<span class="lineCov">          1 :   int nStoredQueries = 0;</span>
+<span class="lineNum">     934 </span>                :            :   char** storedQueries = NULL;
+<span class="lineNum">     935 </span>                :            : 
+<span class="lineNum">     936 </span>                :            :   xmlDocPtr psStoredQueryDoc;
+<span class="lineNum">     937 </span>                :            :   xmlNodePtr psStoredQueryRoot;
+<span class="lineNum">     938 </span>                :            :   
+<span class="lineNum">     939 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     940 </span>                :            :   /*      Create document.                                                */
+<span class="lineNum">     941 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     942 </span>                :<span class="lineCov">          1 :   psDoc = xmlNewDoc(BAD_CAST &quot;1.0&quot;);</span>
+<span class="lineNum">     943 </span>                :            : 
+<span class="lineNum">     944 </span>                :<span class="lineCov">          1 :   psRootNode = xmlNewNode(NULL, BAD_CAST &quot;ListStoredQueriesResponse&quot;);</span>
+<span class="lineNum">     945 </span>                :            : 
+<span class="lineNum">     946 </span>                :<span class="lineCov">          1 :   xmlDocSetRootElement(psDoc, psRootNode);</span>
+<span class="lineNum">     947 </span>                :            : 
+<span class="lineNum">     948 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     949 </span>                :            :   /*      Name spaces                                                     */
+<span class="lineNum">     950 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     951 </span>                :            :   
+<span class="lineNum">     952 </span>                :            :   /*default name space*/
+<span class="lineNum">     953 </span>                :<span class="lineCov">          1 :   xmlNewProp(psRootNode, BAD_CAST &quot;xmlns&quot;, BAD_CAST MS_OWSCOMMON_WFS_20_NAMESPACE_URI);</span>
+<span class="lineNum">     954 </span>                :            : 
+<span class="lineNum">     955 </span>                :<span class="lineCov">          1 :   xmlSetNs(psRootNode, xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_WFS_20_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_WFS_NAMESPACE_PREFIX));</span>
+<span class="lineNum">     956 </span>                :            : 
+<span class="lineNum">     957 </span>                :<span class="lineCov">          1 :   xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_W3C_XSI_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_W3C_XSI_NAMESPACE_PREFIX);</span>
+<span class="lineNum">     958 </span>                :            : 
+<span class="lineNum">     959 </span>                :            :   /*schema*/
+<span class="lineNum">     960 </span>                :<span class="lineCov">          1 :   xsi_schemaLocation = msStrdup(MS_OWSCOMMON_WFS_20_NAMESPACE_URI);</span>
+<span class="lineNum">     961 </span>                :<span class="lineCov">          1 :   xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, &quot; &quot;);</span>
+<span class="lineNum">     962 </span>                :<span class="lineCov">          1 :   xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, msOWSGetSchemasLocation(map));</span>
+<span class="lineNum">     963 </span>                :<span class="lineCov">          1 :   xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, MS_OWSCOMMON_WFS_20_SCHEMA_LOCATION);</span>
+<span class="lineNum">     964 </span>                :            : 
+<span class="lineNum">     965 </span>                :<span class="lineCov">          1 :   xmlNewNsProp(psRootNode, NULL, BAD_CAST &quot;xsi:schemaLocation&quot;, BAD_CAST xsi_schemaLocation);</span>
+<span class="lineNum">     966 </span>                :<span class="lineCov">          1 :   free(xsi_schemaLocation);</span>
+<span class="lineNum">     967 </span>                :            : 
+<span class="lineNum">     968 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     969 </span>                :            :   /*      Add queries                                                     */
+<span class="lineNum">     970 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     971 </span>                :            :   
+<span class="lineNum">     972 </span>                :<span class="lineCov">          1 :   storedQueries = msWFSGetStoredQueries(map, &amp;nStoredQueries);</span>
+<span class="lineNum">     973 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i = 0; i &lt; nStoredQueries; i++)</span>
+<span class="lineNum">     974 </span>                :            :   {
+<span class="lineNum">     975 </span>                :<span class="lineCov">          1 :     char* query = msWFSGetStoredQuery(map, storedQueries[i]);</span>
+<span class="lineNum">     976 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( query != NULL )</span>
+<span class="lineNum">     977 </span>                :            :     {
+<span class="lineNum">     978 </span>                :            :       xmlNodePtr pChild;
+<span class="lineNum">     979 </span>                :            :       xmlNodePtr psStoredQuery;
+<span class="lineNum">     980 </span>                :            : 
+<span class="lineNum">     981 </span>                :<span class="lineCov">          1 :       psStoredQueryDoc = xmlParseDoc((const xmlChar*) query);</span>
+<span class="lineNum">     982 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( psStoredQueryDoc == NULL )</span>
+<span class="lineNum">     983 </span>                :            :       {
+<span class="lineNum">     984 </span>                :            :         char szMsg[256];
+<span class="lineNum">     985 </span>                :<span class="lineCov">          1 :         msFree(query);</span>
+<span class="lineNum">     986 </span>                :<span class="lineCov">          1 :         snprintf(szMsg, sizeof(szMsg), &quot;WARNING: Definition for stored query %s is invalid&quot;, storedQueries[i]);</span>
+<span class="lineNum">     987 </span>                :<span class="lineCov">          1 :         xmlAddChild(psRootNode, xmlNewComment(BAD_CAST szMsg));</span>
+<span class="lineNum">     988 </span>                :<span class="lineCov">          1 :         continue;</span>
+<span class="lineNum">     989 </span>                :            :       }
+<span class="lineNum">     990 </span>                :            : 
+<span class="lineNum">     991 </span>                :<span class="lineCov">          1 :       psStoredQueryRoot = xmlDocGetRootElement(psStoredQueryDoc);</span>
+<span class="lineNum">     992 </span>                :            : 
+<span class="lineNum">     993 </span>                :<span class="lineCov">          1 :       psStoredQuery = xmlNewNode(NULL, BAD_CAST &quot;StoredQuery&quot; );</span>
+<span class="lineNum">     994 </span>                :<span class="lineCov">          1 :       xmlNewProp(psStoredQuery, BAD_CAST &quot;id&quot;, BAD_CAST storedQueries[i]);</span>
+<span class="lineNum">     995 </span>                :<span class="lineCov">          1 :       xmlAddChild(psRootNode, psStoredQuery);</span>
+<span class="lineNum">     996 </span>                :            : 
+<span class="lineNum">     997 </span>                :<span class="lineCov">          1 :       pChild = psStoredQueryRoot-&gt;children;</span>
+<span class="lineNum">     998 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       while(pChild != NULL)</span>
+<span class="lineNum">     999 </span>                :            :       {
+<span class="lineNum">    1000 </span>                :<span class="lineCov">          1 :         xmlNodePtr pNext = pChild-&gt;next;</span>
+<span class="lineNum">    1001 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( pChild-&gt;type == XML_ELEMENT_NODE &amp;&amp;</span>
+<span class="lineNum">    1002 </span>                :<span class="lineCov">          1 :             strcmp((const char*) pChild-&gt;name, &quot;Title&quot;) == 0 )</span>
+<span class="lineNum">    1003 </span>                :            :         {
+<span class="lineNum">    1004 </span>                :<span class="lineCov">          1 :             xmlUnlinkNode(pChild);</span>
+<span class="lineNum">    1005 </span>                :<span class="lineCov">          1 :             xmlAddChild(psStoredQuery, pChild);</span>
+<span class="lineNum">    1006 </span>                :            :         }
+<span class="lineNum">    1007 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         else if( pChild-&gt;type == XML_ELEMENT_NODE &amp;&amp;</span>
+<span class="lineNum">    1008 </span>                :<span class="lineCov">          1 :             strcmp((const char*) pChild-&gt;name, &quot;QueryExpressionText&quot;) == 0 )</span>
+<span class="lineNum">    1009 </span>                :            :         {
+<span class="lineNum">    1010 </span>                :            :             xmlNodePtr psReturnFeatureType;
+<span class="lineNum">    1011 </span>                :            : 
+<span class="lineNum">    1012 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if( strcasecmp( storedQueries[i], URN_GET_FEATURE_BY_ID ) == 0 )</span>
+<span class="lineNum">    1013 </span>                :            :             {
+<span class="lineNum">    1014 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                 for(j=0; j&lt;map-&gt;numlayers; j++) {</span>
+<span class="lineNum">    1015 </span>                :            :                     layerObj *lp;
+<span class="lineNum">    1016 </span>                :            :                     const char *user_namespace_prefix = MS_DEFAULT_NAMESPACE_PREFIX;
+<span class="lineNum">    1017 </span>                :            :                     const char *user_namespace_uri = MS_DEFAULT_NAMESPACE_URI;
+<span class="lineNum">    1018 </span>                :            :                     const char *value;
+<span class="lineNum">    1019 </span>                :            :                     char szValue[256];
+<span class="lineNum">    1020 </span>                :            : 
+<span class="lineNum">    1021 </span>                :<span class="lineCov">          1 :                     lp = GET_LAYER(map, j);</span>
+<span class="lineNum">    1022 </span>                :            : 
+<span class="lineNum">    1023 </span>  [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken X times"> + </span>]:<span class="lineCov">          1 :                     if (!msIntegerInArray(lp-&gt;index, ows_request-&gt;enabled_layers, ows_request-&gt;numlayers) ||</span>
+<span class="lineNum">    1024 </span>                :<span class="lineCov">          1 :                         !msWFSIsLayerSupported(lp))</span>
+<span class="lineNum">    1025 </span>                :<span class="lineCov">          1 :                     continue;</span>
+<span class="lineNum">    1026 </span>                :            : 
+<span class="lineNum">    1027 </span>                :            : 
+<span class="lineNum">    1028 </span>                :<span class="lineCov">          1 :                     value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;namespace_uri&quot;);</span>
+<span class="lineNum">    1029 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                     if(value) user_namespace_uri = value;</span>
+<span class="lineNum">    1030 </span>                :            : 
+<span class="lineNum">    1031 </span>                :<span class="lineCov">          1 :                     value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;namespace_prefix&quot;);</span>
+<span class="lineNum">    1032 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                     if(value) user_namespace_prefix = value;</span>
+<span class="lineNum">    1033 </span>                :            : 
+<span class="lineNum">    1034 </span>                :<span class="lineCov">          1 :                     psReturnFeatureType = xmlNewNode(NULL, BAD_CAST &quot;ReturnFeatureType&quot; );</span>
+<span class="lineNum">    1035 </span>                :<span class="lineCov">          1 :                     xmlNewNs(psReturnFeatureType, BAD_CAST user_namespace_uri, BAD_CAST user_namespace_prefix);</span>
+<span class="lineNum">    1036 </span>                :            : 
+<span class="lineNum">    1037 </span>                :<span class="lineCov">          1 :                     xmlAddChild(psStoredQuery, psReturnFeatureType);</span>
+<span class="lineNum">    1038 </span>                :<span class="lineCov">          1 :                     snprintf(szValue, sizeof(szValue), &quot;%s:%s&quot;, user_namespace_prefix, lp-&gt;name);</span>
+<span class="lineNum">    1039 </span>                :<span class="lineCov">          1 :                     xmlAddChild(psReturnFeatureType, xmlNewText( BAD_CAST szValue ));</span>
+<span class="lineNum">    1040 </span>                :            :                 }
+<span class="lineNum">    1041 </span>                :            :             }
+<span class="lineNum">    1042 </span>                :            :             else
+<span class="lineNum">    1043 </span>                :            :             {
+<span class="lineNum">    1044 </span>                :<span class="lineCov">          1 :                 xmlChar* returnFeatureTypes = xmlGetProp(pChild, BAD_CAST &quot;returnFeatureTypes&quot;);</span>
+<span class="lineNum">    1045 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :                 if( returnFeatureTypes != NULL &amp;&amp; strlen((const char*)returnFeatureTypes) &gt; 0 )</span>
+<span class="lineNum">    1046 </span>                :<span class="lineCov">          1 :                 {</span>
+<span class="lineNum">    1047 </span>                :            :                     int ntypes;
+<span class="lineNum">    1048 </span>                :<span class="lineCov">          1 :                     char** types = msStringSplit((const char*)returnFeatureTypes, ' ', &amp;ntypes);</span>
+<span class="lineNum">    1049 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                     for(j=0; j&lt;ntypes; j++)</span>
+<span class="lineNum">    1050 </span>                :            :                     {
+<span class="lineNum">    1051 </span>                :<span class="lineCov">          1 :                         psReturnFeatureType = xmlNewNode(NULL, BAD_CAST &quot;ReturnFeatureType&quot; );</span>
+<span class="lineNum">    1052 </span>                :<span class="lineCov">          1 :                         xmlAddChild(psStoredQuery, psReturnFeatureType);</span>
+<span class="lineNum">    1053 </span>                :<span class="lineCov">          1 :                         xmlAddChild(psReturnFeatureType, xmlNewText( BAD_CAST types[j] ));</span>
+<span class="lineNum">    1054 </span>                :            :                     }
+<span class="lineNum">    1055 </span>                :<span class="lineCov">          1 :                     msFreeCharArray(types, ntypes);</span>
+<span class="lineNum">    1056 </span>                :            :                 }
+<span class="lineNum">    1057 </span>                :            :                 else
+<span class="lineNum">    1058 </span>                :            :                 {
+<span class="lineNum">    1059 </span>                :<span class="lineNoCov">          0 :                     psReturnFeatureType = xmlNewNode(NULL, BAD_CAST &quot;ReturnFeatureType&quot; );</span>
+<span class="lineNum">    1060 </span>                :<span class="lineNoCov">          0 :                     xmlAddChild(psStoredQuery, psReturnFeatureType);</span>
+<span class="lineNum">    1061 </span>                :<span class="lineNoCov">          0 :                     xmlAddChild(psReturnFeatureType, xmlNewComment( BAD_CAST &quot;WARNING: Missing return type&quot; ));</span>
+<span class="lineNum">    1062 </span>                :            :                 }
+<span class="lineNum">    1063 </span>                :<span class="lineCov">          1 :                 xmlFree(returnFeatureTypes);</span>
+<span class="lineNum">    1064 </span>                :            :             }
+<span class="lineNum">    1065 </span>                :            :         }
+<span class="lineNum">    1066 </span>                :            :         pChild = pNext;
+<span class="lineNum">    1067 </span>                :            :       }
+<span class="lineNum">    1068 </span>                :            : 
+<span class="lineNum">    1069 </span>                :<span class="lineCov">          1 :       xmlReconciliateNs(psDoc, psStoredQuery);</span>
+<span class="lineNum">    1070 </span>                :<span class="lineCov">          1 :       xmlFreeDoc(psStoredQueryDoc);</span>
+<span class="lineNum">    1071 </span>                :<span class="lineCov">          1 :       msFree(query);</span>
+<span class="lineNum">    1072 </span>                :            :     }
+<span class="lineNum">    1073 </span>                :            :     else
+<span class="lineNum">    1074 </span>                :            :     {
+<span class="lineNum">    1075 </span>                :            :       char szMsg[256];
+<span class="lineNum">    1076 </span>                :<span class="lineNoCov">          0 :       snprintf(szMsg, sizeof(szMsg), &quot;WARNING: Definition for stored query %s missing&quot;, storedQueries[i]);</span>
+<span class="lineNum">    1077 </span>                :<span class="lineNoCov">          0 :       xmlAddChild(psRootNode, xmlNewComment(BAD_CAST szMsg));</span>
+<span class="lineNum">    1078 </span>                :            :     }
+<span class="lineNum">    1079 </span>                :            :   }
+<span class="lineNum">    1080 </span>                :<span class="lineCov">          1 :   msFreeCharArray(storedQueries, nStoredQueries);</span>
+<span class="lineNum">    1081 </span>                :            : 
+<span class="lineNum">    1082 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1083 </span>                :            :   /*      Write out the document.                                         */
+<span class="lineNum">    1084 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1085 </span>                :            : 
+<span class="lineNum">    1086 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if( msIO_needBinaryStdout() == MS_FAILURE )</span>
+<span class="lineNum">    1087 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">    1088 </span>                :            : 
+<span class="lineNum">    1089 </span>                :<span class="lineCov">          1 :   msIO_setHeader(&quot;Content-Type&quot;,&quot;text/xml; charset=UTF-8&quot;);</span>
+<span class="lineNum">    1090 </span>                :<span class="lineCov">          1 :   msIO_sendHeaders();</span>
+<span class="lineNum">    1091 </span>                :            : 
+<span class="lineNum">    1092 </span>                :<span class="lineCov">          1 :   context = msIO_getHandler(stdout);</span>
+<span class="lineNum">    1093 </span>                :            : 
+<span class="lineNum">    1094 </span>                :<span class="lineCov">          1 :   xmlDocDumpFormatMemoryEnc(psDoc, &amp;buffer, &amp;size, (&quot;UTF-8&quot;), 1);</span>
+<span class="lineNum">    1095 </span>                :<span class="lineCov">          1 :   msIO_contextWrite(context, buffer, size);</span>
+<span class="lineNum">    1096 </span>                :<span class="lineCov">          1 :   xmlFree(buffer);</span>
+<span class="lineNum">    1097 </span>                :            : 
+<span class="lineNum">    1098 </span>                :            :   /*free buffer and the document */
+<span class="lineNum">    1099 </span>                :            :   /*xmlFree(buffer);*/
+<span class="lineNum">    1100 </span>                :<span class="lineCov">          1 :   xmlFreeDoc(psDoc);</span>
+<span class="lineNum">    1101 </span>                :            : 
+<span class="lineNum">    1102 </span>                :<span class="lineCov">          1 :   xmlCleanupParser();</span>
+<span class="lineNum">    1103 </span>                :            : 
+<span class="lineNum">    1104 </span>                :<span class="lineCov">          1 :   return(MS_SUCCESS);</span>
+<span class="lineNum">    1105 </span>                :            : }
+<span class="lineNum">    1106 </span>                :            : 
+<span class="lineNum">    1107 </span>                :            : 
+<span class="lineNum">    1108 </span>                :            : /************************************************************************/
+<span class="lineNum">    1109 </span>                :            : /*                     msWFSDescribeStoredQueries20                     */
+<a name="1110"><span class="lineNum">    1110 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">    1111 </span>                :            : 
+<span class="lineNum">    1112 </span>                :<span class="lineCov">          1 : int msWFSDescribeStoredQueries20(mapObj *map, wfsParamsObj *params,</span>
+<span class="lineNum">    1113 </span>                :            :                              cgiRequestObj *req, owsRequestObj *ows_request)
+<span class="lineNum">    1114 </span>                :            : {
+<span class="lineNum">    1115 </span>                :            :   xmlDocPtr psDoc;
+<span class="lineNum">    1116 </span>                :<span class="lineCov">          1 :   xmlChar *buffer = NULL;</span>
+<span class="lineNum">    1117 </span>                :<span class="lineCov">          1 :   int size = 0;</span>
+<span class="lineNum">    1118 </span>                :            :   msIOContext *context = NULL;
+<span class="lineNum">    1119 </span>                :            :   xmlNodePtr psRootNode;
+<span class="lineNum">    1120 </span>                :            :   char *xsi_schemaLocation = NULL;
+<span class="lineNum">    1121 </span>                :            :   int i, j;
+<span class="lineNum">    1122 </span>                :<span class="lineCov">          1 :   int nStoredQueries = 0;</span>
+<span class="lineNum">    1123 </span>                :            :   char** storedQueries = NULL;
+<span class="lineNum">    1124 </span>                :            : 
+<span class="lineNum">    1125 </span>                :            :   xmlDocPtr psStoredQueryDoc;
+<span class="lineNum">    1126 </span>                :            :   xmlNodePtr psStoredQueryRoot;
+<span class="lineNum">    1127 </span>                :            :   
+<span class="lineNum">    1128 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( params-&gt;pszStoredQueryId != NULL ) {</span>
+<span class="lineNum">    1129 </span>                :<span class="lineCov">          1 :     storedQueries = msStringSplit(params-&gt;pszStoredQueryId,',',&amp;nStoredQueries);</span>
+<span class="lineNum">    1130 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i = 0; i &lt; nStoredQueries; i++)</span>
+<span class="lineNum">    1131 </span>                :            :     {
+<span class="lineNum">    1132 </span>                :<span class="lineCov">          1 :         char* query = msWFSGetStoredQuery(map, storedQueries[i]);</span>
+<span class="lineNum">    1133 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( query == NULL )</span>
+<span class="lineNum">    1134 </span>                :            :         {
+<span class="lineNum">    1135 </span>                :<span class="lineCov">          1 :             msSetError(MS_WFSERR, &quot;Unknown stored query id: %s&quot;, &quot;msWFSDescribeStoredQueries20()&quot;,</span>
+<span class="lineNum">    1136 </span>                :<span class="lineCov">          1 :                        storedQueries[i]);</span>
+<span class="lineNum">    1137 </span>                :<span class="lineCov">          1 :             msFreeCharArray(storedQueries, nStoredQueries);</span>
+<span class="lineNum">    1138 </span>                :<span class="lineCov">          1 :             return msWFSException(map, &quot;storedqueryid&quot;, MS_OWS_ERROR_INVALID_PARAMETER_VALUE, params-&gt;pszVersion);</span>
+<span class="lineNum">    1139 </span>                :            :         }
+<span class="lineNum">    1140 </span>                :<span class="lineCov">          1 :         msFree(query);</span>
+<span class="lineNum">    1141 </span>                :            :     }
+<span class="lineNum">    1142 </span>                :            :   } else {
+<span class="lineNum">    1143 </span>                :<span class="lineCov">          1 :     storedQueries = msWFSGetStoredQueries(map, &amp;nStoredQueries);</span>
+<span class="lineNum">    1144 </span>                :            :   }
+<span class="lineNum">    1145 </span>                :            : 
+<span class="lineNum">    1146 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1147 </span>                :            :   /*      Create document.                                                */
+<span class="lineNum">    1148 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1149 </span>                :<span class="lineCov">          1 :   psDoc = xmlNewDoc(BAD_CAST &quot;1.0&quot;);</span>
+<span class="lineNum">    1150 </span>                :            : 
+<span class="lineNum">    1151 </span>                :<span class="lineCov">          1 :   psRootNode = xmlNewNode(NULL, BAD_CAST &quot;DescribeStoredQueriesResponse&quot;);</span>
+<span class="lineNum">    1152 </span>                :            : 
+<span class="lineNum">    1153 </span>                :<span class="lineCov">          1 :   xmlDocSetRootElement(psDoc, psRootNode);</span>
+<span class="lineNum">    1154 </span>                :            : 
+<span class="lineNum">    1155 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1156 </span>                :            :   /*      Name spaces                                                     */
+<span class="lineNum">    1157 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1158 </span>                :            :   
+<span class="lineNum">    1159 </span>                :            :   /*default name space*/
+<span class="lineNum">    1160 </span>                :<span class="lineCov">          1 :   xmlNewProp(psRootNode, BAD_CAST &quot;xmlns&quot;, BAD_CAST MS_OWSCOMMON_WFS_20_NAMESPACE_URI);</span>
+<span class="lineNum">    1161 </span>                :            : 
+<span class="lineNum">    1162 </span>                :<span class="lineCov">          1 :   xmlSetNs(psRootNode, xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_WFS_20_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_WFS_NAMESPACE_PREFIX));</span>
+<span class="lineNum">    1163 </span>                :            : 
+<span class="lineNum">    1164 </span>                :<span class="lineCov">          1 :   xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_W3C_XSI_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_W3C_XSI_NAMESPACE_PREFIX);</span>
+<span class="lineNum">    1165 </span>                :            : 
+<span class="lineNum">    1166 </span>                :            :   /*schema*/
+<span class="lineNum">    1167 </span>                :<span class="lineCov">          1 :   xsi_schemaLocation = msStrdup(MS_OWSCOMMON_WFS_20_NAMESPACE_URI);</span>
+<span class="lineNum">    1168 </span>                :<span class="lineCov">          1 :   xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, &quot; &quot;);</span>
+<span class="lineNum">    1169 </span>                :<span class="lineCov">          1 :   xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, msOWSGetSchemasLocation(map));</span>
+<span class="lineNum">    1170 </span>                :<span class="lineCov">          1 :   xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, MS_OWSCOMMON_WFS_20_SCHEMA_LOCATION);</span>
+<span class="lineNum">    1171 </span>                :            : 
+<span class="lineNum">    1172 </span>                :<span class="lineCov">          1 :   xmlNewNsProp(psRootNode, NULL, BAD_CAST &quot;xsi:schemaLocation&quot;, BAD_CAST xsi_schemaLocation);</span>
+<span class="lineNum">    1173 </span>                :<span class="lineCov">          1 :   free(xsi_schemaLocation);</span>
+<span class="lineNum">    1174 </span>                :            : 
+<span class="lineNum">    1175 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1176 </span>                :            :   /*      Add queries                                                     */
+<span class="lineNum">    1177 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1178 </span>                :            : 
+<span class="lineNum">    1179 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i = 0; i &lt; nStoredQueries; i++)</span>
+<span class="lineNum">    1180 </span>                :            :   {
+<span class="lineNum">    1181 </span>                :<span class="lineCov">          1 :     char* query = msWFSGetStoredQuery(map, storedQueries[i]);</span>
+<span class="lineNum">    1182 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( query != NULL )</span>
+<span class="lineNum">    1183 </span>                :            :     {
+<span class="lineNum">    1184 </span>                :            :       xmlNodePtr pChild;
+<span class="lineNum">    1185 </span>                :            :       xmlNs*  ns;
+<span class="lineNum">    1186 </span>                :            :       xmlNodePtr psStoredQuery;
+<span class="lineNum">    1187 </span>                :            : 
+<span class="lineNum">    1188 </span>                :<span class="lineCov">          1 :       psStoredQueryDoc = xmlParseDoc((const xmlChar*) query);</span>
+<span class="lineNum">    1189 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( psStoredQueryDoc == NULL )</span>
+<span class="lineNum">    1190 </span>                :            :       {
+<span class="lineNum">    1191 </span>                :            :         char szMsg[256];
+<span class="lineNum">    1192 </span>                :<span class="lineCov">          1 :         msFree(query);</span>
+<span class="lineNum">    1193 </span>                :<span class="lineCov">          1 :         snprintf(szMsg, sizeof(szMsg), &quot;WARNING: Definition for stored query %s is invalid&quot;, storedQueries[i]);</span>
+<span class="lineNum">    1194 </span>                :<span class="lineCov">          1 :         xmlAddChild(psRootNode, xmlNewComment(BAD_CAST szMsg));</span>
+<span class="lineNum">    1195 </span>                :<span class="lineCov">          1 :         continue;</span>
+<span class="lineNum">    1196 </span>                :            :       }
+<span class="lineNum">    1197 </span>                :            : 
+<span class="lineNum">    1198 </span>                :<span class="lineCov">          1 :       psStoredQueryRoot = xmlDocGetRootElement(psStoredQueryDoc);</span>
+<span class="lineNum">    1199 </span>                :            : 
+<span class="lineNum">    1200 </span>                :<span class="lineCov">          1 :       psStoredQuery = xmlNewNode(NULL, BAD_CAST &quot;StoredQueryDescription&quot; );</span>
+<span class="lineNum">    1201 </span>                :<span class="lineCov">          1 :       xmlNewProp(psStoredQuery, BAD_CAST &quot;id&quot;, BAD_CAST storedQueries[i]);</span>
+<span class="lineNum">    1202 </span>                :<span class="lineCov">          1 :       xmlAddChild(psRootNode, psStoredQuery);</span>
+<span class="lineNum">    1203 </span>                :            : 
+<span class="lineNum">    1204 </span>                :<span class="lineCov">          1 :       ns = psStoredQueryRoot-&gt;nsDef;</span>
+<span class="lineNum">    1205 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       while( ns != NULL ) {</span>
+<span class="lineNum">    1206 </span>                :<span class="lineCov">          1 :         xmlNewNs(psStoredQuery, BAD_CAST ns-&gt;href, BAD_CAST ns-&gt;prefix);</span>
+<span class="lineNum">    1207 </span>                :<span class="lineCov">          1 :         ns = ns-&gt;next;</span>
+<span class="lineNum">    1208 </span>                :            :       }
+<span class="lineNum">    1209 </span>                :            : 
+<span class="lineNum">    1210 </span>                :<span class="lineCov">          1 :       pChild = psStoredQueryRoot-&gt;children;</span>
+<span class="lineNum">    1211 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       while(pChild != NULL)</span>
+<span class="lineNum">    1212 </span>                :            :       {
+<span class="lineNum">    1213 </span>                :<span class="lineCov">          1 :         xmlNodePtr pNext = pChild-&gt;next;</span>
+<span class="lineNum">    1214 </span>                :            : 
+<span class="lineNum">    1215 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( pChild-&gt;type == XML_ELEMENT_NODE &amp;&amp;</span>
+<span class="lineNum">    1216 </span>                :<span class="lineCov">          1 :             strcmp((const char*) pChild-&gt;name, &quot;QueryExpressionText&quot;) == 0 )</span>
+<span class="lineNum">    1217 </span>                :            :         {
+<span class="lineNum">    1218 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if( strcasecmp( storedQueries[i], URN_GET_FEATURE_BY_ID ) == 0 )</span>
+<span class="lineNum">    1219 </span>                :            :             {
+<span class="lineNum">    1220 </span>                :<span class="lineCov">          1 :                 char** arrayNsPrefix = (char**) malloc( sizeof(char*) * map-&gt;numlayers );</span>
+<span class="lineNum">    1221 </span>                :<span class="lineCov">          1 :                 char** arrayNsUri = (char**) malloc( sizeof(char*) * map-&gt;numlayers );</span>
+<span class="lineNum">    1222 </span>                :            :                 int arraysize = 0;
+<span class="lineNum">    1223 </span>                :            :                 int k;
+<span class="lineNum">    1224 </span>                :            :                 char* returnFeatureTypes = NULL;
+<span class="lineNum">    1225 </span>                :            :                 xmlNodePtr psQueryExpressionText;
+<span class="lineNum">    1226 </span>                :            : 
+<span class="lineNum">    1227 </span>                :<span class="lineCov">          1 :                 psQueryExpressionText = xmlNewNode(NULL, BAD_CAST &quot;QueryExpressionText&quot; );</span>
+<span class="lineNum">    1228 </span>                :<span class="lineCov">          1 :                 xmlAddChild(psStoredQuery, psQueryExpressionText);</span>
+<span class="lineNum">    1229 </span>                :<span class="lineCov">          1 :                 xmlNewProp(psQueryExpressionText, BAD_CAST &quot;isPrivate&quot;, BAD_CAST &quot;true&quot;);</span>
+<span class="lineNum">    1230 </span>                :<span class="lineCov">          1 :                 xmlNewProp(psQueryExpressionText, BAD_CAST &quot;language&quot;, BAD_CAST &quot;urn:ogc:def:queryLanguage:OGC-WFS::WFS_QueryExpression&quot;);</span>
+<span class="lineNum">    1231 </span>                :            : 
+<span class="lineNum">    1232 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                 for(j=0; j&lt;map-&gt;numlayers; j++) {</span>
+<span class="lineNum">    1233 </span>                :            :                     layerObj *lp;
+<span class="lineNum">    1234 </span>                :            :                     const char *user_namespace_prefix = MS_DEFAULT_NAMESPACE_PREFIX;
+<span class="lineNum">    1235 </span>                :            :                     const char *user_namespace_uri = MS_DEFAULT_NAMESPACE_URI;
+<span class="lineNum">    1236 </span>                :            :                     const char *value;
+<span class="lineNum">    1237 </span>                :            :                     char szValue[256];
+<span class="lineNum">    1238 </span>                :            : 
+<span class="lineNum">    1239 </span>                :<span class="lineCov">          1 :                     lp = GET_LAYER(map, j);</span>
+<span class="lineNum">    1240 </span>                :            : 
+<span class="lineNum">    1241 </span>  [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken X times"> + </span>]:<span class="lineCov">          1 :                     if (!msIntegerInArray(lp-&gt;index, ows_request-&gt;enabled_layers, ows_request-&gt;numlayers) ||</span>
+<span class="lineNum">    1242 </span>                :<span class="lineCov">          1 :                         !msWFSIsLayerSupported(lp))</span>
+<span class="lineNum">    1243 </span>                :<span class="lineCov">          1 :                     continue;</span>
+<span class="lineNum">    1244 </span>                :            : 
+<span class="lineNum">    1245 </span>                :<span class="lineCov">          1 :                     value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;namespace_uri&quot;);</span>
+<span class="lineNum">    1246 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                     if(value) user_namespace_uri = value;</span>
+<span class="lineNum">    1247 </span>                :            : 
+<span class="lineNum">    1248 </span>                :<span class="lineCov">          1 :                     value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;namespace_prefix&quot;);</span>
+<span class="lineNum">    1249 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                     if(value) user_namespace_prefix = value;</span>
+<span class="lineNum">    1250 </span>                :            : 
+<span class="lineNum">    1251 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                     for(k=0;k&lt;arraysize;k++)</span>
+<span class="lineNum">    1252 </span>                :            :                     {
+<span class="lineNum">    1253 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                         if( strcmp(arrayNsPrefix[k], user_namespace_prefix) == 0 )</span>
+<span class="lineNum">    1254 </span>                :            :                             break;
+<span class="lineNum">    1255 </span>                :            :                     }
+<span class="lineNum">    1256 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                     if(k == arraysize) {</span>
+<span class="lineNum">    1257 </span>                :<span class="lineCov">          1 :                       arrayNsPrefix[arraysize] = msStrdup(user_namespace_prefix);</span>
+<span class="lineNum">    1258 </span>                :<span class="lineCov">          1 :                       arrayNsUri[arraysize] = msStrdup(user_namespace_uri);</span>
+<span class="lineNum">    1259 </span>                :<span class="lineCov">          1 :                       arraysize ++;</span>
+<span class="lineNum">    1260 </span>                :            : 
+<span class="lineNum">    1261 </span>                :<span class="lineCov">          1 :                       xmlNewNs(psQueryExpressionText, BAD_CAST user_namespace_uri, BAD_CAST user_namespace_prefix);</span>
+<span class="lineNum">    1262 </span>                :            :                     }
+<span class="lineNum">    1263 </span>                :            : 
+<span class="lineNum">    1264 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                     if( returnFeatureTypes != NULL )</span>
+<span class="lineNum">    1265 </span>                :<span class="lineCov">          1 :                       returnFeatureTypes = msStringConcatenate(returnFeatureTypes, &quot; &quot;);</span>
+<span class="lineNum">    1266 </span>                :<span class="lineCov">          1 :                     snprintf(szValue, sizeof(szValue), &quot;%s:%s&quot;, user_namespace_prefix, lp-&gt;name);</span>
+<span class="lineNum">    1267 </span>                :<span class="lineCov">          1 :                     returnFeatureTypes = msStringConcatenate(returnFeatureTypes, szValue);</span>
+<span class="lineNum">    1268 </span>                :            :                 }
+<span class="lineNum">    1269 </span>                :            : 
+<span class="lineNum">    1270 </span>                :<span class="lineCov">          1 :                 xmlNewProp(psQueryExpressionText, BAD_CAST &quot;returnFeatureTypes&quot;, BAD_CAST returnFeatureTypes);</span>
+<span class="lineNum">    1271 </span>                :            : 
+<span class="lineNum">    1272 </span>                :<span class="lineCov">          1 :                 msFree(returnFeatureTypes);</span>
+<span class="lineNum">    1273 </span>                :<span class="lineCov">          1 :                 msFreeCharArray(arrayNsPrefix, arraysize);</span>
+<span class="lineNum">    1274 </span>                :<span class="lineCov">          1 :                 msFreeCharArray(arrayNsUri, arraysize);</span>
+<span class="lineNum">    1275 </span>                :            :             }
+<span class="lineNum">    1276 </span>                :            :             else
+<span class="lineNum">    1277 </span>                :            :             {
+<span class="lineNum">    1278 </span>                :<span class="lineCov">          1 :                 xmlChar* isPrivate = xmlGetProp(pChild, BAD_CAST &quot;isPrivate&quot;);</span>
+<span class="lineNum">    1279 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :                 if( isPrivate != NULL &amp;&amp; strcmp((const char*)isPrivate, &quot;true&quot;) == 0) {</span>
+<span class="lineNum">    1280 </span>                :<span class="lineCov">          1 :                     xmlNodePtr pSubChild = xmlFirstElementChild(pChild);</span>
+<span class="lineNum">    1281 </span>                :<span class="lineCov">          1 :                     xmlUnlinkNode(pSubChild);</span>
+<span class="lineNum">    1282 </span>                :<span class="lineCov">          1 :                     xmlFreeNode(pSubChild);</span>
+<span class="lineNum">    1283 </span>                :            :                 }
+<span class="lineNum">    1284 </span>                :<span class="lineCov">          1 :                 xmlUnlinkNode(pChild);</span>
+<span class="lineNum">    1285 </span>                :<span class="lineCov">          1 :                 xmlAddChild(psStoredQuery, pChild);</span>
+<span class="lineNum">    1286 </span>                :<span class="lineCov">          1 :                 msFree(isPrivate);</span>
+<span class="lineNum">    1287 </span>                :            :             }
+<span class="lineNum">    1288 </span>                :            :         }
+<span class="lineNum">    1289 </span>                :            :         else {
+<span class="lineNum">    1290 </span>                :<span class="lineCov">          1 :             xmlUnlinkNode(pChild);</span>
+<span class="lineNum">    1291 </span>                :<span class="lineCov">          1 :             xmlAddChild(psStoredQuery, pChild);</span>
+<span class="lineNum">    1292 </span>                :            :         }
+<span class="lineNum">    1293 </span>                :            :         pChild = pNext;
+<span class="lineNum">    1294 </span>                :            :       }
+<span class="lineNum">    1295 </span>                :            : 
+<span class="lineNum">    1296 </span>                :<span class="lineCov">          1 :       xmlReconciliateNs(psDoc, psStoredQuery);</span>
+<span class="lineNum">    1297 </span>                :<span class="lineCov">          1 :       xmlFreeDoc(psStoredQueryDoc);</span>
+<span class="lineNum">    1298 </span>                :<span class="lineCov">          1 :       msFree(query);</span>
+<span class="lineNum">    1299 </span>                :            :     }
+<span class="lineNum">    1300 </span>                :            :     else
+<span class="lineNum">    1301 </span>                :            :     {
+<span class="lineNum">    1302 </span>                :            :       char szMsg[256];
+<span class="lineNum">    1303 </span>                :<span class="lineNoCov">          0 :       snprintf(szMsg, sizeof(szMsg), &quot;WARNING: Definition for stored query %s missing&quot;, storedQueries[i]);</span>
+<span class="lineNum">    1304 </span>                :<span class="lineNoCov">          0 :       xmlAddChild(psRootNode, xmlNewComment(BAD_CAST szMsg));</span>
+<span class="lineNum">    1305 </span>                :            :     }
+<span class="lineNum">    1306 </span>                :            :   }
+<span class="lineNum">    1307 </span>                :<span class="lineCov">          1 :   msFreeCharArray(storedQueries, nStoredQueries);</span>
+<span class="lineNum">    1308 </span>                :            : 
+<span class="lineNum">    1309 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1310 </span>                :            :   /*      Write out the document.                                         */
+<span class="lineNum">    1311 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1312 </span>                :            : 
+<span class="lineNum">    1313 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if( msIO_needBinaryStdout() == MS_FAILURE )</span>
+<span class="lineNum">    1314 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">    1315 </span>                :            : 
+<span class="lineNum">    1316 </span>                :<span class="lineCov">          1 :   msIO_setHeader(&quot;Content-Type&quot;,&quot;text/xml; charset=UTF-8&quot;);</span>
+<span class="lineNum">    1317 </span>                :<span class="lineCov">          1 :   msIO_sendHeaders();</span>
+<span class="lineNum">    1318 </span>                :            : 
+<span class="lineNum">    1319 </span>                :<span class="lineCov">          1 :   context = msIO_getHandler(stdout);</span>
+<span class="lineNum">    1320 </span>                :            : 
+<span class="lineNum">    1321 </span>                :<span class="lineCov">          1 :   xmlDocDumpFormatMemoryEnc(psDoc, &amp;buffer, &amp;size, (&quot;UTF-8&quot;), 1);</span>
+<span class="lineNum">    1322 </span>                :<span class="lineCov">          1 :   msIO_contextWrite(context, buffer, size);</span>
+<span class="lineNum">    1323 </span>                :<span class="lineCov">          1 :   xmlFree(buffer);</span>
+<span class="lineNum">    1324 </span>                :            : 
+<span class="lineNum">    1325 </span>                :            :   /*free buffer and the document */
+<span class="lineNum">    1326 </span>                :            :   /*xmlFree(buffer);*/
+<span class="lineNum">    1327 </span>                :<span class="lineCov">          1 :   xmlFreeDoc(psDoc);</span>
+<span class="lineNum">    1328 </span>                :            : 
+<span class="lineNum">    1329 </span>                :<span class="lineCov">          1 :   xmlCleanupParser();</span>
+<span class="lineNum">    1330 </span>                :            : 
+<span class="lineNum">    1331 </span>                :<span class="lineCov">          1 :   return(MS_SUCCESS);</span>
+<span class="lineNum">    1332 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">    1333 </span>                :            : 
+<span class="lineNum">    1334 </span>                :            : #endif /* defined(USE_WFS_SVR) &amp;&amp; defined(USE_LIBXML2) */
+<span class="lineNum">    1335 </span>                :            : 
+<span class="lineNum">    1336 </span>                :            : #if defined(USE_WFS_SVR) &amp;&amp; !defined(USE_LIBXML2)
+<span class="lineNum">    1337 </span>                :            : 
+<span class="lineNum">    1338 </span>                :            : int msWFSException20(mapObj *map, const char *locator,
+<span class="lineNum">    1339 </span>                :            :                      const char *exceptionCode)
+<span class="lineNum">    1340 </span>                :            : {
+<span class="lineNum">    1341 </span>                :            :   /* fallback to reporting using 1.0 style exceptions. */
+<span class="lineNum">    1342 </span>                :            :   return msWFSException( map, locator, exceptionCode, &quot;1.0.0&quot; );
+<span class="lineNum">    1343 </span>                :            : }
+<span class="lineNum">    1344 </span>                :            : 
+<span class="lineNum">    1345 </span>                :            : int msWFSGetCapabilities20(mapObj *map, wfsParamsObj *params,
+<span class="lineNum">    1346 </span>                :            :                            cgiRequestObj *req, owsRequestObj *ows_request)
+<span class="lineNum">    1347 </span>                :            : 
+<span class="lineNum">    1348 </span>                :            : {
+<span class="lineNum">    1349 </span>                :            :   msSetError( MS_WFSERR,
+<span class="lineNum">    1350 </span>                :            :               &quot;WFS 2.0 request made, but mapserver requires libxml2 for WFS 2.0 services and this is not configured.&quot;,
+<span class="lineNum">    1351 </span>                :            :               &quot;msWFSGetCapabilities20()&quot; );
+<span class="lineNum">    1352 </span>                :            : 
+<span class="lineNum">    1353 </span>                :            :   return msWFSException11(map, &quot;mapserv&quot;, MS_OWS_ERROR_NO_APPLICABLE_CODE, params-&gt;pszVersion);
+<span class="lineNum">    1354 </span>                :            : }
+<span class="lineNum">    1355 </span>                :            : 
+<span class="lineNum">    1356 </span>                :            : int msWFSListStoredQueries20(mapObj *map, wfsParamsObj *params,
+<span class="lineNum">    1357 </span>                :            :                              cgiRequestObj *req, owsRequestObj *ows_request)
+<span class="lineNum">    1358 </span>                :            : {
+<span class="lineNum">    1359 </span>                :            :   msSetError( MS_WFSERR,
+<span class="lineNum">    1360 </span>                :            :               &quot;WFS 2.0 request made, but mapserver requires libxml2 for WFS 2.0 services and this is not configured.&quot;,
+<span class="lineNum">    1361 </span>                :            :               &quot;msWFSListStoredQueries20()&quot;);
+<span class="lineNum">    1362 </span>                :            : 
+<span class="lineNum">    1363 </span>                :            :   return msWFSException11(map, &quot;mapserv&quot;, MS_OWS_ERROR_NO_APPLICABLE_CODE, params-&gt;pszVersion);
+<span class="lineNum">    1364 </span>                :            : }
+<span class="lineNum">    1365 </span>                :            : 
+<span class="lineNum">    1366 </span>                :            : int msWFSDescribeStoredQueries20(mapObj *map, wfsParamsObj *params,
+<span class="lineNum">    1367 </span>                :            :                              cgiRequestObj *req, owsRequestObj *ows_request)
+<span class="lineNum">    1368 </span>                :            : {
+<span class="lineNum">    1369 </span>                :            :   msSetError( MS_WFSERR,
+<span class="lineNum">    1370 </span>                :            :               &quot;WFS 2.0 request made, but mapserver requires libxml2 for WFS 2.0 services and this is not configured.&quot;,
+<span class="lineNum">    1371 </span>                :            :               &quot;msWFSDescribeStoredQueries20()&quot; );
+<span class="lineNum">    1372 </span>                :            : 
+<span class="lineNum">    1373 </span>                :            :   return msWFSException11(map, &quot;mapserv&quot;, MS_OWS_ERROR_NO_APPLICABLE_CODE, params-&gt;pszVersion);
+<span class="lineNum">    1374 </span>                :            : }
+<span class="lineNum">    1375 </span>                :            : 
+<span class="lineNum">    1376 </span>                :            : char* msWFSGetResolvedStoredQuery20(mapObj *map,
+<span class="lineNum">    1377 </span>                :            :                                     wfsParamsObj *params,
+<span class="lineNum">    1378 </span>                :            :                                     const char* id,
+<span class="lineNum">    1379 </span>                :            :                                     hashTableObj* hashTable)
+<span class="lineNum">    1380 </span>                :            : {
+<span class="lineNum">    1381 </span>                :            :   msSetError( MS_WFSERR,
+<span class="lineNum">    1382 </span>                :            :               &quot;WFS 2.0 request made, but mapserver requires libxml2 for WFS 2.0 services and this is not configured.&quot;,
+<span class="lineNum">    1383 </span>                :            :               &quot;msWFSGetResolvedStoredQuery20()&quot; );
+<span class="lineNum">    1384 </span>                :            : 
+<span class="lineNum">    1385 </span>                :            :   msWFSException11(map, &quot;mapserv&quot;, MS_OWS_ERROR_NO_APPLICABLE_CODE, params-&gt;pszVersion);
+<span class="lineNum">    1386 </span>                :            :   return NULL;
+<span class="lineNum">    1387 </span>                :            : }
+<span class="lineNum">    1388 </span>                :            : 
+<span class="lineNum">    1389 </span>                :            : #endif /* defined(USE_WFS_SVR) &amp;&amp; !defined(USE_LIBXML2) */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
