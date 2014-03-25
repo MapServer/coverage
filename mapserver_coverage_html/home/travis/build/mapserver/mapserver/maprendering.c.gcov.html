@@ -648,7 +648,7 @@
 <span class="lineNum">     561 </span>                :<span class="lineCov">          1 :       rendererVTableObj *renderer = image-&gt;format-&gt;vtable;</span>
 <span class="lineNum">     562 </span>                :            :       symbolObj *symbol;
 <span class="lineNum">     563 </span>                :            :       shapeObj *offsetLine = p;
-<span class="lineNum">     564 </span>                :            :       int i;
+<span class="lineNum">     564 </span>                :            :       int i,ret=MS_SUCCESS;
 <span class="lineNum">     565 </span>                :            :       double width;
 <span class="lineNum">     566 </span>                :            :       double finalscalefactor;
 <span class="lineNum">     567 </span>                :            : 
@@ -700,478 +700,481 @@
 <span class="lineNum">     611 </span>                :            :           /* msSetError(MS_MISCERR,&quot;no color defined for line styling&quot;,&quot;msDrawLineSymbol()&quot;);
 <span class="lineNum">     612 </span>                :            :            * not really an error */
 <span class="lineNum">     613 </span>                :            :           status = MS_SUCCESS;
-<span class="lineNum">     614 </span>                :            :           goto draw_line_cleanup;
+<span class="lineNum">     614 </span>                :            :           goto line_cleanup;
 <span class="lineNum">     615 </span>                :            :         }
 <span class="lineNum">     616 </span>                :<span class="lineCov">          1 :         status = renderer-&gt;renderLine(image,offsetLine,&amp;s);</span>
 <span class="lineNum">     617 </span>                :            :       } else {
 <span class="lineNum">     618 </span>                :            :         symbolStyleObj s;
 <span class="lineNum">     619 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if(preloadSymbol(&amp;map-&gt;symbolset, symbol, renderer) != MS_SUCCESS) {</span>
-<span class="lineNum">     620 </span>                :            :           return MS_FAILURE;
-<span class="lineNum">     621 </span>                :            :         }
-<span class="lineNum">     622 </span>                :            : 
-<span class="lineNum">     623 </span>                :<span class="lineCov">          1 :         INIT_SYMBOL_STYLE(s);</span>
-<span class="lineNum">     624 </span>                :<span class="lineCov">          1 :         computeSymbolStyle(&amp;s,style,symbol,scalefactor,image-&gt;resolutionfactor);</span>
-<span class="lineNum">     625 </span>                :<span class="lineCov">          1 :         s.style = style;</span>
-<span class="lineNum">     626 </span>                :            : 
-<span class="lineNum">     627 </span>                :            :         /* compute a markerStyle and use it on the line */
-<span class="lineNum">     628 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(style-&gt;gap&lt;0) {</span>
-<span class="lineNum">     629 </span>                :            :           /* special function that treats any other symbol used as a marker, not a brush */
-<span class="lineNum">     630 </span>                :<span class="lineCov">          1 :           status = msImagePolylineMarkers(image,offsetLine,symbol,&amp;s,-s.gap,</span>
-<span class="lineNum">     631 </span>                :<span class="lineCov">          1 :                                  style-&gt;initialgap * finalscalefactor, 1);</span>
-<span class="lineNum">     632 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         } else if(style-&gt;gap&gt;0) {</span>
-<span class="lineNum">     633 </span>                :<span class="lineCov">          1 :           status = msImagePolylineMarkers(image,offsetLine,symbol,&amp;s,s.gap,</span>
-<span class="lineNum">     634 </span>                :<span class="lineCov">          1 :                                  style-&gt;initialgap * finalscalefactor,0);</span>
-<span class="lineNum">     635 </span>                :            :         } else {
-<span class="lineNum">     636 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(renderer-&gt;renderLineTiled != NULL) {</span>
-<span class="lineNum">     637 </span>                :            :             int pw,ph;
-<span class="lineNum">     638 </span>                :            :             imageObj* tile=NULL;
-<span class="lineNum">     639 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if(s.scale != 1) {</span>
-<span class="lineNum">     640 </span>                :<span class="lineNoCov">          0 :               pw = MS_NINT(symbol-&gt;sizex * s.scale);</span>
-<span class="lineNum">     641 </span>                :<span class="lineNoCov">          0 :               ph = MS_NINT(symbol-&gt;sizey * s.scale);</span>
-<span class="lineNum">     642 </span>                :            :             } else {
-<span class="lineNum">     643 </span>                :<span class="lineNoCov">          0 :               pw = symbol-&gt;sizex;</span>
-<span class="lineNum">     644 </span>                :<span class="lineNoCov">          0 :               ph = symbol-&gt;sizey;</span>
-<span class="lineNum">     645 </span>                :            :             }
-<span class="lineNum">     646 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if(pw&lt;1) pw=1;</span>
-<span class="lineNum">     647 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if(ph&lt;1) ph=1;</span>
-<span class="lineNum">     648 </span>                :<span class="lineNoCov">          0 :             tile = getTile(image, symbol,&amp;s,pw,ph,0);</span>
-<span class="lineNum">     649 </span>                :<span class="lineNoCov">          0 :             status = renderer-&gt;renderLineTiled(image, offsetLine, tile);</span>
-<span class="lineNum">     650 </span>                :            :           } else {
-<span class="lineNum">     651 </span>                :<span class="lineNoCov">          0 :             msSetError(MS_RENDERERERR, &quot;renderer does not support brushed lines&quot;, &quot;msDrawLineSymbol()&quot;);</span>
-<span class="lineNum">     652 </span>                :            :             status = MS_FAILURE;
-<span class="lineNum">     653 </span>                :            :           }
-<span class="lineNum">     654 </span>                :            :         }
-<span class="lineNum">     655 </span>                :            :       }
-<span class="lineNum">     656 </span>                :            : 
-<span class="lineNum">     657 </span>                :            : draw_line_cleanup:
-<span class="lineNum">     658 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(offsetLine!=p) {</span>
-<span class="lineNum">     659 </span>                :<span class="lineCov">          1 :         msFreeShape(offsetLine);</span>
-<span class="lineNum">     660 </span>                :<span class="lineCov">          1 :         msFree(offsetLine);</span>
-<span class="lineNum">     661 </span>                :            :       }
-<span class="lineNum">     662 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     } else if( MS_RENDERER_IMAGEMAP(image-&gt;format) )</span>
-<span class="lineNum">     663 </span>                :<span class="lineNoCov">          0 :       msDrawLineSymbolIM(map, image, p, style, scalefactor);</span>
-<span class="lineNum">     664 </span>                :            :     else {
-<span class="lineNum">     665 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_RENDERERERR, &quot;unsupported renderer&quot;, &quot;msDrawShadeSymbol()&quot;);</span>
-<span class="lineNum">     666 </span>                :            :       status = MS_FAILURE;
-<span class="lineNum">     667 </span>                :            :     }
-<span class="lineNum">     668 </span>                :            :   } else {
-<span class="lineNum">     669 </span>                :            :     status = MS_FAILURE;
-<span class="lineNum">     670 </span>                :            :   }
-<span class="lineNum">     671 </span>                :<span class="lineCov">          1 :   return status;</span>
-<a name="672"><span class="lineNum">     672 </span>                :            : }</a>
-<span class="lineNum">     673 </span>                :            : 
-<span class="lineNum">     674 </span>                :<span class="lineCov">          1 : int msDrawShadeSymbol(mapObj *map, imageObj *image, shapeObj *p, styleObj *style, double scalefactor)</span>
-<span class="lineNum">     675 </span>                :            : {
-<span class="lineNum">     676 </span>                :            :   int ret = MS_SUCCESS;
-<span class="lineNum">     677 </span>                :            :   symbolObj *symbol;
-<span class="lineNum">     678 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!p)</span>
-<span class="lineNum">     679 </span>                :            :     return MS_SUCCESS;
-<span class="lineNum">     680 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (p-&gt;numlines &lt;= 0)</span>
+<span class="lineNum">     620 </span>                :            :           status = MS_FAILURE;
+<span class="lineNum">     621 </span>                :            :           goto line_cleanup;
+<span class="lineNum">     622 </span>                :            :         }
+<span class="lineNum">     623 </span>                :            : 
+<span class="lineNum">     624 </span>                :<span class="lineCov">          1 :         INIT_SYMBOL_STYLE(s);</span>
+<span class="lineNum">     625 </span>                :<span class="lineCov">          1 :         computeSymbolStyle(&amp;s,style,symbol,scalefactor,image-&gt;resolutionfactor);</span>
+<span class="lineNum">     626 </span>                :<span class="lineCov">          1 :         s.style = style;</span>
+<span class="lineNum">     627 </span>                :            : 
+<span class="lineNum">     628 </span>                :            :         /* compute a markerStyle and use it on the line */
+<span class="lineNum">     629 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(style-&gt;gap&lt;0) {</span>
+<span class="lineNum">     630 </span>                :            :           /* special function that treats any other symbol used as a marker, not a brush */
+<span class="lineNum">     631 </span>                :<span class="lineCov">          1 :           status = msImagePolylineMarkers(image,offsetLine,symbol,&amp;s,-s.gap,</span>
+<span class="lineNum">     632 </span>                :<span class="lineCov">          1 :                                  style-&gt;initialgap * finalscalefactor, 1);</span>
+<span class="lineNum">     633 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         } else if(style-&gt;gap&gt;0) {</span>
+<span class="lineNum">     634 </span>                :<span class="lineCov">          1 :           status = msImagePolylineMarkers(image,offsetLine,symbol,&amp;s,s.gap,</span>
+<span class="lineNum">     635 </span>                :<span class="lineCov">          1 :                                  style-&gt;initialgap * finalscalefactor,0);</span>
+<span class="lineNum">     636 </span>                :            :         } else {
+<span class="lineNum">     637 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(renderer-&gt;renderLineTiled != NULL) {</span>
+<span class="lineNum">     638 </span>                :            :             int pw,ph;
+<span class="lineNum">     639 </span>                :            :             imageObj* tile=NULL;
+<span class="lineNum">     640 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if(s.scale != 1) {</span>
+<span class="lineNum">     641 </span>                :<span class="lineNoCov">          0 :               pw = MS_NINT(symbol-&gt;sizex * s.scale);</span>
+<span class="lineNum">     642 </span>                :<span class="lineNoCov">          0 :               ph = MS_NINT(symbol-&gt;sizey * s.scale);</span>
+<span class="lineNum">     643 </span>                :            :             } else {
+<span class="lineNum">     644 </span>                :<span class="lineNoCov">          0 :               pw = symbol-&gt;sizex;</span>
+<span class="lineNum">     645 </span>                :<span class="lineNoCov">          0 :               ph = symbol-&gt;sizey;</span>
+<span class="lineNum">     646 </span>                :            :             }
+<span class="lineNum">     647 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if(pw&lt;1) pw=1;</span>
+<span class="lineNum">     648 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if(ph&lt;1) ph=1;</span>
+<span class="lineNum">     649 </span>                :<span class="lineNoCov">          0 :             tile = getTile(image, symbol,&amp;s,pw,ph,0);</span>
+<span class="lineNum">     650 </span>                :<span class="lineNoCov">          0 :             status = renderer-&gt;renderLineTiled(image, offsetLine, tile);</span>
+<span class="lineNum">     651 </span>                :            :           } else {
+<span class="lineNum">     652 </span>                :<span class="lineNoCov">          0 :             msSetError(MS_RENDERERERR, &quot;renderer does not support brushed lines&quot;, &quot;msDrawLineSymbol()&quot;);</span>
+<span class="lineNum">     653 </span>                :            :             status = MS_FAILURE;
+<span class="lineNum">     654 </span>                :            :           }
+<span class="lineNum">     655 </span>                :            :         }
+<span class="lineNum">     656 </span>                :            :       }
+<span class="lineNum">     657 </span>                :            : 
+<span class="lineNum">     658 </span>                :            : line_cleanup:
+<span class="lineNum">     659 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(offsetLine!=p) {</span>
+<span class="lineNum">     660 </span>                :<span class="lineCov">          1 :         msFreeShape(offsetLine);</span>
+<span class="lineNum">     661 </span>                :<span class="lineCov">          1 :         msFree(offsetLine);</span>
+<span class="lineNum">     662 </span>                :            :       }
+<span class="lineNum">     663 </span>                :            :       return status;
+<span class="lineNum">     664 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     } else if( MS_RENDERER_IMAGEMAP(image-&gt;format) )</span>
+<span class="lineNum">     665 </span>                :<span class="lineNoCov">          0 :       msDrawLineSymbolIM(map, image, p, style, scalefactor);</span>
+<span class="lineNum">     666 </span>                :            :     else {
+<span class="lineNum">     667 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_RENDERERERR, &quot;unsupported renderer&quot;, &quot;msDrawShadeSymbol()&quot;);</span>
+<span class="lineNum">     668 </span>                :            :       status = MS_FAILURE;
+<span class="lineNum">     669 </span>                :            :     }
+<span class="lineNum">     670 </span>                :            :   } else {
+<span class="lineNum">     671 </span>                :            :     status = MS_FAILURE;
+<span class="lineNum">     672 </span>                :            :   }
+<span class="lineNum">     673 </span>                :<span class="lineCov">          1 :   return status;</span>
+<a name="674"><span class="lineNum">     674 </span>                :            : }</a>
+<span class="lineNum">     675 </span>                :            : 
+<span class="lineNum">     676 </span>                :<span class="lineCov">          1 : int msDrawShadeSymbol(mapObj *map, imageObj *image, shapeObj *p, styleObj *style, double scalefactor)</span>
+<span class="lineNum">     677 </span>                :            : {
+<span class="lineNum">     678 </span>                :            :   int ret = MS_SUCCESS;
+<span class="lineNum">     679 </span>                :            :   symbolObj *symbol;
+<span class="lineNum">     680 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!p)</span>
 <span class="lineNum">     681 </span>                :            :     return MS_SUCCESS;
-<span class="lineNum">     682 </span>                :            : 
-<span class="lineNum">     683 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if (style-&gt;symbol &gt;= map-&gt;symbolset.numsymbols || style-&gt;symbol &lt; 0)</span>
-<span class="lineNum">     684 </span>                :            :     return MS_SUCCESS; /* no such symbol, 0 is OK */
-<span class="lineNum">     685 </span>                :<span class="lineCov">          1 :   symbol = map-&gt;symbolset.symbol[style-&gt;symbol];</span>
-<span class="lineNum">     686 </span>                :            : 
-<span class="lineNum">     687 </span>                :            :   /*
-<span class="lineNum">     688 </span>                :            :    * if only an outlinecolor was defined, and not a color,
-<span class="lineNum">     689 </span>                :            :    * switch to the line drawing function
-<span class="lineNum">     690 </span>                :            :    *
-<span class="lineNum">     691 </span>                :            :    * this behavior is kind of a mapfile hack, and must be
-<span class="lineNum">     692 </span>                :            :    * kept for backwards compatibility
-<span class="lineNum">     693 </span>                :            :    */
-<span class="lineNum">     694 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (symbol-&gt;type != MS_SYMBOL_PIXMAP &amp;&amp; symbol-&gt;type != MS_SYMBOL_SVG ) {</span>
-<span class="lineNum">     695 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if (!MS_VALID_COLOR(style-&gt;color)) {</span>
+<span class="lineNum">     682 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (p-&gt;numlines &lt;= 0)</span>
+<span class="lineNum">     683 </span>                :            :     return MS_SUCCESS;
+<span class="lineNum">     684 </span>                :            : 
+<span class="lineNum">     685 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if (style-&gt;symbol &gt;= map-&gt;symbolset.numsymbols || style-&gt;symbol &lt; 0)</span>
+<span class="lineNum">     686 </span>                :            :     return MS_SUCCESS; /* no such symbol, 0 is OK */
+<span class="lineNum">     687 </span>                :<span class="lineCov">          1 :   symbol = map-&gt;symbolset.symbol[style-&gt;symbol];</span>
+<span class="lineNum">     688 </span>                :            : 
+<span class="lineNum">     689 </span>                :            :   /*
+<span class="lineNum">     690 </span>                :            :    * if only an outlinecolor was defined, and not a color,
+<span class="lineNum">     691 </span>                :            :    * switch to the line drawing function
+<span class="lineNum">     692 </span>                :            :    *
+<span class="lineNum">     693 </span>                :            :    * this behavior is kind of a mapfile hack, and must be
+<span class="lineNum">     694 </span>                :            :    * kept for backwards compatibility
+<span class="lineNum">     695 </span>                :            :    */
+<span class="lineNum">     696 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (symbol-&gt;type != MS_SYMBOL_PIXMAP &amp;&amp; symbol-&gt;type != MS_SYMBOL_SVG ) {</span>
+<span class="lineNum">     697 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if (!MS_VALID_COLOR(style-&gt;color)) {</span>
 <span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>]
-<span class="lineNum">     696 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :       if(MS_VALID_COLOR(style-&gt;outlinecolor))</span>
+<span class="lineNum">     698 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :       if(MS_VALID_COLOR(style-&gt;outlinecolor))</span>
 <span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
-<span class="lineNum">     697 </span>                :<span class="lineCov">          1 :         return msDrawLineSymbol(map, image, p, style, scalefactor);</span>
-<span class="lineNum">     698 </span>                :            :       else {
-<span class="lineNum">     699 </span>                :            :         /* just do nothing if no color has been set */
-<span class="lineNum">     700 </span>                :            :         return MS_SUCCESS;
-<span class="lineNum">     701 </span>                :            :       }
-<span class="lineNum">     702 </span>                :            :     }
-<span class="lineNum">     703 </span>                :            :   }
-<span class="lineNum">     704 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (image) {</span>
-<span class="lineNum">     705 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (MS_RENDERER_PLUGIN(image-&gt;format)) {</span>
-<span class="lineNum">     706 </span>                :<span class="lineCov">          1 :       rendererVTableObj *renderer = image-&gt;format-&gt;vtable;</span>
-<span class="lineNum">     707 </span>                :            :       shapeObj *offsetPolygon = NULL;
-<span class="lineNum">     708 </span>                :            :       /* store a reference to the renderer to be used for freeing */
-<span class="lineNum">     709 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(style-&gt;symbol)</span>
-<span class="lineNum">     710 </span>                :<span class="lineCov">          1 :         symbol-&gt;renderer = renderer;</span>
-<span class="lineNum">     711 </span>                :            : 
-<span class="lineNum">     712 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (style-&gt;offsetx != 0 || style-&gt;offsety != 0) {</span>
-<span class="lineNum">     713 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(style-&gt;offsety==MS_STYLE_SINGLE_SIDED_OFFSET) {</span>
-<span class="lineNum">     714 </span>                :<span class="lineNoCov">          0 :           offsetPolygon = msOffsetPolyline(p, style-&gt;offsetx*scalefactor, MS_STYLE_SINGLE_SIDED_OFFSET);</span>
-<span class="lineNum">     715 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         } else if(style-&gt;offsety==MS_STYLE_DOUBLE_SIDED_OFFSET) {</span>
-<span class="lineNum">     716 </span>                :<span class="lineNoCov">          0 :           offsetPolygon = msOffsetPolyline(p,style-&gt;offsetx * scalefactor ,MS_STYLE_DOUBLE_SIDED_OFFSET);</span>
-<span class="lineNum">     717 </span>                :            :         } else {
-<span class="lineNum">     718 </span>                :<span class="lineCov">          1 :           offsetPolygon = msOffsetPolyline(p, style-&gt;offsetx*scalefactor,style-&gt;offsety*scalefactor);</span>
-<span class="lineNum">     719 </span>                :            :         }
-<span class="lineNum">     720 </span>                :            :       } else {
-<span class="lineNum">     721 </span>                :            :         offsetPolygon=p;
-<span class="lineNum">     722 </span>                :            :       }
-<span class="lineNum">     723 </span>                :            :       /* simple polygon drawing, without any specific symbol.
-<span class="lineNum">     724 </span>                :            :        * also draws an optional outline */
-<span class="lineNum">     725 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(style-&gt;symbol == 0 || symbol-&gt;type == MS_SYMBOL_SIMPLE) {</span>
-<span class="lineNum">     726 </span>                :<span class="lineCov">          1 :         ret = renderer-&gt;renderPolygon(image,offsetPolygon,&amp;style-&gt;color);</span>
-<span class="lineNum">     727 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if(ret != MS_SUCCESS) goto cleanup;</span>
-<span class="lineNum">     728 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(MS_VALID_COLOR(style-&gt;outlinecolor)) {</span>
+<span class="lineNum">     699 </span>                :<span class="lineCov">          1 :         return msDrawLineSymbol(map, image, p, style, scalefactor);</span>
+<span class="lineNum">     700 </span>                :            :       else {
+<span class="lineNum">     701 </span>                :            :         /* just do nothing if no color has been set */
+<span class="lineNum">     702 </span>                :            :         return MS_SUCCESS;
+<span class="lineNum">     703 </span>                :            :       }
+<span class="lineNum">     704 </span>                :            :     }
+<span class="lineNum">     705 </span>                :            :   }
+<span class="lineNum">     706 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (image) {</span>
+<span class="lineNum">     707 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (MS_RENDERER_PLUGIN(image-&gt;format)) {</span>
+<span class="lineNum">     708 </span>                :<span class="lineCov">          1 :       rendererVTableObj *renderer = image-&gt;format-&gt;vtable;</span>
+<span class="lineNum">     709 </span>                :            :       shapeObj *offsetPolygon = NULL;
+<span class="lineNum">     710 </span>                :            :       /* store a reference to the renderer to be used for freeing */
+<span class="lineNum">     711 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(style-&gt;symbol)</span>
+<span class="lineNum">     712 </span>                :<span class="lineCov">          1 :         symbol-&gt;renderer = renderer;</span>
+<span class="lineNum">     713 </span>                :            : 
+<span class="lineNum">     714 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (style-&gt;offsetx != 0 || style-&gt;offsety != 0) {</span>
+<span class="lineNum">     715 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(style-&gt;offsety==MS_STYLE_SINGLE_SIDED_OFFSET) {</span>
+<span class="lineNum">     716 </span>                :<span class="lineNoCov">          0 :           offsetPolygon = msOffsetPolyline(p, style-&gt;offsetx*scalefactor, MS_STYLE_SINGLE_SIDED_OFFSET);</span>
+<span class="lineNum">     717 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         } else if(style-&gt;offsety==MS_STYLE_DOUBLE_SIDED_OFFSET) {</span>
+<span class="lineNum">     718 </span>                :<span class="lineNoCov">          0 :           offsetPolygon = msOffsetPolyline(p,style-&gt;offsetx * scalefactor ,MS_STYLE_DOUBLE_SIDED_OFFSET);</span>
+<span class="lineNum">     719 </span>                :            :         } else {
+<span class="lineNum">     720 </span>                :<span class="lineCov">          1 :           offsetPolygon = msOffsetPolyline(p, style-&gt;offsetx*scalefactor,style-&gt;offsety*scalefactor);</span>
+<span class="lineNum">     721 </span>                :            :         }
+<span class="lineNum">     722 </span>                :            :       } else {
+<span class="lineNum">     723 </span>                :            :         offsetPolygon=p;
+<span class="lineNum">     724 </span>                :            :       }
+<span class="lineNum">     725 </span>                :            :       /* simple polygon drawing, without any specific symbol.
+<span class="lineNum">     726 </span>                :            :        * also draws an optional outline */
+<span class="lineNum">     727 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(style-&gt;symbol == 0 || symbol-&gt;type == MS_SYMBOL_SIMPLE) {</span>
+<span class="lineNum">     728 </span>                :<span class="lineCov">          1 :         ret = renderer-&gt;renderPolygon(image,offsetPolygon,&amp;style-&gt;color);</span>
+<span class="lineNum">     729 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if(ret != MS_SUCCESS) goto cleanup;</span>
+<span class="lineNum">     730 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(MS_VALID_COLOR(style-&gt;outlinecolor)) {</span>
 <span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
-<span class="lineNum">     729 </span>                :            :           strokeStyleObj s;
-<span class="lineNum">     730 </span>                :<span class="lineCov">          1 :           INIT_STROKE_STYLE(s);</span>
-<span class="lineNum">     731 </span>                :<span class="lineCov">          1 :           s.color = &amp;style-&gt;outlinecolor;</span>
-<span class="lineNum">     732 </span>                :<span class="lineCov">          1 :           s.color-&gt;alpha = style-&gt;color.alpha;</span>
-<span class="lineNum">     733 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           s.width = (style-&gt;width == 0)?scalefactor:style-&gt;width*scalefactor;</span>
-<span class="lineNum">     734 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           s.width = MS_MIN(s.width, style-&gt;maxwidth);</span>
-<span class="lineNum">     735 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           s.width = MS_MAX(s.width, style-&gt;minwidth);</span>
-<span class="lineNum">     736 </span>                :<span class="lineCov">          1 :           ret = renderer-&gt;renderLine(image,offsetPolygon,&amp;s);</span>
-<span class="lineNum">     737 </span>                :            :         }
-<span class="lineNum">     738 </span>                :            :         goto cleanup; /*finished plain polygon*/
-<span class="lineNum">     739 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       } else if(symbol-&gt;type == MS_SYMBOL_HATCH) {</span>
-<span class="lineNum">     740 </span>                :            :         double width, spacing;
-<span class="lineNum">     741 </span>                :            :         double pattern[MS_MAXPATTERNLENGTH];
-<span class="lineNum">     742 </span>                :            :         int i;
-<span class="lineNum">     743 </span>                :            : 
-<span class="lineNum">     744 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :         if(MS_VALID_COLOR(style-&gt;backgroundcolor)) {</span>
+<span class="lineNum">     731 </span>                :            :           strokeStyleObj s;
+<span class="lineNum">     732 </span>                :<span class="lineCov">          1 :           INIT_STROKE_STYLE(s);</span>
+<span class="lineNum">     733 </span>                :<span class="lineCov">          1 :           s.color = &amp;style-&gt;outlinecolor;</span>
+<span class="lineNum">     734 </span>                :<span class="lineCov">          1 :           s.color-&gt;alpha = style-&gt;color.alpha;</span>
+<span class="lineNum">     735 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           s.width = (style-&gt;width == 0)?scalefactor:style-&gt;width*scalefactor;</span>
+<span class="lineNum">     736 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           s.width = MS_MIN(s.width, style-&gt;maxwidth);</span>
+<span class="lineNum">     737 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           s.width = MS_MAX(s.width, style-&gt;minwidth);</span>
+<span class="lineNum">     738 </span>                :<span class="lineCov">          1 :           ret = renderer-&gt;renderLine(image,offsetPolygon,&amp;s);</span>
+<span class="lineNum">     739 </span>                :            :         }
+<span class="lineNum">     740 </span>                :            :         goto cleanup; /*finished plain polygon*/
+<span class="lineNum">     741 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       } else if(symbol-&gt;type == MS_SYMBOL_HATCH) {</span>
+<span class="lineNum">     742 </span>                :            :         double width, spacing;
+<span class="lineNum">     743 </span>                :            :         double pattern[MS_MAXPATTERNLENGTH];
+<span class="lineNum">     744 </span>                :            :         int i;
+<span class="lineNum">     745 </span>                :            : 
+<span class="lineNum">     746 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :         if(MS_VALID_COLOR(style-&gt;backgroundcolor)) {</span>
 <span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
-<span class="lineNum">     745 </span>                :<span class="lineNoCov">          0 :           ret = renderer-&gt;renderPolygon(image,offsetPolygon, &amp;style-&gt;backgroundcolor);</span>
-<span class="lineNum">     746 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(ret != MS_SUCCESS) goto cleanup;</span>
-<span class="lineNum">     747 </span>                :            :         }
-<span class="lineNum">     748 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         width = (style-&gt;width &lt;= 0)?scalefactor:style-&gt;width*scalefactor;</span>
-<span class="lineNum">     749 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         width = MS_MIN(width, style-&gt;maxwidth*image-&gt;resolutionfactor);</span>
-<span class="lineNum">     750 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         width = MS_MAX(width, style-&gt;minwidth*image-&gt;resolutionfactor);</span>
-<span class="lineNum">     751 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         spacing = (style-&gt;size &lt;= 0)?scalefactor:style-&gt;size*scalefactor;</span>
-<span class="lineNum">     752 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         spacing = MS_MIN(spacing, style-&gt;maxsize*image-&gt;resolutionfactor);</span>
-<span class="lineNum">     753 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         spacing = MS_MAX(spacing, style-&gt;minsize*image-&gt;resolutionfactor);</span>
-<span class="lineNum">     754 </span>                :            : 
-<span class="lineNum">     755 </span>                :            :         /* scale the pattern by the factor applied to the width */
-<span class="lineNum">     756 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for(i=0; i&lt;style-&gt;patternlength; i++) {</span>
-<span class="lineNum">     757 </span>                :<span class="lineCov">          1 :           pattern[i] = style-&gt;pattern[i]*width/style-&gt;width;</span>
-<span class="lineNum">     758 </span>                :            :         }
-<span class="lineNum">     759 </span>                :            : 
-<span class="lineNum">     760 </span>                :<span class="lineCov">          1 :         ret = msHatchPolygon(image,offsetPolygon,spacing,width,pattern,style-&gt;patternlength,style-&gt;angle, &amp;style-&gt;color);</span>
-<span class="lineNum">     761 </span>                :<span class="lineCov">          1 :         goto cleanup;</span>
-<span class="lineNum">     762 </span>                :            :       } else {
-<span class="lineNum">     763 </span>                :            :         symbolStyleObj s;
-<span class="lineNum">     764 </span>                :            :         int pw,ph;
-<span class="lineNum">     765 </span>                :            :         imageObj *tile;
-<span class="lineNum">     766 </span>                :            :         int seamless = 0;
-<span class="lineNum">     767 </span>                :            : 
-<span class="lineNum">     768 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if(preloadSymbol(&amp;map-&gt;symbolset,symbol,renderer) != MS_SUCCESS) {</span>
-<span class="lineNum">     769 </span>                :            :           return MS_FAILURE;
-<span class="lineNum">     770 </span>                :            :         }
-<span class="lineNum">     771 </span>                :            : 
-<span class="lineNum">     772 </span>                :<span class="lineCov">          1 :         INIT_SYMBOL_STYLE(s);</span>
-<span class="lineNum">     773 </span>                :<span class="lineCov">          1 :         computeSymbolStyle(&amp;s,style,symbol,scalefactor,image-&gt;resolutionfactor);</span>
-<span class="lineNum">     774 </span>                :<span class="lineCov">          1 :         s.style = style;</span>
-<span class="lineNum">     775 </span>                :            : 
-<span class="lineNum">     776 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if (!s.color &amp;&amp; !s.outlinecolor &amp;&amp; symbol-&gt;type != MS_SYMBOL_PIXMAP &amp;&amp; symbol-&gt;type != MS_SYMBOL_SVG) {</span>
+<span class="lineNum">     747 </span>                :<span class="lineNoCov">          0 :           ret = renderer-&gt;renderPolygon(image,offsetPolygon, &amp;style-&gt;backgroundcolor);</span>
+<span class="lineNum">     748 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(ret != MS_SUCCESS) goto cleanup;</span>
+<span class="lineNum">     749 </span>                :            :         }
+<span class="lineNum">     750 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         width = (style-&gt;width &lt;= 0)?scalefactor:style-&gt;width*scalefactor;</span>
+<span class="lineNum">     751 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         width = MS_MIN(width, style-&gt;maxwidth*image-&gt;resolutionfactor);</span>
+<span class="lineNum">     752 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         width = MS_MAX(width, style-&gt;minwidth*image-&gt;resolutionfactor);</span>
+<span class="lineNum">     753 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         spacing = (style-&gt;size &lt;= 0)?scalefactor:style-&gt;size*scalefactor;</span>
+<span class="lineNum">     754 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         spacing = MS_MIN(spacing, style-&gt;maxsize*image-&gt;resolutionfactor);</span>
+<span class="lineNum">     755 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         spacing = MS_MAX(spacing, style-&gt;minsize*image-&gt;resolutionfactor);</span>
+<span class="lineNum">     756 </span>                :            : 
+<span class="lineNum">     757 </span>                :            :         /* scale the pattern by the factor applied to the width */
+<span class="lineNum">     758 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for(i=0; i&lt;style-&gt;patternlength; i++) {</span>
+<span class="lineNum">     759 </span>                :<span class="lineCov">          1 :           pattern[i] = style-&gt;pattern[i]*width/style-&gt;width;</span>
+<span class="lineNum">     760 </span>                :            :         }
+<span class="lineNum">     761 </span>                :            : 
+<span class="lineNum">     762 </span>                :<span class="lineCov">          1 :         ret = msHatchPolygon(image,offsetPolygon,spacing,width,pattern,style-&gt;patternlength,style-&gt;angle, &amp;style-&gt;color);</span>
+<span class="lineNum">     763 </span>                :<span class="lineCov">          1 :         goto cleanup;</span>
+<span class="lineNum">     764 </span>                :            :       } else {
+<span class="lineNum">     765 </span>                :            :         symbolStyleObj s;
+<span class="lineNum">     766 </span>                :            :         int pw,ph;
+<span class="lineNum">     767 </span>                :            :         imageObj *tile;
+<span class="lineNum">     768 </span>                :            :         int seamless = 0;
+<span class="lineNum">     769 </span>                :            : 
+<span class="lineNum">     770 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if(preloadSymbol(&amp;map-&gt;symbolset,symbol,renderer) != MS_SUCCESS) {</span>
+<span class="lineNum">     771 </span>                :            :           ret = MS_FAILURE;
+<span class="lineNum">     772 </span>                :            :           goto cleanup;
+<span class="lineNum">     773 </span>                :            :         }
+<span class="lineNum">     774 </span>                :            : 
+<span class="lineNum">     775 </span>                :<span class="lineCov">          1 :         INIT_SYMBOL_STYLE(s);</span>
+<span class="lineNum">     776 </span>                :<span class="lineCov">          1 :         computeSymbolStyle(&amp;s,style,symbol,scalefactor,image-&gt;resolutionfactor);</span>
+<span class="lineNum">     777 </span>                :<span class="lineCov">          1 :         s.style = style;</span>
+<span class="lineNum">     778 </span>                :            : 
+<span class="lineNum">     779 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if (!s.color &amp;&amp; !s.outlinecolor &amp;&amp; symbol-&gt;type != MS_SYMBOL_PIXMAP &amp;&amp; symbol-&gt;type != MS_SYMBOL_SVG) {</span>
 <span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
-<span class="lineNum">     777 </span>                :            :           ret = MS_SUCCESS; /* nothing to do (colors are required except for PIXMAP symbols */
-<span class="lineNum">     778 </span>                :            :           goto cleanup;
-<span class="lineNum">     779 </span>                :            :         }
-<span class="lineNum">     780 </span>                :            : 
-<span class="lineNum">     781 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(s.backgroundcolor) {</span>
-<span class="lineNum">     782 </span>                :<span class="lineNoCov">          0 :           ret = renderer-&gt;renderPolygon(image,offsetPolygon, s.backgroundcolor);</span>
-<span class="lineNum">     783 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(ret != MS_SUCCESS) goto cleanup;</span>
-<span class="lineNum">     784 </span>                :            :         }
-<span class="lineNum">     785 </span>                :            : 
-<span class="lineNum">     786 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(s.scale != 1) {</span>
-<span class="lineNum">     787 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if (s.gap &gt; 0) {</span>
-<span class="lineNum">     788 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             pw = MS_MAX(MS_NINT(s.gap),symbol-&gt;sizex * s.scale);</span>
-<span class="lineNum">     789 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             ph = MS_MAX(MS_NINT(s.gap),symbol-&gt;sizey * s.scale);</span>
-<span class="lineNum">     790 </span>                :            :           } else {
-<span class="lineNum">     791 </span>                :<span class="lineCov">          1 :             pw = MS_NINT(symbol-&gt;sizex * s.scale);</span>
-<span class="lineNum">     792 </span>                :<span class="lineCov">          1 :             ph = MS_NINT(symbol-&gt;sizey * s.scale);</span>
-<span class="lineNum">     793 </span>                :            :           }
-<span class="lineNum">     794 </span>                :            :         } else {
-<span class="lineNum">     795 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if (s.gap &gt; 0) {</span>
-<span class="lineNum">     796 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             pw = MS_MAX(s.gap,symbol-&gt;sizex);</span>
-<span class="lineNum">     797 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             ph = MS_MAX(s.gap,symbol-&gt;sizey);</span>
-<span class="lineNum">     798 </span>                :            :           } else {
-<span class="lineNum">     799 </span>                :<span class="lineCov">          1 :             pw = symbol-&gt;sizex;</span>
-<span class="lineNum">     800 </span>                :<span class="lineCov">          1 :             ph = symbol-&gt;sizey;</span>
-<span class="lineNum">     801 </span>                :            :           }
-<span class="lineNum">     802 </span>                :            :         }
-<span class="lineNum">     803 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(pw&lt;1) pw=1;</span>
-<span class="lineNum">     804 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(ph&lt;1) ph=1;</span>
-<span class="lineNum">     805 </span>                :            : 
-<span class="lineNum">     806 </span>                :            :         /* if we're doing vector symbols with an antialiased pixel rendererer, we want to enable
-<span class="lineNum">     807 </span>                :            :          * seamless mode, i.e. comute a tile that accounts for the blending of neighbouring
-<span class="lineNum">     808 </span>                :            :          * tiles at the tile border
-<span class="lineNum">     809 </span>                :            :          */
-<span class="lineNum">     810 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(symbol-&gt;type == MS_SYMBOL_VECTOR &amp;&amp; style-&gt;gap == 0 &amp;&amp;</span>
+<span class="lineNum">     780 </span>                :            :           ret = MS_SUCCESS; /* nothing to do (colors are required except for PIXMAP symbols */
+<span class="lineNum">     781 </span>                :            :           goto cleanup;
+<span class="lineNum">     782 </span>                :            :         }
+<span class="lineNum">     783 </span>                :            : 
+<span class="lineNum">     784 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(s.backgroundcolor) {</span>
+<span class="lineNum">     785 </span>                :<span class="lineNoCov">          0 :           ret = renderer-&gt;renderPolygon(image,offsetPolygon, s.backgroundcolor);</span>
+<span class="lineNum">     786 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(ret != MS_SUCCESS) goto cleanup;</span>
+<span class="lineNum">     787 </span>                :            :         }
+<span class="lineNum">     788 </span>                :            : 
+<span class="lineNum">     789 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(s.scale != 1) {</span>
+<span class="lineNum">     790 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if (s.gap &gt; 0) {</span>
+<span class="lineNum">     791 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             pw = MS_MAX(MS_NINT(s.gap),symbol-&gt;sizex * s.scale);</span>
+<span class="lineNum">     792 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             ph = MS_MAX(MS_NINT(s.gap),symbol-&gt;sizey * s.scale);</span>
+<span class="lineNum">     793 </span>                :            :           } else {
+<span class="lineNum">     794 </span>                :<span class="lineCov">          1 :             pw = MS_NINT(symbol-&gt;sizex * s.scale);</span>
+<span class="lineNum">     795 </span>                :<span class="lineCov">          1 :             ph = MS_NINT(symbol-&gt;sizey * s.scale);</span>
+<span class="lineNum">     796 </span>                :            :           }
+<span class="lineNum">     797 </span>                :            :         } else {
+<span class="lineNum">     798 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if (s.gap &gt; 0) {</span>
+<span class="lineNum">     799 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             pw = MS_MAX(s.gap,symbol-&gt;sizex);</span>
+<span class="lineNum">     800 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             ph = MS_MAX(s.gap,symbol-&gt;sizey);</span>
+<span class="lineNum">     801 </span>                :            :           } else {
+<span class="lineNum">     802 </span>                :<span class="lineCov">          1 :             pw = symbol-&gt;sizex;</span>
+<span class="lineNum">     803 </span>                :<span class="lineCov">          1 :             ph = symbol-&gt;sizey;</span>
+<span class="lineNum">     804 </span>                :            :           }
+<span class="lineNum">     805 </span>                :            :         }
+<span class="lineNum">     806 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(pw&lt;1) pw=1;</span>
+<span class="lineNum">     807 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(ph&lt;1) ph=1;</span>
+<span class="lineNum">     808 </span>                :            : 
+<span class="lineNum">     809 </span>                :            :         /* if we're doing vector symbols with an antialiased pixel rendererer, we want to enable
+<span class="lineNum">     810 </span>                :            :          * seamless mode, i.e. comute a tile that accounts for the blending of neighbouring
+<span class="lineNum">     811 </span>                :            :          * tiles at the tile border
+<span class="lineNum">     812 </span>                :            :          */
+<span class="lineNum">     813 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(symbol-&gt;type == MS_SYMBOL_VECTOR &amp;&amp; style-&gt;gap == 0 &amp;&amp;</span>
 <span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>]
-<span class="lineNum">     811 </span>                :<span class="lineCov">          1 :             (image-&gt;format-&gt;renderer == MS_RENDER_WITH_AGG ||</span>
-<span class="lineNum">     812 </span>                :            :              image-&gt;format-&gt;renderer == MS_RENDER_WITH_CAIRO_RASTER)) {
-<span class="lineNum">     813 </span>                :            :           seamless = 1;
-<span class="lineNum">     814 </span>                :            :         }
-<span class="lineNum">     815 </span>                :<span class="lineCov">          1 :         tile = getTile(image,symbol,&amp;s,pw,ph,seamless);</span>
-<span class="lineNum">     816 </span>                :<span class="lineCov">          1 :         ret = renderer-&gt;renderPolygonTiled(image,offsetPolygon, tile);</span>
-<span class="lineNum">     817 </span>                :            :       }
-<span class="lineNum">     818 </span>                :            : 
-<span class="lineNum">     819 </span>                :            : cleanup:
-<span class="lineNum">     820 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (offsetPolygon != p) {</span>
-<span class="lineNum">     821 </span>                :<span class="lineCov">          1 :         msFreeShape(offsetPolygon);</span>
-<span class="lineNum">     822 </span>                :<span class="lineCov">          1 :         msFree(offsetPolygon);</span>
-<span class="lineNum">     823 </span>                :            :       }
-<span class="lineNum">     824 </span>                :            :       return ret;
-<span class="lineNum">     825 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     } else if( MS_RENDERER_IMAGEMAP(image-&gt;format) )</span>
-<span class="lineNum">     826 </span>                :<span class="lineCov">          1 :       msDrawShadeSymbolIM(map, image, p, style, scalefactor);</span>
-<span class="lineNum">     827 </span>                :            :   }
-<span class="lineNum">     828 </span>                :            :   return ret;
-<a name="829"><span class="lineNum">     829 </span>                :            : }</a>
-<span class="lineNum">     830 </span>                :            : 
-<span class="lineNum">     831 </span>                :<span class="lineCov">          1 : int msDrawMarkerSymbol(mapObj *map, imageObj *image, pointObj *p, styleObj *style,</span>
-<span class="lineNum">     832 </span>                :            :                        double scalefactor)
-<span class="lineNum">     833 </span>                :            : {
-<span class="lineNum">     834 </span>                :            :   int ret = MS_SUCCESS;
-<span class="lineNum">     835 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!p)</span>
-<span class="lineNum">     836 </span>                :            :     return MS_SUCCESS;
-<span class="lineNum">     837 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (style-&gt;symbol &gt;= map-&gt;symbolset.numsymbols || style-&gt;symbol &lt;= 0)</span>
-<span class="lineNum">     838 </span>                :            :     return MS_SUCCESS; /* no such symbol, 0 is OK   */
-<span class="lineNum">     839 </span>                :            : 
-<span class="lineNum">     840 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (image) {</span>
-<span class="lineNum">     841 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(MS_RENDERER_PLUGIN(image-&gt;format)) {</span>
-<span class="lineNum">     842 </span>                :<span class="lineCov">          1 :       rendererVTableObj *renderer = image-&gt;format-&gt;vtable;</span>
-<span class="lineNum">     843 </span>                :            :       symbolStyleObj s;
-<span class="lineNum">     844 </span>                :            :       double p_x,p_y;
-<span class="lineNum">     845 </span>                :<span class="lineCov">          1 :       symbolObj *symbol = map-&gt;symbolset.symbol[style-&gt;symbol];</span>
-<span class="lineNum">     846 </span>                :            :       /* store a reference to the renderer to be used for freeing */
-<span class="lineNum">     847 </span>                :<span class="lineCov">          1 :       symbol-&gt;renderer = renderer;</span>
-<span class="lineNum">     848 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       if(preloadSymbol(&amp;map-&gt;symbolset,symbol,renderer) != MS_SUCCESS) {</span>
-<span class="lineNum">     849 </span>                :            :         return MS_FAILURE;
-<span class="lineNum">     850 </span>                :            :       }
-<span class="lineNum">     851 </span>                :            : 
-<span class="lineNum">     852 </span>                :<span class="lineCov">          1 :       computeSymbolStyle(&amp;s,style,symbol,scalefactor,image-&gt;resolutionfactor);</span>
-<span class="lineNum">     853 </span>                :<span class="lineCov">          1 :       s.style = style;</span>
-<span class="lineNum">     854 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (!s.color &amp;&amp; !s.outlinecolor &amp;&amp; symbol-&gt;type != MS_SYMBOL_PIXMAP &amp;&amp;</span>
+<span class="lineNum">     814 </span>                :<span class="lineCov">          1 :             (image-&gt;format-&gt;renderer == MS_RENDER_WITH_AGG ||</span>
+<span class="lineNum">     815 </span>                :            :              image-&gt;format-&gt;renderer == MS_RENDER_WITH_CAIRO_RASTER)) {
+<span class="lineNum">     816 </span>                :            :           seamless = 1;
+<span class="lineNum">     817 </span>                :            :         }
+<span class="lineNum">     818 </span>                :<span class="lineCov">          1 :         tile = getTile(image,symbol,&amp;s,pw,ph,seamless);</span>
+<span class="lineNum">     819 </span>                :<span class="lineCov">          1 :         ret = renderer-&gt;renderPolygonTiled(image,offsetPolygon, tile);</span>
+<span class="lineNum">     820 </span>                :            :       }
+<span class="lineNum">     821 </span>                :            : 
+<span class="lineNum">     822 </span>                :            : cleanup:
+<span class="lineNum">     823 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (offsetPolygon != p) {</span>
+<span class="lineNum">     824 </span>                :<span class="lineCov">          1 :         msFreeShape(offsetPolygon);</span>
+<span class="lineNum">     825 </span>                :<span class="lineCov">          1 :         msFree(offsetPolygon);</span>
+<span class="lineNum">     826 </span>                :            :       }
+<span class="lineNum">     827 </span>                :            :       return ret;
+<span class="lineNum">     828 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     } else if( MS_RENDERER_IMAGEMAP(image-&gt;format) )</span>
+<span class="lineNum">     829 </span>                :<span class="lineCov">          1 :       msDrawShadeSymbolIM(map, image, p, style, scalefactor);</span>
+<span class="lineNum">     830 </span>                :            :   }
+<span class="lineNum">     831 </span>                :            :   return ret;
+<a name="832"><span class="lineNum">     832 </span>                :            : }</a>
+<span class="lineNum">     833 </span>                :            : 
+<span class="lineNum">     834 </span>                :<span class="lineCov">          1 : int msDrawMarkerSymbol(mapObj *map, imageObj *image, pointObj *p, styleObj *style,</span>
+<span class="lineNum">     835 </span>                :            :                        double scalefactor)
+<span class="lineNum">     836 </span>                :            : {
+<span class="lineNum">     837 </span>                :            :   int ret = MS_SUCCESS;
+<span class="lineNum">     838 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!p)</span>
+<span class="lineNum">     839 </span>                :            :     return MS_SUCCESS;
+<span class="lineNum">     840 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (style-&gt;symbol &gt;= map-&gt;symbolset.numsymbols || style-&gt;symbol &lt;= 0)</span>
+<span class="lineNum">     841 </span>                :            :     return MS_SUCCESS; /* no such symbol, 0 is OK   */
+<span class="lineNum">     842 </span>                :            : 
+<span class="lineNum">     843 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (image) {</span>
+<span class="lineNum">     844 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(MS_RENDERER_PLUGIN(image-&gt;format)) {</span>
+<span class="lineNum">     845 </span>                :<span class="lineCov">          1 :       rendererVTableObj *renderer = image-&gt;format-&gt;vtable;</span>
+<span class="lineNum">     846 </span>                :            :       symbolStyleObj s;
+<span class="lineNum">     847 </span>                :            :       double p_x,p_y;
+<span class="lineNum">     848 </span>                :<span class="lineCov">          1 :       symbolObj *symbol = map-&gt;symbolset.symbol[style-&gt;symbol];</span>
+<span class="lineNum">     849 </span>                :            :       /* store a reference to the renderer to be used for freeing */
+<span class="lineNum">     850 </span>                :<span class="lineCov">          1 :       symbol-&gt;renderer = renderer;</span>
+<span class="lineNum">     851 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       if(preloadSymbol(&amp;map-&gt;symbolset,symbol,renderer) != MS_SUCCESS) {</span>
+<span class="lineNum">     852 </span>                :            :         return MS_FAILURE;
+<span class="lineNum">     853 </span>                :            :       }
+<span class="lineNum">     854 </span>                :            : 
+<span class="lineNum">     855 </span>                :<span class="lineCov">          1 :       computeSymbolStyle(&amp;s,style,symbol,scalefactor,image-&gt;resolutionfactor);</span>
+<span class="lineNum">     856 </span>                :<span class="lineCov">          1 :       s.style = style;</span>
+<span class="lineNum">     857 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (!s.color &amp;&amp; !s.outlinecolor &amp;&amp; symbol-&gt;type != MS_SYMBOL_PIXMAP &amp;&amp;</span>
 <span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>][<span class="branchCov" title="Branch 6 was taken X times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]
-<span class="lineNum">     855 </span>                :<span class="lineCov">          1 :           symbol-&gt;type != MS_SYMBOL_SVG) {</span>
-<span class="lineNum">     856 </span>                :            :         return MS_SUCCESS; // nothing to do if no color, except for pixmap symbols
-<span class="lineNum">     857 </span>                :            :       }
-<span class="lineNum">     858 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(s.scale == 0) {</span>
-<span class="lineNum">     859 </span>                :            :         return MS_SUCCESS;
+<span class="lineNum">     858 </span>                :<span class="lineCov">          1 :           symbol-&gt;type != MS_SYMBOL_SVG) {</span>
+<span class="lineNum">     859 </span>                :            :         return MS_SUCCESS; // nothing to do if no color, except for pixmap symbols
 <span class="lineNum">     860 </span>                :            :       }
-<span class="lineNum">     861 </span>                :            : 
-<span class="lineNum">     862 </span>                :            : 
-<span class="lineNum">     863 </span>                :            : 
-<span class="lineNum">     864 </span>                :            :       /* TODO: skip the drawing of the symbol if it's smaller than a pixel ?
-<span class="lineNum">     865 </span>                :            :       if (s.size &lt; 1)
-<span class="lineNum">     866 </span>                :            :        return; // size too small
-<span class="lineNum">     867 </span>                :            :        */
-<span class="lineNum">     868 </span>                :            : 
-<span class="lineNum">     869 </span>                :<span class="lineCov">          1 :       p_x = p-&gt;x;</span>
-<span class="lineNum">     870 </span>                :<span class="lineCov">          1 :       p_y = p-&gt;y;</span>
+<span class="lineNum">     861 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(s.scale == 0) {</span>
+<span class="lineNum">     862 </span>                :            :         return MS_SUCCESS;
+<span class="lineNum">     863 </span>                :            :       }
+<span class="lineNum">     864 </span>                :            : 
+<span class="lineNum">     865 </span>                :            : 
+<span class="lineNum">     866 </span>                :            : 
+<span class="lineNum">     867 </span>                :            :       /* TODO: skip the drawing of the symbol if it's smaller than a pixel ?
+<span class="lineNum">     868 </span>                :            :       if (s.size &lt; 1)
+<span class="lineNum">     869 </span>                :            :        return; // size too small
+<span class="lineNum">     870 </span>                :            :        */
 <span class="lineNum">     871 </span>                :            : 
-<span class="lineNum">     872 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (style-&gt;polaroffsetpixel != 0 ||</span>
-<span class="lineNum">     873 </span>                :<span class="lineCov">          1 :           style-&gt;polaroffsetangle != 0) {</span>
-<span class="lineNum">     874 </span>                :<span class="lineCov">          1 :         double angle = style-&gt;polaroffsetangle * MS_DEG_TO_RAD;</span>
-<span class="lineNum">     875 </span>                :<span class="lineCov">          1 :         p_x +=  (style-&gt;polaroffsetpixel * cos(-angle)) * scalefactor;</span>
-<span class="lineNum">     876 </span>                :<span class="lineCov">          1 :         p_y +=  (style-&gt;polaroffsetpixel * sin(-angle)) * scalefactor;</span>
-<span class="lineNum">     877 </span>                :            :       }
-<span class="lineNum">     878 </span>                :            : 
-<span class="lineNum">     879 </span>                :<span class="lineCov">          1 :       p_x +=  style-&gt;offsetx * scalefactor;</span>
-<span class="lineNum">     880 </span>                :<span class="lineCov">          1 :       p_y +=  style-&gt;offsety * scalefactor;</span>
+<span class="lineNum">     872 </span>                :<span class="lineCov">          1 :       p_x = p-&gt;x;</span>
+<span class="lineNum">     873 </span>                :<span class="lineCov">          1 :       p_y = p-&gt;y;</span>
+<span class="lineNum">     874 </span>                :            : 
+<span class="lineNum">     875 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (style-&gt;polaroffsetpixel != 0 ||</span>
+<span class="lineNum">     876 </span>                :<span class="lineCov">          1 :           style-&gt;polaroffsetangle != 0) {</span>
+<span class="lineNum">     877 </span>                :<span class="lineCov">          1 :         double angle = style-&gt;polaroffsetangle * MS_DEG_TO_RAD;</span>
+<span class="lineNum">     878 </span>                :<span class="lineCov">          1 :         p_x +=  (style-&gt;polaroffsetpixel * cos(-angle)) * scalefactor;</span>
+<span class="lineNum">     879 </span>                :<span class="lineCov">          1 :         p_y +=  (style-&gt;polaroffsetpixel * sin(-angle)) * scalefactor;</span>
+<span class="lineNum">     880 </span>                :            :       }
 <span class="lineNum">     881 </span>                :            : 
-<span class="lineNum">     882 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(symbol-&gt;anchorpoint_x != 0.5 || symbol-&gt;anchorpoint_y != 0.5) {</span>
-<span class="lineNum">     883 </span>                :            :         double sx,sy;
-<span class="lineNum">     884 </span>                :            :         double ox, oy;
-<span class="lineNum">     885 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if(UNLIKELY(MS_FAILURE == msGetMarkerSize(map, style, &amp;sx, &amp;sy, scalefactor))) {</span>
-<span class="lineNum">     886 </span>                :            :           return MS_FAILURE;
-<span class="lineNum">     887 </span>                :            :         }
-<span class="lineNum">     888 </span>                :<span class="lineCov">          1 :         ox = (0.5 - symbol-&gt;anchorpoint_x) * sx;</span>
-<span class="lineNum">     889 </span>                :<span class="lineCov">          1 :         oy = (0.5 - symbol-&gt;anchorpoint_y) * sy;</span>
-<span class="lineNum">     890 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(s.rotation != 0) {</span>
-<span class="lineNum">     891 </span>                :            :           double sina, cosa;
-<span class="lineNum">     892 </span>                :            :           double rox,roy;
-<span class="lineNum">     893 </span>                :<span class="lineCov">          1 :           sina = sin(-s.rotation);</span>
-<span class="lineNum">     894 </span>                :<span class="lineCov">          1 :           cosa = cos(-s.rotation);</span>
-<span class="lineNum">     895 </span>                :<span class="lineCov">          1 :           rox = ox * cosa - oy * sina;</span>
-<span class="lineNum">     896 </span>                :<span class="lineCov">          1 :           roy = ox * sina + oy * cosa;</span>
-<span class="lineNum">     897 </span>                :<span class="lineCov">          1 :           p_x += rox;</span>
-<span class="lineNum">     898 </span>                :<span class="lineCov">          1 :           p_y += roy;</span>
-<span class="lineNum">     899 </span>                :            :         } else {
-<span class="lineNum">     900 </span>                :<span class="lineCov">          1 :           p_x += ox;</span>
-<span class="lineNum">     901 </span>                :<span class="lineCov">          1 :           p_y += oy;</span>
-<span class="lineNum">     902 </span>                :            :         }
-<span class="lineNum">     903 </span>                :            :       }
-<span class="lineNum">     904 </span>                :            : 
-<span class="lineNum">     905 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(renderer-&gt;use_imagecache) {</span>
-<span class="lineNum">     906 </span>                :<span class="lineNoCov">          0 :         imageObj *tile = getTile(image, symbol, &amp;s, -1, -1,0);</span>
-<span class="lineNum">     907 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(tile!=NULL)</span>
-<span class="lineNum">     908 </span>                :<span class="lineNoCov">          0 :           return renderer-&gt;renderTile(image, tile, p_x, p_y);</span>
-<span class="lineNum">     909 </span>                :            :         else {
-<span class="lineNum">     910 </span>                :<span class="lineNoCov">          0 :           msSetError(MS_RENDERERERR, &quot;problem creating cached tile&quot;, &quot;msDrawMarkerSymbol()&quot;);</span>
-<span class="lineNum">     911 </span>                :<span class="lineNoCov">          0 :           return MS_FAILURE;</span>
-<span class="lineNum">     912 </span>                :            :         }
-<span class="lineNum">     913 </span>                :            :       }
-<span class="lineNum">     914 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span> :<span class="lineCov">          1 :       switch (symbol-&gt;type) {</span>
+<span class="lineNum">     882 </span>                :<span class="lineCov">          1 :       p_x +=  style-&gt;offsetx * scalefactor;</span>
+<span class="lineNum">     883 </span>                :<span class="lineCov">          1 :       p_y +=  style-&gt;offsety * scalefactor;</span>
+<span class="lineNum">     884 </span>                :            : 
+<span class="lineNum">     885 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(symbol-&gt;anchorpoint_x != 0.5 || symbol-&gt;anchorpoint_y != 0.5) {</span>
+<span class="lineNum">     886 </span>                :            :         double sx,sy;
+<span class="lineNum">     887 </span>                :            :         double ox, oy;
+<span class="lineNum">     888 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if(UNLIKELY(MS_FAILURE == msGetMarkerSize(map, style, &amp;sx, &amp;sy, scalefactor))) {</span>
+<span class="lineNum">     889 </span>                :            :           return MS_FAILURE;
+<span class="lineNum">     890 </span>                :            :         }
+<span class="lineNum">     891 </span>                :<span class="lineCov">          1 :         ox = (0.5 - symbol-&gt;anchorpoint_x) * sx;</span>
+<span class="lineNum">     892 </span>                :<span class="lineCov">          1 :         oy = (0.5 - symbol-&gt;anchorpoint_y) * sy;</span>
+<span class="lineNum">     893 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(s.rotation != 0) {</span>
+<span class="lineNum">     894 </span>                :            :           double sina, cosa;
+<span class="lineNum">     895 </span>                :            :           double rox,roy;
+<span class="lineNum">     896 </span>                :<span class="lineCov">          1 :           sina = sin(-s.rotation);</span>
+<span class="lineNum">     897 </span>                :<span class="lineCov">          1 :           cosa = cos(-s.rotation);</span>
+<span class="lineNum">     898 </span>                :<span class="lineCov">          1 :           rox = ox * cosa - oy * sina;</span>
+<span class="lineNum">     899 </span>                :<span class="lineCov">          1 :           roy = ox * sina + oy * cosa;</span>
+<span class="lineNum">     900 </span>                :<span class="lineCov">          1 :           p_x += rox;</span>
+<span class="lineNum">     901 </span>                :<span class="lineCov">          1 :           p_y += roy;</span>
+<span class="lineNum">     902 </span>                :            :         } else {
+<span class="lineNum">     903 </span>                :<span class="lineCov">          1 :           p_x += ox;</span>
+<span class="lineNum">     904 </span>                :<span class="lineCov">          1 :           p_y += oy;</span>
+<span class="lineNum">     905 </span>                :            :         }
+<span class="lineNum">     906 </span>                :            :       }
+<span class="lineNum">     907 </span>                :            : 
+<span class="lineNum">     908 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(renderer-&gt;use_imagecache) {</span>
+<span class="lineNum">     909 </span>                :<span class="lineNoCov">          0 :         imageObj *tile = getTile(image, symbol, &amp;s, -1, -1,0);</span>
+<span class="lineNum">     910 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(tile!=NULL)</span>
+<span class="lineNum">     911 </span>                :<span class="lineNoCov">          0 :           return renderer-&gt;renderTile(image, tile, p_x, p_y);</span>
+<span class="lineNum">     912 </span>                :            :         else {
+<span class="lineNum">     913 </span>                :<span class="lineNoCov">          0 :           msSetError(MS_RENDERERERR, &quot;problem creating cached tile&quot;, &quot;msDrawMarkerSymbol()&quot;);</span>
+<span class="lineNum">     914 </span>                :<span class="lineNoCov">          0 :           return MS_FAILURE;</span>
+<span class="lineNum">     915 </span>                :            :         }
+<span class="lineNum">     916 </span>                :            :       }
+<span class="lineNum">     917 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span> :<span class="lineCov">          1 :       switch (symbol-&gt;type) {</span>
 <span class="lineNum">         </span>         <span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
-<span class="lineNum">     915 </span>                :            :         case (MS_SYMBOL_TRUETYPE): {
-<span class="lineNum">     916 </span>                :            :           unsigned int unicode;
-<span class="lineNum">     917 </span>                :            :           glyph_element *glyphc;
-<span class="lineNum">     918 </span>                :<span class="lineCov">          1 :           face_element *face = msGetFontFace(symbol-&gt;font, &amp;map-&gt;fontset);</span>
-<span class="lineNum">     919 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           if(UNLIKELY(!face)) return MS_FAILURE;</span>
-<span class="lineNum">     920 </span>                :<span class="lineCov">          1 :           msUTF8ToUniChar(symbol-&gt;character,&amp;unicode);</span>
-<span class="lineNum">     921 </span>                :<span class="lineCov">          1 :           unicode = msGetGlyphIndex(face,unicode);</span>
-<span class="lineNum">     922 </span>                :<span class="lineCov">          1 :           glyphc = msGetGlyphByIndex(face,s.scale,unicode);</span>
-<span class="lineNum">     923 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           if(UNLIKELY(!glyphc)) return MS_FAILURE;</span>
-<span class="lineNum">     924 </span>                :<span class="lineCov">          1 :           ret = drawGlyphMarker(image, face, glyphc, p_x, p_y, s.scale, s.rotation, s.color, s.outlinecolor, s.outlinewidth);</span>
-<span class="lineNum">     925 </span>                :            :         }
-<span class="lineNum">     926 </span>                :<span class="lineCov">          1 :         break;</span>
-<span class="lineNum">     927 </span>                :            :         case (MS_SYMBOL_PIXMAP): {
-<span class="lineNum">     928 </span>                :            :           assert(symbol-&gt;pixmap_buffer);
-<span class="lineNum">     929 </span>                :<span class="lineCov">          1 :           ret = renderer-&gt;renderPixmapSymbol(image,p_x,p_y,symbol,&amp;s);</span>
-<span class="lineNum">     930 </span>                :            :         }
-<span class="lineNum">     931 </span>                :<span class="lineCov">          1 :         break;</span>
-<span class="lineNum">     932 </span>                :            :         case (MS_SYMBOL_ELLIPSE): {
-<span class="lineNum">     933 </span>                :<span class="lineCov">          1 :           ret = renderer-&gt;renderEllipseSymbol(image, p_x, p_y,symbol, &amp;s);</span>
-<span class="lineNum">     934 </span>                :            :         }
-<span class="lineNum">     935 </span>                :<span class="lineCov">          1 :         break;</span>
-<span class="lineNum">     936 </span>                :            :         case (MS_SYMBOL_VECTOR): {
-<span class="lineNum">     937 </span>                :<span class="lineCov">          1 :           ret = renderer-&gt;renderVectorSymbol(image, p_x, p_y, symbol, &amp;s);</span>
-<span class="lineNum">     938 </span>                :            :         }
-<span class="lineNum">     939 </span>                :<span class="lineCov">          1 :         break;</span>
-<span class="lineNum">     940 </span>                :            :         case (MS_SYMBOL_SVG): {
-<span class="lineNum">     941 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if (renderer-&gt;supports_svg) {</span>
-<span class="lineNum">     942 </span>                :<span class="lineCov">          1 :             ret = renderer-&gt;renderSVGSymbol(image, p_x, p_y, symbol, &amp;s);</span>
-<span class="lineNum">     943 </span>                :            :           } else {
-<span class="lineNum">     944 </span>                :            : #if defined(USE_SVG_CAIRO) || defined(USE_RSVG)
-<span class="lineNum">     945 </span>                :<span class="lineCov">          1 :             ret = msRenderRasterizedSVGSymbol(image, p_x,p_y, symbol, &amp;s);</span>
-<span class="lineNum">     946 </span>                :            : #else
-<span class="lineNum">     947 </span>                :            :             msSetError(MS_SYMERR, &quot;SVG symbol support is not enabled.&quot;, &quot;msDrawMarkerSymbol()&quot;);
-<span class="lineNum">     948 </span>                :            :             return MS_FAILURE;
-<span class="lineNum">     949 </span>                :            : #endif
-<span class="lineNum">     950 </span>                :            :           }
-<span class="lineNum">     951 </span>                :            :         }
-<span class="lineNum">     952 </span>                :            :         break;
-<span class="lineNum">     953 </span>                :            :         default:
-<span class="lineNum">     954 </span>                :            :           break;
-<span class="lineNum">     955 </span>                :            :       }
-<span class="lineNum">     956 </span>                :<span class="lineCov">          1 :       return ret;</span>
-<span class="lineNum">     957 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     } else if( MS_RENDERER_IMAGEMAP(image-&gt;format) )</span>
-<span class="lineNum">     958 </span>                :<span class="lineCov">          1 :       msDrawMarkerSymbolIM(map, image, p, style, scalefactor);</span>
-<span class="lineNum">     959 </span>                :            : 
-<span class="lineNum">     960 </span>                :            :   }
-<span class="lineNum">     961 </span>                :            :   return ret;
-<span class="lineNum">     962 </span>                :            : }
-<a name="963"><span class="lineNum">     963 </span>                :            : </a>
-<span class="lineNum">     964 </span>                :            : 
-<span class="lineNum">     965 </span>                :<span class="lineCov">          1 : int msDrawLabelBounds(mapObj *map, imageObj *image, label_bounds *bnds, styleObj *style, double scalefactor)</span>
-<span class="lineNum">     966 </span>                :            : {
-<span class="lineNum">     967 </span>                :            :   /*
-<span class="lineNum">     968 </span>                :            :    * helper function to draw label bounds, where we might have only a rectObj and not
-<span class="lineNum">     969 </span>                :            :    * a lineObj/shapeObj
-<span class="lineNum">     970 </span>                :            :    */
-<span class="lineNum">     971 </span>                :            :   shapeObj shape;
-<span class="lineNum">     972 </span>                :<span class="lineCov">          1 :   shape.numlines = 1;</span>
-<span class="lineNum">     973 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(bnds-&gt;poly) {</span>
-<span class="lineNum">     974 </span>                :<span class="lineCov">          1 :     shape.line = bnds-&gt;poly;</span>
-<span class="lineNum">     975 </span>                :            :   } else {
-<span class="lineNum">     976 </span>                :            :     pointObj pnts1[5];
-<span class="lineNum">     977 </span>                :            :     lineObj l;
-<span class="lineNum">     978 </span>                :<span class="lineCov">          1 :     l.point = pnts1;</span>
-<span class="lineNum">     979 </span>                :<span class="lineCov">          1 :     l.numpoints = 5;</span>
-<span class="lineNum">     980 </span>                :<span class="lineCov">          1 :     pnts1[0].x = pnts1[1].x = pnts1[4].x = bnds-&gt;bbox.minx;</span>
-<span class="lineNum">     981 </span>                :<span class="lineCov">          1 :     pnts1[2].x = pnts1[3].x = bnds-&gt;bbox.maxx;</span>
-<span class="lineNum">     982 </span>                :<span class="lineCov">          1 :     pnts1[0].y = pnts1[3].y = pnts1[4].y = bnds-&gt;bbox.miny;</span>
-<span class="lineNum">     983 </span>                :<span class="lineCov">          1 :     pnts1[1].y = pnts1[2].y = bnds-&gt;bbox.maxy;</span>
-<span class="lineNum">     984 </span>                :<span class="lineCov">          1 :     shape.line = &amp;l;</span>
-<span class="lineNum">     985 </span>                :            :   }
-<span class="lineNum">     986 </span>                :<span class="lineCov">          1 :   return msDrawShadeSymbol(map,image,&amp;shape,style,scalefactor);</span>
-<a name="987"><span class="lineNum">     987 </span>                :            : }</a>
-<span class="lineNum">     988 </span>                :            : 
-<span class="lineNum">     989 </span>                :<span class="lineCov">          1 : int msDrawTextSymbol(mapObj *map, imageObj *image, pointObj labelPnt, textSymbolObj *ts)</span>
-<span class="lineNum">     990 </span>                :            : {
-<span class="lineNum">     991 </span>                :<span class="lineCov">          1 :   rendererVTableObj *renderer = image-&gt;format-&gt;vtable;</span>
-<span class="lineNum">     992 </span>                :            :   colorObj *c = NULL, *oc = NULL;
-<span class="lineNum">     993 </span>                :            :   int ow;
-<span class="lineNum">     994 </span>                :            :   assert(ts-&gt;textpath);
-<span class="lineNum">     995 </span>                :            : 
-<span class="lineNum">     996 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!ts-&gt;textpath-&gt;absolute) {</span>
-<span class="lineNum">     997 </span>                :            :     int g;
-<span class="lineNum">     998 </span>                :            :     double cosa,sina;
-<span class="lineNum">     999 </span>                :<span class="lineCov">          1 :     double x = labelPnt.x;</span>
-<span class="lineNum">    1000 </span>                :<span class="lineCov">          1 :     double y = labelPnt.y;</span>
-<span class="lineNum">    1001 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(ts-&gt;rotation != 0) {</span>
-<span class="lineNum">    1002 </span>                :<span class="lineCov">          1 :       cosa = cos(ts-&gt;rotation);</span>
-<span class="lineNum">    1003 </span>                :<span class="lineCov">          1 :       sina = sin(ts-&gt;rotation);</span>
-<span class="lineNum">    1004 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(g=0;g&lt;ts-&gt;textpath-&gt;numglyphs;g++) {</span>
-<span class="lineNum">    1005 </span>                :<span class="lineCov">          1 :         double ox = ts-&gt;textpath-&gt;glyphs[g].pnt.x;</span>
-<span class="lineNum">    1006 </span>                :<span class="lineCov">          1 :         double oy = ts-&gt;textpath-&gt;glyphs[g].pnt.y;</span>
-<span class="lineNum">    1007 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath-&gt;glyphs[g].pnt.x = ox * cosa + oy * sina + x;</span>
-<span class="lineNum">    1008 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath-&gt;glyphs[g].pnt.y = -ox * sina + oy * cosa + y;</span>
-<span class="lineNum">    1009 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath-&gt;glyphs[g].rot = ts-&gt;rotation;</span>
-<span class="lineNum">    1010 </span>                :            :       }
-<span class="lineNum">    1011 </span>                :            :     } else {
-<span class="lineNum">    1012 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(g=0;g&lt;ts-&gt;textpath-&gt;numglyphs;g++) {</span>
-<span class="lineNum">    1013 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath-&gt;glyphs[g].pnt.x += x;</span>
-<span class="lineNum">    1014 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath-&gt;glyphs[g].pnt.y += y;</span>
-<span class="lineNum">    1015 </span>                :            :       }
-<span class="lineNum">    1016 </span>                :            :     }
-<span class="lineNum">    1017 </span>                :            :   }
-<span class="lineNum">    1018 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(MS_VALID_COLOR(ts-&gt;label-&gt;color))</span>
+<span class="lineNum">     918 </span>                :            :         case (MS_SYMBOL_TRUETYPE): {
+<span class="lineNum">     919 </span>                :            :           unsigned int unicode;
+<span class="lineNum">     920 </span>                :            :           glyph_element *glyphc;
+<span class="lineNum">     921 </span>                :<span class="lineCov">          1 :           face_element *face = msGetFontFace(symbol-&gt;font, &amp;map-&gt;fontset);</span>
+<span class="lineNum">     922 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           if(UNLIKELY(!face)) return MS_FAILURE;</span>
+<span class="lineNum">     923 </span>                :<span class="lineCov">          1 :           msUTF8ToUniChar(symbol-&gt;character,&amp;unicode);</span>
+<span class="lineNum">     924 </span>                :<span class="lineCov">          1 :           unicode = msGetGlyphIndex(face,unicode);</span>
+<span class="lineNum">     925 </span>                :<span class="lineCov">          1 :           glyphc = msGetGlyphByIndex(face,s.scale,unicode);</span>
+<span class="lineNum">     926 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           if(UNLIKELY(!glyphc)) return MS_FAILURE;</span>
+<span class="lineNum">     927 </span>                :<span class="lineCov">          1 :           ret = drawGlyphMarker(image, face, glyphc, p_x, p_y, s.scale, s.rotation, s.color, s.outlinecolor, s.outlinewidth);</span>
+<span class="lineNum">     928 </span>                :            :         }
+<span class="lineNum">     929 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     930 </span>                :            :         case (MS_SYMBOL_PIXMAP): {
+<span class="lineNum">     931 </span>                :            :           assert(symbol-&gt;pixmap_buffer);
+<span class="lineNum">     932 </span>                :<span class="lineCov">          1 :           ret = renderer-&gt;renderPixmapSymbol(image,p_x,p_y,symbol,&amp;s);</span>
+<span class="lineNum">     933 </span>                :            :         }
+<span class="lineNum">     934 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     935 </span>                :            :         case (MS_SYMBOL_ELLIPSE): {
+<span class="lineNum">     936 </span>                :<span class="lineCov">          1 :           ret = renderer-&gt;renderEllipseSymbol(image, p_x, p_y,symbol, &amp;s);</span>
+<span class="lineNum">     937 </span>                :            :         }
+<span class="lineNum">     938 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     939 </span>                :            :         case (MS_SYMBOL_VECTOR): {
+<span class="lineNum">     940 </span>                :<span class="lineCov">          1 :           ret = renderer-&gt;renderVectorSymbol(image, p_x, p_y, symbol, &amp;s);</span>
+<span class="lineNum">     941 </span>                :            :         }
+<span class="lineNum">     942 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     943 </span>                :            :         case (MS_SYMBOL_SVG): {
+<span class="lineNum">     944 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if (renderer-&gt;supports_svg) {</span>
+<span class="lineNum">     945 </span>                :<span class="lineCov">          1 :             ret = renderer-&gt;renderSVGSymbol(image, p_x, p_y, symbol, &amp;s);</span>
+<span class="lineNum">     946 </span>                :            :           } else {
+<span class="lineNum">     947 </span>                :            : #if defined(USE_SVG_CAIRO) || defined(USE_RSVG)
+<span class="lineNum">     948 </span>                :<span class="lineCov">          1 :             ret = msRenderRasterizedSVGSymbol(image, p_x,p_y, symbol, &amp;s);</span>
+<span class="lineNum">     949 </span>                :            : #else
+<span class="lineNum">     950 </span>                :            :             msSetError(MS_SYMERR, &quot;SVG symbol support is not enabled.&quot;, &quot;msDrawMarkerSymbol()&quot;);
+<span class="lineNum">     951 </span>                :            :             return MS_FAILURE;
+<span class="lineNum">     952 </span>                :            : #endif
+<span class="lineNum">     953 </span>                :            :           }
+<span class="lineNum">     954 </span>                :            :         }
+<span class="lineNum">     955 </span>                :            :         break;
+<span class="lineNum">     956 </span>                :            :         default:
+<span class="lineNum">     957 </span>                :            :           break;
+<span class="lineNum">     958 </span>                :            :       }
+<span class="lineNum">     959 </span>                :<span class="lineCov">          1 :       return ret;</span>
+<span class="lineNum">     960 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     } else if( MS_RENDERER_IMAGEMAP(image-&gt;format) )</span>
+<span class="lineNum">     961 </span>                :<span class="lineCov">          1 :       msDrawMarkerSymbolIM(map, image, p, style, scalefactor);</span>
+<span class="lineNum">     962 </span>                :            : 
+<span class="lineNum">     963 </span>                :            :   }
+<span class="lineNum">     964 </span>                :            :   return ret;
+<span class="lineNum">     965 </span>                :            : }
+<a name="966"><span class="lineNum">     966 </span>                :            : </a>
+<span class="lineNum">     967 </span>                :            : 
+<span class="lineNum">     968 </span>                :<span class="lineCov">          1 : int msDrawLabelBounds(mapObj *map, imageObj *image, label_bounds *bnds, styleObj *style, double scalefactor)</span>
+<span class="lineNum">     969 </span>                :            : {
+<span class="lineNum">     970 </span>                :            :   /*
+<span class="lineNum">     971 </span>                :            :    * helper function to draw label bounds, where we might have only a rectObj and not
+<span class="lineNum">     972 </span>                :            :    * a lineObj/shapeObj
+<span class="lineNum">     973 </span>                :            :    */
+<span class="lineNum">     974 </span>                :            :   shapeObj shape;
+<span class="lineNum">     975 </span>                :<span class="lineCov">          1 :   shape.numlines = 1;</span>
+<span class="lineNum">     976 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(bnds-&gt;poly) {</span>
+<span class="lineNum">     977 </span>                :<span class="lineCov">          1 :     shape.line = bnds-&gt;poly;</span>
+<span class="lineNum">     978 </span>                :            :   } else {
+<span class="lineNum">     979 </span>                :            :     pointObj pnts1[5];
+<span class="lineNum">     980 </span>                :            :     lineObj l;
+<span class="lineNum">     981 </span>                :<span class="lineCov">          1 :     l.point = pnts1;</span>
+<span class="lineNum">     982 </span>                :<span class="lineCov">          1 :     l.numpoints = 5;</span>
+<span class="lineNum">     983 </span>                :<span class="lineCov">          1 :     pnts1[0].x = pnts1[1].x = pnts1[4].x = bnds-&gt;bbox.minx;</span>
+<span class="lineNum">     984 </span>                :<span class="lineCov">          1 :     pnts1[2].x = pnts1[3].x = bnds-&gt;bbox.maxx;</span>
+<span class="lineNum">     985 </span>                :<span class="lineCov">          1 :     pnts1[0].y = pnts1[3].y = pnts1[4].y = bnds-&gt;bbox.miny;</span>
+<span class="lineNum">     986 </span>                :<span class="lineCov">          1 :     pnts1[1].y = pnts1[2].y = bnds-&gt;bbox.maxy;</span>
+<span class="lineNum">     987 </span>                :<span class="lineCov">          1 :     shape.line = &amp;l;</span>
+<span class="lineNum">     988 </span>                :            :   }
+<span class="lineNum">     989 </span>                :<span class="lineCov">          1 :   return msDrawShadeSymbol(map,image,&amp;shape,style,scalefactor);</span>
+<a name="990"><span class="lineNum">     990 </span>                :            : }</a>
+<span class="lineNum">     991 </span>                :            : 
+<span class="lineNum">     992 </span>                :<span class="lineCov">          1 : int msDrawTextSymbol(mapObj *map, imageObj *image, pointObj labelPnt, textSymbolObj *ts)</span>
+<span class="lineNum">     993 </span>                :            : {
+<span class="lineNum">     994 </span>                :<span class="lineCov">          1 :   rendererVTableObj *renderer = image-&gt;format-&gt;vtable;</span>
+<span class="lineNum">     995 </span>                :            :   colorObj *c = NULL, *oc = NULL;
+<span class="lineNum">     996 </span>                :            :   int ow;
+<span class="lineNum">     997 </span>                :            :   assert(ts-&gt;textpath);
+<span class="lineNum">     998 </span>                :            : 
+<span class="lineNum">     999 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!ts-&gt;textpath-&gt;absolute) {</span>
+<span class="lineNum">    1000 </span>                :            :     int g;
+<span class="lineNum">    1001 </span>                :            :     double cosa,sina;
+<span class="lineNum">    1002 </span>                :<span class="lineCov">          1 :     double x = labelPnt.x;</span>
+<span class="lineNum">    1003 </span>                :<span class="lineCov">          1 :     double y = labelPnt.y;</span>
+<span class="lineNum">    1004 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(ts-&gt;rotation != 0) {</span>
+<span class="lineNum">    1005 </span>                :<span class="lineCov">          1 :       cosa = cos(ts-&gt;rotation);</span>
+<span class="lineNum">    1006 </span>                :<span class="lineCov">          1 :       sina = sin(ts-&gt;rotation);</span>
+<span class="lineNum">    1007 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(g=0;g&lt;ts-&gt;textpath-&gt;numglyphs;g++) {</span>
+<span class="lineNum">    1008 </span>                :<span class="lineCov">          1 :         double ox = ts-&gt;textpath-&gt;glyphs[g].pnt.x;</span>
+<span class="lineNum">    1009 </span>                :<span class="lineCov">          1 :         double oy = ts-&gt;textpath-&gt;glyphs[g].pnt.y;</span>
+<span class="lineNum">    1010 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath-&gt;glyphs[g].pnt.x = ox * cosa + oy * sina + x;</span>
+<span class="lineNum">    1011 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath-&gt;glyphs[g].pnt.y = -ox * sina + oy * cosa + y;</span>
+<span class="lineNum">    1012 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath-&gt;glyphs[g].rot = ts-&gt;rotation;</span>
+<span class="lineNum">    1013 </span>                :            :       }
+<span class="lineNum">    1014 </span>                :            :     } else {
+<span class="lineNum">    1015 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(g=0;g&lt;ts-&gt;textpath-&gt;numglyphs;g++) {</span>
+<span class="lineNum">    1016 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath-&gt;glyphs[g].pnt.x += x;</span>
+<span class="lineNum">    1017 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath-&gt;glyphs[g].pnt.y += y;</span>
+<span class="lineNum">    1018 </span>                :            :       }
+<span class="lineNum">    1019 </span>                :            :     }
+<span class="lineNum">    1020 </span>                :            :   }
+<span class="lineNum">    1021 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(MS_VALID_COLOR(ts-&gt;label-&gt;color))</span>
 <span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
-<span class="lineNum">    1019 </span>                :<span class="lineCov">          1 :     c = &amp;ts-&gt;label-&gt;color;</span>
-<span class="lineNum">    1020 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(MS_VALID_COLOR(ts-&gt;label-&gt;outlinecolor))</span>
+<span class="lineNum">    1022 </span>                :<span class="lineCov">          1 :     c = &amp;ts-&gt;label-&gt;color;</span>
+<span class="lineNum">    1023 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(MS_VALID_COLOR(ts-&gt;label-&gt;outlinecolor))</span>
 <span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
-<span class="lineNum">    1021 </span>                :<span class="lineCov">          1 :     oc = &amp;ts-&gt;label-&gt;outlinecolor;</span>
-<span class="lineNum">    1022 </span>                :<span class="lineCov">          1 :   ow = ts-&gt;label-&gt;outlinewidth * ts-&gt;scalefactor;</span>
-<span class="lineNum">    1023 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!renderer-&gt;renderGlyphs) return MS_FAILURE;</span>
-<span class="lineNum">    1024 </span>                :<span class="lineCov">          1 :   return renderer-&gt;renderGlyphs(image,ts-&gt;textpath,c,oc,ow);</span>
-<span class="lineNum">    1025 </span>                :            :   
-<span class="lineNum">    1026 </span>                :            : }
-<span class="lineNum">    1027 </span>                :            : 
-<span class="lineNum">    1028 </span>                :            : /************************************************************************/
-<span class="lineNum">    1029 </span>                :            : /*                          msCircleDrawLineSymbol                      */
-<a name="1030"><span class="lineNum">    1030 </span>                :            : /*                                                                      */</a>
+<span class="lineNum">    1024 </span>                :<span class="lineCov">          1 :     oc = &amp;ts-&gt;label-&gt;outlinecolor;</span>
+<span class="lineNum">    1025 </span>                :<span class="lineCov">          1 :   ow = ts-&gt;label-&gt;outlinewidth * ts-&gt;scalefactor;</span>
+<span class="lineNum">    1026 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!renderer-&gt;renderGlyphs) return MS_FAILURE;</span>
+<span class="lineNum">    1027 </span>                :<span class="lineCov">          1 :   return renderer-&gt;renderGlyphs(image,ts-&gt;textpath,c,oc,ow);</span>
+<span class="lineNum">    1028 </span>                :            :   
+<span class="lineNum">    1029 </span>                :            : }
+<span class="lineNum">    1030 </span>                :            : 
 <span class="lineNum">    1031 </span>                :            : /************************************************************************/
-<span class="lineNum">    1032 </span>                :<span class="lineNoCov">          0 : int msCircleDrawLineSymbol(mapObj *map, imageObj *image, pointObj *p, double r, styleObj *style, double scalefactor)</span>
-<span class="lineNum">    1033 </span>                :            : {
-<span class="lineNum">    1034 </span>                :            :   shapeObj *circle;
-<span class="lineNum">    1035 </span>                :            :   int status;
-<span class="lineNum">    1036 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!image) return MS_FAILURE;</span>
-<span class="lineNum">    1037 </span>                :<span class="lineNoCov">          0 :   circle = msRasterizeArc(p-&gt;x, p-&gt;y, r, 0, 360, 0);</span>
-<span class="lineNum">    1038 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!circle) return MS_FAILURE;</span>
-<span class="lineNum">    1039 </span>                :<span class="lineNoCov">          0 :   status = msDrawLineSymbol(map, image, circle, style, scalefactor);</span>
-<span class="lineNum">    1040 </span>                :<span class="lineNoCov">          0 :   msFreeShape(circle);</span>
-<span class="lineNum">    1041 </span>                :<span class="lineNoCov">          0 :   msFree(circle);</span>
-<span class="lineNum">    1042 </span>                :<span class="lineNoCov">          0 :   return status;</span>
-<a name="1043"><span class="lineNum">    1043 </span>                :            : }</a>
-<span class="lineNum">    1044 </span>                :            : 
-<span class="lineNum">    1045 </span>                :<span class="lineCov">          1 : int msCircleDrawShadeSymbol(mapObj *map, imageObj *image, pointObj *p, double r, styleObj *style, double scalefactor)</span>
-<span class="lineNum">    1046 </span>                :            : {
-<span class="lineNum">    1047 </span>                :            :   shapeObj *circle;
-<span class="lineNum">    1048 </span>                :            :   int status;
-<span class="lineNum">    1049 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!image) return MS_FAILURE;</span>
-<span class="lineNum">    1050 </span>                :<span class="lineCov">          1 :   circle = msRasterizeArc(p-&gt;x, p-&gt;y, r, 0, 360, 0);</span>
-<span class="lineNum">    1051 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!circle) return MS_FAILURE;</span>
-<span class="lineNum">    1052 </span>                :<span class="lineCov">          1 :   status = msDrawShadeSymbol(map, image, circle, style, scalefactor);</span>
-<span class="lineNum">    1053 </span>                :<span class="lineCov">          1 :   msFreeShape(circle);</span>
-<span class="lineNum">    1054 </span>                :<span class="lineCov">          1 :   msFree(circle);</span>
-<span class="lineNum">    1055 </span>                :<span class="lineCov">          1 :   return status;</span>
-<a name="1056"><span class="lineNum">    1056 </span>                :            : }</a>
-<span class="lineNum">    1057 </span>                :            : 
-<span class="lineNum">    1058 </span>                :<span class="lineCov">          1 : int msDrawPieSlice(mapObj *map, imageObj *image, pointObj *p, styleObj *style, double radius, double start, double end)</span>
-<span class="lineNum">    1059 </span>                :            : {
-<span class="lineNum">    1060 </span>                :            :   int status;
-<span class="lineNum">    1061 </span>                :            :   shapeObj *circle;
-<span class="lineNum">    1062 </span>                :<span class="lineCov">          1 :   double center_x = p-&gt;x;</span>
-<span class="lineNum">    1063 </span>                :<span class="lineCov">          1 :   double center_y = p-&gt;y;</span>
-<span class="lineNum">    1064 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!image) return MS_FAILURE;</span>
-<span class="lineNum">    1065 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(style-&gt;offsetx&gt;0) {</span>
-<span class="lineNum">    1066 </span>                :<span class="lineNoCov">          0 :     center_x+=style-&gt;offsetx*cos(((-start-end)*MS_PI/360.));</span>
-<span class="lineNum">    1067 </span>                :<span class="lineNoCov">          0 :     center_y-=style-&gt;offsetx*sin(((-start-end)*MS_PI/360.));</span>
-<span class="lineNum">    1068 </span>                :            :   }
-<span class="lineNum">    1069 </span>                :<span class="lineCov">          1 :   circle = msRasterizeArc(center_x, center_y, radius, start, end, 1);</span>
-<span class="lineNum">    1070 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!circle) return MS_FAILURE;</span>
-<span class="lineNum">    1071 </span>                :<span class="lineCov">          1 :   status = msDrawShadeSymbol(map, image, circle, style, 1.0);</span>
-<span class="lineNum">    1072 </span>                :<span class="lineCov">          1 :   msFreeShape(circle);</span>
-<span class="lineNum">    1073 </span>                :<span class="lineCov">          1 :   msFree(circle);</span>
-<span class="lineNum">    1074 </span>                :<span class="lineCov">          1 :   return status;</span>
-<span class="lineNum">    1075 </span>                :            : }
+<span class="lineNum">    1032 </span>                :            : /*                          msCircleDrawLineSymbol                      */
+<a name="1033"><span class="lineNum">    1033 </span>                :            : /*                                                                      */</a>
+<span class="lineNum">    1034 </span>                :            : /************************************************************************/
+<span class="lineNum">    1035 </span>                :<span class="lineNoCov">          0 : int msCircleDrawLineSymbol(mapObj *map, imageObj *image, pointObj *p, double r, styleObj *style, double scalefactor)</span>
+<span class="lineNum">    1036 </span>                :            : {
+<span class="lineNum">    1037 </span>                :            :   shapeObj *circle;
+<span class="lineNum">    1038 </span>                :            :   int status;
+<span class="lineNum">    1039 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!image) return MS_FAILURE;</span>
+<span class="lineNum">    1040 </span>                :<span class="lineNoCov">          0 :   circle = msRasterizeArc(p-&gt;x, p-&gt;y, r, 0, 360, 0);</span>
+<span class="lineNum">    1041 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!circle) return MS_FAILURE;</span>
+<span class="lineNum">    1042 </span>                :<span class="lineNoCov">          0 :   status = msDrawLineSymbol(map, image, circle, style, scalefactor);</span>
+<span class="lineNum">    1043 </span>                :<span class="lineNoCov">          0 :   msFreeShape(circle);</span>
+<span class="lineNum">    1044 </span>                :<span class="lineNoCov">          0 :   msFree(circle);</span>
+<span class="lineNum">    1045 </span>                :<span class="lineNoCov">          0 :   return status;</span>
+<a name="1046"><span class="lineNum">    1046 </span>                :            : }</a>
+<span class="lineNum">    1047 </span>                :            : 
+<span class="lineNum">    1048 </span>                :<span class="lineCov">          1 : int msCircleDrawShadeSymbol(mapObj *map, imageObj *image, pointObj *p, double r, styleObj *style, double scalefactor)</span>
+<span class="lineNum">    1049 </span>                :            : {
+<span class="lineNum">    1050 </span>                :            :   shapeObj *circle;
+<span class="lineNum">    1051 </span>                :            :   int status;
+<span class="lineNum">    1052 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!image) return MS_FAILURE;</span>
+<span class="lineNum">    1053 </span>                :<span class="lineCov">          1 :   circle = msRasterizeArc(p-&gt;x, p-&gt;y, r, 0, 360, 0);</span>
+<span class="lineNum">    1054 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!circle) return MS_FAILURE;</span>
+<span class="lineNum">    1055 </span>                :<span class="lineCov">          1 :   status = msDrawShadeSymbol(map, image, circle, style, scalefactor);</span>
+<span class="lineNum">    1056 </span>                :<span class="lineCov">          1 :   msFreeShape(circle);</span>
+<span class="lineNum">    1057 </span>                :<span class="lineCov">          1 :   msFree(circle);</span>
+<span class="lineNum">    1058 </span>                :<span class="lineCov">          1 :   return status;</span>
+<a name="1059"><span class="lineNum">    1059 </span>                :            : }</a>
+<span class="lineNum">    1060 </span>                :            : 
+<span class="lineNum">    1061 </span>                :<span class="lineCov">          1 : int msDrawPieSlice(mapObj *map, imageObj *image, pointObj *p, styleObj *style, double radius, double start, double end)</span>
+<span class="lineNum">    1062 </span>                :            : {
+<span class="lineNum">    1063 </span>                :            :   int status;
+<span class="lineNum">    1064 </span>                :            :   shapeObj *circle;
+<span class="lineNum">    1065 </span>                :<span class="lineCov">          1 :   double center_x = p-&gt;x;</span>
+<span class="lineNum">    1066 </span>                :<span class="lineCov">          1 :   double center_y = p-&gt;y;</span>
+<span class="lineNum">    1067 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!image) return MS_FAILURE;</span>
+<span class="lineNum">    1068 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(style-&gt;offsetx&gt;0) {</span>
+<span class="lineNum">    1069 </span>                :<span class="lineNoCov">          0 :     center_x+=style-&gt;offsetx*cos(((-start-end)*MS_PI/360.));</span>
+<span class="lineNum">    1070 </span>                :<span class="lineNoCov">          0 :     center_y-=style-&gt;offsetx*sin(((-start-end)*MS_PI/360.));</span>
+<span class="lineNum">    1071 </span>                :            :   }
+<span class="lineNum">    1072 </span>                :<span class="lineCov">          1 :   circle = msRasterizeArc(center_x, center_y, radius, start, end, 1);</span>
+<span class="lineNum">    1073 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (!circle) return MS_FAILURE;</span>
+<span class="lineNum">    1074 </span>                :<span class="lineCov">          1 :   status = msDrawShadeSymbol(map, image, circle, style, 1.0);</span>
+<span class="lineNum">    1075 </span>                :<span class="lineCov">          1 :   msFreeShape(circle);</span>
+<span class="lineNum">    1076 </span>                :<span class="lineCov">          1 :   msFree(circle);</span>
+<span class="lineNum">    1077 </span>                :<span class="lineCov">          1 :   return status;</span>
+<span class="lineNum">    1078 </span>                :            : }
 </pre>
       </td>
     </tr>

@@ -412,434 +412,435 @@
 <span class="lineNum">     341 </span>                :            :   char   **alteredProcessing = NULL, *saved_layer_mask;
 <span class="lineNum">     342 </span>                :            :   char **savedProcessing = NULL;
 <span class="lineNum">     343 </span>                :            : 
-<span class="lineNum">     344 </span>                :            :   /*
-<span class="lineNum">     345 </span>                :            :   ** Allocate mapObj structure
-<span class="lineNum">     346 </span>                :            :   */
-<span class="lineNum">     347 </span>                :<span class="lineCov">          1 :   map_tmp = (mapObj *)msSmallCalloc(sizeof(mapObj),1);</span>
-<span class="lineNum">     348 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(initMap(map_tmp) == -1) { /* initialize this map */</span>
-<span class="lineNum">     349 </span>                :<span class="lineNoCov">          0 :     msFree(map_tmp);</span>
-<span class="lineNum">     350 </span>                :<span class="lineNoCov">          0 :     return(MS_FAILURE);</span>
-<span class="lineNum">     351 </span>                :            :   }
-<span class="lineNum">     352 </span>                :            :   
-<span class="lineNum">     353 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug)</span>
-<span class="lineNum">     354 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;Entering msUVRASTERLayerWhichShapes().\n&quot;);</span>
-<span class="lineNum">     355 </span>                :            : 
-<span class="lineNum">     356 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( uvlinfo == NULL )</span>
-<span class="lineNum">     357 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     358 </span>                :            : 
-<span class="lineNum">     359 </span>                :            :   /* QUERY NOT SUPPORTED YET */
-<span class="lineNum">     360 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (isQuery == MS_TRUE) {</span>
-<span class="lineNum">     361 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Query is not supported for UV layer.&quot;, &quot;msUVRASTERLayerWhichShapes()&quot; );</span>
-<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     363 </span>                :            :   }
-<span class="lineNum">     364 </span>                :            : 
-<span class="lineNum">     365 </span>                :            : 
-<span class="lineNum">     366 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( CSLFetchNameValue( layer-&gt;processing, &quot;BANDS&quot; ) == NULL ) {</span>
-<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;BANDS processing option is required for UV layer. You have to specified 2 bands.&quot;,</span>
-<span class="lineNum">     368 </span>                :            :                 &quot;msUVRASTERLayerWhichShapes()&quot; );
-<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     370 </span>                :            :   }
-<span class="lineNum">     371 </span>                :            : 
-<span class="lineNum">     372 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     373 </span>                :            :   /*      Determine desired spacing.  Default to 32 if not otherwise set  */
-<span class="lineNum">     374 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     375 </span>                :            :   spacing = 32;
-<span class="lineNum">     376 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if( CSLFetchNameValue( layer-&gt;processing, &quot;UV_SPACING&quot; ) != NULL ) {</span>
-<span class="lineNum">     377 </span>                :<span class="lineCov">          1 :     spacing =</span>
-<span class="lineNum">     378 </span>                :<span class="lineCov">          1 :       atoi(CSLFetchNameValue( layer-&gt;processing, &quot;UV_SPACING&quot; ));</span>
-<span class="lineNum">     379 </span>                :            :   }
-<span class="lineNum">     380 </span>                :            : 
-<span class="lineNum">     381 </span>                :<span class="lineCov">          1 :   width = (int)ceil(layer-&gt;map-&gt;width/spacing);</span>
-<span class="lineNum">     382 </span>                :<span class="lineCov">          1 :   height = (int)ceil(layer-&gt;map-&gt;height/spacing);</span>
-<span class="lineNum">     383 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   map_cellsize = MS_MAX(MS_CELLSIZE(rect.minx, rect.maxx,layer-&gt;map-&gt;width),</span>
-<span class="lineNum">     384 </span>                :            :                         MS_CELLSIZE(rect.miny,rect.maxy,layer-&gt;map-&gt;height));
-<span class="lineNum">     385 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;cellsize = map_cellsize*spacing;</span>
-<span class="lineNum">     386 </span>                :            :   
-<span class="lineNum">     387 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug)</span>
-<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;msUVRASTERLayerWhichShapes(): width: %d, height: %d, cellsize: %g\n&quot;,</span>
-<span class="lineNum">     389 </span>                :            :             width, height, map_tmp-&gt;cellsize);
-<span class="lineNum">     390 </span>                :            : 
-<span class="lineNum">     391 </span>                :            :   /* Initialize our dummy map */
-<span class="lineNum">     392 </span>                :<span class="lineCov">          1 :   MS_INIT_COLOR(map_tmp-&gt;imagecolor, 255,255,255,255);</span>
-<span class="lineNum">     393 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;resolution = layer-&gt;map-&gt;resolution;</span>
-<span class="lineNum">     394 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;defresolution = layer-&gt;map-&gt;defresolution;</span>
-<span class="lineNum">     395 </span>                :            : 
-<span class="lineNum">     396 </span>                :<span class="lineCov">          1 :   outputformat = (outputFormatObj *) msSmallCalloc(1,sizeof(outputFormatObj));</span>
-<span class="lineNum">     397 </span>                :<span class="lineCov">          1 :   outputformat-&gt;bands = uvlinfo-&gt;band_count = 2;</span>
-<span class="lineNum">     398 </span>                :<span class="lineCov">          1 :   outputformat-&gt;name = NULL;</span>
-<span class="lineNum">     399 </span>                :<span class="lineCov">          1 :   outputformat-&gt;driver = NULL;</span>
-<span class="lineNum">     400 </span>                :<span class="lineCov">          1 :   outputformat-&gt;refcount = 0;</span>
-<span class="lineNum">     401 </span>                :<span class="lineCov">          1 :   outputformat-&gt;vtable = NULL;</span>
-<span class="lineNum">     402 </span>                :<span class="lineCov">          1 :   outputformat-&gt;device = NULL;</span>
-<span class="lineNum">     403 </span>                :<span class="lineCov">          1 :   outputformat-&gt;renderer = MS_RENDER_WITH_RAWDATA;</span>
-<span class="lineNum">     404 </span>                :<span class="lineCov">          1 :   outputformat-&gt;imagemode = MS_IMAGEMODE_FLOAT32;</span>
-<span class="lineNum">     405 </span>                :<span class="lineCov">          1 :   msAppendOutputFormat(map_tmp, outputformat);</span>
-<span class="lineNum">     406 </span>                :            :   
-<span class="lineNum">     407 </span>                :<span class="lineCov">          1 :   msCopyHashTable(&amp;map_tmp-&gt;configoptions, &amp;layer-&gt;map-&gt;configoptions);</span>
-<span class="lineNum">     408 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;mappath = msStrdup(layer-&gt;map-&gt;mappath);</span>
-<span class="lineNum">     409 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;shapepath = msStrdup(layer-&gt;map-&gt;shapepath);</span>
-<span class="lineNum">     410 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;extent.minx = rect.minx-(0.5*map_cellsize)+(0.5*map_tmp-&gt;cellsize);</span>
-<span class="lineNum">     411 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;extent.miny = rect.miny-(0.5*map_cellsize)+(0.5*map_tmp-&gt;cellsize);</span>
-<span class="lineNum">     412 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;extent.maxx = map_tmp-&gt;extent.minx+((width-1)*map_tmp-&gt;cellsize);</span>
-<span class="lineNum">     413 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;extent.maxy = map_tmp-&gt;extent.miny+((height-1)*map_tmp-&gt;cellsize);</span>
-<span class="lineNum">     414 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;gt.rotation_angle = 0.0;</span>
-<span class="lineNum">     415 </span>                :            : 
-<span class="lineNum">     416 </span>                :<span class="lineCov">          1 :    msCopyProjection(&amp;map_tmp-&gt;projection, &amp;layer-&gt;projection);</span>
-<span class="lineNum">     417 </span>                :            : 
-<span class="lineNum">     418 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug == 5)</span>
-<span class="lineNum">     419 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;msUVRASTERLayerWhichShapes(): extent: %g %g %g %g\n&quot;,</span>
-<span class="lineNum">     420 </span>                :            :             map_tmp-&gt;extent.minx, map_tmp-&gt;extent.miny,
-<span class="lineNum">     421 </span>                :            :             map_tmp-&gt;extent.maxx, map_tmp-&gt;extent.maxy);
-<span class="lineNum">     422 </span>                :            : 
-<span class="lineNum">     423 </span>                :            :   /* important to use that function, to compute map
-<span class="lineNum">     424 </span>                :            :      geotransform, used by the resampling*/
-<span class="lineNum">     425 </span>                :<span class="lineCov">          1 :    msMapSetSize(map_tmp, width, height);</span>
-<span class="lineNum">     426 </span>                :            : 
-<span class="lineNum">     427 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug == 5)</span>
-<span class="lineNum">     428 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;msUVRASTERLayerWhichShapes(): geotransform: %g %g %g %g %g %g\n&quot;,</span>
-<span class="lineNum">     429 </span>                :            :             map_tmp-&gt;gt.geotransform[0], map_tmp-&gt;gt.geotransform[1],
-<span class="lineNum">     430 </span>                :            :             map_tmp-&gt;gt.geotransform[2], map_tmp-&gt;gt.geotransform[3],
-<span class="lineNum">     431 </span>                :            :             map_tmp-&gt;gt.geotransform[4], map_tmp-&gt;gt.geotransform[5]);
-<span class="lineNum">     432 </span>                :            : 
-<span class="lineNum">     433 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;extent = map_tmp-&gt;extent;</span>
-<span class="lineNum">     434 </span>                :            : 
-<span class="lineNum">     435 </span>                :<span class="lineCov">          1 :   image_tmp = msImageCreate(width, height, map_tmp-&gt;outputformatlist[0],</span>
-<span class="lineNum">     436 </span>                :            :                             NULL, NULL, map_tmp-&gt;resolution, map_tmp-&gt;defresolution,
-<span class="lineNum">     437 </span>                :            :                             &amp;(map_tmp-&gt;imagecolor));
-<span class="lineNum">     438 </span>                :            : 
-<span class="lineNum">     439 </span>                :            :   /* Default set to AVERAGE resampling */
-<span class="lineNum">     440 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if( CSLFetchNameValue( layer-&gt;processing, &quot;RESAMPLE&quot; ) == NULL ) {</span>
-<span class="lineNum">     441 </span>                :<span class="lineCov">          1 :     alteredProcessing = CSLDuplicate( layer-&gt;processing );</span>
-<span class="lineNum">     442 </span>                :<span class="lineCov">          1 :     alteredProcessing =</span>
-<span class="lineNum">     443 </span>                :            :       CSLSetNameValue( alteredProcessing, &quot;RESAMPLE&quot;,
-<span class="lineNum">     444 </span>                :            :                        &quot;AVERAGE&quot;);
-<span class="lineNum">     445 </span>                :<span class="lineCov">          1 :     savedProcessing = layer-&gt;processing;</span>
-<span class="lineNum">     446 </span>                :<span class="lineCov">          1 :     layer-&gt;processing = alteredProcessing;</span>
-<span class="lineNum">     447 </span>                :            :   }
-<span class="lineNum">     448 </span>                :            : 
-<span class="lineNum">     449 </span>                :            :   /* disable masking at this level: we don't want to apply the mask at the raster level,
-<span class="lineNum">     450 </span>                :            :    * it will be applied with the correct cellsize and image size in the vector rendering
-<span class="lineNum">     451 </span>                :            :    * phase.
-<span class="lineNum">     452 </span>                :            :    */
-<span class="lineNum">     453 </span>                :<span class="lineCov">          1 :   saved_layer_mask = layer-&gt;mask;</span>
-<span class="lineNum">     454 </span>                :<span class="lineCov">          1 :   layer-&gt;mask = NULL;</span>
-<span class="lineNum">     455 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (msDrawRasterLayerLow(map_tmp, layer, image_tmp, NULL ) == MS_FAILURE) {</span>
-<span class="lineNum">     456 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Unable to draw raster data.&quot;, &quot;msUVRASTERLayerWhichShapes()&quot;);</span>
-<span class="lineNum">     457 </span>                :<span class="lineNoCov">          0 :     layer-&gt;mask = saved_layer_mask;</span>
-<span class="lineNum">     458 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     459 </span>                :            :   }
-<span class="lineNum">     460 </span>                :            : 
-<span class="lineNum">     461 </span>                :            :   /* restore layer mask */
-<span class="lineNum">     462 </span>                :<span class="lineCov">          1 :   layer-&gt;mask = saved_layer_mask;</span>
-<span class="lineNum">     463 </span>                :            : 
-<span class="lineNum">     464 </span>                :            :   /* restore the saved processing */
-<span class="lineNum">     465 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (alteredProcessing != NULL) {</span>
-<span class="lineNum">     466 </span>                :<span class="lineCov">          1 :     layer-&gt;processing = savedProcessing;</span>
-<span class="lineNum">     467 </span>                :<span class="lineCov">          1 :     CSLDestroy(alteredProcessing);</span>
-<span class="lineNum">     468 </span>                :            :   }
-<span class="lineNum">     469 </span>                :            : 
-<span class="lineNum">     470 </span>                :            :   /* free old query arrays */
-<span class="lineNum">     471 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (uvlinfo-&gt;u) {</span>
-<span class="lineNum">     472 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (i=0; i&lt;uvlinfo-&gt;width; ++i) {</span>
-<span class="lineNum">     473 </span>                :<span class="lineNoCov">          0 :       free(uvlinfo-&gt;u[i]);</span>
-<span class="lineNum">     474 </span>                :            :     }
-<span class="lineNum">     475 </span>                :<span class="lineNoCov">          0 :     free(uvlinfo-&gt;u);</span>
-<span class="lineNum">     476 </span>                :            :   }
-<span class="lineNum">     477 </span>                :            : 
-<span class="lineNum">     478 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (uvlinfo-&gt;v) {</span>
-<span class="lineNum">     479 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (i=0; i&lt;uvlinfo-&gt;height; ++i) {</span>
-<span class="lineNum">     480 </span>                :<span class="lineNoCov">          0 :       free(uvlinfo-&gt;v[i]);</span>
-<span class="lineNum">     481 </span>                :            :     }
-<span class="lineNum">     482 </span>                :<span class="lineNoCov">          0 :     free(uvlinfo-&gt;v);</span>
-<span class="lineNum">     483 </span>                :            :   }
-<span class="lineNum">     484 </span>                :            : 
-<span class="lineNum">     485 </span>                :            :   /* Update our uv layer structure */
-<span class="lineNum">     486 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;width = width;</span>
-<span class="lineNum">     487 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;height = height;</span>
-<span class="lineNum">     488 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;query_results = width*height;</span>
-<span class="lineNum">     489 </span>                :            : 
-<span class="lineNum">     490 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;u = (float **)msSmallMalloc(sizeof(float *)*width);</span>
-<span class="lineNum">     491 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;v = (float **)msSmallMalloc(sizeof(float *)*width);</span>
-<span class="lineNum">     492 </span>                :            : 
-<span class="lineNum">     493 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (x = 0; x &lt; width; ++x) {</span>
-<span class="lineNum">     494 </span>                :<span class="lineCov">          1 :     uvlinfo-&gt;u[x] = (float *)msSmallMalloc(height * sizeof(float));</span>
-<span class="lineNum">     495 </span>                :<span class="lineCov">          1 :     uvlinfo-&gt;v[x] = (float *)msSmallMalloc(height * sizeof(float));</span>
-<span class="lineNum">     496 </span>                :            : 
-<span class="lineNum">     497 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for (y = 0; y &lt; height; ++y) {</span>
-<span class="lineNum">     498 </span>                :<span class="lineCov">          1 :       u_src_off = v_src_off = x + y * width;</span>
-<span class="lineNum">     499 </span>                :<span class="lineCov">          1 :       v_src_off += width*height;</span>
-<span class="lineNum">     500 </span>                :            : 
-<span class="lineNum">     501 </span>                :<span class="lineCov">          1 :       uvlinfo-&gt;u[x][y] = image_tmp-&gt;img.raw_float[u_src_off];</span>
-<span class="lineNum">     502 </span>                :<span class="lineCov">          1 :       uvlinfo-&gt;v[x][y] = image_tmp-&gt;img.raw_float[v_src_off];</span>
-<span class="lineNum">     503 </span>                :            : 
-<span class="lineNum">     504 </span>                :            :       /* null vector? update the number of results  */
-<span class="lineNum">     505 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :       if (uvlinfo-&gt;u[x][y] == 0 &amp;&amp; uvlinfo-&gt;v[x][y] == 0)</span>
-<span class="lineNum">     506 </span>                :<span class="lineNoCov">          0 :         --uvlinfo-&gt;query_results;</span>
-<span class="lineNum">     507 </span>                :            :     }
-<span class="lineNum">     508 </span>                :            :   }
-<span class="lineNum">     509 </span>                :            : 
-<span class="lineNum">     510 </span>                :<span class="lineCov">          1 :   msFreeImage(image_tmp); /* we do not need the imageObj anymore */</span>
-<span class="lineNum">     511 </span>                :<span class="lineCov">          1 :   msFreeMap(map_tmp);</span>
-<span class="lineNum">     512 </span>                :            : 
-<span class="lineNum">     513 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;next_shape = 0;</span>
-<span class="lineNum">     514 </span>                :            : 
-<span class="lineNum">     515 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<a name="516"><span class="lineNum">     516 </span>                :            : }</a>
-<span class="lineNum">     517 </span>                :            : 
-<span class="lineNum">     518 </span>                :<span class="lineCov">          1 : int msUVRASTERLayerGetShape(layerObj *layer, shapeObj *shape, resultObj *record)</span>
-<span class="lineNum">     519 </span>                :            : {
-<span class="lineNum">     520 </span>                :<span class="lineCov">          1 :   uvRasterLayerInfo *uvlinfo = (uvRasterLayerInfo *) layer-&gt;layerinfo;</span>
-<span class="lineNum">     521 </span>                :            :   lineObj line ;
-<span class="lineNum">     522 </span>                :            :   pointObj point;
-<span class="lineNum">     523 </span>                :            :   int i, j, k, x=0, y=0;
-<span class="lineNum">     524 </span>                :<span class="lineCov">          1 :   long shapeindex = record-&gt;shapeindex;</span>
-<span class="lineNum">     525 </span>                :            : 
-<span class="lineNum">     526 </span>                :<span class="lineCov">          1 :   msFreeShape(shape);</span>
-<span class="lineNum">     527 </span>                :<span class="lineCov">          1 :   shape-&gt;type = MS_SHAPE_NULL;</span>
-<span class="lineNum">     528 </span>                :            : 
-<span class="lineNum">     529 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if( shapeindex &lt; 0 || shapeindex &gt;= uvlinfo-&gt;query_results ) {</span>
-<span class="lineNum">     530 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR,</span>
-<span class="lineNum">     531 </span>                :            :                &quot;Out of range shape index requested.  Requested %ld\n&quot;
-<span class="lineNum">     532 </span>                :            :                &quot;but only %d shapes available.&quot;,
-<span class="lineNum">     533 </span>                :            :                &quot;msUVRASTERLayerGetShape()&quot;,
-<span class="lineNum">     534 </span>                :            :                shapeindex, uvlinfo-&gt;query_results );
-<span class="lineNum">     535 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     536 </span>                :            :   }
-<span class="lineNum">     537 </span>                :            : 
-<span class="lineNum">     538 </span>                :            :   /* loop to the next non null vector */
-<span class="lineNum">     539 </span>                :            :   k = 0;
-<span class="lineNum">     540 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (i=0, x=-1; i&lt;uvlinfo-&gt;width &amp;&amp; k&lt;=shapeindex; ++i, ++x) {</span>
-<span class="lineNum">     541 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     for (j=0, y=-1; j&lt;uvlinfo-&gt;height &amp;&amp; k&lt;=shapeindex; ++j, ++k, ++y) {</span>
-<span class="lineNum">     542 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :       if (uvlinfo-&gt;u[i][j] == 0 &amp;&amp; uvlinfo-&gt;v[i][j] == 0)</span>
-<span class="lineNum">     543 </span>                :<span class="lineNoCov">          0 :         --k;</span>
-<span class="lineNum">     544 </span>                :            :     }
-<span class="lineNum">     545 </span>                :            :   }
-<span class="lineNum">     546 </span>                :            : 
-<span class="lineNum">     547 </span>                :<span class="lineCov">          1 :   point.x = Pix2Georef(x, 0, uvlinfo-&gt;width-1,</span>
-<span class="lineNum">     548 </span>                :            :                        uvlinfo-&gt;extent.minx, uvlinfo-&gt;extent.maxx, MS_FALSE);
-<span class="lineNum">     549 </span>                :<span class="lineCov">          1 :   point.y = Pix2Georef(y, 0, uvlinfo-&gt;height-1,</span>
-<span class="lineNum">     550 </span>                :            :                        uvlinfo-&gt;extent.miny, uvlinfo-&gt;extent.maxy, MS_TRUE);
-<span class="lineNum">     551 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug == 5)</span>
-<span class="lineNum">     552 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;msUVRASTERLayerWhichShapes(): shapeindex: %ld, x: %g, y: %g\n&quot;,</span>
-<span class="lineNum">     553 </span>                :            :             shapeindex, point.x, point.y);
-<span class="lineNum">     554 </span>                :            : 
-<span class="lineNum">     555 </span>                :            : #ifdef USE_POINT_Z_M
-<span class="lineNum">     556 </span>                :            :   point.m = 0.0;
-<span class="lineNum">     557 </span>                :            : #endif
-<span class="lineNum">     558 </span>                :            : 
-<span class="lineNum">     559 </span>                :<span class="lineCov">          1 :   shape-&gt;type = MS_SHAPE_POINT;</span>
-<span class="lineNum">     560 </span>                :<span class="lineCov">          1 :   line.numpoints = 1;</span>
-<span class="lineNum">     561 </span>                :<span class="lineCov">          1 :   line.point = &amp;point;</span>
-<span class="lineNum">     562 </span>                :<span class="lineCov">          1 :   msAddLine( shape, &amp;line );</span>
-<span class="lineNum">     563 </span>                :<span class="lineCov">          1 :   msComputeBounds( shape );</span>
-<span class="lineNum">     564 </span>                :            : 
-<span class="lineNum">     565 </span>                :<span class="lineCov">          1 :   shape-&gt;numvalues = layer-&gt;numitems;</span>
-<span class="lineNum">     566 </span>                :<span class="lineCov">          1 :   shape-&gt;values = msUVRASTERGetValues(layer, &amp;uvlinfo-&gt;u[x][y], &amp;uvlinfo-&gt;v[x][y]);</span>
-<span class="lineNum">     567 </span>                :            : 
-<span class="lineNum">     568 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     569 </span>                :            : 
-<a name="570"><span class="lineNum">     570 </span>                :            : }</a>
-<span class="lineNum">     571 </span>                :            : 
-<span class="lineNum">     572 </span>                :<span class="lineCov">          1 : int msUVRASTERLayerNextShape(layerObj *layer, shapeObj *shape)</span>
-<span class="lineNum">     573 </span>                :            : {
-<span class="lineNum">     574 </span>                :<span class="lineCov">          1 :   uvRasterLayerInfo *uvlinfo = (uvRasterLayerInfo *) layer-&gt;layerinfo;</span>
-<span class="lineNum">     575 </span>                :            : 
-<span class="lineNum">     576 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( uvlinfo-&gt;next_shape &lt; 0</span>
-<span class="lineNum">     577 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       || uvlinfo-&gt;next_shape &gt;= uvlinfo-&gt;query_results ) {</span>
-<span class="lineNum">     578 </span>                :<span class="lineCov">          1 :     msFreeShape(shape);</span>
-<span class="lineNum">     579 </span>                :<span class="lineCov">          1 :     shape-&gt;type = MS_SHAPE_NULL;</span>
-<span class="lineNum">     580 </span>                :<span class="lineCov">          1 :     return MS_DONE;</span>
-<span class="lineNum">     581 </span>                :            :   } else {
-<span class="lineNum">     582 </span>                :            :     resultObj record;
-<span class="lineNum">     583 </span>                :            : 
-<span class="lineNum">     584 </span>                :<span class="lineCov">          1 :     record.shapeindex = uvlinfo-&gt;next_shape++;</span>
-<span class="lineNum">     585 </span>                :<span class="lineCov">          1 :     record.tileindex = 0;</span>
-<span class="lineNum">     586 </span>                :<span class="lineCov">          1 :     record.classindex = record.resultindex = -1;</span>
-<span class="lineNum">     587 </span>                :            : 
-<span class="lineNum">     588 </span>                :<span class="lineCov">          1 :     return msUVRASTERLayerGetShape( layer, shape, &amp;record);</span>
-<span class="lineNum">     589 </span>                :            :   }
-<span class="lineNum">     590 </span>                :            : }
-<span class="lineNum">     591 </span>                :            : 
-<span class="lineNum">     592 </span>                :            : /************************************************************************/
-<span class="lineNum">     593 </span>                :            : /*                       msUVRASTERLayerGetExtent()                     */
-<span class="lineNum">     594 </span>                :            : /* Simple copy of the maprasterquery.c file. might change in the future */
-<a name="595"><span class="lineNum">     595 </span>                :            : /************************************************************************/</a>
-<span class="lineNum">     596 </span>                :            : 
-<span class="lineNum">     597 </span>                :<span class="lineNoCov">          0 : int msUVRASTERLayerGetExtent(layerObj *layer, rectObj *extent)</span>
-<span class="lineNum">     598 </span>                :            : 
-<span class="lineNum">     599 </span>                :            : {
-<span class="lineNum">     600 </span>                :            :   char szPath[MS_MAXPATHLEN];
-<span class="lineNum">     601 </span>                :<span class="lineNoCov">          0 :   mapObj *map = layer-&gt;map;</span>
-<span class="lineNum">     602 </span>                :            :   double adfGeoTransform[6];
-<span class="lineNum">     603 </span>                :            :   int nXSize, nYSize;
-<span class="lineNum">     604 </span>                :            :   GDALDatasetH hDS;
-<span class="lineNum">     605 </span>                :            :   shapefileObj *tileshpfile;
-<span class="lineNum">     606 </span>                :            :   int tilelayerindex = -1;
-<span class="lineNum">     607 </span>                :            :   CPLErr eErr = CE_Failure;
-<span class="lineNum">     608 </span>                :            :   char *decrypted_path;
-<span class="lineNum">     609 </span>                :            : 
-<span class="lineNum">     610 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( (!layer-&gt;data || strlen(layer-&gt;data) == 0)</span>
-<span class="lineNum">     611 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       &amp;&amp; layer-&gt;tileindex == NULL) {</span>
-<span class="lineNum">     612 </span>                :            :     /* should we be issuing a specific error about not supporting
-<span class="lineNum">     613 </span>                :            :        extents for tileindexed raster layers? */
-<span class="lineNum">     614 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     615 </span>                :            :   }
-<span class="lineNum">     616 </span>                :            : 
-<span class="lineNum">     617 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( map == NULL )</span>
-<span class="lineNum">     618 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     619 </span>                :            : 
-<span class="lineNum">     620 </span>                :            :   /* If the layer use a tileindex, return the extent of the tileindex shapefile/referenced layer */
-<span class="lineNum">     621 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (layer-&gt;tileindex) {</span>
-<span class="lineNum">     622 </span>                :<span class="lineNoCov">          0 :     tilelayerindex = msGetLayerIndex(map, layer-&gt;tileindex);</span>
-<span class="lineNum">     623 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(tilelayerindex != -1) /* does the tileindex reference another layer */</span>
-<span class="lineNum">     624 </span>                :<span class="lineNoCov">          0 :       return msLayerGetExtent(GET_LAYER(map, tilelayerindex), extent);</span>
-<span class="lineNum">     625 </span>                :            :     else {
-<span class="lineNum">     626 </span>                :<span class="lineNoCov">          0 :       tileshpfile = (shapefileObj *) malloc(sizeof(shapefileObj));</span>
-<span class="lineNum">     627 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       MS_CHECK_ALLOC(tileshpfile, sizeof(shapefileObj), MS_FAILURE);</span>
-<span class="lineNum">     628 </span>                :            : 
-<span class="lineNum">     629 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(msShapefileOpen(tileshpfile, &quot;rb&quot;, msBuildPath3(szPath, map-&gt;mappath, map-&gt;shapepath, layer-&gt;tileindex), MS_TRUE) == -1)</span>
-<span class="lineNum">     630 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(msShapefileOpen(tileshpfile, &quot;rb&quot;, msBuildPath(szPath, map-&gt;mappath, layer-&gt;tileindex), MS_TRUE) == -1)</span>
-<span class="lineNum">     631 </span>                :            :           return MS_FAILURE;
-<span class="lineNum">     632 </span>                :            : 
-<span class="lineNum">     633 </span>                :<span class="lineNoCov">          0 :       *extent = tileshpfile-&gt;bounds;</span>
-<span class="lineNum">     634 </span>                :<span class="lineNoCov">          0 :       msShapefileClose(tileshpfile);</span>
-<span class="lineNum">     635 </span>                :<span class="lineNoCov">          0 :       free(tileshpfile);</span>
-<span class="lineNum">     636 </span>                :<span class="lineNoCov">          0 :       return MS_SUCCESS;</span>
-<span class="lineNum">     637 </span>                :            :     }
-<span class="lineNum">     638 </span>                :            :   }
-<span class="lineNum">     639 </span>                :            : 
-<span class="lineNum">     640 </span>                :<span class="lineNoCov">          0 :   msTryBuildPath3(szPath, map-&gt;mappath, map-&gt;shapepath, layer-&gt;data);</span>
-<span class="lineNum">     641 </span>                :<span class="lineNoCov">          0 :   decrypted_path = msDecryptStringTokens( map, szPath );</span>
-<span class="lineNum">     642 </span>                :            : 
-<span class="lineNum">     643 </span>                :<span class="lineNoCov">          0 :   msAcquireLock( TLOCK_GDAL );</span>
-<span class="lineNum">     644 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( decrypted_path ) {</span>
-<span class="lineNum">     645 </span>                :<span class="lineNoCov">          0 :     hDS = GDALOpen(decrypted_path, GA_ReadOnly );</span>
-<span class="lineNum">     646 </span>                :<span class="lineNoCov">          0 :     msFree( decrypted_path );</span>
-<span class="lineNum">     647 </span>                :            :   } else
-<span class="lineNum">     648 </span>                :            :     hDS = NULL;
-<span class="lineNum">     649 </span>                :            : 
-<span class="lineNum">     650 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( hDS != NULL ) {</span>
-<span class="lineNum">     651 </span>                :<span class="lineNoCov">          0 :     nXSize = GDALGetRasterXSize( hDS );</span>
-<span class="lineNum">     652 </span>                :<span class="lineNoCov">          0 :     nYSize = GDALGetRasterYSize( hDS );</span>
-<span class="lineNum">     653 </span>                :<span class="lineNoCov">          0 :     eErr = GDALGetGeoTransform( hDS, adfGeoTransform );</span>
-<span class="lineNum">     654 </span>                :            : 
-<span class="lineNum">     655 </span>                :<span class="lineNoCov">          0 :     GDALClose( hDS );</span>
-<span class="lineNum">     656 </span>                :            :   }
-<span class="lineNum">     657 </span>                :            : 
-<span class="lineNum">     658 </span>                :<span class="lineNoCov">          0 :   msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">     659 </span>                :            : 
-<span class="lineNum">     660 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( hDS == NULL || eErr != CE_None ) {</span>
-<span class="lineNum">     661 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     662 </span>                :            :   }
-<span class="lineNum">     663 </span>                :            : 
-<span class="lineNum">     664 </span>                :            :   /* If this appears to be an ungeoreferenced raster than flip it for
-<span class="lineNum">     665 </span>                :            :      mapservers purposes. */
-<span class="lineNum">     666 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( adfGeoTransform[5] == 1.0 &amp;&amp; adfGeoTransform[3] == 0.0 ) {</span>
-<span class="lineNum">     667 </span>                :<span class="lineNoCov">          0 :     adfGeoTransform[5] = -1.0;</span>
-<span class="lineNum">     668 </span>                :<span class="lineNoCov">          0 :     adfGeoTransform[3] = nYSize;</span>
-<span class="lineNum">     669 </span>                :            :   }
-<span class="lineNum">     670 </span>                :            : 
-<span class="lineNum">     671 </span>                :<span class="lineNoCov">          0 :   extent-&gt;minx = adfGeoTransform[0];</span>
-<span class="lineNum">     672 </span>                :<span class="lineNoCov">          0 :   extent-&gt;maxy = adfGeoTransform[3];</span>
-<span class="lineNum">     673 </span>                :            : 
-<span class="lineNum">     674 </span>                :<span class="lineNoCov">          0 :   extent-&gt;maxx = adfGeoTransform[0] + nXSize * adfGeoTransform[1];</span>
-<span class="lineNum">     675 </span>                :<span class="lineNoCov">          0 :   extent-&gt;miny = adfGeoTransform[3] + nYSize * adfGeoTransform[5];</span>
-<span class="lineNum">     676 </span>                :            : 
-<span class="lineNum">     677 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">     678 </span>                :            : }
-<span class="lineNum">     679 </span>                :            : 
+<span class="lineNum">     344 </span>                :            :   
+<span class="lineNum">     345 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug)</span>
+<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;Entering msUVRASTERLayerWhichShapes().\n&quot;);</span>
+<span class="lineNum">     347 </span>                :            : 
+<span class="lineNum">     348 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( uvlinfo == NULL )</span>
+<span class="lineNum">     349 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     350 </span>                :            : 
+<span class="lineNum">     351 </span>                :            :   /* QUERY NOT SUPPORTED YET */
+<span class="lineNum">     352 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (isQuery == MS_TRUE) {</span>
+<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Query is not supported for UV layer.&quot;, &quot;msUVRASTERLayerWhichShapes()&quot; );</span>
+<span class="lineNum">     354 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     355 </span>                :            :   }
+<span class="lineNum">     356 </span>                :            : 
+<span class="lineNum">     357 </span>                :            : 
+<span class="lineNum">     358 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( CSLFetchNameValue( layer-&gt;processing, &quot;BANDS&quot; ) == NULL ) {</span>
+<span class="lineNum">     359 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;BANDS processing option is required for UV layer. You have to specified 2 bands.&quot;,</span>
+<span class="lineNum">     360 </span>                :            :                 &quot;msUVRASTERLayerWhichShapes()&quot; );
+<span class="lineNum">     361 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     362 </span>                :            :   }
+<span class="lineNum">     363 </span>                :            :   
+<span class="lineNum">     364 </span>                :            :   /*
+<span class="lineNum">     365 </span>                :            :   ** Allocate mapObj structure
+<span class="lineNum">     366 </span>                :            :   */
+<span class="lineNum">     367 </span>                :<span class="lineCov">          1 :   map_tmp = (mapObj *)msSmallCalloc(sizeof(mapObj),1);</span>
+<span class="lineNum">     368 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(initMap(map_tmp) == -1) { /* initialize this map */</span>
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :     msFree(map_tmp);</span>
+<span class="lineNum">     370 </span>                :<span class="lineNoCov">          0 :     return(MS_FAILURE);</span>
+<span class="lineNum">     371 </span>                :            :   }
+<span class="lineNum">     372 </span>                :            : 
+<span class="lineNum">     373 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     374 </span>                :            :   /*      Determine desired spacing.  Default to 32 if not otherwise set  */
+<span class="lineNum">     375 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     376 </span>                :            :   spacing = 32;
+<span class="lineNum">     377 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if( CSLFetchNameValue( layer-&gt;processing, &quot;UV_SPACING&quot; ) != NULL ) {</span>
+<span class="lineNum">     378 </span>                :<span class="lineCov">          1 :     spacing =</span>
+<span class="lineNum">     379 </span>                :<span class="lineCov">          1 :       atoi(CSLFetchNameValue( layer-&gt;processing, &quot;UV_SPACING&quot; ));</span>
+<span class="lineNum">     380 </span>                :            :   }
+<span class="lineNum">     381 </span>                :            : 
+<span class="lineNum">     382 </span>                :<span class="lineCov">          1 :   width = (int)ceil(layer-&gt;map-&gt;width/spacing);</span>
+<span class="lineNum">     383 </span>                :<span class="lineCov">          1 :   height = (int)ceil(layer-&gt;map-&gt;height/spacing);</span>
+<span class="lineNum">     384 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   map_cellsize = MS_MAX(MS_CELLSIZE(rect.minx, rect.maxx,layer-&gt;map-&gt;width),</span>
+<span class="lineNum">     385 </span>                :            :                         MS_CELLSIZE(rect.miny,rect.maxy,layer-&gt;map-&gt;height));
+<span class="lineNum">     386 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;cellsize = map_cellsize*spacing;</span>
+<span class="lineNum">     387 </span>                :            :   
+<span class="lineNum">     388 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug)</span>
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;msUVRASTERLayerWhichShapes(): width: %d, height: %d, cellsize: %g\n&quot;,</span>
+<span class="lineNum">     390 </span>                :            :             width, height, map_tmp-&gt;cellsize);
+<span class="lineNum">     391 </span>                :            : 
+<span class="lineNum">     392 </span>                :            :   /* Initialize our dummy map */
+<span class="lineNum">     393 </span>                :<span class="lineCov">          1 :   MS_INIT_COLOR(map_tmp-&gt;imagecolor, 255,255,255,255);</span>
+<span class="lineNum">     394 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;resolution = layer-&gt;map-&gt;resolution;</span>
+<span class="lineNum">     395 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;defresolution = layer-&gt;map-&gt;defresolution;</span>
+<span class="lineNum">     396 </span>                :            : 
+<span class="lineNum">     397 </span>                :<span class="lineCov">          1 :   outputformat = (outputFormatObj *) msSmallCalloc(1,sizeof(outputFormatObj));</span>
+<span class="lineNum">     398 </span>                :<span class="lineCov">          1 :   outputformat-&gt;bands = uvlinfo-&gt;band_count = 2;</span>
+<span class="lineNum">     399 </span>                :<span class="lineCov">          1 :   outputformat-&gt;name = NULL;</span>
+<span class="lineNum">     400 </span>                :<span class="lineCov">          1 :   outputformat-&gt;driver = NULL;</span>
+<span class="lineNum">     401 </span>                :<span class="lineCov">          1 :   outputformat-&gt;refcount = 0;</span>
+<span class="lineNum">     402 </span>                :<span class="lineCov">          1 :   outputformat-&gt;vtable = NULL;</span>
+<span class="lineNum">     403 </span>                :<span class="lineCov">          1 :   outputformat-&gt;device = NULL;</span>
+<span class="lineNum">     404 </span>                :<span class="lineCov">          1 :   outputformat-&gt;renderer = MS_RENDER_WITH_RAWDATA;</span>
+<span class="lineNum">     405 </span>                :<span class="lineCov">          1 :   outputformat-&gt;imagemode = MS_IMAGEMODE_FLOAT32;</span>
+<span class="lineNum">     406 </span>                :<span class="lineCov">          1 :   msAppendOutputFormat(map_tmp, outputformat);</span>
+<span class="lineNum">     407 </span>                :            :   
+<span class="lineNum">     408 </span>                :<span class="lineCov">          1 :   msCopyHashTable(&amp;map_tmp-&gt;configoptions, &amp;layer-&gt;map-&gt;configoptions);</span>
+<span class="lineNum">     409 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;mappath = msStrdup(layer-&gt;map-&gt;mappath);</span>
+<span class="lineNum">     410 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;shapepath = msStrdup(layer-&gt;map-&gt;shapepath);</span>
+<span class="lineNum">     411 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;extent.minx = rect.minx-(0.5*map_cellsize)+(0.5*map_tmp-&gt;cellsize);</span>
+<span class="lineNum">     412 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;extent.miny = rect.miny-(0.5*map_cellsize)+(0.5*map_tmp-&gt;cellsize);</span>
+<span class="lineNum">     413 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;extent.maxx = map_tmp-&gt;extent.minx+((width-1)*map_tmp-&gt;cellsize);</span>
+<span class="lineNum">     414 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;extent.maxy = map_tmp-&gt;extent.miny+((height-1)*map_tmp-&gt;cellsize);</span>
+<span class="lineNum">     415 </span>                :<span class="lineCov">          1 :   map_tmp-&gt;gt.rotation_angle = 0.0;</span>
+<span class="lineNum">     416 </span>                :            : 
+<span class="lineNum">     417 </span>                :<span class="lineCov">          1 :    msCopyProjection(&amp;map_tmp-&gt;projection, &amp;layer-&gt;projection);</span>
+<span class="lineNum">     418 </span>                :            : 
+<span class="lineNum">     419 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug == 5)</span>
+<span class="lineNum">     420 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;msUVRASTERLayerWhichShapes(): extent: %g %g %g %g\n&quot;,</span>
+<span class="lineNum">     421 </span>                :            :             map_tmp-&gt;extent.minx, map_tmp-&gt;extent.miny,
+<span class="lineNum">     422 </span>                :            :             map_tmp-&gt;extent.maxx, map_tmp-&gt;extent.maxy);
+<span class="lineNum">     423 </span>                :            : 
+<span class="lineNum">     424 </span>                :            :   /* important to use that function, to compute map
+<span class="lineNum">     425 </span>                :            :      geotransform, used by the resampling*/
+<span class="lineNum">     426 </span>                :<span class="lineCov">          1 :    msMapSetSize(map_tmp, width, height);</span>
+<span class="lineNum">     427 </span>                :            : 
+<span class="lineNum">     428 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug == 5)</span>
+<span class="lineNum">     429 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;msUVRASTERLayerWhichShapes(): geotransform: %g %g %g %g %g %g\n&quot;,</span>
+<span class="lineNum">     430 </span>                :            :             map_tmp-&gt;gt.geotransform[0], map_tmp-&gt;gt.geotransform[1],
+<span class="lineNum">     431 </span>                :            :             map_tmp-&gt;gt.geotransform[2], map_tmp-&gt;gt.geotransform[3],
+<span class="lineNum">     432 </span>                :            :             map_tmp-&gt;gt.geotransform[4], map_tmp-&gt;gt.geotransform[5]);
+<span class="lineNum">     433 </span>                :            : 
+<span class="lineNum">     434 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;extent = map_tmp-&gt;extent;</span>
+<span class="lineNum">     435 </span>                :            : 
+<span class="lineNum">     436 </span>                :<span class="lineCov">          1 :   image_tmp = msImageCreate(width, height, map_tmp-&gt;outputformatlist[0],</span>
+<span class="lineNum">     437 </span>                :            :                             NULL, NULL, map_tmp-&gt;resolution, map_tmp-&gt;defresolution,
+<span class="lineNum">     438 </span>                :            :                             &amp;(map_tmp-&gt;imagecolor));
+<span class="lineNum">     439 </span>                :            : 
+<span class="lineNum">     440 </span>                :            :   /* Default set to AVERAGE resampling */
+<span class="lineNum">     441 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if( CSLFetchNameValue( layer-&gt;processing, &quot;RESAMPLE&quot; ) == NULL ) {</span>
+<span class="lineNum">     442 </span>                :<span class="lineCov">          1 :     alteredProcessing = CSLDuplicate( layer-&gt;processing );</span>
+<span class="lineNum">     443 </span>                :<span class="lineCov">          1 :     alteredProcessing =</span>
+<span class="lineNum">     444 </span>                :            :       CSLSetNameValue( alteredProcessing, &quot;RESAMPLE&quot;,
+<span class="lineNum">     445 </span>                :            :                        &quot;AVERAGE&quot;);
+<span class="lineNum">     446 </span>                :<span class="lineCov">          1 :     savedProcessing = layer-&gt;processing;</span>
+<span class="lineNum">     447 </span>                :<span class="lineCov">          1 :     layer-&gt;processing = alteredProcessing;</span>
+<span class="lineNum">     448 </span>                :            :   }
+<span class="lineNum">     449 </span>                :            : 
+<span class="lineNum">     450 </span>                :            :   /* disable masking at this level: we don't want to apply the mask at the raster level,
+<span class="lineNum">     451 </span>                :            :    * it will be applied with the correct cellsize and image size in the vector rendering
+<span class="lineNum">     452 </span>                :            :    * phase.
+<span class="lineNum">     453 </span>                :            :    */
+<span class="lineNum">     454 </span>                :<span class="lineCov">          1 :   saved_layer_mask = layer-&gt;mask;</span>
+<span class="lineNum">     455 </span>                :<span class="lineCov">          1 :   layer-&gt;mask = NULL;</span>
+<span class="lineNum">     456 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (msDrawRasterLayerLow(map_tmp, layer, image_tmp, NULL ) == MS_FAILURE) {</span>
+<span class="lineNum">     457 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Unable to draw raster data.&quot;, &quot;msUVRASTERLayerWhichShapes()&quot;);</span>
+<span class="lineNum">     458 </span>                :<span class="lineNoCov">          0 :     layer-&gt;mask = saved_layer_mask;</span>
+<span class="lineNum">     459 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     460 </span>                :            :   }
+<span class="lineNum">     461 </span>                :            : 
+<span class="lineNum">     462 </span>                :            :   /* restore layer mask */
+<span class="lineNum">     463 </span>                :<span class="lineCov">          1 :   layer-&gt;mask = saved_layer_mask;</span>
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :            :   /* restore the saved processing */
+<span class="lineNum">     466 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (alteredProcessing != NULL) {</span>
+<span class="lineNum">     467 </span>                :<span class="lineCov">          1 :     layer-&gt;processing = savedProcessing;</span>
+<span class="lineNum">     468 </span>                :<span class="lineCov">          1 :     CSLDestroy(alteredProcessing);</span>
+<span class="lineNum">     469 </span>                :            :   }
+<span class="lineNum">     470 </span>                :            : 
+<span class="lineNum">     471 </span>                :            :   /* free old query arrays */
+<span class="lineNum">     472 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (uvlinfo-&gt;u) {</span>
+<span class="lineNum">     473 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (i=0; i&lt;uvlinfo-&gt;width; ++i) {</span>
+<span class="lineNum">     474 </span>                :<span class="lineNoCov">          0 :       free(uvlinfo-&gt;u[i]);</span>
+<span class="lineNum">     475 </span>                :            :     }
+<span class="lineNum">     476 </span>                :<span class="lineNoCov">          0 :     free(uvlinfo-&gt;u);</span>
+<span class="lineNum">     477 </span>                :            :   }
+<span class="lineNum">     478 </span>                :            : 
+<span class="lineNum">     479 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (uvlinfo-&gt;v) {</span>
+<span class="lineNum">     480 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (i=0; i&lt;uvlinfo-&gt;height; ++i) {</span>
+<span class="lineNum">     481 </span>                :<span class="lineNoCov">          0 :       free(uvlinfo-&gt;v[i]);</span>
+<span class="lineNum">     482 </span>                :            :     }
+<span class="lineNum">     483 </span>                :<span class="lineNoCov">          0 :     free(uvlinfo-&gt;v);</span>
+<span class="lineNum">     484 </span>                :            :   }
+<span class="lineNum">     485 </span>                :            : 
+<span class="lineNum">     486 </span>                :            :   /* Update our uv layer structure */
+<span class="lineNum">     487 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;width = width;</span>
+<span class="lineNum">     488 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;height = height;</span>
+<span class="lineNum">     489 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;query_results = width*height;</span>
+<span class="lineNum">     490 </span>                :            : 
+<span class="lineNum">     491 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;u = (float **)msSmallMalloc(sizeof(float *)*width);</span>
+<span class="lineNum">     492 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;v = (float **)msSmallMalloc(sizeof(float *)*width);</span>
+<span class="lineNum">     493 </span>                :            : 
+<span class="lineNum">     494 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (x = 0; x &lt; width; ++x) {</span>
+<span class="lineNum">     495 </span>                :<span class="lineCov">          1 :     uvlinfo-&gt;u[x] = (float *)msSmallMalloc(height * sizeof(float));</span>
+<span class="lineNum">     496 </span>                :<span class="lineCov">          1 :     uvlinfo-&gt;v[x] = (float *)msSmallMalloc(height * sizeof(float));</span>
+<span class="lineNum">     497 </span>                :            : 
+<span class="lineNum">     498 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for (y = 0; y &lt; height; ++y) {</span>
+<span class="lineNum">     499 </span>                :<span class="lineCov">          1 :       u_src_off = v_src_off = x + y * width;</span>
+<span class="lineNum">     500 </span>                :<span class="lineCov">          1 :       v_src_off += width*height;</span>
+<span class="lineNum">     501 </span>                :            : 
+<span class="lineNum">     502 </span>                :<span class="lineCov">          1 :       uvlinfo-&gt;u[x][y] = image_tmp-&gt;img.raw_float[u_src_off];</span>
+<span class="lineNum">     503 </span>                :<span class="lineCov">          1 :       uvlinfo-&gt;v[x][y] = image_tmp-&gt;img.raw_float[v_src_off];</span>
+<span class="lineNum">     504 </span>                :            : 
+<span class="lineNum">     505 </span>                :            :       /* null vector? update the number of results  */
+<span class="lineNum">     506 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :       if (uvlinfo-&gt;u[x][y] == 0 &amp;&amp; uvlinfo-&gt;v[x][y] == 0)</span>
+<span class="lineNum">     507 </span>                :<span class="lineNoCov">          0 :         --uvlinfo-&gt;query_results;</span>
+<span class="lineNum">     508 </span>                :            :     }
+<span class="lineNum">     509 </span>                :            :   }
+<span class="lineNum">     510 </span>                :            : 
+<span class="lineNum">     511 </span>                :<span class="lineCov">          1 :   msFreeImage(image_tmp); /* we do not need the imageObj anymore */</span>
+<span class="lineNum">     512 </span>                :<span class="lineCov">          1 :   msFreeMap(map_tmp);</span>
+<span class="lineNum">     513 </span>                :            : 
+<span class="lineNum">     514 </span>                :<span class="lineCov">          1 :   uvlinfo-&gt;next_shape = 0;</span>
+<span class="lineNum">     515 </span>                :            : 
+<span class="lineNum">     516 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<a name="517"><span class="lineNum">     517 </span>                :            : }</a>
+<span class="lineNum">     518 </span>                :            : 
+<span class="lineNum">     519 </span>                :<span class="lineCov">          1 : int msUVRASTERLayerGetShape(layerObj *layer, shapeObj *shape, resultObj *record)</span>
+<span class="lineNum">     520 </span>                :            : {
+<span class="lineNum">     521 </span>                :<span class="lineCov">          1 :   uvRasterLayerInfo *uvlinfo = (uvRasterLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     522 </span>                :            :   lineObj line ;
+<span class="lineNum">     523 </span>                :            :   pointObj point;
+<span class="lineNum">     524 </span>                :            :   int i, j, k, x=0, y=0;
+<span class="lineNum">     525 </span>                :<span class="lineCov">          1 :   long shapeindex = record-&gt;shapeindex;</span>
+<span class="lineNum">     526 </span>                :            : 
+<span class="lineNum">     527 </span>                :<span class="lineCov">          1 :   msFreeShape(shape);</span>
+<span class="lineNum">     528 </span>                :<span class="lineCov">          1 :   shape-&gt;type = MS_SHAPE_NULL;</span>
+<span class="lineNum">     529 </span>                :            : 
+<span class="lineNum">     530 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if( shapeindex &lt; 0 || shapeindex &gt;= uvlinfo-&gt;query_results ) {</span>
+<span class="lineNum">     531 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR,</span>
+<span class="lineNum">     532 </span>                :            :                &quot;Out of range shape index requested.  Requested %ld\n&quot;
+<span class="lineNum">     533 </span>                :            :                &quot;but only %d shapes available.&quot;,
+<span class="lineNum">     534 </span>                :            :                &quot;msUVRASTERLayerGetShape()&quot;,
+<span class="lineNum">     535 </span>                :            :                shapeindex, uvlinfo-&gt;query_results );
+<span class="lineNum">     536 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     537 </span>                :            :   }
+<span class="lineNum">     538 </span>                :            : 
+<span class="lineNum">     539 </span>                :            :   /* loop to the next non null vector */
+<span class="lineNum">     540 </span>                :            :   k = 0;
+<span class="lineNum">     541 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (i=0, x=-1; i&lt;uvlinfo-&gt;width &amp;&amp; k&lt;=shapeindex; ++i, ++x) {</span>
+<span class="lineNum">     542 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     for (j=0, y=-1; j&lt;uvlinfo-&gt;height &amp;&amp; k&lt;=shapeindex; ++j, ++k, ++y) {</span>
+<span class="lineNum">     543 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :       if (uvlinfo-&gt;u[i][j] == 0 &amp;&amp; uvlinfo-&gt;v[i][j] == 0)</span>
+<span class="lineNum">     544 </span>                :<span class="lineNoCov">          0 :         --k;</span>
+<span class="lineNum">     545 </span>                :            :     }
+<span class="lineNum">     546 </span>                :            :   }
+<span class="lineNum">     547 </span>                :            : 
+<span class="lineNum">     548 </span>                :<span class="lineCov">          1 :   point.x = Pix2Georef(x, 0, uvlinfo-&gt;width-1,</span>
+<span class="lineNum">     549 </span>                :            :                        uvlinfo-&gt;extent.minx, uvlinfo-&gt;extent.maxx, MS_FALSE);
+<span class="lineNum">     550 </span>                :<span class="lineCov">          1 :   point.y = Pix2Georef(y, 0, uvlinfo-&gt;height-1,</span>
+<span class="lineNum">     551 </span>                :            :                        uvlinfo-&gt;extent.miny, uvlinfo-&gt;extent.maxy, MS_TRUE);
+<span class="lineNum">     552 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;debug == 5)</span>
+<span class="lineNum">     553 </span>                :<span class="lineNoCov">          0 :     msDebug(&quot;msUVRASTERLayerWhichShapes(): shapeindex: %ld, x: %g, y: %g\n&quot;,</span>
+<span class="lineNum">     554 </span>                :            :             shapeindex, point.x, point.y);
+<span class="lineNum">     555 </span>                :            : 
+<span class="lineNum">     556 </span>                :            : #ifdef USE_POINT_Z_M
+<span class="lineNum">     557 </span>                :            :   point.m = 0.0;
+<span class="lineNum">     558 </span>                :            : #endif
+<span class="lineNum">     559 </span>                :            : 
+<span class="lineNum">     560 </span>                :<span class="lineCov">          1 :   shape-&gt;type = MS_SHAPE_POINT;</span>
+<span class="lineNum">     561 </span>                :<span class="lineCov">          1 :   line.numpoints = 1;</span>
+<span class="lineNum">     562 </span>                :<span class="lineCov">          1 :   line.point = &amp;point;</span>
+<span class="lineNum">     563 </span>                :<span class="lineCov">          1 :   msAddLine( shape, &amp;line );</span>
+<span class="lineNum">     564 </span>                :<span class="lineCov">          1 :   msComputeBounds( shape );</span>
+<span class="lineNum">     565 </span>                :            : 
+<span class="lineNum">     566 </span>                :<span class="lineCov">          1 :   shape-&gt;numvalues = layer-&gt;numitems;</span>
+<span class="lineNum">     567 </span>                :<span class="lineCov">          1 :   shape-&gt;values = msUVRASTERGetValues(layer, &amp;uvlinfo-&gt;u[x][y], &amp;uvlinfo-&gt;v[x][y]);</span>
+<span class="lineNum">     568 </span>                :            : 
+<span class="lineNum">     569 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     570 </span>                :            : 
+<a name="571"><span class="lineNum">     571 </span>                :            : }</a>
+<span class="lineNum">     572 </span>                :            : 
+<span class="lineNum">     573 </span>                :<span class="lineCov">          1 : int msUVRASTERLayerNextShape(layerObj *layer, shapeObj *shape)</span>
+<span class="lineNum">     574 </span>                :            : {
+<span class="lineNum">     575 </span>                :<span class="lineCov">          1 :   uvRasterLayerInfo *uvlinfo = (uvRasterLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     576 </span>                :            : 
+<span class="lineNum">     577 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( uvlinfo-&gt;next_shape &lt; 0</span>
+<span class="lineNum">     578 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       || uvlinfo-&gt;next_shape &gt;= uvlinfo-&gt;query_results ) {</span>
+<span class="lineNum">     579 </span>                :<span class="lineCov">          1 :     msFreeShape(shape);</span>
+<span class="lineNum">     580 </span>                :<span class="lineCov">          1 :     shape-&gt;type = MS_SHAPE_NULL;</span>
+<span class="lineNum">     581 </span>                :<span class="lineCov">          1 :     return MS_DONE;</span>
+<span class="lineNum">     582 </span>                :            :   } else {
+<span class="lineNum">     583 </span>                :            :     resultObj record;
+<span class="lineNum">     584 </span>                :            : 
+<span class="lineNum">     585 </span>                :<span class="lineCov">          1 :     record.shapeindex = uvlinfo-&gt;next_shape++;</span>
+<span class="lineNum">     586 </span>                :<span class="lineCov">          1 :     record.tileindex = 0;</span>
+<span class="lineNum">     587 </span>                :<span class="lineCov">          1 :     record.classindex = record.resultindex = -1;</span>
+<span class="lineNum">     588 </span>                :            : 
+<span class="lineNum">     589 </span>                :<span class="lineCov">          1 :     return msUVRASTERLayerGetShape( layer, shape, &amp;record);</span>
+<span class="lineNum">     590 </span>                :            :   }
+<span class="lineNum">     591 </span>                :            : }
+<span class="lineNum">     592 </span>                :            : 
+<span class="lineNum">     593 </span>                :            : /************************************************************************/
+<span class="lineNum">     594 </span>                :            : /*                       msUVRASTERLayerGetExtent()                     */
+<span class="lineNum">     595 </span>                :            : /* Simple copy of the maprasterquery.c file. might change in the future */
+<a name="596"><span class="lineNum">     596 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     597 </span>                :            : 
+<span class="lineNum">     598 </span>                :<span class="lineNoCov">          0 : int msUVRASTERLayerGetExtent(layerObj *layer, rectObj *extent)</span>
+<span class="lineNum">     599 </span>                :            : 
+<span class="lineNum">     600 </span>                :            : {
+<span class="lineNum">     601 </span>                :            :   char szPath[MS_MAXPATHLEN];
+<span class="lineNum">     602 </span>                :<span class="lineNoCov">          0 :   mapObj *map = layer-&gt;map;</span>
+<span class="lineNum">     603 </span>                :            :   double adfGeoTransform[6];
+<span class="lineNum">     604 </span>                :            :   int nXSize, nYSize;
+<span class="lineNum">     605 </span>                :            :   GDALDatasetH hDS;
+<span class="lineNum">     606 </span>                :            :   shapefileObj *tileshpfile;
+<span class="lineNum">     607 </span>                :            :   int tilelayerindex = -1;
+<span class="lineNum">     608 </span>                :            :   CPLErr eErr = CE_Failure;
+<span class="lineNum">     609 </span>                :            :   char *decrypted_path;
+<span class="lineNum">     610 </span>                :            : 
+<span class="lineNum">     611 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( (!layer-&gt;data || strlen(layer-&gt;data) == 0)</span>
+<span class="lineNum">     612 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       &amp;&amp; layer-&gt;tileindex == NULL) {</span>
+<span class="lineNum">     613 </span>                :            :     /* should we be issuing a specific error about not supporting
+<span class="lineNum">     614 </span>                :            :        extents for tileindexed raster layers? */
+<span class="lineNum">     615 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     616 </span>                :            :   }
+<span class="lineNum">     617 </span>                :            : 
+<span class="lineNum">     618 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( map == NULL )</span>
+<span class="lineNum">     619 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     620 </span>                :            : 
+<span class="lineNum">     621 </span>                :            :   /* If the layer use a tileindex, return the extent of the tileindex shapefile/referenced layer */
+<span class="lineNum">     622 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (layer-&gt;tileindex) {</span>
+<span class="lineNum">     623 </span>                :<span class="lineNoCov">          0 :     tilelayerindex = msGetLayerIndex(map, layer-&gt;tileindex);</span>
+<span class="lineNum">     624 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(tilelayerindex != -1) /* does the tileindex reference another layer */</span>
+<span class="lineNum">     625 </span>                :<span class="lineNoCov">          0 :       return msLayerGetExtent(GET_LAYER(map, tilelayerindex), extent);</span>
+<span class="lineNum">     626 </span>                :            :     else {
+<span class="lineNum">     627 </span>                :<span class="lineNoCov">          0 :       tileshpfile = (shapefileObj *) malloc(sizeof(shapefileObj));</span>
+<span class="lineNum">     628 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       MS_CHECK_ALLOC(tileshpfile, sizeof(shapefileObj), MS_FAILURE);</span>
+<span class="lineNum">     629 </span>                :            : 
+<span class="lineNum">     630 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(msShapefileOpen(tileshpfile, &quot;rb&quot;, msBuildPath3(szPath, map-&gt;mappath, map-&gt;shapepath, layer-&gt;tileindex), MS_TRUE) == -1)</span>
+<span class="lineNum">     631 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(msShapefileOpen(tileshpfile, &quot;rb&quot;, msBuildPath(szPath, map-&gt;mappath, layer-&gt;tileindex), MS_TRUE) == -1)</span>
+<span class="lineNum">     632 </span>                :            :           return MS_FAILURE;
+<span class="lineNum">     633 </span>                :            : 
+<span class="lineNum">     634 </span>                :<span class="lineNoCov">          0 :       *extent = tileshpfile-&gt;bounds;</span>
+<span class="lineNum">     635 </span>                :<span class="lineNoCov">          0 :       msShapefileClose(tileshpfile);</span>
+<span class="lineNum">     636 </span>                :<span class="lineNoCov">          0 :       free(tileshpfile);</span>
+<span class="lineNum">     637 </span>                :<span class="lineNoCov">          0 :       return MS_SUCCESS;</span>
+<span class="lineNum">     638 </span>                :            :     }
+<span class="lineNum">     639 </span>                :            :   }
+<span class="lineNum">     640 </span>                :            : 
+<span class="lineNum">     641 </span>                :<span class="lineNoCov">          0 :   msTryBuildPath3(szPath, map-&gt;mappath, map-&gt;shapepath, layer-&gt;data);</span>
+<span class="lineNum">     642 </span>                :<span class="lineNoCov">          0 :   decrypted_path = msDecryptStringTokens( map, szPath );</span>
+<span class="lineNum">     643 </span>                :            : 
+<span class="lineNum">     644 </span>                :<span class="lineNoCov">          0 :   msAcquireLock( TLOCK_GDAL );</span>
+<span class="lineNum">     645 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( decrypted_path ) {</span>
+<span class="lineNum">     646 </span>                :<span class="lineNoCov">          0 :     hDS = GDALOpen(decrypted_path, GA_ReadOnly );</span>
+<span class="lineNum">     647 </span>                :<span class="lineNoCov">          0 :     msFree( decrypted_path );</span>
+<span class="lineNum">     648 </span>                :            :   } else
+<span class="lineNum">     649 </span>                :            :     hDS = NULL;
+<span class="lineNum">     650 </span>                :            : 
+<span class="lineNum">     651 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( hDS != NULL ) {</span>
+<span class="lineNum">     652 </span>                :<span class="lineNoCov">          0 :     nXSize = GDALGetRasterXSize( hDS );</span>
+<span class="lineNum">     653 </span>                :<span class="lineNoCov">          0 :     nYSize = GDALGetRasterYSize( hDS );</span>
+<span class="lineNum">     654 </span>                :<span class="lineNoCov">          0 :     eErr = GDALGetGeoTransform( hDS, adfGeoTransform );</span>
+<span class="lineNum">     655 </span>                :            : 
+<span class="lineNum">     656 </span>                :<span class="lineNoCov">          0 :     GDALClose( hDS );</span>
+<span class="lineNum">     657 </span>                :            :   }
+<span class="lineNum">     658 </span>                :            : 
+<span class="lineNum">     659 </span>                :<span class="lineNoCov">          0 :   msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">     660 </span>                :            : 
+<span class="lineNum">     661 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( hDS == NULL || eErr != CE_None ) {</span>
+<span class="lineNum">     662 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     663 </span>                :            :   }
+<span class="lineNum">     664 </span>                :            : 
+<span class="lineNum">     665 </span>                :            :   /* If this appears to be an ungeoreferenced raster than flip it for
+<span class="lineNum">     666 </span>                :            :      mapservers purposes. */
+<span class="lineNum">     667 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( adfGeoTransform[5] == 1.0 &amp;&amp; adfGeoTransform[3] == 0.0 ) {</span>
+<span class="lineNum">     668 </span>                :<span class="lineNoCov">          0 :     adfGeoTransform[5] = -1.0;</span>
+<span class="lineNum">     669 </span>                :<span class="lineNoCov">          0 :     adfGeoTransform[3] = nYSize;</span>
+<span class="lineNum">     670 </span>                :            :   }
+<span class="lineNum">     671 </span>                :            : 
+<span class="lineNum">     672 </span>                :<span class="lineNoCov">          0 :   extent-&gt;minx = adfGeoTransform[0];</span>
+<span class="lineNum">     673 </span>                :<span class="lineNoCov">          0 :   extent-&gt;maxy = adfGeoTransform[3];</span>
+<span class="lineNum">     674 </span>                :            : 
+<span class="lineNum">     675 </span>                :<span class="lineNoCov">          0 :   extent-&gt;maxx = adfGeoTransform[0] + nXSize * adfGeoTransform[1];</span>
+<span class="lineNum">     676 </span>                :<span class="lineNoCov">          0 :   extent-&gt;miny = adfGeoTransform[3] + nYSize * adfGeoTransform[5];</span>
+<span class="lineNum">     677 </span>                :            : 
+<span class="lineNum">     678 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">     679 </span>                :            : }
 <span class="lineNum">     680 </span>                :            : 
-<span class="lineNum">     681 </span>                :            : /************************************************************************/
-<span class="lineNum">     682 </span>                :            : /*                     msUVRASTERLayerSetTimeFilter()                   */
-<span class="lineNum">     683 </span>                :            : /*                                                                      */
-<span class="lineNum">     684 </span>                :            : /*      This function is actually just used in the context of           */
-<span class="lineNum">     685 </span>                :            : /*      setting a filter on the tileindex for time based queries.       */
-<span class="lineNum">     686 </span>                :            : /*      For instance via WMS requests.  So it isn't really related      */
-<span class="lineNum">     687 </span>                :            : /*      to the &quot;raster query&quot; support at all.                           */
-<span class="lineNum">     688 </span>                :            : /*                                                                      */
-<span class="lineNum">     689 </span>                :            : /*      If a local shapefile tileindex is in use, we will set a         */
-<span class="lineNum">     690 </span>                :            : /*      backtics filter (shapefile compatible).  If another layer is    */
-<span class="lineNum">     691 </span>                :            : /*      being used as the tileindex then we will forward the            */
-<span class="lineNum">     692 </span>                :            : /*      SetTimeFilter call to it.  If there is no tileindex in          */
-<span class="lineNum">     693 </span>                :            : /*      place, we do nothing.                                           */
-<a name="694"><span class="lineNum">     694 </span>                :            : /************************************************************************/</a>
-<span class="lineNum">     695 </span>                :            : 
-<span class="lineNum">     696 </span>                :<span class="lineNoCov">          0 : int msUVRASTERLayerSetTimeFilter(layerObj *layer, const char *timestring,</span>
-<span class="lineNum">     697 </span>                :            :                                  const char *timefield)
-<span class="lineNum">     698 </span>                :            : {
-<span class="lineNum">     699 </span>                :            :   int tilelayerindex;
-<span class="lineNum">     700 </span>                :            : 
-<span class="lineNum">     701 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     702 </span>                :            :   /*      If we don't have a tileindex the time filter has no effect.     */
-<span class="lineNum">     703 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     704 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( layer-&gt;tileindex == NULL )</span>
-<span class="lineNum">     705 </span>                :            :     return MS_SUCCESS;
-<span class="lineNum">     706 </span>                :            : 
-<span class="lineNum">     707 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     708 </span>                :            :   /*      Find the tileindex layer.                                       */
-<span class="lineNum">     709 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     710 </span>                :<span class="lineNoCov">          0 :   tilelayerindex = msGetLayerIndex(layer-&gt;map, layer-&gt;tileindex);</span>
-<span class="lineNum">     711 </span>                :            : 
-<span class="lineNum">     712 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     713 </span>                :            :   /*      If we are using a local shapefile as our tileindex (that is     */
-<span class="lineNum">     714 </span>                :            :   /*      to say, the tileindex name is not of another layer), then we    */
-<span class="lineNum">     715 </span>                :            :   /*      just install a backtics style filter on the raster layer.       */
-<span class="lineNum">     716 </span>                :            :   /*      This is propogated to the &quot;working layer&quot; created for the       */
-<span class="lineNum">     717 </span>                :            :   /*      tileindex by code in mapraster.c.                               */
-<span class="lineNum">     718 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     719 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( tilelayerindex == -1 )</span>
-<span class="lineNum">     720 </span>                :<span class="lineNoCov">          0 :     return msLayerMakeBackticsTimeFilter( layer, timestring, timefield );</span>
-<span class="lineNum">     721 </span>                :            : 
-<span class="lineNum">     722 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     723 </span>                :            :   /*      Otherwise we invoke the tileindex layers SetTimeFilter          */
-<span class="lineNum">     724 </span>                :            :   /*      method.                                                         */
-<span class="lineNum">     725 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     726 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if ( msCheckParentPointer(layer-&gt;map,&quot;map&quot;)==MS_FAILURE )</span>
-<span class="lineNum">     727 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     728 </span>                :<span class="lineNoCov">          0 :   return msLayerSetTimeFilter( layer-&gt;GET_LAYER(map,tilelayerindex),</span>
-<span class="lineNum">     729 </span>                :            :                                timestring, timefield );
-<span class="lineNum">     730 </span>                :            : }
-<span class="lineNum">     731 </span>                :            : 
+<span class="lineNum">     681 </span>                :            : 
+<span class="lineNum">     682 </span>                :            : /************************************************************************/
+<span class="lineNum">     683 </span>                :            : /*                     msUVRASTERLayerSetTimeFilter()                   */
+<span class="lineNum">     684 </span>                :            : /*                                                                      */
+<span class="lineNum">     685 </span>                :            : /*      This function is actually just used in the context of           */
+<span class="lineNum">     686 </span>                :            : /*      setting a filter on the tileindex for time based queries.       */
+<span class="lineNum">     687 </span>                :            : /*      For instance via WMS requests.  So it isn't really related      */
+<span class="lineNum">     688 </span>                :            : /*      to the &quot;raster query&quot; support at all.                           */
+<span class="lineNum">     689 </span>                :            : /*                                                                      */
+<span class="lineNum">     690 </span>                :            : /*      If a local shapefile tileindex is in use, we will set a         */
+<span class="lineNum">     691 </span>                :            : /*      backtics filter (shapefile compatible).  If another layer is    */
+<span class="lineNum">     692 </span>                :            : /*      being used as the tileindex then we will forward the            */
+<span class="lineNum">     693 </span>                :            : /*      SetTimeFilter call to it.  If there is no tileindex in          */
+<span class="lineNum">     694 </span>                :            : /*      place, we do nothing.                                           */
+<a name="695"><span class="lineNum">     695 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     696 </span>                :            : 
+<span class="lineNum">     697 </span>                :<span class="lineNoCov">          0 : int msUVRASTERLayerSetTimeFilter(layerObj *layer, const char *timestring,</span>
+<span class="lineNum">     698 </span>                :            :                                  const char *timefield)
+<span class="lineNum">     699 </span>                :            : {
+<span class="lineNum">     700 </span>                :            :   int tilelayerindex;
+<span class="lineNum">     701 </span>                :            : 
+<span class="lineNum">     702 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     703 </span>                :            :   /*      If we don't have a tileindex the time filter has no effect.     */
+<span class="lineNum">     704 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     705 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( layer-&gt;tileindex == NULL )</span>
+<span class="lineNum">     706 </span>                :            :     return MS_SUCCESS;
+<span class="lineNum">     707 </span>                :            : 
+<span class="lineNum">     708 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     709 </span>                :            :   /*      Find the tileindex layer.                                       */
+<span class="lineNum">     710 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     711 </span>                :<span class="lineNoCov">          0 :   tilelayerindex = msGetLayerIndex(layer-&gt;map, layer-&gt;tileindex);</span>
+<span class="lineNum">     712 </span>                :            : 
+<span class="lineNum">     713 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     714 </span>                :            :   /*      If we are using a local shapefile as our tileindex (that is     */
+<span class="lineNum">     715 </span>                :            :   /*      to say, the tileindex name is not of another layer), then we    */
+<span class="lineNum">     716 </span>                :            :   /*      just install a backtics style filter on the raster layer.       */
+<span class="lineNum">     717 </span>                :            :   /*      This is propogated to the &quot;working layer&quot; created for the       */
+<span class="lineNum">     718 </span>                :            :   /*      tileindex by code in mapraster.c.                               */
+<span class="lineNum">     719 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     720 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( tilelayerindex == -1 )</span>
+<span class="lineNum">     721 </span>                :<span class="lineNoCov">          0 :     return msLayerMakeBackticsTimeFilter( layer, timestring, timefield );</span>
+<span class="lineNum">     722 </span>                :            : 
+<span class="lineNum">     723 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     724 </span>                :            :   /*      Otherwise we invoke the tileindex layers SetTimeFilter          */
+<span class="lineNum">     725 </span>                :            :   /*      method.                                                         */
+<span class="lineNum">     726 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     727 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if ( msCheckParentPointer(layer-&gt;map,&quot;map&quot;)==MS_FAILURE )</span>
+<span class="lineNum">     728 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     729 </span>                :<span class="lineNoCov">          0 :   return msLayerSetTimeFilter( layer-&gt;GET_LAYER(map,tilelayerindex),</span>
+<span class="lineNum">     730 </span>                :            :                                timestring, timefield );
+<span class="lineNum">     731 </span>                :            : }
 <span class="lineNum">     732 </span>                :            : 
-<span class="lineNum">     733 </span>                :            : /************************************************************************/
-<span class="lineNum">     734 </span>                :            : /*                msRASTERLayerInitializeVirtualTable()                 */
-<span class="lineNum">     735 </span>                :            : /************************************************************************/
-<a name="736"><span class="lineNum">     736 </span>                :            : </a>
-<span class="lineNum">     737 </span>                :            : int
-<span class="lineNum">     738 </span>                :<span class="lineCov">          1 : msUVRASTERLayerInitializeVirtualTable(layerObj *layer)</span>
-<span class="lineNum">     739 </span>                :            : {
-<span class="lineNum">     740 </span>                :            :   assert(layer != NULL);
-<span class="lineNum">     741 </span>                :            :   assert(layer-&gt;vtable != NULL);
-<span class="lineNum">     742 </span>                :            : 
-<span class="lineNum">     743 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msUVRASTERLayerInitItemInfo;</span>
-<span class="lineNum">     744 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msUVRASTERLayerFreeItemInfo;</span>
-<span class="lineNum">     745 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerOpen = msUVRASTERLayerOpen;</span>
-<span class="lineNum">     746 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerIsOpen = msUVRASTERLayerIsOpen;</span>
-<span class="lineNum">     747 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msUVRASTERLayerWhichShapes;</span>
-<span class="lineNum">     748 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msUVRASTERLayerNextShape;</span>
-<span class="lineNum">     749 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msUVRASTERLayerGetShape;</span>
-<span class="lineNum">     750 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msUVRASTERLayerClose;</span>
-<span class="lineNum">     751 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetItems = msUVRASTERLayerGetItems;</span>
-<span class="lineNum">     752 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetExtent = msUVRASTERLayerGetExtent;</span>
-<span class="lineNum">     753 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
-<span class="lineNum">     754 </span>                :            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
-<span class="lineNum">     755 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCloseConnection = msUVRASTERLayerClose; */
-<span class="lineNum">     756 </span>                :            :   /* we use backtics for proper tileindex shapefile functioning */
-<span class="lineNum">     757 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msUVRASTERLayerSetTimeFilter;</span>
-<span class="lineNum">     758 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
-<span class="lineNum">     759 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
-<span class="lineNum">     760 </span>                :            : 
-<span class="lineNum">     761 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     762 </span>                :<span class="lineCov">          1 : }</span>
-<span class="lineNum">     763 </span>                :            : 
-<span class="lineNum">     764 </span>                :            : #else
-<span class="lineNum">     765 </span>                :            : int msUVRASTERLayerInitializeVirtualTable(layerObj *layer)
-<span class="lineNum">     766 </span>                :            : {
-<span class="lineNum">     767 </span>                :            :   msSetError(MS_MISCERR, &quot;UVRaster Layer needs GDAL support, but it it not compiled in&quot;, &quot;msUVRASTERLayerInitializeVirtualTable()&quot;);
-<span class="lineNum">     768 </span>                :            :   return MS_FAILURE;
-<span class="lineNum">     769 </span>                :            : }
-<span class="lineNum">     770 </span>                :            : #endif
-<span class="lineNum">     771 </span>                :            : 
+<span class="lineNum">     733 </span>                :            : 
+<span class="lineNum">     734 </span>                :            : /************************************************************************/
+<span class="lineNum">     735 </span>                :            : /*                msRASTERLayerInitializeVirtualTable()                 */
+<span class="lineNum">     736 </span>                :            : /************************************************************************/
+<a name="737"><span class="lineNum">     737 </span>                :            : </a>
+<span class="lineNum">     738 </span>                :            : int
+<span class="lineNum">     739 </span>                :<span class="lineCov">          1 : msUVRASTERLayerInitializeVirtualTable(layerObj *layer)</span>
+<span class="lineNum">     740 </span>                :            : {
+<span class="lineNum">     741 </span>                :            :   assert(layer != NULL);
+<span class="lineNum">     742 </span>                :            :   assert(layer-&gt;vtable != NULL);
+<span class="lineNum">     743 </span>                :            : 
+<span class="lineNum">     744 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msUVRASTERLayerInitItemInfo;</span>
+<span class="lineNum">     745 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msUVRASTERLayerFreeItemInfo;</span>
+<span class="lineNum">     746 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerOpen = msUVRASTERLayerOpen;</span>
+<span class="lineNum">     747 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerIsOpen = msUVRASTERLayerIsOpen;</span>
+<span class="lineNum">     748 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msUVRASTERLayerWhichShapes;</span>
+<span class="lineNum">     749 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msUVRASTERLayerNextShape;</span>
+<span class="lineNum">     750 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msUVRASTERLayerGetShape;</span>
+<span class="lineNum">     751 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msUVRASTERLayerClose;</span>
+<span class="lineNum">     752 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetItems = msUVRASTERLayerGetItems;</span>
+<span class="lineNum">     753 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetExtent = msUVRASTERLayerGetExtent;</span>
+<span class="lineNum">     754 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
+<span class="lineNum">     755 </span>                :            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
+<span class="lineNum">     756 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCloseConnection = msUVRASTERLayerClose; */
+<span class="lineNum">     757 </span>                :            :   /* we use backtics for proper tileindex shapefile functioning */
+<span class="lineNum">     758 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msUVRASTERLayerSetTimeFilter;</span>
+<span class="lineNum">     759 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
+<span class="lineNum">     760 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
+<span class="lineNum">     761 </span>                :            : 
+<span class="lineNum">     762 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     763 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     764 </span>                :            : 
+<span class="lineNum">     765 </span>                :            : #else
+<span class="lineNum">     766 </span>                :            : int msUVRASTERLayerInitializeVirtualTable(layerObj *layer)
+<span class="lineNum">     767 </span>                :            : {
+<span class="lineNum">     768 </span>                :            :   msSetError(MS_MISCERR, &quot;UVRaster Layer needs GDAL support, but it it not compiled in&quot;, &quot;msUVRASTERLayerInitializeVirtualTable()&quot;);
+<span class="lineNum">     769 </span>                :            :   return MS_FAILURE;
+<span class="lineNum">     770 </span>                :            : }
+<span class="lineNum">     771 </span>                :            : #endif
+<span class="lineNum">     772 </span>                :            : 
 </pre>
       </td>
     </tr>
