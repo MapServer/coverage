@@ -32,8 +32,8 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntry">500</td>
-            <td class="headerCovTableEntry">542</td>
-            <td class="headerCovTableEntryHi">92.3 %</td>
+            <td class="headerCovTableEntry">543</td>
+            <td class="headerCovTableEntryHi">92.1 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -983,203 +983,204 @@
 <span class="lineNum">     910 </span>                :<span class="lineCov">          1 :     cache-&gt;svgc = rsvg_handle_new_from_file(symbol-&gt;full_pixmap_path,NULL);</span>
 <span class="lineNum">     911 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(!cache-&gt;svgc) {</span>
 <span class="lineNum">     912 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_RENDERERERR,&quot;failed to load svg file %s&quot;, &quot;msPreloadSVGSymbol()&quot;, symbol-&gt;full_pixmap_path);</span>
-<span class="lineNum">     913 </span>                :            :     }
-<span class="lineNum">     914 </span>                :<span class="lineCov">          1 :     rsvg_handle_get_dimensions_sub (cache-&gt;svgc, &amp;dim, NULL);</span>
-<span class="lineNum">     915 </span>                :<span class="lineCov">          1 :     symbol-&gt;sizex = dim.width;</span>
-<span class="lineNum">     916 </span>                :<span class="lineCov">          1 :     symbol-&gt;sizey = dim.height;</span>
-<span class="lineNum">     917 </span>                :            :   }
-<span class="lineNum">     918 </span>                :            : #endif
-<span class="lineNum">     919 </span>                :            : 
-<span class="lineNum">     920 </span>                :<span class="lineCov">          1 :   symbol-&gt;renderer_cache = cache;</span>
-<span class="lineNum">     921 </span>                :            : 
-<span class="lineNum">     922 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     923 </span>                :            : 
-<span class="lineNum">     924 </span>                :            : #else
-<span class="lineNum">     925 </span>                :            :   msSetError(MS_MISCERR, &quot;SVG Symbols requested but is not built with libsvgcairo&quot;,
-<span class="lineNum">     926 </span>                :            :              &quot;msPreloadSVGSymbol()&quot;);
-<span class="lineNum">     927 </span>                :            :   return MS_FAILURE;
-<span class="lineNum">     928 </span>                :            : #endif
-<span class="lineNum">     929 </span>                :            : }
-<span class="lineNum">     930 </span>                :            : 
-<a name="931"><span class="lineNum">     931 </span>                :            : </a>
-<span class="lineNum">     932 </span>                :            : 
-<span class="lineNum">     933 </span>                :<span class="lineCov">          1 : int msRenderRasterizedSVGSymbol(imageObj *img, double x, double y, symbolObj *symbol, symbolStyleObj *style)</span>
-<span class="lineNum">     934 </span>                :            : {
-<span class="lineNum">     935 </span>                :            : 
-<span class="lineNum">     936 </span>                :            : #if defined(USE_SVG_CAIRO) || defined(USE_RSVG)
-<span class="lineNum">     937 </span>                :            :   struct svg_symbol_cache *svg_cache;
-<span class="lineNum">     938 </span>                :            :   symbolStyleObj pixstyle;
-<span class="lineNum">     939 </span>                :            :   symbolObj pixsymbol;
-<span class="lineNum">     940 </span>                :            : 
-<span class="lineNum">     941 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if(MS_SUCCESS != msPreloadSVGSymbol(symbol))</span>
-<span class="lineNum">     942 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     943 </span>                :<span class="lineCov">          1 :   svg_cache = (struct svg_symbol_cache*) symbol-&gt;renderer_cache;</span>
-<span class="lineNum">     944 </span>                :            : 
-<span class="lineNum">     945 </span>                :            :   //already rendered at the right size and scale? return
-<span class="lineNum">     946 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(svg_cache-&gt;scale != style-&gt;scale || svg_cache-&gt;rotation != style-&gt;rotation) {</span>
-<span class="lineNum">     947 </span>                :            :     cairo_t *cr;
-<span class="lineNum">     948 </span>                :            :     cairo_surface_t *surface;
-<span class="lineNum">     949 </span>                :            :     unsigned char *pb;
-<span class="lineNum">     950 </span>                :            :     int width, height, surface_w, surface_h;
-<span class="lineNum">     951 </span>                :            :     /* need to recompute the pixmap */
-<span class="lineNum">     952 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(svg_cache-&gt;pixmap_buffer) {</span>
-<span class="lineNum">     953 </span>                :<span class="lineCov">          1 :       msFreeRasterBuffer(svg_cache-&gt;pixmap_buffer);</span>
-<span class="lineNum">     954 </span>                :            :     } else {
-<span class="lineNum">     955 </span>                :<span class="lineCov">          1 :       svg_cache-&gt;pixmap_buffer = msSmallCalloc(1,sizeof(rasterBufferObj));</span>
-<span class="lineNum">     956 </span>                :            :     }
-<span class="lineNum">     957 </span>                :            : 
-<span class="lineNum">     958 </span>                :            :     //increase pixmap size to accomodate scaling/rotation
-<span class="lineNum">     959 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (style-&gt;scale != 1.0) {</span>
-<span class="lineNum">     960 </span>                :<span class="lineCov">          1 :       width = surface_w = (symbol-&gt;sizex * style-&gt;scale + 0.5);</span>
-<span class="lineNum">     961 </span>                :<span class="lineCov">          1 :       height = surface_h = (symbol-&gt;sizey * style-&gt;scale + 0.5);</span>
-<span class="lineNum">     962 </span>                :            :     } else {
-<span class="lineNum">     963 </span>                :<span class="lineNoCov">          0 :       width = surface_w = symbol-&gt;sizex;</span>
-<span class="lineNum">     964 </span>                :<span class="lineNoCov">          0 :       height = surface_h = symbol-&gt;sizey;</span>
-<span class="lineNum">     965 </span>                :            :     }
-<span class="lineNum">     966 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (style-&gt;rotation != 0) {</span>
-<span class="lineNum">     967 </span>                :<span class="lineCov">          1 :       surface_w = MS_NINT(width * 1.415);</span>
-<span class="lineNum">     968 </span>                :<span class="lineCov">          1 :       surface_h = MS_NINT(height * 1.415);</span>
-<span class="lineNum">     969 </span>                :            :     }
-<span class="lineNum">     970 </span>                :            : 
-<span class="lineNum">     971 </span>                :<span class="lineCov">          1 :     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, surface_w, surface_h);</span>
-<span class="lineNum">     972 </span>                :<span class="lineCov">          1 :     cr = cairo_create(surface);</span>
-<span class="lineNum">     973 </span>                :            : 
-<span class="lineNum">     974 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (style-&gt;rotation != 0) {</span>
-<span class="lineNum">     975 </span>                :<span class="lineCov">          1 :       cairo_translate(cr, surface_w / 2, surface_h / 2);</span>
-<span class="lineNum">     976 </span>                :<span class="lineCov">          1 :       cairo_rotate(cr, -style-&gt;rotation);</span>
-<span class="lineNum">     977 </span>                :<span class="lineCov">          1 :       cairo_translate(cr, -width / 2, -height / 2);</span>
-<span class="lineNum">     978 </span>                :            :     }
-<span class="lineNum">     979 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (style-&gt;scale != 1.0) {</span>
-<span class="lineNum">     980 </span>                :<span class="lineCov">          1 :       cairo_scale(cr, style-&gt;scale, style-&gt;scale);</span>
-<span class="lineNum">     981 </span>                :            :     }
-<span class="lineNum">     982 </span>                :            : #ifdef USE_SVG_CAIRO
-<span class="lineNum">     983 </span>                :            :     if(svg_cairo_render(svg_cache-&gt;svgc, cr) != SVG_CAIRO_STATUS_SUCCESS) {
-<span class="lineNum">     984 </span>                :            :       return MS_FAILURE;
-<span class="lineNum">     985 </span>                :            :     }
-<span class="lineNum">     986 </span>                :            : #else
-<span class="lineNum">     987 </span>                :<span class="lineCov">          1 :   rsvg_handle_render_cairo(svg_cache-&gt;svgc, cr);</span>
-<span class="lineNum">     988 </span>                :            : #endif
-<span class="lineNum">     989 </span>                :<span class="lineCov">          1 :     pb = cairo_image_surface_get_data(surface);</span>
-<span class="lineNum">     990 </span>                :            : 
-<span class="lineNum">     991 </span>                :            :     //set up raster
-<span class="lineNum">     992 </span>                :<span class="lineCov">          1 :     initializeRasterBufferCairo(svg_cache-&gt;pixmap_buffer, surface_w, surface_h, 0);</span>
-<span class="lineNum">     993 </span>                :<span class="lineCov">          1 :     memcpy(svg_cache-&gt;pixmap_buffer-&gt;data.rgba.pixels, pb, surface_w * surface_h * 4 * sizeof (unsigned char));</span>
-<span class="lineNum">     994 </span>                :<span class="lineCov">          1 :     svg_cache-&gt;scale = style-&gt;scale;</span>
-<span class="lineNum">     995 </span>                :<span class="lineCov">          1 :     svg_cache-&gt;rotation = style-&gt;rotation;</span>
-<span class="lineNum">     996 </span>                :<span class="lineCov">          1 :     cairo_destroy(cr);</span>
-<span class="lineNum">     997 </span>                :<span class="lineCov">          1 :     cairo_surface_destroy(surface);</span>
-<span class="lineNum">     998 </span>                :            :   }
-<span class="lineNum">     999 </span>                :            :   assert(svg_cache-&gt;pixmap_buffer-&gt;height &amp;&amp; svg_cache-&gt;pixmap_buffer-&gt;width);
-<span class="lineNum">    1000 </span>                :            : 
-<span class="lineNum">    1001 </span>                :<span class="lineCov">          1 :   pixstyle = *style;</span>
-<span class="lineNum">    1002 </span>                :<span class="lineCov">          1 :   pixstyle.rotation = 0.0;</span>
-<span class="lineNum">    1003 </span>                :<span class="lineCov">          1 :   pixstyle.scale = 1.0;</span>
-<span class="lineNum">    1004 </span>                :            : 
-<span class="lineNum">    1005 </span>                :<span class="lineCov">          1 :   pixsymbol.pixmap_buffer = svg_cache-&gt;pixmap_buffer;</span>
-<span class="lineNum">    1006 </span>                :<span class="lineCov">          1 :   pixsymbol.type = MS_SYMBOL_PIXMAP;</span>
-<span class="lineNum">    1007 </span>                :            : 
-<span class="lineNum">    1008 </span>                :<span class="lineCov">          1 :   MS_IMAGE_RENDERER(img)-&gt;renderPixmapSymbol(img,x,y,&amp;pixsymbol,&amp;pixstyle);</span>
-<span class="lineNum">    1009 </span>                :<span class="lineCov">          1 :   MS_IMAGE_RENDERER(img)-&gt;freeSymbol(&amp;pixsymbol);</span>
-<span class="lineNum">    1010 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1011 </span>                :            : #else
-<span class="lineNum">    1012 </span>                :            :   msSetError(MS_MISCERR, &quot;SVG Symbols requested but MapServer is not built with libsvgcairo&quot;,
-<span class="lineNum">    1013 </span>                :            :              &quot;renderSVGSymbolCairo()&quot;);
-<span class="lineNum">    1014 </span>                :            :   return MS_FAILURE;
-<span class="lineNum">    1015 </span>                :            : #endif
-<a name="1016"><span class="lineNum">    1016 </span>                :            : }</a>
-<span class="lineNum">    1017 </span>                :            : 
-<span class="lineNum">    1018 </span>                :<span class="lineNoCov">          0 : void msCairoCleanup() {</span>
-<span class="lineNum">    1019 </span>                :<span class="lineNoCov">          0 :    cairo_debug_reset_static_data();</span>
-<span class="lineNum">    1020 </span>                :<span class="lineNoCov">          0 : }</span>
-<span class="lineNum">    1021 </span>                :            : 
-<span class="lineNum">    1022 </span>                :            : #endif /*USE_CAIRO*/
-<a name="1023"><span class="lineNum">    1023 </span>                :            : </a>
-<span class="lineNum">    1024 </span>                :            : 
-<span class="lineNum">    1025 </span>                :<span class="lineCov">          1 : int msPopulateRendererVTableCairoRaster( rendererVTableObj *renderer )</span>
-<span class="lineNum">    1026 </span>                :            : {
-<span class="lineNum">    1027 </span>                :            : #ifdef USE_CAIRO
-<span class="lineNum">    1028 </span>                :<span class="lineCov">          1 :   renderer-&gt;supports_pixel_buffer=1;</span>
-<span class="lineNum">    1029 </span>                :<span class="lineCov">          1 :   renderer-&gt;supports_transparent_layers = 0;</span>
-<span class="lineNum">    1030 </span>                :<span class="lineCov">          1 :   renderer-&gt;supports_svg = 1;</span>
-<span class="lineNum">    1031 </span>                :<span class="lineCov">          1 :   renderer-&gt;default_transform_mode = MS_TRANSFORM_SIMPLIFY;</span>
-<span class="lineNum">    1032 </span>                :<span class="lineCov">          1 :   initializeCache(&amp;MS_RENDERER_CACHE(renderer));</span>
-<span class="lineNum">    1033 </span>                :<span class="lineCov">          1 :   renderer-&gt;startLayer = startLayerRasterCairo;</span>
-<span class="lineNum">    1034 </span>                :<span class="lineCov">          1 :   renderer-&gt;endLayer = closeLayerRasterCairo;</span>
-<span class="lineNum">    1035 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderLineTiled = NULL;</span>
-<span class="lineNum">    1036 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderLine=&amp;renderLineCairo;</span>
-<span class="lineNum">    1037 </span>                :<span class="lineCov">          1 :   renderer-&gt;createImage=&amp;createImageCairo;</span>
-<span class="lineNum">    1038 </span>                :<span class="lineCov">          1 :   renderer-&gt;saveImage=&amp;saveImageCairo;</span>
-<span class="lineNum">    1039 </span>                :<span class="lineCov">          1 :   renderer-&gt;getRasterBufferHandle=&amp;getRasterBufferHandleCairo;</span>
-<span class="lineNum">    1040 </span>                :<span class="lineCov">          1 :   renderer-&gt;getRasterBufferCopy=&amp;getRasterBufferCopyCairo;</span>
-<span class="lineNum">    1041 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPolygon=&amp;renderPolygonCairo;</span>
-<span class="lineNum">    1042 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderGlyphs=&amp;renderGlyphs2Cairo;</span>
-<span class="lineNum">    1043 </span>                :<span class="lineCov">          1 :   renderer-&gt;freeImage=&amp;freeImageCairo;</span>
-<span class="lineNum">    1044 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderEllipseSymbol = &amp;renderEllipseSymbolCairo;</span>
-<span class="lineNum">    1045 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderVectorSymbol = &amp;renderVectorSymbolCairo;</span>
-<span class="lineNum">    1046 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderSVGSymbol = &amp;renderSVGSymbolCairo;</span>
-<span class="lineNum">    1047 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPixmapSymbol = &amp;renderPixmapSymbolCairo;</span>
-<span class="lineNum">    1048 </span>                :<span class="lineCov">          1 :   renderer-&gt;mergeRasterBuffer = &amp;mergeRasterBufferCairo;</span>
-<span class="lineNum">    1049 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderTile = &amp;renderTileCairo;</span>
-<span class="lineNum">    1050 </span>                :<span class="lineCov">          1 :   renderer-&gt;loadImageFromFile = &amp;msLoadMSRasterBufferFromFile;</span>
-<span class="lineNum">    1051 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPolygonTiled = &amp;renderPolygonTiledCairo;</span>
-<span class="lineNum">    1052 </span>                :<span class="lineCov">          1 :   renderer-&gt;freeSymbol = &amp;freeSymbolCairo;</span>
-<span class="lineNum">    1053 </span>                :<span class="lineCov">          1 :   renderer-&gt;cleanup = &amp;cleanupCairo;</span>
-<span class="lineNum">    1054 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1055 </span>                :            : #else
-<span class="lineNum">    1056 </span>                :            :   msSetError(MS_MISCERR, &quot;Cairo Driver requested but MapServer is not built in&quot;,
-<span class="lineNum">    1057 </span>                :            :              &quot;msPopulateRendererVTableCairoRaster()&quot;);
-<span class="lineNum">    1058 </span>                :            :   return MS_FAILURE;
-<span class="lineNum">    1059 </span>                :            : #endif
-<a name="1060"><span class="lineNum">    1060 </span>                :            : }</a>
-<span class="lineNum">    1061 </span>                :            : 
-<span class="lineNum">    1062 </span>                :<span class="lineCov">          1 : int populateRendererVTableCairoVector( rendererVTableObj *renderer )</span>
-<span class="lineNum">    1063 </span>                :            : {
-<span class="lineNum">    1064 </span>                :            : #ifdef USE_CAIRO
-<span class="lineNum">    1065 </span>                :<span class="lineCov">          1 :   renderer-&gt;use_imagecache=0;</span>
-<span class="lineNum">    1066 </span>                :<span class="lineCov">          1 :   renderer-&gt;supports_pixel_buffer=0;</span>
-<span class="lineNum">    1067 </span>                :<span class="lineCov">          1 :   renderer-&gt;supports_transparent_layers = 1;</span>
-<span class="lineNum">    1068 </span>                :<span class="lineCov">          1 :   renderer-&gt;supports_svg = 1;</span>
-<span class="lineNum">    1069 </span>                :<span class="lineCov">          1 :   renderer-&gt;default_transform_mode = MS_TRANSFORM_SIMPLIFY;</span>
-<span class="lineNum">    1070 </span>                :<span class="lineCov">          1 :   initializeCache(&amp;MS_RENDERER_CACHE(renderer));</span>
-<span class="lineNum">    1071 </span>                :<span class="lineCov">          1 :   renderer-&gt;startLayer = startLayerVectorCairo;</span>
-<span class="lineNum">    1072 </span>                :<span class="lineCov">          1 :   renderer-&gt;endLayer = closeLayerVectorCairo;</span>
-<span class="lineNum">    1073 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderLine=&amp;renderLineCairo;</span>
-<span class="lineNum">    1074 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderLineTiled = NULL;</span>
-<span class="lineNum">    1075 </span>                :<span class="lineCov">          1 :   renderer-&gt;createImage=&amp;createImageCairo;</span>
-<span class="lineNum">    1076 </span>                :<span class="lineCov">          1 :   renderer-&gt;saveImage=&amp;saveImageCairo;</span>
-<span class="lineNum">    1077 </span>                :<span class="lineCov">          1 :   renderer-&gt;saveImageBuffer = &amp;saveImageBufferCairo;</span>
-<span class="lineNum">    1078 </span>                :<span class="lineCov">          1 :   renderer-&gt;getRasterBufferHandle=&amp;getRasterBufferHandleCairo;</span>
-<span class="lineNum">    1079 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPolygon=&amp;renderPolygonCairo;</span>
-<span class="lineNum">    1080 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderGlyphs=&amp;renderGlyphs2Cairo;</span>
-<span class="lineNum">    1081 </span>                :<span class="lineCov">          1 :   renderer-&gt;freeImage=&amp;freeImageCairo;</span>
-<span class="lineNum">    1082 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderEllipseSymbol = &amp;renderEllipseSymbolCairo;</span>
-<span class="lineNum">    1083 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderVectorSymbol = &amp;renderVectorSymbolCairo;</span>
-<span class="lineNum">    1084 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderSVGSymbol = &amp;renderSVGSymbolCairo;</span>
-<span class="lineNum">    1085 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPixmapSymbol = &amp;renderPixmapSymbolCairo;</span>
-<span class="lineNum">    1086 </span>                :<span class="lineCov">          1 :   renderer-&gt;loadImageFromFile = &amp;msLoadMSRasterBufferFromFile;</span>
-<span class="lineNum">    1087 </span>                :<span class="lineCov">          1 :   renderer-&gt;mergeRasterBuffer = &amp;mergeRasterBufferCairo;</span>
-<span class="lineNum">    1088 </span>                :<span class="lineCov">          1 :   renderer-&gt;initializeRasterBuffer = initializeRasterBufferCairo;</span>
-<span class="lineNum">    1089 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderTile = &amp;renderTileCairo;</span>
-<span class="lineNum">    1090 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPolygonTiled = &amp;renderPolygonTiledCairo;</span>
-<span class="lineNum">    1091 </span>                :<span class="lineCov">          1 :   renderer-&gt;freeSymbol = &amp;freeSymbolCairo;</span>
-<span class="lineNum">    1092 </span>                :<span class="lineCov">          1 :   renderer-&gt;cleanup = &amp;cleanupCairo;</span>
-<span class="lineNum">    1093 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1094 </span>                :            : #else
-<span class="lineNum">    1095 </span>                :            :   msSetError(MS_MISCERR, &quot;Cairo Driver requested but MapServer is not built in&quot;,
-<span class="lineNum">    1096 </span>                :            :              &quot;msPopulateRendererVTableCairoRaster()&quot;);
-<span class="lineNum">    1097 </span>                :            :   return MS_FAILURE;
-<span class="lineNum">    1098 </span>                :            : #endif
-<a name="1099"><span class="lineNum">    1099 </span>                :            : }</a>
-<span class="lineNum">    1100 </span>                :            : 
-<span class="lineNum">    1101 </span>                :<span class="lineCov">          1 : int msPopulateRendererVTableCairoSVG( rendererVTableObj *renderer )</span>
-<span class="lineNum">    1102 </span>                :            : {
-<a name="1103"><span class="lineNum">    1103 </span>                :<span class="lineCov">          1 :   return populateRendererVTableCairoVector(renderer);</span></a>
-<span class="lineNum">    1104 </span>                :            : }
-<span class="lineNum">    1105 </span>                :<span class="lineCov">          1 : int msPopulateRendererVTableCairoPDF( rendererVTableObj *renderer )</span>
-<span class="lineNum">    1106 </span>                :            : {
-<span class="lineNum">    1107 </span>                :<span class="lineCov">          1 :   return populateRendererVTableCairoVector(renderer);</span>
-<span class="lineNum">    1108 </span>                :<span class="lineCov">          1 : }</span>
-<span class="lineNum">    1109 </span>                :            : 
+<span class="lineNum">     913 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     914 </span>                :            :     }
+<span class="lineNum">     915 </span>                :<span class="lineCov">          1 :     rsvg_handle_get_dimensions_sub (cache-&gt;svgc, &amp;dim, NULL);</span>
+<span class="lineNum">     916 </span>                :<span class="lineCov">          1 :     symbol-&gt;sizex = dim.width;</span>
+<span class="lineNum">     917 </span>                :<span class="lineCov">          1 :     symbol-&gt;sizey = dim.height;</span>
+<span class="lineNum">     918 </span>                :            :   }
+<span class="lineNum">     919 </span>                :            : #endif
+<span class="lineNum">     920 </span>                :            : 
+<span class="lineNum">     921 </span>                :<span class="lineCov">          1 :   symbol-&gt;renderer_cache = cache;</span>
+<span class="lineNum">     922 </span>                :            : 
+<span class="lineNum">     923 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     924 </span>                :            : 
+<span class="lineNum">     925 </span>                :            : #else
+<span class="lineNum">     926 </span>                :            :   msSetError(MS_MISCERR, &quot;SVG Symbols requested but is not built with libsvgcairo&quot;,
+<span class="lineNum">     927 </span>                :            :              &quot;msPreloadSVGSymbol()&quot;);
+<span class="lineNum">     928 </span>                :            :   return MS_FAILURE;
+<span class="lineNum">     929 </span>                :            : #endif
+<span class="lineNum">     930 </span>                :            : }
+<span class="lineNum">     931 </span>                :            : 
+<a name="932"><span class="lineNum">     932 </span>                :            : </a>
+<span class="lineNum">     933 </span>                :            : 
+<span class="lineNum">     934 </span>                :<span class="lineCov">          1 : int msRenderRasterizedSVGSymbol(imageObj *img, double x, double y, symbolObj *symbol, symbolStyleObj *style)</span>
+<span class="lineNum">     935 </span>                :            : {
+<span class="lineNum">     936 </span>                :            : 
+<span class="lineNum">     937 </span>                :            : #if defined(USE_SVG_CAIRO) || defined(USE_RSVG)
+<span class="lineNum">     938 </span>                :            :   struct svg_symbol_cache *svg_cache;
+<span class="lineNum">     939 </span>                :            :   symbolStyleObj pixstyle;
+<span class="lineNum">     940 </span>                :            :   symbolObj pixsymbol;
+<span class="lineNum">     941 </span>                :            : 
+<span class="lineNum">     942 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if(MS_SUCCESS != msPreloadSVGSymbol(symbol))</span>
+<span class="lineNum">     943 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     944 </span>                :<span class="lineCov">          1 :   svg_cache = (struct svg_symbol_cache*) symbol-&gt;renderer_cache;</span>
+<span class="lineNum">     945 </span>                :            : 
+<span class="lineNum">     946 </span>                :            :   //already rendered at the right size and scale? return
+<span class="lineNum">     947 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(svg_cache-&gt;scale != style-&gt;scale || svg_cache-&gt;rotation != style-&gt;rotation) {</span>
+<span class="lineNum">     948 </span>                :            :     cairo_t *cr;
+<span class="lineNum">     949 </span>                :            :     cairo_surface_t *surface;
+<span class="lineNum">     950 </span>                :            :     unsigned char *pb;
+<span class="lineNum">     951 </span>                :            :     int width, height, surface_w, surface_h;
+<span class="lineNum">     952 </span>                :            :     /* need to recompute the pixmap */
+<span class="lineNum">     953 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(svg_cache-&gt;pixmap_buffer) {</span>
+<span class="lineNum">     954 </span>                :<span class="lineCov">          1 :       msFreeRasterBuffer(svg_cache-&gt;pixmap_buffer);</span>
+<span class="lineNum">     955 </span>                :            :     } else {
+<span class="lineNum">     956 </span>                :<span class="lineCov">          1 :       svg_cache-&gt;pixmap_buffer = msSmallCalloc(1,sizeof(rasterBufferObj));</span>
+<span class="lineNum">     957 </span>                :            :     }
+<span class="lineNum">     958 </span>                :            : 
+<span class="lineNum">     959 </span>                :            :     //increase pixmap size to accomodate scaling/rotation
+<span class="lineNum">     960 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (style-&gt;scale != 1.0) {</span>
+<span class="lineNum">     961 </span>                :<span class="lineCov">          1 :       width = surface_w = (symbol-&gt;sizex * style-&gt;scale + 0.5);</span>
+<span class="lineNum">     962 </span>                :<span class="lineCov">          1 :       height = surface_h = (symbol-&gt;sizey * style-&gt;scale + 0.5);</span>
+<span class="lineNum">     963 </span>                :            :     } else {
+<span class="lineNum">     964 </span>                :<span class="lineNoCov">          0 :       width = surface_w = symbol-&gt;sizex;</span>
+<span class="lineNum">     965 </span>                :<span class="lineNoCov">          0 :       height = surface_h = symbol-&gt;sizey;</span>
+<span class="lineNum">     966 </span>                :            :     }
+<span class="lineNum">     967 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (style-&gt;rotation != 0) {</span>
+<span class="lineNum">     968 </span>                :<span class="lineCov">          1 :       surface_w = MS_NINT(width * 1.415);</span>
+<span class="lineNum">     969 </span>                :<span class="lineCov">          1 :       surface_h = MS_NINT(height * 1.415);</span>
+<span class="lineNum">     970 </span>                :            :     }
+<span class="lineNum">     971 </span>                :            : 
+<span class="lineNum">     972 </span>                :<span class="lineCov">          1 :     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, surface_w, surface_h);</span>
+<span class="lineNum">     973 </span>                :<span class="lineCov">          1 :     cr = cairo_create(surface);</span>
+<span class="lineNum">     974 </span>                :            : 
+<span class="lineNum">     975 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (style-&gt;rotation != 0) {</span>
+<span class="lineNum">     976 </span>                :<span class="lineCov">          1 :       cairo_translate(cr, surface_w / 2, surface_h / 2);</span>
+<span class="lineNum">     977 </span>                :<span class="lineCov">          1 :       cairo_rotate(cr, -style-&gt;rotation);</span>
+<span class="lineNum">     978 </span>                :<span class="lineCov">          1 :       cairo_translate(cr, -width / 2, -height / 2);</span>
+<span class="lineNum">     979 </span>                :            :     }
+<span class="lineNum">     980 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (style-&gt;scale != 1.0) {</span>
+<span class="lineNum">     981 </span>                :<span class="lineCov">          1 :       cairo_scale(cr, style-&gt;scale, style-&gt;scale);</span>
+<span class="lineNum">     982 </span>                :            :     }
+<span class="lineNum">     983 </span>                :            : #ifdef USE_SVG_CAIRO
+<span class="lineNum">     984 </span>                :            :     if(svg_cairo_render(svg_cache-&gt;svgc, cr) != SVG_CAIRO_STATUS_SUCCESS) {
+<span class="lineNum">     985 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">     986 </span>                :            :     }
+<span class="lineNum">     987 </span>                :            : #else
+<span class="lineNum">     988 </span>                :<span class="lineCov">          1 :   rsvg_handle_render_cairo(svg_cache-&gt;svgc, cr);</span>
+<span class="lineNum">     989 </span>                :            : #endif
+<span class="lineNum">     990 </span>                :<span class="lineCov">          1 :     pb = cairo_image_surface_get_data(surface);</span>
+<span class="lineNum">     991 </span>                :            : 
+<span class="lineNum">     992 </span>                :            :     //set up raster
+<span class="lineNum">     993 </span>                :<span class="lineCov">          1 :     initializeRasterBufferCairo(svg_cache-&gt;pixmap_buffer, surface_w, surface_h, 0);</span>
+<span class="lineNum">     994 </span>                :<span class="lineCov">          1 :     memcpy(svg_cache-&gt;pixmap_buffer-&gt;data.rgba.pixels, pb, surface_w * surface_h * 4 * sizeof (unsigned char));</span>
+<span class="lineNum">     995 </span>                :<span class="lineCov">          1 :     svg_cache-&gt;scale = style-&gt;scale;</span>
+<span class="lineNum">     996 </span>                :<span class="lineCov">          1 :     svg_cache-&gt;rotation = style-&gt;rotation;</span>
+<span class="lineNum">     997 </span>                :<span class="lineCov">          1 :     cairo_destroy(cr);</span>
+<span class="lineNum">     998 </span>                :<span class="lineCov">          1 :     cairo_surface_destroy(surface);</span>
+<span class="lineNum">     999 </span>                :            :   }
+<span class="lineNum">    1000 </span>                :            :   assert(svg_cache-&gt;pixmap_buffer-&gt;height &amp;&amp; svg_cache-&gt;pixmap_buffer-&gt;width);
+<span class="lineNum">    1001 </span>                :            : 
+<span class="lineNum">    1002 </span>                :<span class="lineCov">          1 :   pixstyle = *style;</span>
+<span class="lineNum">    1003 </span>                :<span class="lineCov">          1 :   pixstyle.rotation = 0.0;</span>
+<span class="lineNum">    1004 </span>                :<span class="lineCov">          1 :   pixstyle.scale = 1.0;</span>
+<span class="lineNum">    1005 </span>                :            : 
+<span class="lineNum">    1006 </span>                :<span class="lineCov">          1 :   pixsymbol.pixmap_buffer = svg_cache-&gt;pixmap_buffer;</span>
+<span class="lineNum">    1007 </span>                :<span class="lineCov">          1 :   pixsymbol.type = MS_SYMBOL_PIXMAP;</span>
+<span class="lineNum">    1008 </span>                :            : 
+<span class="lineNum">    1009 </span>                :<span class="lineCov">          1 :   MS_IMAGE_RENDERER(img)-&gt;renderPixmapSymbol(img,x,y,&amp;pixsymbol,&amp;pixstyle);</span>
+<span class="lineNum">    1010 </span>                :<span class="lineCov">          1 :   MS_IMAGE_RENDERER(img)-&gt;freeSymbol(&amp;pixsymbol);</span>
+<span class="lineNum">    1011 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1012 </span>                :            : #else
+<span class="lineNum">    1013 </span>                :            :   msSetError(MS_MISCERR, &quot;SVG Symbols requested but MapServer is not built with libsvgcairo&quot;,
+<span class="lineNum">    1014 </span>                :            :              &quot;renderSVGSymbolCairo()&quot;);
+<span class="lineNum">    1015 </span>                :            :   return MS_FAILURE;
+<span class="lineNum">    1016 </span>                :            : #endif
+<a name="1017"><span class="lineNum">    1017 </span>                :            : }</a>
+<span class="lineNum">    1018 </span>                :            : 
+<span class="lineNum">    1019 </span>                :<span class="lineNoCov">          0 : void msCairoCleanup() {</span>
+<span class="lineNum">    1020 </span>                :<span class="lineNoCov">          0 :    cairo_debug_reset_static_data();</span>
+<span class="lineNum">    1021 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1022 </span>                :            : 
+<span class="lineNum">    1023 </span>                :            : #endif /*USE_CAIRO*/
+<a name="1024"><span class="lineNum">    1024 </span>                :            : </a>
+<span class="lineNum">    1025 </span>                :            : 
+<span class="lineNum">    1026 </span>                :<span class="lineCov">          1 : int msPopulateRendererVTableCairoRaster( rendererVTableObj *renderer )</span>
+<span class="lineNum">    1027 </span>                :            : {
+<span class="lineNum">    1028 </span>                :            : #ifdef USE_CAIRO
+<span class="lineNum">    1029 </span>                :<span class="lineCov">          1 :   renderer-&gt;supports_pixel_buffer=1;</span>
+<span class="lineNum">    1030 </span>                :<span class="lineCov">          1 :   renderer-&gt;supports_transparent_layers = 0;</span>
+<span class="lineNum">    1031 </span>                :<span class="lineCov">          1 :   renderer-&gt;supports_svg = 1;</span>
+<span class="lineNum">    1032 </span>                :<span class="lineCov">          1 :   renderer-&gt;default_transform_mode = MS_TRANSFORM_SIMPLIFY;</span>
+<span class="lineNum">    1033 </span>                :<span class="lineCov">          1 :   initializeCache(&amp;MS_RENDERER_CACHE(renderer));</span>
+<span class="lineNum">    1034 </span>                :<span class="lineCov">          1 :   renderer-&gt;startLayer = startLayerRasterCairo;</span>
+<span class="lineNum">    1035 </span>                :<span class="lineCov">          1 :   renderer-&gt;endLayer = closeLayerRasterCairo;</span>
+<span class="lineNum">    1036 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderLineTiled = NULL;</span>
+<span class="lineNum">    1037 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderLine=&amp;renderLineCairo;</span>
+<span class="lineNum">    1038 </span>                :<span class="lineCov">          1 :   renderer-&gt;createImage=&amp;createImageCairo;</span>
+<span class="lineNum">    1039 </span>                :<span class="lineCov">          1 :   renderer-&gt;saveImage=&amp;saveImageCairo;</span>
+<span class="lineNum">    1040 </span>                :<span class="lineCov">          1 :   renderer-&gt;getRasterBufferHandle=&amp;getRasterBufferHandleCairo;</span>
+<span class="lineNum">    1041 </span>                :<span class="lineCov">          1 :   renderer-&gt;getRasterBufferCopy=&amp;getRasterBufferCopyCairo;</span>
+<span class="lineNum">    1042 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPolygon=&amp;renderPolygonCairo;</span>
+<span class="lineNum">    1043 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderGlyphs=&amp;renderGlyphs2Cairo;</span>
+<span class="lineNum">    1044 </span>                :<span class="lineCov">          1 :   renderer-&gt;freeImage=&amp;freeImageCairo;</span>
+<span class="lineNum">    1045 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderEllipseSymbol = &amp;renderEllipseSymbolCairo;</span>
+<span class="lineNum">    1046 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderVectorSymbol = &amp;renderVectorSymbolCairo;</span>
+<span class="lineNum">    1047 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderSVGSymbol = &amp;renderSVGSymbolCairo;</span>
+<span class="lineNum">    1048 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPixmapSymbol = &amp;renderPixmapSymbolCairo;</span>
+<span class="lineNum">    1049 </span>                :<span class="lineCov">          1 :   renderer-&gt;mergeRasterBuffer = &amp;mergeRasterBufferCairo;</span>
+<span class="lineNum">    1050 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderTile = &amp;renderTileCairo;</span>
+<span class="lineNum">    1051 </span>                :<span class="lineCov">          1 :   renderer-&gt;loadImageFromFile = &amp;msLoadMSRasterBufferFromFile;</span>
+<span class="lineNum">    1052 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPolygonTiled = &amp;renderPolygonTiledCairo;</span>
+<span class="lineNum">    1053 </span>                :<span class="lineCov">          1 :   renderer-&gt;freeSymbol = &amp;freeSymbolCairo;</span>
+<span class="lineNum">    1054 </span>                :<span class="lineCov">          1 :   renderer-&gt;cleanup = &amp;cleanupCairo;</span>
+<span class="lineNum">    1055 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1056 </span>                :            : #else
+<span class="lineNum">    1057 </span>                :            :   msSetError(MS_MISCERR, &quot;Cairo Driver requested but MapServer is not built in&quot;,
+<span class="lineNum">    1058 </span>                :            :              &quot;msPopulateRendererVTableCairoRaster()&quot;);
+<span class="lineNum">    1059 </span>                :            :   return MS_FAILURE;
+<span class="lineNum">    1060 </span>                :            : #endif
+<a name="1061"><span class="lineNum">    1061 </span>                :            : }</a>
+<span class="lineNum">    1062 </span>                :            : 
+<span class="lineNum">    1063 </span>                :<span class="lineCov">          1 : int populateRendererVTableCairoVector( rendererVTableObj *renderer )</span>
+<span class="lineNum">    1064 </span>                :            : {
+<span class="lineNum">    1065 </span>                :            : #ifdef USE_CAIRO
+<span class="lineNum">    1066 </span>                :<span class="lineCov">          1 :   renderer-&gt;use_imagecache=0;</span>
+<span class="lineNum">    1067 </span>                :<span class="lineCov">          1 :   renderer-&gt;supports_pixel_buffer=0;</span>
+<span class="lineNum">    1068 </span>                :<span class="lineCov">          1 :   renderer-&gt;supports_transparent_layers = 1;</span>
+<span class="lineNum">    1069 </span>                :<span class="lineCov">          1 :   renderer-&gt;supports_svg = 1;</span>
+<span class="lineNum">    1070 </span>                :<span class="lineCov">          1 :   renderer-&gt;default_transform_mode = MS_TRANSFORM_SIMPLIFY;</span>
+<span class="lineNum">    1071 </span>                :<span class="lineCov">          1 :   initializeCache(&amp;MS_RENDERER_CACHE(renderer));</span>
+<span class="lineNum">    1072 </span>                :<span class="lineCov">          1 :   renderer-&gt;startLayer = startLayerVectorCairo;</span>
+<span class="lineNum">    1073 </span>                :<span class="lineCov">          1 :   renderer-&gt;endLayer = closeLayerVectorCairo;</span>
+<span class="lineNum">    1074 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderLine=&amp;renderLineCairo;</span>
+<span class="lineNum">    1075 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderLineTiled = NULL;</span>
+<span class="lineNum">    1076 </span>                :<span class="lineCov">          1 :   renderer-&gt;createImage=&amp;createImageCairo;</span>
+<span class="lineNum">    1077 </span>                :<span class="lineCov">          1 :   renderer-&gt;saveImage=&amp;saveImageCairo;</span>
+<span class="lineNum">    1078 </span>                :<span class="lineCov">          1 :   renderer-&gt;saveImageBuffer = &amp;saveImageBufferCairo;</span>
+<span class="lineNum">    1079 </span>                :<span class="lineCov">          1 :   renderer-&gt;getRasterBufferHandle=&amp;getRasterBufferHandleCairo;</span>
+<span class="lineNum">    1080 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPolygon=&amp;renderPolygonCairo;</span>
+<span class="lineNum">    1081 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderGlyphs=&amp;renderGlyphs2Cairo;</span>
+<span class="lineNum">    1082 </span>                :<span class="lineCov">          1 :   renderer-&gt;freeImage=&amp;freeImageCairo;</span>
+<span class="lineNum">    1083 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderEllipseSymbol = &amp;renderEllipseSymbolCairo;</span>
+<span class="lineNum">    1084 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderVectorSymbol = &amp;renderVectorSymbolCairo;</span>
+<span class="lineNum">    1085 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderSVGSymbol = &amp;renderSVGSymbolCairo;</span>
+<span class="lineNum">    1086 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPixmapSymbol = &amp;renderPixmapSymbolCairo;</span>
+<span class="lineNum">    1087 </span>                :<span class="lineCov">          1 :   renderer-&gt;loadImageFromFile = &amp;msLoadMSRasterBufferFromFile;</span>
+<span class="lineNum">    1088 </span>                :<span class="lineCov">          1 :   renderer-&gt;mergeRasterBuffer = &amp;mergeRasterBufferCairo;</span>
+<span class="lineNum">    1089 </span>                :<span class="lineCov">          1 :   renderer-&gt;initializeRasterBuffer = initializeRasterBufferCairo;</span>
+<span class="lineNum">    1090 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderTile = &amp;renderTileCairo;</span>
+<span class="lineNum">    1091 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPolygonTiled = &amp;renderPolygonTiledCairo;</span>
+<span class="lineNum">    1092 </span>                :<span class="lineCov">          1 :   renderer-&gt;freeSymbol = &amp;freeSymbolCairo;</span>
+<span class="lineNum">    1093 </span>                :<span class="lineCov">          1 :   renderer-&gt;cleanup = &amp;cleanupCairo;</span>
+<span class="lineNum">    1094 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1095 </span>                :            : #else
+<span class="lineNum">    1096 </span>                :            :   msSetError(MS_MISCERR, &quot;Cairo Driver requested but MapServer is not built in&quot;,
+<span class="lineNum">    1097 </span>                :            :              &quot;msPopulateRendererVTableCairoRaster()&quot;);
+<span class="lineNum">    1098 </span>                :            :   return MS_FAILURE;
+<span class="lineNum">    1099 </span>                :            : #endif
+<a name="1100"><span class="lineNum">    1100 </span>                :            : }</a>
+<span class="lineNum">    1101 </span>                :            : 
+<span class="lineNum">    1102 </span>                :<span class="lineCov">          1 : int msPopulateRendererVTableCairoSVG( rendererVTableObj *renderer )</span>
+<span class="lineNum">    1103 </span>                :            : {
+<a name="1104"><span class="lineNum">    1104 </span>                :<span class="lineCov">          1 :   return populateRendererVTableCairoVector(renderer);</span></a>
+<span class="lineNum">    1105 </span>                :            : }
+<span class="lineNum">    1106 </span>                :<span class="lineCov">          1 : int msPopulateRendererVTableCairoPDF( rendererVTableObj *renderer )</span>
+<span class="lineNum">    1107 </span>                :            : {
+<span class="lineNum">    1108 </span>                :<span class="lineCov">          1 :   return populateRendererVTableCairoVector(renderer);</span>
+<span class="lineNum">    1109 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">    1110 </span>                :            : 
 </pre>
       </td>
     </tr>
