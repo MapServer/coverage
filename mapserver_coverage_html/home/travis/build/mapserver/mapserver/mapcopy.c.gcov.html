@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">226</td>
-            <td class="headerCovTableEntry">518</td>
-            <td class="headerCovTableEntryLo">43.6 %</td>
+            <td class="headerCovTableEntry">228</td>
+            <td class="headerCovTableEntry">548</td>
+            <td class="headerCovTableEntryLo">41.6 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -41,17 +41,17 @@
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">9</td>
-            <td class="headerCovTableEntry">24</td>
-            <td class="headerCovTableEntryLo">37.5 %</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntryLo">36.0 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">139</td>
-            <td class="headerCovTableEntry">446</td>
-            <td class="headerCovTableEntryLo">31.2 %</td>
+            <td class="headerCovTableEntry">140</td>
+            <td class="headerCovTableEntry">456</td>
+            <td class="headerCovTableEntryLo">30.7 %</td>
           </tr>
           <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -702,571 +702,612 @@
 <span class="lineNum">     631 </span>                :            :   return MS_SUCCESS;
 <span class="lineNum">     632 </span>                :            : }
 <span class="lineNum">     633 </span>                :            : 
-<span class="lineNum">     634 </span>                :            : #ifdef why_on_earth_would_you_copy_a_labelcache
-<span class="lineNum">     635 </span>                :            : 
-<span class="lineNum">     636 </span>                :            : /***********************************************************************
-<span class="lineNum">     637 </span>                :            :  * msCopyLabelCacheMember()                                            *
-<span class="lineNum">     638 </span>                :            :  *                                                                     *
-<span class="lineNum">     639 </span>                :            :  * Copy a labelCacheMemberObj using msCopyStyle(), msCopyPoint()       *
-<span class="lineNum">     640 </span>                :            :  *                                                                     *
-<span class="lineNum">     641 </span>                :            :  * Note: since it seems most users will want to clone maps rather than *
-<span class="lineNum">     642 </span>                :            :  * make exact copies, this method might not get much use.              *
-<span class="lineNum">     643 </span>                :            :  **********************************************************************/
-<span class="lineNum">     644 </span>                :            : 
-<span class="lineNum">     645 </span>                :            : int msCopyLabelCacheMember(labelCacheMemberObj *dst, labelCacheMemberObj *src)
-<span class="lineNum">     646 </span>                :            : {
-<span class="lineNum">     647 </span>                :            :   int i;
-<span class="lineNum">     648 </span>                :            : 
-<span class="lineNum">     649 </span>                :            :   MS_COPYSTELEM(featuresize);
-<span class="lineNum">     650 </span>                :            : 
-<span class="lineNum">     651 </span>                :            :   MS_COPYSTELEM(numstyles);
-<span class="lineNum">     652 </span>                :            :   for (i = 0; i &lt; dst-&gt;numstyles; i++) {
-<span class="lineNum">     653 </span>                :            :     msCopyStyle(&amp;(dst-&gt;styles[i]), &amp;(src-&gt;styles[i]));
-<span class="lineNum">     654 </span>                :            :   }
-<span class="lineNum">     655 </span>                :            : 
-<span class="lineNum">     656 </span>                :            :   MS_COPYSTELEM(numlabels);
-<span class="lineNum">     657 </span>                :            :   dst-&gt;labels = (labelObj *) msSmallMalloc(sizeof(labelObj)*dst-&gt;numlabels);
-<span class="lineNum">     658 </span>                :            :   for (i = 0; i &lt; dst-&gt;numlabels; i++) {
-<span class="lineNum">     659 </span>                :            :     msCopyLabel(&amp;(dst-&gt;labels[i]), &amp;(src-&gt;labels[i]));
-<span class="lineNum">     660 </span>                :            :   }
-<span class="lineNum">     661 </span>                :            : 
-<span class="lineNum">     662 </span>                :            :   MS_COPYSTELEM(layerindex);
-<span class="lineNum">     663 </span>                :            :   MS_COPYSTELEM(classindex);
-<span class="lineNum">     664 </span>                :            :   MS_COPYSTELEM(tileindex);
-<span class="lineNum">     665 </span>                :            :   MS_COPYSTELEM(shapeindex);
-<span class="lineNum">     666 </span>                :            :   MS_COPYPOINT(&amp;(dst-&gt;point), &amp;(src-&gt;point));
-<span class="lineNum">     667 </span>                :            :   /* msCopyShape(&amp;(dst-&gt;poly), &amp;(src-&gt;poly)); */
-<span class="lineNum">     668 </span>                :            :   MS_COPYSTELEM(status);
-<span class="lineNum">     669 </span>                :            : 
-<span class="lineNum">     670 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">     671 </span>                :            : }
-<span class="lineNum">     672 </span>                :            : 
-<span class="lineNum">     673 </span>                :            : /***********************************************************************
-<span class="lineNum">     674 </span>                :            :  * msCopyMarkerCacheMember()                                           *
-<span class="lineNum">     675 </span>                :            :  *                                                                     *
-<span class="lineNum">     676 </span>                :            :  * Copy a markerCacheMemberObj                                         *
-<span class="lineNum">     677 </span>                :            :  **********************************************************************/
+<span class="lineNum">     634 </span>                :            : /***********************************************************************
+<span class="lineNum">     635 </span>                :            :  * msCopyGrid()                                                        *
+<a name="636"><span class="lineNum">     636 </span>                :            :  **********************************************************************/</a>
+<span class="lineNum">     637 </span>                :            : 
+<span class="lineNum">     638 </span>                :<span class="lineNoCov">          0 : int msCopyGrid(graticuleObj *dst, graticuleObj *src)</span>
+<span class="lineNum">     639 </span>                :            : {
+<span class="lineNum">     640 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(dwhichlatitude);</span>
+<span class="lineNum">     641 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(dwhichlongitude);</span>
+<span class="lineNum">     642 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(dstartlatitude);</span>
+<span class="lineNum">     643 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(dstartlongitude);</span>
+<span class="lineNum">     644 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(dendlatitude);</span>
+<span class="lineNum">     645 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(dendlongitude);</span>
+<span class="lineNum">     646 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(dincrementlatitude);</span>
+<span class="lineNum">     647 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(dincrementlongitude);</span>
+<span class="lineNum">     648 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(minarcs);</span>
+<span class="lineNum">     649 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(maxarcs);</span>
+<span class="lineNum">     650 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(minincrement);</span>
+<span class="lineNum">     651 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(maxincrement);</span>
+<span class="lineNum">     652 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(minsubdivides);</span>
+<span class="lineNum">     653 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(maxsubdivides);</span>
+<span class="lineNum">     654 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(bvertical);</span>
+<span class="lineNum">     655 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(blabelaxes);</span>
+<span class="lineNum">     656 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(ilabelstate);</span>
+<span class="lineNum">     657 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(ilabeltype);</span>
+<span class="lineNum">     658 </span>                :<span class="lineNoCov">          0 :   MS_COPYRECT(&amp;(dst-&gt;extent), &amp;(src-&gt;extent));</span>
+<span class="lineNum">     659 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;labelformat, src-&gt;labelformat);</span>
+<span class="lineNum">     660 </span>                :            :   
+<span class="lineNum">     661 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">     662 </span>                :            : }
+<span class="lineNum">     663 </span>                :            : 
+<span class="lineNum">     664 </span>                :            : #ifdef why_on_earth_would_you_copy_a_labelcache
+<span class="lineNum">     665 </span>                :            : 
+<span class="lineNum">     666 </span>                :            : /***********************************************************************
+<span class="lineNum">     667 </span>                :            :  * msCopyLabelCacheMember()                                            *
+<span class="lineNum">     668 </span>                :            :  *                                                                     *
+<span class="lineNum">     669 </span>                :            :  * Copy a labelCacheMemberObj using msCopyStyle(), msCopyPoint()       *
+<span class="lineNum">     670 </span>                :            :  *                                                                     *
+<span class="lineNum">     671 </span>                :            :  * Note: since it seems most users will want to clone maps rather than *
+<span class="lineNum">     672 </span>                :            :  * make exact copies, this method might not get much use.              *
+<span class="lineNum">     673 </span>                :            :  **********************************************************************/
+<span class="lineNum">     674 </span>                :            : 
+<span class="lineNum">     675 </span>                :            : int msCopyLabelCacheMember(labelCacheMemberObj *dst, labelCacheMemberObj *src)
+<span class="lineNum">     676 </span>                :            : {
+<span class="lineNum">     677 </span>                :            :   int i;
 <span class="lineNum">     678 </span>                :            : 
-<span class="lineNum">     679 </span>                :            : int msCopyMarkerCacheMember(markerCacheMemberObj *dst,
-<span class="lineNum">     680 </span>                :            :                             markerCacheMemberObj *src)
-<span class="lineNum">     681 </span>                :            : {
-<span class="lineNum">     682 </span>                :            :   MS_COPYSTELEM(id);
-<span class="lineNum">     683 </span>                :            : 
-<span class="lineNum">     684 </span>                :            :   /* msCopyShape(&amp;(dst-&gt;poly), &amp;(src-&gt;poly)); */
-<span class="lineNum">     685 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">     686 </span>                :            : }
-<span class="lineNum">     687 </span>                :            : 
-<span class="lineNum">     688 </span>                :            : /***********************************************************************
-<span class="lineNum">     689 </span>                :            :  * msCopyLabelCacheSlot()                                                  *
-<span class="lineNum">     690 </span>                :            :  **********************************************************************/
+<span class="lineNum">     679 </span>                :            :   MS_COPYSTELEM(featuresize);
+<span class="lineNum">     680 </span>                :            : 
+<span class="lineNum">     681 </span>                :            :   MS_COPYSTELEM(numstyles);
+<span class="lineNum">     682 </span>                :            :   for (i = 0; i &lt; dst-&gt;numstyles; i++) {
+<span class="lineNum">     683 </span>                :            :     msCopyStyle(&amp;(dst-&gt;styles[i]), &amp;(src-&gt;styles[i]));
+<span class="lineNum">     684 </span>                :            :   }
+<span class="lineNum">     685 </span>                :            : 
+<span class="lineNum">     686 </span>                :            :   MS_COPYSTELEM(numlabels);
+<span class="lineNum">     687 </span>                :            :   dst-&gt;labels = (labelObj *) msSmallMalloc(sizeof(labelObj)*dst-&gt;numlabels);
+<span class="lineNum">     688 </span>                :            :   for (i = 0; i &lt; dst-&gt;numlabels; i++) {
+<span class="lineNum">     689 </span>                :            :     msCopyLabel(&amp;(dst-&gt;labels[i]), &amp;(src-&gt;labels[i]));
+<span class="lineNum">     690 </span>                :            :   }
 <span class="lineNum">     691 </span>                :            : 
-<span class="lineNum">     692 </span>                :            : int msCopyLabelCacheSlot(labelCacheSlotObj *dst, labelCacheSlotObj *src)
-<span class="lineNum">     693 </span>                :            : {
-<span class="lineNum">     694 </span>                :            :   int i;
-<span class="lineNum">     695 </span>                :            : 
-<span class="lineNum">     696 </span>                :            :   for (i = 0; i &lt; dst-&gt;numlabels; i++) {
-<span class="lineNum">     697 </span>                :            :     msCopyLabelCacheMember(&amp;(dst-&gt;labels[i]), &amp;(src-&gt;labels[i]));
-<span class="lineNum">     698 </span>                :            :   }
-<span class="lineNum">     699 </span>                :            :   MS_COPYSTELEM(cachesize);
-<span class="lineNum">     700 </span>                :            :   MS_COPYSTELEM(nummarkers);
-<span class="lineNum">     701 </span>                :            :   for (i = 0; i &lt; dst-&gt;nummarkers; i++) {
-<span class="lineNum">     702 </span>                :            :     msCopyMarkerCacheMember(&amp;(dst-&gt;markers[i]), &amp;(src-&gt;markers[i]));
-<span class="lineNum">     703 </span>                :            :   }
-<span class="lineNum">     704 </span>                :            :   MS_COPYSTELEM(markercachesize);
-<span class="lineNum">     705 </span>                :            : 
-<span class="lineNum">     706 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">     707 </span>                :            : }
+<span class="lineNum">     692 </span>                :            :   MS_COPYSTELEM(layerindex);
+<span class="lineNum">     693 </span>                :            :   MS_COPYSTELEM(classindex);
+<span class="lineNum">     694 </span>                :            :   MS_COPYSTELEM(tileindex);
+<span class="lineNum">     695 </span>                :            :   MS_COPYSTELEM(shapeindex);
+<span class="lineNum">     696 </span>                :            :   MS_COPYPOINT(&amp;(dst-&gt;point), &amp;(src-&gt;point));
+<span class="lineNum">     697 </span>                :            :   /* msCopyShape(&amp;(dst-&gt;poly), &amp;(src-&gt;poly)); */
+<span class="lineNum">     698 </span>                :            :   MS_COPYSTELEM(status);
+<span class="lineNum">     699 </span>                :            : 
+<span class="lineNum">     700 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">     701 </span>                :            : }
+<span class="lineNum">     702 </span>                :            : 
+<span class="lineNum">     703 </span>                :            : /***********************************************************************
+<span class="lineNum">     704 </span>                :            :  * msCopyMarkerCacheMember()                                           *
+<span class="lineNum">     705 </span>                :            :  *                                                                     *
+<span class="lineNum">     706 </span>                :            :  * Copy a markerCacheMemberObj                                         *
+<span class="lineNum">     707 </span>                :            :  **********************************************************************/
 <span class="lineNum">     708 </span>                :            : 
-<span class="lineNum">     709 </span>                :            : /***********************************************************************
-<span class="lineNum">     710 </span>                :            :  * msCopyLabelCache()                                                  *
-<span class="lineNum">     711 </span>                :            :  **********************************************************************/
-<span class="lineNum">     712 </span>                :            : 
-<span class="lineNum">     713 </span>                :            : int msCopyLabelCache(labelCacheObj *dst, labelCacheObj *src)
-<span class="lineNum">     714 </span>                :            : {
-<span class="lineNum">     715 </span>                :            :   int p;
-<span class="lineNum">     716 </span>                :            :   MS_COPYSTELEM(numlabels);
+<span class="lineNum">     709 </span>                :            : int msCopyMarkerCacheMember(markerCacheMemberObj *dst,
+<span class="lineNum">     710 </span>                :            :                             markerCacheMemberObj *src)
+<span class="lineNum">     711 </span>                :            : {
+<span class="lineNum">     712 </span>                :            :   MS_COPYSTELEM(id);
+<span class="lineNum">     713 </span>                :            : 
+<span class="lineNum">     714 </span>                :            :   /* msCopyShape(&amp;(dst-&gt;poly), &amp;(src-&gt;poly)); */
+<span class="lineNum">     715 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">     716 </span>                :            : }
 <span class="lineNum">     717 </span>                :            : 
-<span class="lineNum">     718 </span>                :            :   for (p=0; p&lt;MS_MAX_LABEL_PRIORITY; p++) {
-<span class="lineNum">     719 </span>                :            :     msCopyLabelCacheSlot(&amp;(dst-&gt;slots[p]), &amp;(src-&gt;slots[p]));
-<span class="lineNum">     720 </span>                :            :   }
+<span class="lineNum">     718 </span>                :            : /***********************************************************************
+<span class="lineNum">     719 </span>                :            :  * msCopyLabelCacheSlot()                                                  *
+<span class="lineNum">     720 </span>                :            :  **********************************************************************/
 <span class="lineNum">     721 </span>                :            : 
-<span class="lineNum">     722 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">     723 </span>                :            : }
-<span class="lineNum">     724 </span>                :            : 
-<span class="lineNum">     725 </span>                :            : #endif
-<span class="lineNum">     726 </span>                :            : 
-<span class="lineNum">     727 </span>                :            : /***********************************************************************
-<span class="lineNum">     728 </span>                :            :  * msCopyResult()                                                      *
-<a name="729"><span class="lineNum">     729 </span>                :            :  **********************************************************************/</a>
-<span class="lineNum">     730 </span>                :            : 
-<span class="lineNum">     731 </span>                :<span class="lineNoCov">          0 : int msCopyResult(resultObj *dst, resultObj *src)</span>
-<span class="lineNum">     732 </span>                :            : {
-<span class="lineNum">     733 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(shapeindex);</span>
-<span class="lineNum">     734 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(tileindex);</span>
-<span class="lineNum">     735 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(classindex);</span>
-<span class="lineNum">     736 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(resultindex);</span>
-<span class="lineNum">     737 </span>                :            : 
-<span class="lineNum">     738 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">     739 </span>                :            : }
-<span class="lineNum">     740 </span>                :            : 
-<span class="lineNum">     741 </span>                :            : /***********************************************************************
-<span class="lineNum">     742 </span>                :            :  * msCopyResultCache()                                                 *
-<a name="743"><span class="lineNum">     743 </span>                :            :  **********************************************************************/</a>
-<span class="lineNum">     744 </span>                :            : 
-<span class="lineNum">     745 </span>                :<span class="lineNoCov">          0 : int msCopyResultCache(resultCacheObj *dst, resultCacheObj *src)</span>
-<span class="lineNum">     746 </span>                :            : {
-<span class="lineNum">     747 </span>                :            :   int i;
-<span class="lineNum">     748 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(cachesize);</span>
-<span class="lineNum">     749 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(numresults);</span>
-<span class="lineNum">     750 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i = 0; i &lt; dst-&gt;numresults; i++) {</span>
-<span class="lineNum">     751 </span>                :<span class="lineNoCov">          0 :     msCopyResult(&amp;(dst-&gt;results[i]), &amp;(src-&gt;results[i]));</span>
-<span class="lineNum">     752 </span>                :            :   }
-<span class="lineNum">     753 </span>                :<span class="lineNoCov">          0 :   MS_COPYRECT(&amp;(dst-&gt;bounds), &amp;(src-&gt;bounds));</span>
+<span class="lineNum">     722 </span>                :            : int msCopyLabelCacheSlot(labelCacheSlotObj *dst, labelCacheSlotObj *src)
+<span class="lineNum">     723 </span>                :            : {
+<span class="lineNum">     724 </span>                :            :   int i;
+<span class="lineNum">     725 </span>                :            : 
+<span class="lineNum">     726 </span>                :            :   for (i = 0; i &lt; dst-&gt;numlabels; i++) {
+<span class="lineNum">     727 </span>                :            :     msCopyLabelCacheMember(&amp;(dst-&gt;labels[i]), &amp;(src-&gt;labels[i]));
+<span class="lineNum">     728 </span>                :            :   }
+<span class="lineNum">     729 </span>                :            :   MS_COPYSTELEM(cachesize);
+<span class="lineNum">     730 </span>                :            :   MS_COPYSTELEM(nummarkers);
+<span class="lineNum">     731 </span>                :            :   for (i = 0; i &lt; dst-&gt;nummarkers; i++) {
+<span class="lineNum">     732 </span>                :            :     msCopyMarkerCacheMember(&amp;(dst-&gt;markers[i]), &amp;(src-&gt;markers[i]));
+<span class="lineNum">     733 </span>                :            :   }
+<span class="lineNum">     734 </span>                :            :   MS_COPYSTELEM(markercachesize);
+<span class="lineNum">     735 </span>                :            : 
+<span class="lineNum">     736 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">     737 </span>                :            : }
+<span class="lineNum">     738 </span>                :            : 
+<span class="lineNum">     739 </span>                :            : /***********************************************************************
+<span class="lineNum">     740 </span>                :            :  * msCopyLabelCache()                                                  *
+<span class="lineNum">     741 </span>                :            :  **********************************************************************/
+<span class="lineNum">     742 </span>                :            : 
+<span class="lineNum">     743 </span>                :            : int msCopyLabelCache(labelCacheObj *dst, labelCacheObj *src)
+<span class="lineNum">     744 </span>                :            : {
+<span class="lineNum">     745 </span>                :            :   int p;
+<span class="lineNum">     746 </span>                :            :   MS_COPYSTELEM(numlabels);
+<span class="lineNum">     747 </span>                :            : 
+<span class="lineNum">     748 </span>                :            :   for (p=0; p&lt;MS_MAX_LABEL_PRIORITY; p++) {
+<span class="lineNum">     749 </span>                :            :     msCopyLabelCacheSlot(&amp;(dst-&gt;slots[p]), &amp;(src-&gt;slots[p]));
+<span class="lineNum">     750 </span>                :            :   }
+<span class="lineNum">     751 </span>                :            : 
+<span class="lineNum">     752 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">     753 </span>                :            : }
 <span class="lineNum">     754 </span>                :            : 
-<span class="lineNum">     755 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">     756 </span>                :            : }
-<span class="lineNum">     757 </span>                :            : 
-<span class="lineNum">     758 </span>                :            : /***********************************************************************
-<span class="lineNum">     759 </span>                :            :  * msCopyReferenceMap()                                                *
-<span class="lineNum">     760 </span>                :            :  *                                                                     *
-<span class="lineNum">     761 </span>                :            :  * Copy a referenceMapObj using mapfile.c:initReferenceMap(),          *
-<span class="lineNum">     762 </span>                :            :  * msCopyRect(), msCopyColor()                                         *
-<a name="763"><span class="lineNum">     763 </span>                :            :  **********************************************************************/</a>
-<span class="lineNum">     764 </span>                :            : 
-<span class="lineNum">     765 </span>                :<span class="lineNoCov">          0 : int msCopyReferenceMap(referenceMapObj *dst, referenceMapObj *src,</span>
-<span class="lineNum">     766 </span>                :            :                        mapObj *map)
-<span class="lineNum">     767 </span>                :            : {
-<span class="lineNum">     768 </span>                :            : 
-<span class="lineNum">     769 </span>                :<span class="lineNoCov">          0 :   initReferenceMap(dst);</span>
+<span class="lineNum">     755 </span>                :            : #endif
+<span class="lineNum">     756 </span>                :            : 
+<span class="lineNum">     757 </span>                :            : /***********************************************************************
+<span class="lineNum">     758 </span>                :            :  * msCopyResult()                                                      *
+<a name="759"><span class="lineNum">     759 </span>                :            :  **********************************************************************/</a>
+<span class="lineNum">     760 </span>                :            : 
+<span class="lineNum">     761 </span>                :<span class="lineNoCov">          0 : int msCopyResult(resultObj *dst, resultObj *src)</span>
+<span class="lineNum">     762 </span>                :            : {
+<span class="lineNum">     763 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(shapeindex);</span>
+<span class="lineNum">     764 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(tileindex);</span>
+<span class="lineNum">     765 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(classindex);</span>
+<span class="lineNum">     766 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(resultindex);</span>
+<span class="lineNum">     767 </span>                :            : 
+<span class="lineNum">     768 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">     769 </span>                :            : }
 <span class="lineNum">     770 </span>                :            : 
-<span class="lineNum">     771 </span>                :<span class="lineNoCov">          0 :   MS_COPYRECT(&amp;(dst-&gt;extent), &amp;(src-&gt;extent));</span>
-<span class="lineNum">     772 </span>                :            : 
-<span class="lineNum">     773 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(height);</span>
-<span class="lineNum">     774 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(width);</span>
-<span class="lineNum">     775 </span>                :            : 
-<span class="lineNum">     776 </span>                :            : 
-<span class="lineNum">     777 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;color), &amp;(src-&gt;color));</span>
-<span class="lineNum">     778 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;outlinecolor),&amp;(src-&gt;outlinecolor));</span>
-<span class="lineNum">     779 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;image, src-&gt;image);</span>
-<span class="lineNum">     780 </span>                :            : 
-<span class="lineNum">     781 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(status);</span>
-<span class="lineNum">     782 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(marker);</span>
-<span class="lineNum">     783 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;markername, src-&gt;markername);</span>
-<span class="lineNum">     784 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(markersize);</span>
-<span class="lineNum">     785 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(minboxsize);</span>
-<span class="lineNum">     786 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(maxboxsize);</span>
-<span class="lineNum">     787 </span>                :<span class="lineNoCov">          0 :   dst-&gt;map = map;</span>
-<span class="lineNum">     788 </span>                :            : 
-<span class="lineNum">     789 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">     790 </span>                :            : }
-<span class="lineNum">     791 </span>                :            : 
-<span class="lineNum">     792 </span>                :            : /***********************************************************************
-<span class="lineNum">     793 </span>                :            :  * msCopyScalebar()                                                    *
-<span class="lineNum">     794 </span>                :            :  *                                                                     *
-<span class="lineNum">     795 </span>                :            :  * Copy a scalebarObj, using initScalebar(), msCopyColor(),            *
-<span class="lineNum">     796 </span>                :            :  * and msCopyLabel()                                                   *
-<a name="797"><span class="lineNum">     797 </span>                :            :  **********************************************************************/</a>
+<span class="lineNum">     771 </span>                :            : /***********************************************************************
+<span class="lineNum">     772 </span>                :            :  * msCopyResultCache()                                                 *
+<a name="773"><span class="lineNum">     773 </span>                :            :  **********************************************************************/</a>
+<span class="lineNum">     774 </span>                :            : 
+<span class="lineNum">     775 </span>                :<span class="lineNoCov">          0 : int msCopyResultCache(resultCacheObj *dst, resultCacheObj *src)</span>
+<span class="lineNum">     776 </span>                :            : {
+<span class="lineNum">     777 </span>                :            :   int i;
+<span class="lineNum">     778 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(cachesize);</span>
+<span class="lineNum">     779 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(numresults);</span>
+<span class="lineNum">     780 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i = 0; i &lt; dst-&gt;numresults; i++) {</span>
+<span class="lineNum">     781 </span>                :<span class="lineNoCov">          0 :     msCopyResult(&amp;(dst-&gt;results[i]), &amp;(src-&gt;results[i]));</span>
+<span class="lineNum">     782 </span>                :            :   }
+<span class="lineNum">     783 </span>                :<span class="lineNoCov">          0 :   MS_COPYRECT(&amp;(dst-&gt;bounds), &amp;(src-&gt;bounds));</span>
+<span class="lineNum">     784 </span>                :            : 
+<span class="lineNum">     785 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">     786 </span>                :            : }
+<span class="lineNum">     787 </span>                :            : 
+<span class="lineNum">     788 </span>                :            : /***********************************************************************
+<span class="lineNum">     789 </span>                :            :  * msCopyReferenceMap()                                                *
+<span class="lineNum">     790 </span>                :            :  *                                                                     *
+<span class="lineNum">     791 </span>                :            :  * Copy a referenceMapObj using mapfile.c:initReferenceMap(),          *
+<span class="lineNum">     792 </span>                :            :  * msCopyRect(), msCopyColor()                                         *
+<a name="793"><span class="lineNum">     793 </span>                :            :  **********************************************************************/</a>
+<span class="lineNum">     794 </span>                :            : 
+<span class="lineNum">     795 </span>                :<span class="lineNoCov">          0 : int msCopyReferenceMap(referenceMapObj *dst, referenceMapObj *src,</span>
+<span class="lineNum">     796 </span>                :            :                        mapObj *map)
+<span class="lineNum">     797 </span>                :            : {
 <span class="lineNum">     798 </span>                :            : 
-<span class="lineNum">     799 </span>                :<span class="lineNoCov">          0 : int msCopyScalebar(scalebarObj *dst, scalebarObj *src)</span>
-<span class="lineNum">     800 </span>                :            : {
-<span class="lineNum">     801 </span>                :            : 
-<span class="lineNum">     802 </span>                :<span class="lineNoCov">          0 :   initScalebar(dst);</span>
-<span class="lineNum">     803 </span>                :            : 
-<span class="lineNum">     804 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;imagecolor), &amp;(src-&gt;imagecolor));</span>
-<span class="lineNum">     805 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(height);</span>
-<span class="lineNum">     806 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(width);</span>
-<span class="lineNum">     807 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(style);</span>
-<span class="lineNum">     808 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(intervals);</span>
-<span class="lineNum">     809 </span>                :            : 
-<span class="lineNum">     810 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (msCopyLabel(&amp;(dst-&gt;label), &amp;(src-&gt;label)) != MS_SUCCESS) {</span>
-<span class="lineNum">     811 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy label.&quot;,&quot;msCopyScalebar()&quot;);</span>
-<span class="lineNum">     812 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     813 </span>                :            :   }
-<span class="lineNum">     814 </span>                :            : 
-<span class="lineNum">     815 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;color), &amp;(src-&gt;color));</span>
-<span class="lineNum">     816 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;backgroundcolor), &amp;(src-&gt;backgroundcolor));</span>
-<span class="lineNum">     817 </span>                :            : 
-<span class="lineNum">     818 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;outlinecolor), &amp;(src-&gt;outlinecolor));</span>
-<span class="lineNum">     819 </span>                :            : 
-<span class="lineNum">     820 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(units);</span>
-<span class="lineNum">     821 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(status);</span>
-<span class="lineNum">     822 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(position);</span>
-<span class="lineNum">     823 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(transparent);</span>
-<span class="lineNum">     824 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(interlace);</span>
-<span class="lineNum">     825 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(postlabelcache);</span>
-<span class="lineNum">     826 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(align);</span>
-<span class="lineNum">     827 </span>                :            : 
-<span class="lineNum">     828 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">     829 </span>                :            : }
-<span class="lineNum">     830 </span>                :            : 
-<span class="lineNum">     831 </span>                :            : /***********************************************************************
-<span class="lineNum">     832 </span>                :            :  * msCopyLegend()                                                      *
-<span class="lineNum">     833 </span>                :            :  *                                                                     *
-<span class="lineNum">     834 </span>                :            :  * Copy a legendObj, using msCopyColor()                               *
-<a name="835"><span class="lineNum">     835 </span>                :            :  **********************************************************************/</a>
-<span class="lineNum">     836 </span>                :            : 
-<span class="lineNum">     837 </span>                :<span class="lineNoCov">          0 : int msCopyLegend(legendObj *dst, legendObj *src, mapObj *map)</span>
-<span class="lineNum">     838 </span>                :            : {
-<span class="lineNum">     839 </span>                :            :   int return_value;
-<span class="lineNum">     840 </span>                :            : 
-<span class="lineNum">     841 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;imagecolor), &amp;(src-&gt;imagecolor));</span>
-<span class="lineNum">     842 </span>                :            : 
-<span class="lineNum">     843 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyLabel(&amp;(dst-&gt;label), &amp;(src-&gt;label));</span>
-<span class="lineNum">     844 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">     845 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy label.&quot;,</span>
-<span class="lineNum">     846 </span>                :            :                &quot;msCopyLegend()&quot;);
-<span class="lineNum">     847 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     848 </span>                :            :   }
+<span class="lineNum">     799 </span>                :<span class="lineNoCov">          0 :   initReferenceMap(dst);</span>
+<span class="lineNum">     800 </span>                :            : 
+<span class="lineNum">     801 </span>                :<span class="lineNoCov">          0 :   MS_COPYRECT(&amp;(dst-&gt;extent), &amp;(src-&gt;extent));</span>
+<span class="lineNum">     802 </span>                :            : 
+<span class="lineNum">     803 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(height);</span>
+<span class="lineNum">     804 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(width);</span>
+<span class="lineNum">     805 </span>                :            : 
+<span class="lineNum">     806 </span>                :            : 
+<span class="lineNum">     807 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;color), &amp;(src-&gt;color));</span>
+<span class="lineNum">     808 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;outlinecolor),&amp;(src-&gt;outlinecolor));</span>
+<span class="lineNum">     809 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;image, src-&gt;image);</span>
+<span class="lineNum">     810 </span>                :            : 
+<span class="lineNum">     811 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(status);</span>
+<span class="lineNum">     812 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(marker);</span>
+<span class="lineNum">     813 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;markername, src-&gt;markername);</span>
+<span class="lineNum">     814 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(markersize);</span>
+<span class="lineNum">     815 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(minboxsize);</span>
+<span class="lineNum">     816 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(maxboxsize);</span>
+<span class="lineNum">     817 </span>                :<span class="lineNoCov">          0 :   dst-&gt;map = map;</span>
+<span class="lineNum">     818 </span>                :            : 
+<span class="lineNum">     819 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">     820 </span>                :            : }
+<span class="lineNum">     821 </span>                :            : 
+<span class="lineNum">     822 </span>                :            : /***********************************************************************
+<span class="lineNum">     823 </span>                :            :  * msCopyScalebar()                                                    *
+<span class="lineNum">     824 </span>                :            :  *                                                                     *
+<span class="lineNum">     825 </span>                :            :  * Copy a scalebarObj, using initScalebar(), msCopyColor(),            *
+<span class="lineNum">     826 </span>                :            :  * and msCopyLabel()                                                   *
+<a name="827"><span class="lineNum">     827 </span>                :            :  **********************************************************************/</a>
+<span class="lineNum">     828 </span>                :            : 
+<span class="lineNum">     829 </span>                :<span class="lineNoCov">          0 : int msCopyScalebar(scalebarObj *dst, scalebarObj *src)</span>
+<span class="lineNum">     830 </span>                :            : {
+<span class="lineNum">     831 </span>                :            : 
+<span class="lineNum">     832 </span>                :<span class="lineNoCov">          0 :   initScalebar(dst);</span>
+<span class="lineNum">     833 </span>                :            : 
+<span class="lineNum">     834 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;imagecolor), &amp;(src-&gt;imagecolor));</span>
+<span class="lineNum">     835 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(height);</span>
+<span class="lineNum">     836 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(width);</span>
+<span class="lineNum">     837 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(style);</span>
+<span class="lineNum">     838 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(intervals);</span>
+<span class="lineNum">     839 </span>                :            : 
+<span class="lineNum">     840 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (msCopyLabel(&amp;(dst-&gt;label), &amp;(src-&gt;label)) != MS_SUCCESS) {</span>
+<span class="lineNum">     841 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy label.&quot;,&quot;msCopyScalebar()&quot;);</span>
+<span class="lineNum">     842 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     843 </span>                :            :   }
+<span class="lineNum">     844 </span>                :            : 
+<span class="lineNum">     845 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;color), &amp;(src-&gt;color));</span>
+<span class="lineNum">     846 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;backgroundcolor), &amp;(src-&gt;backgroundcolor));</span>
+<span class="lineNum">     847 </span>                :            : 
+<span class="lineNum">     848 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;outlinecolor), &amp;(src-&gt;outlinecolor));</span>
 <span class="lineNum">     849 </span>                :            : 
-<span class="lineNum">     850 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(keysizex);</span>
-<span class="lineNum">     851 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(keysizey);</span>
-<span class="lineNum">     852 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(keyspacingx);</span>
-<span class="lineNum">     853 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(keyspacingy);</span>
-<span class="lineNum">     854 </span>                :            : 
-<span class="lineNum">     855 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;outlinecolor),&amp;(src-&gt;outlinecolor));</span>
-<span class="lineNum">     856 </span>                :            : 
-<span class="lineNum">     857 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(status);</span>
-<span class="lineNum">     858 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(height);</span>
-<span class="lineNum">     859 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(width);</span>
-<span class="lineNum">     860 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(position);</span>
-<span class="lineNum">     861 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(transparent);</span>
-<span class="lineNum">     862 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(interlace);</span>
-<span class="lineNum">     863 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(postlabelcache);</span>
-<span class="lineNum">     864 </span>                :            : 
-<span class="lineNum">     865 </span>                :            : #ifndef __cplusplus
-<span class="lineNum">     866 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;template, src-&gt;template);</span>
-<span class="lineNum">     867 </span>                :            : #else
-<span class="lineNum">     868 </span>                :            :   MS_COPYSTRING(dst-&gt;_template, src-&gt;_template);
-<span class="lineNum">     869 </span>                :            : #endif
-<span class="lineNum">     870 </span>                :<span class="lineNoCov">          0 :   dst-&gt;map = map;</span>
-<span class="lineNum">     871 </span>                :            : 
-<span class="lineNum">     872 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<a name="873"><span class="lineNum">     873 </span>                :            : }</a>
-<span class="lineNum">     874 </span>                :            : 
-<span class="lineNum">     875 </span>                :<span class="lineNoCov">          0 : int msCopyScaleTokenEntry(scaleTokenEntryObj *src, scaleTokenEntryObj *dst) {</span>
-<span class="lineNum">     876 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;value,src-&gt;value);</span>
-<span class="lineNum">     877 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(minscale);</span>
-<span class="lineNum">     878 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(maxscale);</span>
-<span class="lineNum">     879 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<a name="880"><span class="lineNum">     880 </span>                :            : }</a>
-<span class="lineNum">     881 </span>                :            : 
-<span class="lineNum">     882 </span>                :<span class="lineNoCov">          0 : int msCopyScaleToken(scaleTokenObj *src, scaleTokenObj *dst) {</span>
-<span class="lineNum">     883 </span>                :            :   int i;
-<span class="lineNum">     884 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;name,src-&gt;name);</span>
-<span class="lineNum">     885 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(n_entries);</span>
-<span class="lineNum">     886 </span>                :<span class="lineNoCov">          0 :   dst-&gt;tokens = (scaleTokenEntryObj*)msSmallCalloc(src-&gt;n_entries,sizeof(scaleTokenEntryObj));</span>
-<span class="lineNum">     887 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for(i=0;i&lt;src-&gt;n_entries;i++) {</span>
-<span class="lineNum">     888 </span>                :<span class="lineNoCov">          0 :     msCopyScaleTokenEntry(&amp;src-&gt;tokens[i],&amp;dst-&gt;tokens[i]);</span>
-<span class="lineNum">     889 </span>                :            :   }
-<span class="lineNum">     890 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">     891 </span>                :            : }
-<span class="lineNum">     892 </span>                :            : 
-<span class="lineNum">     893 </span>                :            : /***********************************************************************
-<span class="lineNum">     894 </span>                :            :  * msCopyLayer()                                                       *
-<span class="lineNum">     895 </span>                :            :  *                                                                     *
-<span class="lineNum">     896 </span>                :            :  * Copy a layerObj, using mapfile.c:initClass(), msCopyClass(),        *
-<span class="lineNum">     897 </span>                :            :  * msCopyColor(), msCopyProjection(), msShapefileOpen(),                 *
-<span class="lineNum">     898 </span>                :            :  * msCreateHashTable(), msCopyHashTable(), msCopyExpression()          *
-<span class="lineNum">     899 </span>                :            :  *                                                                     *
-<span class="lineNum">     900 </span>                :            :  * As it stands, we are not copying a layer's resultcache              *
-<a name="901"><span class="lineNum">     901 </span>                :            :  **********************************************************************/</a>
-<span class="lineNum">     902 </span>                :            : 
-<span class="lineNum">     903 </span>                :<span class="lineCov">          1 : int msCopyLayer(layerObj *dst, layerObj *src)</span>
-<span class="lineNum">     904 </span>                :            : {
-<span class="lineNum">     905 </span>                :            :   int i, return_value;
-<span class="lineNum">     906 </span>                :            :   featureListNodeObjPtr current;
-<span class="lineNum">     907 </span>                :            : 
-<span class="lineNum">     908 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(index);</span>
-<span class="lineNum">     909 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;classitem, src-&gt;classitem);</span>
-<span class="lineNum">     910 </span>                :            : 
-<span class="lineNum">     911 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(classitemindex);</span>
-<span class="lineNum">     912 </span>                :            : 
-<span class="lineNum">     913 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i = 0; i &lt; src-&gt;numscaletokens; i++) {</span>
-<span class="lineNum">     914 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(msGrowLayerScaletokens(dst) == NULL)</span>
-<span class="lineNum">     915 </span>                :            :       return MS_FAILURE;
-<span class="lineNum">     916 </span>                :<span class="lineNoCov">          0 :     initScaleToken(&amp;dst-&gt;scaletokens[i]);</span>
-<span class="lineNum">     917 </span>                :<span class="lineNoCov">          0 :     msCopyScaleToken(&amp;src-&gt;scaletokens[i],&amp;dst-&gt;scaletokens[i]);</span>
-<span class="lineNum">     918 </span>                :<span class="lineNoCov">          0 :     dst-&gt;numscaletokens++;</span>
+<span class="lineNum">     850 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(units);</span>
+<span class="lineNum">     851 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(status);</span>
+<span class="lineNum">     852 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(position);</span>
+<span class="lineNum">     853 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(transparent);</span>
+<span class="lineNum">     854 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(interlace);</span>
+<span class="lineNum">     855 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(postlabelcache);</span>
+<span class="lineNum">     856 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(align);</span>
+<span class="lineNum">     857 </span>                :            : 
+<span class="lineNum">     858 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">     859 </span>                :            : }
+<span class="lineNum">     860 </span>                :            : 
+<span class="lineNum">     861 </span>                :            : /***********************************************************************
+<span class="lineNum">     862 </span>                :            :  * msCopyLegend()                                                      *
+<span class="lineNum">     863 </span>                :            :  *                                                                     *
+<span class="lineNum">     864 </span>                :            :  * Copy a legendObj, using msCopyColor()                               *
+<a name="865"><span class="lineNum">     865 </span>                :            :  **********************************************************************/</a>
+<span class="lineNum">     866 </span>                :            : 
+<span class="lineNum">     867 </span>                :<span class="lineNoCov">          0 : int msCopyLegend(legendObj *dst, legendObj *src, mapObj *map)</span>
+<span class="lineNum">     868 </span>                :            : {
+<span class="lineNum">     869 </span>                :            :   int return_value;
+<span class="lineNum">     870 </span>                :            : 
+<span class="lineNum">     871 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;imagecolor), &amp;(src-&gt;imagecolor));</span>
+<span class="lineNum">     872 </span>                :            : 
+<span class="lineNum">     873 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyLabel(&amp;(dst-&gt;label), &amp;(src-&gt;label));</span>
+<span class="lineNum">     874 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">     875 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy label.&quot;,</span>
+<span class="lineNum">     876 </span>                :            :                &quot;msCopyLegend()&quot;);
+<span class="lineNum">     877 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     878 </span>                :            :   }
+<span class="lineNum">     879 </span>                :            : 
+<span class="lineNum">     880 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(keysizex);</span>
+<span class="lineNum">     881 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(keysizey);</span>
+<span class="lineNum">     882 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(keyspacingx);</span>
+<span class="lineNum">     883 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(keyspacingy);</span>
+<span class="lineNum">     884 </span>                :            : 
+<span class="lineNum">     885 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;outlinecolor),&amp;(src-&gt;outlinecolor));</span>
+<span class="lineNum">     886 </span>                :            : 
+<span class="lineNum">     887 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(status);</span>
+<span class="lineNum">     888 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(height);</span>
+<span class="lineNum">     889 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(width);</span>
+<span class="lineNum">     890 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(position);</span>
+<span class="lineNum">     891 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(transparent);</span>
+<span class="lineNum">     892 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(interlace);</span>
+<span class="lineNum">     893 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(postlabelcache);</span>
+<span class="lineNum">     894 </span>                :            : 
+<span class="lineNum">     895 </span>                :            : #ifndef __cplusplus
+<span class="lineNum">     896 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;template, src-&gt;template);</span>
+<span class="lineNum">     897 </span>                :            : #else
+<span class="lineNum">     898 </span>                :            :   MS_COPYSTRING(dst-&gt;_template, src-&gt;_template);
+<span class="lineNum">     899 </span>                :            : #endif
+<span class="lineNum">     900 </span>                :<span class="lineNoCov">          0 :   dst-&gt;map = map;</span>
+<span class="lineNum">     901 </span>                :            : 
+<span class="lineNum">     902 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<a name="903"><span class="lineNum">     903 </span>                :            : }</a>
+<span class="lineNum">     904 </span>                :            : 
+<span class="lineNum">     905 </span>                :<span class="lineNoCov">          0 : int msCopyScaleTokenEntry(scaleTokenEntryObj *src, scaleTokenEntryObj *dst) {</span>
+<span class="lineNum">     906 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;value,src-&gt;value);</span>
+<span class="lineNum">     907 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(minscale);</span>
+<span class="lineNum">     908 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(maxscale);</span>
+<span class="lineNum">     909 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<a name="910"><span class="lineNum">     910 </span>                :            : }</a>
+<span class="lineNum">     911 </span>                :            : 
+<span class="lineNum">     912 </span>                :<span class="lineNoCov">          0 : int msCopyScaleToken(scaleTokenObj *src, scaleTokenObj *dst) {</span>
+<span class="lineNum">     913 </span>                :            :   int i;
+<span class="lineNum">     914 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;name,src-&gt;name);</span>
+<span class="lineNum">     915 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(n_entries);</span>
+<span class="lineNum">     916 </span>                :<span class="lineNoCov">          0 :   dst-&gt;tokens = (scaleTokenEntryObj*)msSmallCalloc(src-&gt;n_entries,sizeof(scaleTokenEntryObj));</span>
+<span class="lineNum">     917 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for(i=0;i&lt;src-&gt;n_entries;i++) {</span>
+<span class="lineNum">     918 </span>                :<span class="lineNoCov">          0 :     msCopyScaleTokenEntry(&amp;src-&gt;tokens[i],&amp;dst-&gt;tokens[i]);</span>
 <span class="lineNum">     919 </span>                :            :   }
-<span class="lineNum">     920 </span>                :            : 
-<span class="lineNum">     921 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (i = 0; i &lt; src-&gt;numclasses; i++) {</span>
-<span class="lineNum">     922 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if (msGrowLayerClasses(dst) == NULL)</span>
-<span class="lineNum">     923 </span>                :            :       return MS_FAILURE;
-<span class="lineNum">     924 </span>                :            : #ifndef __cplusplus
-<span class="lineNum">     925 </span>                :<span class="lineCov">          1 :     initClass(dst-&gt;class[i]);</span>
-<span class="lineNum">     926 </span>                :<span class="lineCov">          1 :     return_value = msCopyClass(dst-&gt;class[i], src-&gt;class[i], dst);</span>
-<span class="lineNum">     927 </span>                :            : #else
-<span class="lineNum">     928 </span>                :            :     initClass(dst-&gt;_class[i]);
-<span class="lineNum">     929 </span>                :            :     return_value = msCopyClass(dst-&gt;_class[i], src-&gt;_class[i], dst);
-<span class="lineNum">     930 </span>                :            : #endif
-<span class="lineNum">     931 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">     932 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MEMERR, &quot;Failed to copy class.&quot;, &quot;msCopyLayer()&quot;);</span>
-<span class="lineNum">     933 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">     934 </span>                :            :     }
-<span class="lineNum">     935 </span>                :<span class="lineCov">          1 :     dst-&gt;numclasses++;</span>
-<span class="lineNum">     936 </span>                :            :   }
-<span class="lineNum">     937 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;header, src-&gt;header);</span>
-<span class="lineNum">     938 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;footer, src-&gt;footer);</span>
-<span class="lineNum">     939 </span>                :            : #ifndef __cplusplus
-<span class="lineNum">     940 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;template, src-&gt;template);</span>
-<span class="lineNum">     941 </span>                :            : #else
-<span class="lineNum">     942 </span>                :            :   MS_COPYSTRING(dst-&gt;_template, src-&gt;_template);
-<span class="lineNum">     943 </span>                :            : #endif
-<span class="lineNum">     944 </span>                :            : 
-<span class="lineNum">     945 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;name, src-&gt;name);</span>
-<span class="lineNum">     946 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;group, src-&gt;group);</span>
-<span class="lineNum">     947 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;data, src-&gt;data);</span>
-<span class="lineNum">     948 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;encoding, src-&gt;encoding);</span>
-<span class="lineNum">     949 </span>                :            : 
-<span class="lineNum">     950 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(status);</span>
-<span class="lineNum">     951 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(type);</span>
-<span class="lineNum">     952 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(tolerance);</span>
-<span class="lineNum">     953 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(toleranceunits);</span>
-<span class="lineNum">     954 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(symbolscaledenom);</span>
-<span class="lineNum">     955 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(scalefactor);</span>
-<span class="lineNum">     956 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(minscaledenom);</span>
-<span class="lineNum">     957 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(maxscaledenom);</span>
-<span class="lineNum">     958 </span>                :            : 
-<span class="lineNum">     959 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(labelminscaledenom);</span>
-<span class="lineNum">     960 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(labelmaxscaledenom);</span>
-<span class="lineNum">     961 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(mingeowidth);</span>
-<span class="lineNum">     962 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(maxgeowidth);</span>
-<span class="lineNum">     963 </span>                :            : 
-<span class="lineNum">     964 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(sizeunits);</span>
-<span class="lineNum">     965 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(maxfeatures);</span>
-<span class="lineNum">     966 </span>                :            : 
-<span class="lineNum">     967 </span>                :<span class="lineCov">          1 :   MS_COPYCOLOR(&amp;(dst-&gt;offsite), &amp;(src-&gt;offsite));</span>
-<span class="lineNum">     968 </span>                :            : 
-<span class="lineNum">     969 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(transform);</span>
-<span class="lineNum">     970 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(labelcache);</span>
-<span class="lineNum">     971 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(postlabelcache);</span>
-<span class="lineNum">     972 </span>                :            : 
-<span class="lineNum">     973 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;labelitem, src-&gt;labelitem);</span>
-<span class="lineNum">     974 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(labelitemindex);</span>
-<span class="lineNum">     975 </span>                :            : 
-<span class="lineNum">     976 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;tileitem, src-&gt;tileitem);</span>
-<span class="lineNum">     977 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(tileitemindex);</span>
-<span class="lineNum">     978 </span>                :            : 
-<span class="lineNum">     979 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;tilesrs, src-&gt;tilesrs);</span>
-<span class="lineNum">     980 </span>                :            : 
-<span class="lineNum">     981 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;tileindex, src-&gt;tileindex);</span>
-<span class="lineNum">     982 </span>                :            : 
-<span class="lineNum">     983 </span>                :<span class="lineCov">          1 :   return_value = msCopyProjection(&amp;(dst-&gt;projection),&amp;(src-&gt;projection));</span>
-<span class="lineNum">     984 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">     985 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy projection.&quot;, &quot;msCopyLayer()&quot;);</span>
-<span class="lineNum">     986 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     987 </span>                :            :   }
+<span class="lineNum">     920 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">     921 </span>                :            : }
+<span class="lineNum">     922 </span>                :            : 
+<span class="lineNum">     923 </span>                :            : /***********************************************************************
+<span class="lineNum">     924 </span>                :            :  * msCopyLayer()                                                       *
+<span class="lineNum">     925 </span>                :            :  *                                                                     *
+<span class="lineNum">     926 </span>                :            :  * Copy a layerObj, using mapfile.c:initClass(), msCopyClass(),        *
+<span class="lineNum">     927 </span>                :            :  * msCopyColor(), msCopyProjection(), msShapefileOpen(),                 *
+<span class="lineNum">     928 </span>                :            :  * msCreateHashTable(), msCopyHashTable(), msCopyExpression()          *
+<span class="lineNum">     929 </span>                :            :  *                                                                     *
+<span class="lineNum">     930 </span>                :            :  * As it stands, we are not copying a layer's resultcache              *
+<a name="931"><span class="lineNum">     931 </span>                :            :  **********************************************************************/</a>
+<span class="lineNum">     932 </span>                :            : 
+<span class="lineNum">     933 </span>                :<span class="lineCov">          1 : int msCopyLayer(layerObj *dst, layerObj *src)</span>
+<span class="lineNum">     934 </span>                :            : {
+<span class="lineNum">     935 </span>                :            :   int i, return_value;
+<span class="lineNum">     936 </span>                :            :   featureListNodeObjPtr current;
+<span class="lineNum">     937 </span>                :            : 
+<span class="lineNum">     938 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(index);</span>
+<span class="lineNum">     939 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;classitem, src-&gt;classitem);</span>
+<span class="lineNum">     940 </span>                :            : 
+<span class="lineNum">     941 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(classitemindex);</span>
+<span class="lineNum">     942 </span>                :            : 
+<span class="lineNum">     943 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i = 0; i &lt; src-&gt;numscaletokens; i++) {</span>
+<span class="lineNum">     944 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(msGrowLayerScaletokens(dst) == NULL)</span>
+<span class="lineNum">     945 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">     946 </span>                :<span class="lineNoCov">          0 :     initScaleToken(&amp;dst-&gt;scaletokens[i]);</span>
+<span class="lineNum">     947 </span>                :<span class="lineNoCov">          0 :     msCopyScaleToken(&amp;src-&gt;scaletokens[i],&amp;dst-&gt;scaletokens[i]);</span>
+<span class="lineNum">     948 </span>                :<span class="lineNoCov">          0 :     dst-&gt;numscaletokens++;</span>
+<span class="lineNum">     949 </span>                :            :   }
+<span class="lineNum">     950 </span>                :            : 
+<span class="lineNum">     951 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (i = 0; i &lt; src-&gt;numclasses; i++) {</span>
+<span class="lineNum">     952 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if (msGrowLayerClasses(dst) == NULL)</span>
+<span class="lineNum">     953 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">     954 </span>                :            : #ifndef __cplusplus
+<span class="lineNum">     955 </span>                :<span class="lineCov">          1 :     initClass(dst-&gt;class[i]);</span>
+<span class="lineNum">     956 </span>                :<span class="lineCov">          1 :     return_value = msCopyClass(dst-&gt;class[i], src-&gt;class[i], dst);</span>
+<span class="lineNum">     957 </span>                :            : #else
+<span class="lineNum">     958 </span>                :            :     initClass(dst-&gt;_class[i]);
+<span class="lineNum">     959 </span>                :            :     return_value = msCopyClass(dst-&gt;_class[i], src-&gt;_class[i], dst);
+<span class="lineNum">     960 </span>                :            : #endif
+<span class="lineNum">     961 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">     962 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MEMERR, &quot;Failed to copy class.&quot;, &quot;msCopyLayer()&quot;);</span>
+<span class="lineNum">     963 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     964 </span>                :            :     }
+<span class="lineNum">     965 </span>                :<span class="lineCov">          1 :     dst-&gt;numclasses++;</span>
+<span class="lineNum">     966 </span>                :            :   }
+<span class="lineNum">     967 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;header, src-&gt;header);</span>
+<span class="lineNum">     968 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;footer, src-&gt;footer);</span>
+<span class="lineNum">     969 </span>                :            : #ifndef __cplusplus
+<span class="lineNum">     970 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;template, src-&gt;template);</span>
+<span class="lineNum">     971 </span>                :            : #else
+<span class="lineNum">     972 </span>                :            :   MS_COPYSTRING(dst-&gt;_template, src-&gt;_template);
+<span class="lineNum">     973 </span>                :            : #endif
+<span class="lineNum">     974 </span>                :            : 
+<span class="lineNum">     975 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;name, src-&gt;name);</span>
+<span class="lineNum">     976 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;group, src-&gt;group);</span>
+<span class="lineNum">     977 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;data, src-&gt;data);</span>
+<span class="lineNum">     978 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;encoding, src-&gt;encoding);</span>
+<span class="lineNum">     979 </span>                :            : 
+<span class="lineNum">     980 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(status);</span>
+<span class="lineNum">     981 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(type);</span>
+<span class="lineNum">     982 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(tolerance);</span>
+<span class="lineNum">     983 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(toleranceunits);</span>
+<span class="lineNum">     984 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(symbolscaledenom);</span>
+<span class="lineNum">     985 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(scalefactor);</span>
+<span class="lineNum">     986 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(minscaledenom);</span>
+<span class="lineNum">     987 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(maxscaledenom);</span>
 <span class="lineNum">     988 </span>                :            : 
-<span class="lineNum">     989 </span>                :<span class="lineCov">          1 :   return_value = msCopyCluster(&amp;(dst-&gt;cluster),&amp;(src-&gt;cluster));</span>
-<span class="lineNum">     990 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">     991 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     992 </span>                :            :   }
+<span class="lineNum">     989 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(labelminscaledenom);</span>
+<span class="lineNum">     990 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(labelmaxscaledenom);</span>
+<span class="lineNum">     991 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(mingeowidth);</span>
+<span class="lineNum">     992 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(maxgeowidth);</span>
 <span class="lineNum">     993 </span>                :            : 
-<span class="lineNum">     994 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(project);</span>
-<span class="lineNum">     995 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(units);</span>
+<span class="lineNum">     994 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(sizeunits);</span>
+<span class="lineNum">     995 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(maxfeatures);</span>
 <span class="lineNum">     996 </span>                :            : 
-<span class="lineNum">     997 </span>                :<span class="lineCov">          1 :   current = src-&gt;features;</span>
-<span class="lineNum">     998 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   while(current != NULL) {</span>
-<span class="lineNum">     999 </span>                :<span class="lineNoCov">          0 :     insertFeatureList(&amp;(dst-&gt;features), &amp;(current-&gt;shape));</span>
-<span class="lineNum">    1000 </span>                :<span class="lineNoCov">          0 :     current = current-&gt;next;</span>
-<span class="lineNum">    1001 </span>                :            :   }
+<span class="lineNum">     997 </span>                :<span class="lineCov">          1 :   MS_COPYCOLOR(&amp;(dst-&gt;offsite), &amp;(src-&gt;offsite));</span>
+<span class="lineNum">     998 </span>                :            : 
+<span class="lineNum">     999 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(transform);</span>
+<span class="lineNum">    1000 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(labelcache);</span>
+<span class="lineNum">    1001 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(postlabelcache);</span>
 <span class="lineNum">    1002 </span>                :            : 
-<span class="lineNum">    1003 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;connection, src-&gt;connection);</span>
-<span class="lineNum">    1004 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(connectiontype);</span>
+<span class="lineNum">    1003 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;labelitem, src-&gt;labelitem);</span>
+<span class="lineNum">    1004 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(labelitemindex);</span>
 <span class="lineNum">    1005 </span>                :            : 
-<span class="lineNum">    1006 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;plugin_library, src-&gt;plugin_library);</span>
-<span class="lineNum">    1007 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;plugin_library_original, src-&gt;plugin_library_original);</span>
+<span class="lineNum">    1006 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;tileitem, src-&gt;tileitem);</span>
+<span class="lineNum">    1007 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(tileitemindex);</span>
 <span class="lineNum">    1008 </span>                :            : 
-<span class="lineNum">    1009 </span>                :            :   /* Do not copy *layerinfo, items, or iteminfo. these are all initialized
-<span class="lineNum">    1010 </span>                :            :      when the copied layer is opened */
-<span class="lineNum">    1011 </span>                :            : 
-<span class="lineNum">    1012 </span>                :<span class="lineCov">          1 :   return_value = msCopyExpression(&amp;(dst-&gt;filter), &amp;(src-&gt;filter));</span>
-<span class="lineNum">    1013 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">    1014 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy filter.&quot;, &quot;msCopyLayer()&quot;);</span>
-<span class="lineNum">    1015 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1016 </span>                :            :   }
-<span class="lineNum">    1017 </span>                :            : 
-<span class="lineNum">    1018 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;filteritem, src-&gt;filteritem);</span>
-<span class="lineNum">    1019 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(filteritemindex);</span>
-<span class="lineNum">    1020 </span>                :            : 
-<span class="lineNum">    1021 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;styleitem, src-&gt;styleitem);</span>
-<span class="lineNum">    1022 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(styleitemindex);</span>
+<span class="lineNum">    1009 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;tilesrs, src-&gt;tilesrs);</span>
+<span class="lineNum">    1010 </span>                :            : 
+<span class="lineNum">    1011 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;tileindex, src-&gt;tileindex);</span>
+<span class="lineNum">    1012 </span>                :            : 
+<span class="lineNum">    1013 </span>                :<span class="lineCov">          1 :   return_value = msCopyProjection(&amp;(dst-&gt;projection),&amp;(src-&gt;projection));</span>
+<span class="lineNum">    1014 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">    1015 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy projection.&quot;, &quot;msCopyLayer()&quot;);</span>
+<span class="lineNum">    1016 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1017 </span>                :            :   }
+<span class="lineNum">    1018 </span>                :            : 
+<span class="lineNum">    1019 </span>                :<span class="lineCov">          1 :   return_value = msCopyCluster(&amp;(dst-&gt;cluster),&amp;(src-&gt;cluster));</span>
+<span class="lineNum">    1020 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">    1021 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">    1022 </span>                :            :   }
 <span class="lineNum">    1023 </span>                :            : 
-<span class="lineNum">    1024 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;requires, src-&gt;requires);</span>
-<span class="lineNum">    1025 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;labelrequires, src-&gt;labelrequires);</span>
+<span class="lineNum">    1024 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(project);</span>
+<span class="lineNum">    1025 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(units);</span>
 <span class="lineNum">    1026 </span>                :            : 
-<span class="lineNum">    1027 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (&amp;(src-&gt;metadata)) {</span>
-<span class="lineNum">    1028 </span>                :<span class="lineCov">          1 :     msCopyHashTable(&amp;(dst-&gt;metadata), &amp;(src-&gt;metadata));</span>
-<span class="lineNum">    1029 </span>                :            :   }
-<span class="lineNum">    1030 </span>                :<span class="lineCov">          1 :   msCopyHashTable(&amp;dst-&gt;validation,&amp;src-&gt;validation);</span>
-<span class="lineNum">    1031 </span>                :            : 
-<span class="lineNum">    1032 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(opacity);</span>
-<span class="lineNum">    1033 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(dump);</span>
-<span class="lineNum">    1034 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(debug);</span>
+<span class="lineNum">    1027 </span>                :<span class="lineCov">          1 :   current = src-&gt;features;</span>
+<span class="lineNum">    1028 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   while(current != NULL) {</span>
+<span class="lineNum">    1029 </span>                :<span class="lineNoCov">          0 :     insertFeatureList(&amp;(dst-&gt;features), &amp;(current-&gt;shape));</span>
+<span class="lineNum">    1030 </span>                :<span class="lineNoCov">          0 :     current = current-&gt;next;</span>
+<span class="lineNum">    1031 </span>                :            :   }
+<span class="lineNum">    1032 </span>                :            : 
+<span class="lineNum">    1033 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;connection, src-&gt;connection);</span>
+<span class="lineNum">    1034 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(connectiontype);</span>
 <span class="lineNum">    1035 </span>                :            : 
-<span class="lineNum">    1036 </span>                :            :   /* No need to copy the numprocessing member, as it is incremented by
-<span class="lineNum">    1037 </span>                :            :      msLayerAddProcessing */
-<span class="lineNum">    1038 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (i = 0; i &lt; src-&gt;numprocessing; i++) {</span>
-<span class="lineNum">    1039 </span>                :<span class="lineNoCov">          0 :     msLayerAddProcessing(dst, msLayerGetProcessing(src, i));</span>
-<span class="lineNum">    1040 </span>                :            :   }
+<span class="lineNum">    1036 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;plugin_library, src-&gt;plugin_library);</span>
+<span class="lineNum">    1037 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;plugin_library_original, src-&gt;plugin_library_original);</span>
+<span class="lineNum">    1038 </span>                :            : 
+<span class="lineNum">    1039 </span>                :            :   /* Do not copy *layerinfo, items, or iteminfo. these are all initialized
+<span class="lineNum">    1040 </span>                :            :      when the copied layer is opened */
 <span class="lineNum">    1041 </span>                :            : 
-<span class="lineNum">    1042 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(numjoins);</span>
-<span class="lineNum">    1043 </span>                :            : 
-<span class="lineNum">    1044 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (i = 0; i &lt; dst-&gt;numjoins; i++) {</span>
-<span class="lineNum">    1045 </span>                :<span class="lineNoCov">          0 :     initJoin(&amp;(dst-&gt;joins[i]));</span>
-<span class="lineNum">    1046 </span>                :<span class="lineNoCov">          0 :     return_value = msCopyJoin(&amp;(dst-&gt;joins[i]), &amp;(src-&gt;joins[i]));</span>
-<span class="lineNum">    1047 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (return_value != MS_SUCCESS)</span>
-<span class="lineNum">    1048 </span>                :            :       return MS_FAILURE;
-<span class="lineNum">    1049 </span>                :            :   }
+<span class="lineNum">    1042 </span>                :<span class="lineCov">          1 :   return_value = msCopyExpression(&amp;(dst-&gt;filter), &amp;(src-&gt;filter));</span>
+<span class="lineNum">    1043 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">    1044 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy filter.&quot;, &quot;msCopyLayer()&quot;);</span>
+<span class="lineNum">    1045 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1046 </span>                :            :   }
+<span class="lineNum">    1047 </span>                :            : 
+<span class="lineNum">    1048 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;filteritem, src-&gt;filteritem);</span>
+<span class="lineNum">    1049 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(filteritemindex);</span>
 <span class="lineNum">    1050 </span>                :            : 
-<span class="lineNum">    1051 </span>                :<span class="lineCov">          1 :   MS_COPYRECT(&amp;(dst-&gt;extent), &amp;(src-&gt;extent));</span>
-<span class="lineNum">    1052 </span>                :            : 
-<span class="lineNum">    1053 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;classgroup, src-&gt;classgroup);</span>
-<span class="lineNum">    1054 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;mask, src-&gt;mask);</span>
-<span class="lineNum">    1055 </span>                :            : 
-<span class="lineNum">    1056 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">    1057 </span>                :            : }
-<span class="lineNum">    1058 </span>                :            : 
-<span class="lineNum">    1059 </span>                :            : /***********************************************************************
-<span class="lineNum">    1060 </span>                :            :  * msCopyMap()                                                         *
-<span class="lineNum">    1061 </span>                :            :  *                                                                     *
-<span class="lineNum">    1062 </span>                :            :  * Copy a mapObj, using mapfile.c:initLayer(), msCopyLayer(),          *
-<span class="lineNum">    1063 </span>                :            : 
-<span class="lineNum">    1064 </span>                :            :  * msCopyLegend(), msCopyScalebar(), msCopyProjection()                *
-<span class="lineNum">    1065 </span>                :            :  * msCopyOutputFormat(), msCopyWeb(), msCopyReferenceMap()             *
-<a name="1066"><span class="lineNum">    1066 </span>                :            :  **********************************************************************/</a>
-<span class="lineNum">    1067 </span>                :            : 
-<span class="lineNum">    1068 </span>                :<span class="lineNoCov">          0 : int msCopyMap(mapObj *dst, mapObj *src)</span>
-<span class="lineNum">    1069 </span>                :            : {
-<span class="lineNum">    1070 </span>                :            :   int i, return_value;
-<span class="lineNum">    1071 </span>                :            :   outputFormatObj *format;
-<span class="lineNum">    1072 </span>                :            : 
-<span class="lineNum">    1073 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;name, src-&gt;name);</span>
-<span class="lineNum">    1074 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(status);</span>
-<span class="lineNum">    1075 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(height);</span>
-<span class="lineNum">    1076 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(width);</span>
-<span class="lineNum">    1077 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(maxsize);</span>
-<span class="lineNum">    1078 </span>                :            : 
-<span class="lineNum">    1079 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i = 0; i &lt; src-&gt;numlayers; i++) {</span>
-<span class="lineNum">    1080 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (msGrowMapLayers(dst) == NULL)</span>
-<span class="lineNum">    1081 </span>                :            :       return MS_FAILURE;
-<span class="lineNum">    1082 </span>                :<span class="lineNoCov">          0 :     initLayer((GET_LAYER(dst, i)), dst);</span>
-<span class="lineNum">    1083 </span>                :            : 
-<span class="lineNum">    1084 </span>                :<span class="lineNoCov">          0 :     return_value = msCopyLayer((GET_LAYER(dst, i)), (GET_LAYER(src, i)));</span>
-<span class="lineNum">    1085 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">    1086 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MEMERR, &quot;Failed to copy layer.&quot;, &quot;msCopyMap()&quot;);</span>
-<span class="lineNum">    1087 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">    1088 </span>                :            :     }
-<span class="lineNum">    1089 </span>                :<span class="lineNoCov">          0 :     dst-&gt;numlayers++;</span>
-<span class="lineNum">    1090 </span>                :            :   }
-<span class="lineNum">    1091 </span>                :            : 
-<span class="lineNum">    1092 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyFontSet(&amp;(dst-&gt;fontset), &amp;(src-&gt;fontset), dst);</span>
-<span class="lineNum">    1093 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">    1094 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy fontset.&quot;, &quot;msCopyMap()&quot;);</span>
-<span class="lineNum">    1095 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1096 </span>                :            :   }
-<span class="lineNum">    1097 </span>                :            : 
-<span class="lineNum">    1098 </span>                :<span class="lineNoCov">          0 :   return_value = msCopySymbolSet(&amp;(dst-&gt;symbolset), &amp;(src-&gt;symbolset), dst);</span>
-<span class="lineNum">    1099 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(return_value != MS_SUCCESS) {</span>
-<span class="lineNum">    1100 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy symbolset.&quot;, &quot;msCopyMap()&quot;);</span>
-<span class="lineNum">    1101 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1102 </span>                :            :   }
-<span class="lineNum">    1103 </span>                :            : 
-<span class="lineNum">    1104 </span>                :            :   /* msCopyLabelCache(&amp;(dst-&gt;labelcache), &amp;(src-&gt;labelcache)); */
-<span class="lineNum">    1105 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(transparent);</span>
-<span class="lineNum">    1106 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(interlace);</span>
-<span class="lineNum">    1107 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(imagequality);</span>
+<span class="lineNum">    1051 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;styleitem, src-&gt;styleitem);</span>
+<span class="lineNum">    1052 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(styleitemindex);</span>
+<span class="lineNum">    1053 </span>                :            : 
+<span class="lineNum">    1054 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;requires, src-&gt;requires);</span>
+<span class="lineNum">    1055 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;labelrequires, src-&gt;labelrequires);</span>
+<span class="lineNum">    1056 </span>                :            : 
+<span class="lineNum">    1057 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (&amp;(src-&gt;metadata)) {</span>
+<span class="lineNum">    1058 </span>                :<span class="lineCov">          1 :     msCopyHashTable(&amp;(dst-&gt;metadata), &amp;(src-&gt;metadata));</span>
+<span class="lineNum">    1059 </span>                :            :   }
+<span class="lineNum">    1060 </span>                :<span class="lineCov">          1 :   msCopyHashTable(&amp;dst-&gt;validation,&amp;src-&gt;validation);</span>
+<span class="lineNum">    1061 </span>                :            : 
+<span class="lineNum">    1062 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(opacity);</span>
+<span class="lineNum">    1063 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(dump);</span>
+<span class="lineNum">    1064 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(debug);</span>
+<span class="lineNum">    1065 </span>                :            : 
+<span class="lineNum">    1066 </span>                :            :   /* No need to copy the numprocessing member, as it is incremented by
+<span class="lineNum">    1067 </span>                :            :      msLayerAddProcessing */
+<span class="lineNum">    1068 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (i = 0; i &lt; src-&gt;numprocessing; i++) {</span>
+<span class="lineNum">    1069 </span>                :<span class="lineNoCov">          0 :     msLayerAddProcessing(dst, msLayerGetProcessing(src, i));</span>
+<span class="lineNum">    1070 </span>                :            :   }
+<span class="lineNum">    1071 </span>                :            : 
+<span class="lineNum">    1072 </span>                :<span class="lineCov">          1 :   MS_COPYSTELEM(numjoins);</span>
+<span class="lineNum">    1073 </span>                :            : 
+<span class="lineNum">    1074 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (i = 0; i &lt; dst-&gt;numjoins; i++) {</span>
+<span class="lineNum">    1075 </span>                :<span class="lineNoCov">          0 :     initJoin(&amp;(dst-&gt;joins[i]));</span>
+<span class="lineNum">    1076 </span>                :<span class="lineNoCov">          0 :     return_value = msCopyJoin(&amp;(dst-&gt;joins[i]), &amp;(src-&gt;joins[i]));</span>
+<span class="lineNum">    1077 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (return_value != MS_SUCCESS)</span>
+<span class="lineNum">    1078 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">    1079 </span>                :            :   }
+<span class="lineNum">    1080 </span>                :            : 
+<span class="lineNum">    1081 </span>                :<span class="lineCov">          1 :   MS_COPYRECT(&amp;(dst-&gt;extent), &amp;(src-&gt;extent));</span>
+<span class="lineNum">    1082 </span>                :            : 
+<span class="lineNum">    1083 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;classgroup, src-&gt;classgroup);</span>
+<span class="lineNum">    1084 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_COPYSTRING(dst-&gt;mask, src-&gt;mask);</span>
+<span class="lineNum">    1085 </span>                :            : 
+<span class="lineNum">    1086 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (src-&gt;grid) {</span>
+<span class="lineNum">    1087 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (dst-&gt;grid) {</span>
+<span class="lineNum">    1088 </span>                :<span class="lineNoCov">          0 :       freeGrid(dst-&gt;grid);</span>
+<span class="lineNum">    1089 </span>                :<span class="lineNoCov">          0 :       msFree(dst-&gt;grid);</span>
+<span class="lineNum">    1090 </span>                :            :     }
+<span class="lineNum">    1091 </span>                :<span class="lineNoCov">          0 :     dst-&gt;grid = (void *) malloc(sizeof(graticuleObj));</span>
+<span class="lineNum">    1092 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     MS_CHECK_ALLOC(dst-&gt;grid, sizeof(graticuleObj), -1);</span>
+<span class="lineNum">    1093 </span>                :<span class="lineNoCov">          0 :     initGrid(dst-&gt;grid);</span>
+<span class="lineNum">    1094 </span>                :<span class="lineCov">          1 :     msCopyGrid(dst-&gt;grid, src-&gt;grid);</span>
+<span class="lineNum">    1095 </span>                :            :   }
+<span class="lineNum">    1096 </span>                :            : 
+<span class="lineNum">    1097 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">    1098 </span>                :            : }
+<span class="lineNum">    1099 </span>                :            : 
+<span class="lineNum">    1100 </span>                :            : /***********************************************************************
+<span class="lineNum">    1101 </span>                :            :  * msCopyMap()                                                         *
+<span class="lineNum">    1102 </span>                :            :  *                                                                     *
+<span class="lineNum">    1103 </span>                :            :  * Copy a mapObj, using mapfile.c:initLayer(), msCopyLayer(),          *
+<span class="lineNum">    1104 </span>                :            : 
+<span class="lineNum">    1105 </span>                :            :  * msCopyLegend(), msCopyScalebar(), msCopyProjection()                *
+<span class="lineNum">    1106 </span>                :            :  * msCopyOutputFormat(), msCopyWeb(), msCopyReferenceMap()             *
+<a name="1107"><span class="lineNum">    1107 </span>                :            :  **********************************************************************/</a>
 <span class="lineNum">    1108 </span>                :            : 
-<span class="lineNum">    1109 </span>                :<span class="lineNoCov">          0 :   MS_COPYRECT(&amp;(dst-&gt;extent), &amp;(src-&gt;extent));</span>
-<span class="lineNum">    1110 </span>                :            : 
-<span class="lineNum">    1111 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(cellsize);</span>
-<span class="lineNum">    1112 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(units);</span>
-<span class="lineNum">    1113 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(scaledenom);</span>
-<span class="lineNum">    1114 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(defresolution);</span>
-<span class="lineNum">    1115 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(resolution);</span>
-<span class="lineNum">    1116 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;shapepath, src-&gt;shapepath);</span>
-<span class="lineNum">    1117 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;mappath, src-&gt;mappath);</span>
-<span class="lineNum">    1118 </span>                :            : 
-<span class="lineNum">    1119 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;imagecolor), &amp;(src-&gt;imagecolor));</span>
-<span class="lineNum">    1120 </span>                :            : 
-<span class="lineNum">    1121 </span>                :            :   /* clear existing destination format list */
-<span class="lineNum">    1122 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( dst-&gt;outputformat &amp;&amp; --dst-&gt;outputformat-&gt;refcount &lt; 1 ) {</span>
-<span class="lineNum">    1123 </span>                :<span class="lineNoCov">          0 :     msFreeOutputFormat( dst-&gt;outputformat );</span>
-<span class="lineNum">    1124 </span>                :<span class="lineNoCov">          0 :     dst-&gt;outputformat = NULL;</span>
-<span class="lineNum">    1125 </span>                :            :   }
-<span class="lineNum">    1126 </span>                :            : 
-<span class="lineNum">    1127 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for(i=0; i &lt; dst-&gt;numoutputformats; i++ ) {</span>
-<span class="lineNum">    1128 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if( --dst-&gt;outputformatlist[i]-&gt;refcount &lt; 1 )</span>
-<span class="lineNum">    1129 </span>                :<span class="lineNoCov">          0 :       msFreeOutputFormat( dst-&gt;outputformatlist[i] );</span>
-<span class="lineNum">    1130 </span>                :            :   }
-<span class="lineNum">    1131 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( dst-&gt;outputformatlist != NULL )</span>
-<span class="lineNum">    1132 </span>                :<span class="lineNoCov">          0 :     msFree( dst-&gt;outputformatlist );</span>
-<span class="lineNum">    1133 </span>                :<span class="lineNoCov">          0 :   dst-&gt;outputformatlist = NULL;</span>
-<span class="lineNum">    1134 </span>                :<span class="lineNoCov">          0 :   dst-&gt;outputformat = NULL;</span>
-<span class="lineNum">    1135 </span>                :<span class="lineNoCov">          0 :   dst-&gt;numoutputformats = 0;</span>
-<span class="lineNum">    1136 </span>                :            : 
-<span class="lineNum">    1137 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i = 0; i &lt; src-&gt;numoutputformats; i++)</span>
-<span class="lineNum">    1138 </span>                :<span class="lineNoCov">          0 :     msAppendOutputFormat( dst,</span>
-<span class="lineNum">    1139 </span>                :<span class="lineNoCov">          0 :                           msCloneOutputFormat( src-&gt;outputformatlist[i]) );</span>
-<span class="lineNum">    1140 </span>                :            : 
-<span class="lineNum">    1141 </span>                :            :   /* set the active output format */
-<span class="lineNum">    1142 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;imagetype, src-&gt;imagetype);</span>
-<span class="lineNum">    1143 </span>                :<span class="lineNoCov">          0 :   format = msSelectOutputFormat( dst, dst-&gt;imagetype );</span>
-<span class="lineNum">    1144 </span>                :<span class="lineNoCov">          0 :   msApplyOutputFormat(&amp;(dst-&gt;outputformat), format, MS_NOOVERRIDE,</span>
-<span class="lineNum">    1145 </span>                :            :                       MS_NOOVERRIDE, MS_NOOVERRIDE );
-<span class="lineNum">    1146 </span>                :            : 
-<span class="lineNum">    1147 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyProjection(&amp;(dst-&gt;projection),&amp;(src-&gt;projection));</span>
-<span class="lineNum">    1148 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">    1149 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy projection.&quot;, &quot;msCopyMap()&quot;);</span>
-<span class="lineNum">    1150 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1151 </span>                :            :   }
-<span class="lineNum">    1152 </span>                :            : 
-<span class="lineNum">    1153 </span>                :            :   /* No need to copy latlon projection */
-<span class="lineNum">    1154 </span>                :            : 
-<span class="lineNum">    1155 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyReferenceMap(&amp;(dst-&gt;reference),&amp;(src-&gt;reference),</span>
-<span class="lineNum">    1156 </span>                :            :                                     dst);
-<span class="lineNum">    1157 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">    1158 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy reference.&quot;, &quot;msCopyMap()&quot;);</span>
-<span class="lineNum">    1159 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1160 </span>                :            :   }
+<span class="lineNum">    1109 </span>                :<span class="lineNoCov">          0 : int msCopyMap(mapObj *dst, mapObj *src)</span>
+<span class="lineNum">    1110 </span>                :            : {
+<span class="lineNum">    1111 </span>                :            :   int i, return_value;
+<span class="lineNum">    1112 </span>                :            :   outputFormatObj *format;
+<span class="lineNum">    1113 </span>                :            : 
+<span class="lineNum">    1114 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;name, src-&gt;name);</span>
+<span class="lineNum">    1115 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(status);</span>
+<span class="lineNum">    1116 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(height);</span>
+<span class="lineNum">    1117 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(width);</span>
+<span class="lineNum">    1118 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(maxsize);</span>
+<span class="lineNum">    1119 </span>                :            : 
+<span class="lineNum">    1120 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i = 0; i &lt; src-&gt;numlayers; i++) {</span>
+<span class="lineNum">    1121 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (msGrowMapLayers(dst) == NULL)</span>
+<span class="lineNum">    1122 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">    1123 </span>                :<span class="lineNoCov">          0 :     initLayer((GET_LAYER(dst, i)), dst);</span>
+<span class="lineNum">    1124 </span>                :            : 
+<span class="lineNum">    1125 </span>                :<span class="lineNoCov">          0 :     return_value = msCopyLayer((GET_LAYER(dst, i)), (GET_LAYER(src, i)));</span>
+<span class="lineNum">    1126 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">    1127 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MEMERR, &quot;Failed to copy layer.&quot;, &quot;msCopyMap()&quot;);</span>
+<span class="lineNum">    1128 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    1129 </span>                :            :     }
+<span class="lineNum">    1130 </span>                :<span class="lineNoCov">          0 :     dst-&gt;numlayers++;</span>
+<span class="lineNum">    1131 </span>                :            :   }
+<span class="lineNum">    1132 </span>                :            : 
+<span class="lineNum">    1133 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyFontSet(&amp;(dst-&gt;fontset), &amp;(src-&gt;fontset), dst);</span>
+<span class="lineNum">    1134 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">    1135 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy fontset.&quot;, &quot;msCopyMap()&quot;);</span>
+<span class="lineNum">    1136 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1137 </span>                :            :   }
+<span class="lineNum">    1138 </span>                :            : 
+<span class="lineNum">    1139 </span>                :<span class="lineNoCov">          0 :   return_value = msCopySymbolSet(&amp;(dst-&gt;symbolset), &amp;(src-&gt;symbolset), dst);</span>
+<span class="lineNum">    1140 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(return_value != MS_SUCCESS) {</span>
+<span class="lineNum">    1141 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy symbolset.&quot;, &quot;msCopyMap()&quot;);</span>
+<span class="lineNum">    1142 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1143 </span>                :            :   }
+<span class="lineNum">    1144 </span>                :            : 
+<span class="lineNum">    1145 </span>                :            :   /* msCopyLabelCache(&amp;(dst-&gt;labelcache), &amp;(src-&gt;labelcache)); */
+<span class="lineNum">    1146 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(transparent);</span>
+<span class="lineNum">    1147 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(interlace);</span>
+<span class="lineNum">    1148 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(imagequality);</span>
+<span class="lineNum">    1149 </span>                :            : 
+<span class="lineNum">    1150 </span>                :<span class="lineNoCov">          0 :   MS_COPYRECT(&amp;(dst-&gt;extent), &amp;(src-&gt;extent));</span>
+<span class="lineNum">    1151 </span>                :            : 
+<span class="lineNum">    1152 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(cellsize);</span>
+<span class="lineNum">    1153 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(units);</span>
+<span class="lineNum">    1154 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(scaledenom);</span>
+<span class="lineNum">    1155 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(defresolution);</span>
+<span class="lineNum">    1156 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(resolution);</span>
+<span class="lineNum">    1157 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;shapepath, src-&gt;shapepath);</span>
+<span class="lineNum">    1158 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;mappath, src-&gt;mappath);</span>
+<span class="lineNum">    1159 </span>                :            : 
+<span class="lineNum">    1160 </span>                :<span class="lineNoCov">          0 :   MS_COPYCOLOR(&amp;(dst-&gt;imagecolor), &amp;(src-&gt;imagecolor));</span>
 <span class="lineNum">    1161 </span>                :            : 
-<span class="lineNum">    1162 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyScalebar(&amp;(dst-&gt;scalebar), &amp;(src-&gt;scalebar));</span>
-<span class="lineNum">    1163 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">    1164 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy scalebar.&quot;, &quot;msCopyMap()&quot;);</span>
-<span class="lineNum">    1165 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1162 </span>                :            :   /* clear existing destination format list */
+<span class="lineNum">    1163 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( dst-&gt;outputformat &amp;&amp; --dst-&gt;outputformat-&gt;refcount &lt; 1 ) {</span>
+<span class="lineNum">    1164 </span>                :<span class="lineNoCov">          0 :     msFreeOutputFormat( dst-&gt;outputformat );</span>
+<span class="lineNum">    1165 </span>                :<span class="lineNoCov">          0 :     dst-&gt;outputformat = NULL;</span>
 <span class="lineNum">    1166 </span>                :            :   }
 <span class="lineNum">    1167 </span>                :            : 
-<span class="lineNum">    1168 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyLegend(&amp;(dst-&gt;legend), &amp;(src-&gt;legend),dst);</span>
-<span class="lineNum">    1169 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">    1170 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy legend.&quot;, &quot;msCopyMap()&quot;);</span>
-<span class="lineNum">    1171 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1172 </span>                :            :   }
-<span class="lineNum">    1173 </span>                :            : 
-<span class="lineNum">    1174 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyQueryMap(&amp;(dst-&gt;querymap), &amp;(src-&gt;querymap));</span>
-<span class="lineNum">    1175 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">    1176 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy querymap.&quot;, &quot;msCopyMap()&quot;);</span>
-<span class="lineNum">    1177 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1178 </span>                :            :   }
-<span class="lineNum">    1179 </span>                :            : 
-<span class="lineNum">    1180 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyWeb(&amp;(dst-&gt;web), &amp;(src-&gt;web), dst);</span>
-<span class="lineNum">    1181 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">    1182 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy web.&quot;, &quot;msCopyMap()&quot;);</span>
-<span class="lineNum">    1183 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1184 </span>                :            :   }
-<span class="lineNum">    1185 </span>                :            : 
-<span class="lineNum">    1186 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i = 0; i &lt; dst-&gt;numlayers; i++) {</span>
-<span class="lineNum">    1187 </span>                :<span class="lineNoCov">          0 :     MS_COPYSTELEM(layerorder[i]);</span>
-<span class="lineNum">    1188 </span>                :            :   }
-<span class="lineNum">    1189 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(debug);</span>
-<span class="lineNum">    1190 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;datapattern, src-&gt;datapattern);</span>
-<span class="lineNum">    1191 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;templatepattern, src-&gt;templatepattern);</span>
-<span class="lineNum">    1192 </span>                :            : 
-<span class="lineNum">    1193 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( msCopyHashTable( &amp;(dst-&gt;configoptions), &amp;(src-&gt;configoptions) ) != MS_SUCCESS )</span>
-<span class="lineNum">    1194 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">    1168 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for(i=0; i &lt; dst-&gt;numoutputformats; i++ ) {</span>
+<span class="lineNum">    1169 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if( --dst-&gt;outputformatlist[i]-&gt;refcount &lt; 1 )</span>
+<span class="lineNum">    1170 </span>                :<span class="lineNoCov">          0 :       msFreeOutputFormat( dst-&gt;outputformatlist[i] );</span>
+<span class="lineNum">    1171 </span>                :            :   }
+<span class="lineNum">    1172 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( dst-&gt;outputformatlist != NULL )</span>
+<span class="lineNum">    1173 </span>                :<span class="lineNoCov">          0 :     msFree( dst-&gt;outputformatlist );</span>
+<span class="lineNum">    1174 </span>                :<span class="lineNoCov">          0 :   dst-&gt;outputformatlist = NULL;</span>
+<span class="lineNum">    1175 </span>                :<span class="lineNoCov">          0 :   dst-&gt;outputformat = NULL;</span>
+<span class="lineNum">    1176 </span>                :<span class="lineNoCov">          0 :   dst-&gt;numoutputformats = 0;</span>
+<span class="lineNum">    1177 </span>                :            : 
+<span class="lineNum">    1178 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i = 0; i &lt; src-&gt;numoutputformats; i++)</span>
+<span class="lineNum">    1179 </span>                :<span class="lineNoCov">          0 :     msAppendOutputFormat( dst,</span>
+<span class="lineNum">    1180 </span>                :<span class="lineNoCov">          0 :                           msCloneOutputFormat( src-&gt;outputformatlist[i]) );</span>
+<span class="lineNum">    1181 </span>                :            : 
+<span class="lineNum">    1182 </span>                :            :   /* set the active output format */
+<span class="lineNum">    1183 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;imagetype, src-&gt;imagetype);</span>
+<span class="lineNum">    1184 </span>                :<span class="lineNoCov">          0 :   format = msSelectOutputFormat( dst, dst-&gt;imagetype );</span>
+<span class="lineNum">    1185 </span>                :<span class="lineNoCov">          0 :   msApplyOutputFormat(&amp;(dst-&gt;outputformat), format, MS_NOOVERRIDE,</span>
+<span class="lineNum">    1186 </span>                :            :                       MS_NOOVERRIDE, MS_NOOVERRIDE );
+<span class="lineNum">    1187 </span>                :            : 
+<span class="lineNum">    1188 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyProjection(&amp;(dst-&gt;projection),&amp;(src-&gt;projection));</span>
+<span class="lineNum">    1189 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">    1190 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy projection.&quot;, &quot;msCopyMap()&quot;);</span>
+<span class="lineNum">    1191 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1192 </span>                :            :   }
+<span class="lineNum">    1193 </span>                :            : 
+<span class="lineNum">    1194 </span>                :            :   /* No need to copy latlon projection */
 <span class="lineNum">    1195 </span>                :            : 
-<span class="lineNum">    1196 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1197 </span>                :            : }
-<span class="lineNum">    1198 </span>                :            : 
+<span class="lineNum">    1196 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyReferenceMap(&amp;(dst-&gt;reference),&amp;(src-&gt;reference),</span>
+<span class="lineNum">    1197 </span>                :            :                                     dst);
+<span class="lineNum">    1198 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">    1199 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy reference.&quot;, &quot;msCopyMap()&quot;);</span>
+<span class="lineNum">    1200 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1201 </span>                :            :   }
+<span class="lineNum">    1202 </span>                :            : 
+<span class="lineNum">    1203 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyScalebar(&amp;(dst-&gt;scalebar), &amp;(src-&gt;scalebar));</span>
+<span class="lineNum">    1204 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">    1205 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy scalebar.&quot;, &quot;msCopyMap()&quot;);</span>
+<span class="lineNum">    1206 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1207 </span>                :            :   }
+<span class="lineNum">    1208 </span>                :            : 
+<span class="lineNum">    1209 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyLegend(&amp;(dst-&gt;legend), &amp;(src-&gt;legend),dst);</span>
+<span class="lineNum">    1210 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">    1211 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy legend.&quot;, &quot;msCopyMap()&quot;);</span>
+<span class="lineNum">    1212 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1213 </span>                :            :   }
+<span class="lineNum">    1214 </span>                :            : 
+<span class="lineNum">    1215 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyQueryMap(&amp;(dst-&gt;querymap), &amp;(src-&gt;querymap));</span>
+<span class="lineNum">    1216 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">    1217 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy querymap.&quot;, &quot;msCopyMap()&quot;);</span>
+<span class="lineNum">    1218 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1219 </span>                :            :   }
+<span class="lineNum">    1220 </span>                :            : 
+<span class="lineNum">    1221 </span>                :<span class="lineNoCov">          0 :   return_value = msCopyWeb(&amp;(dst-&gt;web), &amp;(src-&gt;web), dst);</span>
+<span class="lineNum">    1222 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">    1223 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to copy web.&quot;, &quot;msCopyMap()&quot;);</span>
+<span class="lineNum">    1224 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1225 </span>                :            :   }
+<span class="lineNum">    1226 </span>                :            : 
+<span class="lineNum">    1227 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i = 0; i &lt; dst-&gt;numlayers; i++) {</span>
+<span class="lineNum">    1228 </span>                :<span class="lineNoCov">          0 :     MS_COPYSTELEM(layerorder[i]);</span>
+<span class="lineNum">    1229 </span>                :            :   }
+<span class="lineNum">    1230 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(debug);</span>
+<span class="lineNum">    1231 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;datapattern, src-&gt;datapattern);</span>
+<span class="lineNum">    1232 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;templatepattern, src-&gt;templatepattern);</span>
+<span class="lineNum">    1233 </span>                :            : 
+<span class="lineNum">    1234 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( msCopyHashTable( &amp;(dst-&gt;configoptions), &amp;(src-&gt;configoptions) ) != MS_SUCCESS )</span>
+<span class="lineNum">    1235 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">    1236 </span>                :            : 
+<span class="lineNum">    1237 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1238 </span>                :            : }
+<span class="lineNum">    1239 </span>                :            : 
 </pre>
       </td>
     </tr>
