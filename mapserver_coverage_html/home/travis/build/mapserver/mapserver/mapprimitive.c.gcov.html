@@ -31,8 +31,8 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">754</td>
-            <td class="headerCovTableEntry">985</td>
+            <td class="headerCovTableEntry">755</td>
+            <td class="headerCovTableEntry">987</td>
             <td class="headerCovTableEntryMed">76.5 %</td>
           </tr>
           <tr>
@@ -49,8 +49,8 @@
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">510</td>
-            <td class="headerCovTableEntry">770</td>
+            <td class="headerCovTableEntry">511</td>
+            <td class="headerCovTableEntry">772</td>
             <td class="headerCovTableEntryLo">66.2 %</td>
           </tr>
           <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
@@ -1626,658 +1626,662 @@
 <span class="lineNum">    1547 </span>                :<span class="lineCov">          1 :     struct line_lengths *ll = &amp;pll-&gt;ll[i];</span>
 <span class="lineNum">    1548 </span>                :            :     double max_subline_segment_length = 0;
 <span class="lineNum">    1549 </span>                :            :     
-<span class="lineNum">    1550 </span>                :<span class="lineCov">          1 :     ll-&gt;segment_lengths = (double*) msSmallMalloc(sizeof(double) * (shape-&gt;line[i].numpoints - 1));</span>
-<span class="lineNum">    1551 </span>                :<span class="lineCov">          1 :     ll-&gt;total_length = 0;</span>
-<span class="lineNum">    1552 </span>                :            :     
-<span class="lineNum">    1553 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(j=1; j&lt;shape-&gt;line[i].numpoints; j++) {</span>
-<span class="lineNum">    1554 </span>                :<span class="lineCov">          1 :       segment_length = sqrt((((shape-&gt;line[i].point[j].x-shape-&gt;line[i].point[j-1].x)*(shape-&gt;line[i].point[j].x-shape-&gt;line[i].point[j-1].x)) + ((shape-&gt;line[i].point[j].y-shape-&gt;line[i].point[j-1].y)*(shape-&gt;line[i].point[j].y-shape-&gt;line[i].point[j-1].y))));</span>
-<span class="lineNum">    1555 </span>                :<span class="lineCov">          1 :       ll-&gt;total_length += segment_length;</span>
-<span class="lineNum">    1556 </span>                :<span class="lineCov">          1 :       ll-&gt;segment_lengths[j-1] = segment_length;</span>
-<span class="lineNum">    1557 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(segment_length &gt; max_subline_segment_length) {</span>
-<span class="lineNum">    1558 </span>                :            :         max_subline_segment_length = segment_length;
-<span class="lineNum">    1559 </span>                :<span class="lineCov">          1 :         ll-&gt;longest_segment_index = j;</span>
-<span class="lineNum">    1560 </span>                :            :       }
-<span class="lineNum">    1561 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(segment_length &gt; max_segment_length) {</span>
-<span class="lineNum">    1562 </span>                :            :         max_segment_length = segment_length;
-<span class="lineNum">    1563 </span>                :<span class="lineCov">          1 :         pll-&gt;longest_segment_line_index = i;</span>
-<span class="lineNum">    1564 </span>                :<span class="lineCov">          1 :         pll-&gt;longest_segment_point_index = j;</span>
-<span class="lineNum">    1565 </span>                :            :       }
-<span class="lineNum">    1566 </span>                :            :     }
-<span class="lineNum">    1567 </span>                :<span class="lineCov">          1 :     pll-&gt;total_length += ll-&gt;total_length;</span>
-<span class="lineNum">    1568 </span>                :            : 
-<span class="lineNum">    1569 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(ll-&gt;total_length &gt; max_line_length) {</span>
-<span class="lineNum">    1570 </span>                :<span class="lineCov">          1 :       max_line_length = ll-&gt;total_length;</span>
-<span class="lineNum">    1571 </span>                :<span class="lineCov">          1 :       pll-&gt;longest_line_index = i;</span>
-<span class="lineNum">    1572 </span>                :            :     }
-<span class="lineNum">    1573 </span>                :            :   }
-<span class="lineNum">    1574 </span>                :<span class="lineCov">          1 : }</span>
-<span class="lineNum">    1575 </span>                :            : 
-<span class="lineNum">    1576 </span>                :            : /*
-<span class="lineNum">    1577 </span>                :            : ** If no repeatdistance, find center of longest segment in polyline p. The polyline must have been converted
-<a name="1578"><span class="lineNum">    1578 </span>                :            : ** to image coordinates before calling this function.</a>
-<span class="lineNum">    1579 </span>                :            : */
-<span class="lineNum">    1580 </span>                :<span class="lineCov">          1 : int msPolylineLabelPoint(mapObj *map, shapeObj *p, textSymbolObj *ts, labelObj *label, struct label_auto_result *lar, double resolutionfactor)</span>
-<span class="lineNum">    1581 </span>                :            : {
-<span class="lineNum">    1582 </span>                :            :   struct polyline_lengths pll;
-<span class="lineNum">    1583 </span>                :            :   int i, ret = MS_SUCCESS;
-<span class="lineNum">    1584 </span>                :            :   double minfeaturesize = -1;
-<span class="lineNum">    1585 </span>                :            :   assert(ts-&gt;annotext);
-<span class="lineNum">    1586 </span>                :            : 
-<span class="lineNum">    1587 </span>                :            : 
-<span class="lineNum">    1588 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(label &amp;&amp; ts) {</span>
-<span class="lineNum">    1589 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(label-&gt;autominfeaturesize) {</span>
-<span class="lineNum">    1590 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(!ts-&gt;textpath) {</span>
-<span class="lineNum">    1591 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(UNLIKELY(MS_FAILURE == msComputeTextPath(map,ts)))</span>
-<span class="lineNum">    1592 </span>                :            :           return MS_FAILURE;
-<span class="lineNum">    1593 </span>                :            :       }
-<span class="lineNum">    1594 </span>                :<span class="lineNoCov">          0 :       minfeaturesize = ts-&gt;textpath-&gt;bounds.bbox.maxx;</span>
-<span class="lineNum">    1595 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     } else if(label-&gt;minfeaturesize) {</span>
-<span class="lineNum">    1596 </span>                :<span class="lineCov">          1 :       minfeaturesize = label-&gt;minfeaturesize * resolutionfactor;</span>
-<span class="lineNum">    1597 </span>                :            :     }
-<span class="lineNum">    1598 </span>                :            :   }
-<span class="lineNum">    1599 </span>                :            : 
-<span class="lineNum">    1600 </span>                :            :   /* compute line lengths, in order to:
-<span class="lineNum">    1601 </span>                :            :     - extract the longest line if we're not repeating
-<span class="lineNum">    1602 </span>                :            :     - check that each line is longer than the text length if using minfeaturesize auto
-<span class="lineNum">    1603 </span>                :            :     - check that each line is long enough if using minfeaturesize
-<span class="lineNum">    1604 </span>                :            :    */
-<span class="lineNum">    1605 </span>                :<span class="lineCov">          1 :   msPolylineComputeLineSegments(p, &amp;pll);</span>
-<span class="lineNum">    1606 </span>                :            : 
-<span class="lineNum">    1607 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(label &amp;&amp; label-&gt;repeatdistance &gt; 0) {</span>
-<span class="lineNum">    1608 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i=0; i&lt;p-&gt;numlines; i++) {</span>
-<span class="lineNum">    1609 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(pll.ll[i].total_length &gt; minfeaturesize) {</span>
-<span class="lineNum">    1610 </span>                :<span class="lineCov">          1 :         ret = msLineLabelPoint(map,&amp;p-&gt;line[i], ts, &amp;pll.ll[i],lar, label, resolutionfactor);</span>
-<span class="lineNum">    1611 </span>                :            :       }
-<span class="lineNum">    1612 </span>                :            :     }
-<span class="lineNum">    1613 </span>                :            :   } else {
-<span class="lineNum">    1614 </span>                :<span class="lineCov">          1 :     i = pll.longest_line_index;</span>
-<span class="lineNum">    1615 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(pll.ll[i].total_length &gt; minfeaturesize) {</span>
-<span class="lineNum">    1616 </span>                :<span class="lineCov">          1 :       ret = msLineLabelPoint(map,&amp;p-&gt;line[i], ts, &amp;pll.ll[i],lar, label, resolutionfactor);</span>
-<span class="lineNum">    1617 </span>                :            :     }
-<span class="lineNum">    1618 </span>                :            :   }
-<span class="lineNum">    1619 </span>                :            : 
-<span class="lineNum">    1620 </span>                :            :   /* freeing memory: allocated by msPolylineComputeLineSegments */
-<span class="lineNum">    1621 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for ( i = 0; i &lt; p-&gt;numlines; i++ ) {</span>
-<span class="lineNum">    1622 </span>                :<span class="lineCov">          1 :     free(pll.ll[i].segment_lengths);</span>
-<span class="lineNum">    1623 </span>                :            :   }
-<span class="lineNum">    1624 </span>                :<span class="lineCov">          1 :   free(pll.ll);</span>
-<span class="lineNum">    1625 </span>                :            :   
-<span class="lineNum">    1626 </span>                :<span class="lineCov">          1 :   return ret;</span>
-<a name="1627"><span class="lineNum">    1627 </span>                :            : }</a>
-<span class="lineNum">    1628 </span>                :            : 
-<span class="lineNum">    1629 </span>                :<span class="lineCov">          1 : int msLineLabelPoint(mapObj *map, lineObj *p, textSymbolObj *ts, struct line_lengths *ll, struct label_auto_result *lar, labelObj *label, double resolutionfactor)</span>
-<span class="lineNum">    1630 </span>                :            : {
-<span class="lineNum">    1631 </span>                :            :   int j, l, n, point_repeat;
-<span class="lineNum">    1632 </span>                :            :   double t, theta, fwd_length, point_distance;
-<span class="lineNum">    1633 </span>                :            :   double center_point_position, left_point_position, right_point_position, point_position;
-<span class="lineNum">    1634 </span>                :            :   double repeat_distance = -1;
-<span class="lineNum">    1635 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(label) {</span>
-<span class="lineNum">    1636 </span>                :<span class="lineCov">          1 :     repeat_distance = label-&gt;repeatdistance * resolutionfactor;</span>
-<span class="lineNum">    1637 </span>                :            :   }
-<span class="lineNum">    1638 </span>                :            : 
-<span class="lineNum">    1639 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(UNLIKELY(p-&gt;numpoints &lt; 2))</span>
-<span class="lineNum">    1640 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">    1641 </span>                :            :   point_distance = 0;
-<span class="lineNum">    1642 </span>                :            :   point_repeat = 1;
-<span class="lineNum">    1643 </span>                :<span class="lineCov">          1 :   left_point_position = right_point_position = center_point_position = ll-&gt;total_length / 2.0;</span>
-<span class="lineNum">    1644 </span>                :            : 
-<span class="lineNum">    1645 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (repeat_distance &gt; 0) {</span>
-<span class="lineNum">    1646 </span>                :<span class="lineCov">          1 :     point_repeat = ll-&gt;total_length / repeat_distance;</span>
-<span class="lineNum">    1647 </span>                :            : 
-<span class="lineNum">    1648 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (point_repeat &gt; 1) {</span>
-<span class="lineNum">    1649 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (point_repeat % 2 == 0)</span>
-<span class="lineNum">    1650 </span>                :<span class="lineNoCov">          0 :         point_repeat -= 1;</span>
-<span class="lineNum">    1651 </span>                :<span class="lineCov">          1 :       point_distance = (ll-&gt;total_length / point_repeat); /* buffer allowed per point */</span>
-<span class="lineNum">    1652 </span>                :            : 
-<span class="lineNum">    1653 </span>                :            :       /* initial point position */
-<span class="lineNum">    1654 </span>                :<span class="lineCov">          1 :       left_point_position -= ((point_repeat-1)/2 * point_distance);</span>
-<span class="lineNum">    1655 </span>                :<span class="lineCov">          1 :       right_point_position += ((point_repeat-1)/2 * point_distance);</span>
+<span class="lineNum">    1550 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(shape-&gt;line[i].numpoints &gt; 1) {</span>
+<span class="lineNum">    1551 </span>                :<span class="lineCov">          1 :       ll-&gt;segment_lengths = (double*) msSmallMalloc(sizeof(double) * (shape-&gt;line[i].numpoints - 1));</span>
+<span class="lineNum">    1552 </span>                :            :     } else {
+<span class="lineNum">    1553 </span>                :<span class="lineNoCov">          0 :       ll-&gt;segment_lengths = NULL;</span>
+<span class="lineNum">    1554 </span>                :            :     }
+<span class="lineNum">    1555 </span>                :<span class="lineCov">          1 :     ll-&gt;total_length = 0;</span>
+<span class="lineNum">    1556 </span>                :            :     
+<span class="lineNum">    1557 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(j=1; j&lt;shape-&gt;line[i].numpoints; j++) {</span>
+<span class="lineNum">    1558 </span>                :<span class="lineCov">          1 :       segment_length = sqrt((((shape-&gt;line[i].point[j].x-shape-&gt;line[i].point[j-1].x)*(shape-&gt;line[i].point[j].x-shape-&gt;line[i].point[j-1].x)) + ((shape-&gt;line[i].point[j].y-shape-&gt;line[i].point[j-1].y)*(shape-&gt;line[i].point[j].y-shape-&gt;line[i].point[j-1].y))));</span>
+<span class="lineNum">    1559 </span>                :<span class="lineCov">          1 :       ll-&gt;total_length += segment_length;</span>
+<span class="lineNum">    1560 </span>                :<span class="lineCov">          1 :       ll-&gt;segment_lengths[j-1] = segment_length;</span>
+<span class="lineNum">    1561 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(segment_length &gt; max_subline_segment_length) {</span>
+<span class="lineNum">    1562 </span>                :            :         max_subline_segment_length = segment_length;
+<span class="lineNum">    1563 </span>                :<span class="lineCov">          1 :         ll-&gt;longest_segment_index = j;</span>
+<span class="lineNum">    1564 </span>                :            :       }
+<span class="lineNum">    1565 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(segment_length &gt; max_segment_length) {</span>
+<span class="lineNum">    1566 </span>                :            :         max_segment_length = segment_length;
+<span class="lineNum">    1567 </span>                :<span class="lineCov">          1 :         pll-&gt;longest_segment_line_index = i;</span>
+<span class="lineNum">    1568 </span>                :<span class="lineCov">          1 :         pll-&gt;longest_segment_point_index = j;</span>
+<span class="lineNum">    1569 </span>                :            :       }
+<span class="lineNum">    1570 </span>                :            :     }
+<span class="lineNum">    1571 </span>                :<span class="lineCov">          1 :     pll-&gt;total_length += ll-&gt;total_length;</span>
+<span class="lineNum">    1572 </span>                :            : 
+<span class="lineNum">    1573 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(ll-&gt;total_length &gt; max_line_length) {</span>
+<span class="lineNum">    1574 </span>                :<span class="lineCov">          1 :       max_line_length = ll-&gt;total_length;</span>
+<span class="lineNum">    1575 </span>                :<span class="lineCov">          1 :       pll-&gt;longest_line_index = i;</span>
+<span class="lineNum">    1576 </span>                :            :     }
+<span class="lineNum">    1577 </span>                :            :   }
+<span class="lineNum">    1578 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">    1579 </span>                :            : 
+<span class="lineNum">    1580 </span>                :            : /*
+<span class="lineNum">    1581 </span>                :            : ** If no repeatdistance, find center of longest segment in polyline p. The polyline must have been converted
+<a name="1582"><span class="lineNum">    1582 </span>                :            : ** to image coordinates before calling this function.</a>
+<span class="lineNum">    1583 </span>                :            : */
+<span class="lineNum">    1584 </span>                :<span class="lineCov">          1 : int msPolylineLabelPoint(mapObj *map, shapeObj *p, textSymbolObj *ts, labelObj *label, struct label_auto_result *lar, double resolutionfactor)</span>
+<span class="lineNum">    1585 </span>                :            : {
+<span class="lineNum">    1586 </span>                :            :   struct polyline_lengths pll;
+<span class="lineNum">    1587 </span>                :            :   int i, ret = MS_SUCCESS;
+<span class="lineNum">    1588 </span>                :            :   double minfeaturesize = -1;
+<span class="lineNum">    1589 </span>                :            :   assert(ts-&gt;annotext);
+<span class="lineNum">    1590 </span>                :            : 
+<span class="lineNum">    1591 </span>                :            : 
+<span class="lineNum">    1592 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(label &amp;&amp; ts) {</span>
+<span class="lineNum">    1593 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(label-&gt;autominfeaturesize) {</span>
+<span class="lineNum">    1594 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(!ts-&gt;textpath) {</span>
+<span class="lineNum">    1595 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(UNLIKELY(MS_FAILURE == msComputeTextPath(map,ts)))</span>
+<span class="lineNum">    1596 </span>                :            :           return MS_FAILURE;
+<span class="lineNum">    1597 </span>                :            :       }
+<span class="lineNum">    1598 </span>                :<span class="lineNoCov">          0 :       minfeaturesize = ts-&gt;textpath-&gt;bounds.bbox.maxx;</span>
+<span class="lineNum">    1599 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     } else if(label-&gt;minfeaturesize) {</span>
+<span class="lineNum">    1600 </span>                :<span class="lineCov">          1 :       minfeaturesize = label-&gt;minfeaturesize * resolutionfactor;</span>
+<span class="lineNum">    1601 </span>                :            :     }
+<span class="lineNum">    1602 </span>                :            :   }
+<span class="lineNum">    1603 </span>                :            : 
+<span class="lineNum">    1604 </span>                :            :   /* compute line lengths, in order to:
+<span class="lineNum">    1605 </span>                :            :     - extract the longest line if we're not repeating
+<span class="lineNum">    1606 </span>                :            :     - check that each line is longer than the text length if using minfeaturesize auto
+<span class="lineNum">    1607 </span>                :            :     - check that each line is long enough if using minfeaturesize
+<span class="lineNum">    1608 </span>                :            :    */
+<span class="lineNum">    1609 </span>                :<span class="lineCov">          1 :   msPolylineComputeLineSegments(p, &amp;pll);</span>
+<span class="lineNum">    1610 </span>                :            : 
+<span class="lineNum">    1611 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(label &amp;&amp; label-&gt;repeatdistance &gt; 0) {</span>
+<span class="lineNum">    1612 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i=0; i&lt;p-&gt;numlines; i++) {</span>
+<span class="lineNum">    1613 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(pll.ll[i].total_length &gt; minfeaturesize) {</span>
+<span class="lineNum">    1614 </span>                :<span class="lineCov">          1 :         ret = msLineLabelPoint(map,&amp;p-&gt;line[i], ts, &amp;pll.ll[i],lar, label, resolutionfactor);</span>
+<span class="lineNum">    1615 </span>                :            :       }
+<span class="lineNum">    1616 </span>                :            :     }
+<span class="lineNum">    1617 </span>                :            :   } else {
+<span class="lineNum">    1618 </span>                :<span class="lineCov">          1 :     i = pll.longest_line_index;</span>
+<span class="lineNum">    1619 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(pll.ll[i].total_length &gt; minfeaturesize) {</span>
+<span class="lineNum">    1620 </span>                :<span class="lineCov">          1 :       ret = msLineLabelPoint(map,&amp;p-&gt;line[i], ts, &amp;pll.ll[i],lar, label, resolutionfactor);</span>
+<span class="lineNum">    1621 </span>                :            :     }
+<span class="lineNum">    1622 </span>                :            :   }
+<span class="lineNum">    1623 </span>                :            : 
+<span class="lineNum">    1624 </span>                :            :   /* freeing memory: allocated by msPolylineComputeLineSegments */
+<span class="lineNum">    1625 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for ( i = 0; i &lt; p-&gt;numlines; i++ ) {</span>
+<span class="lineNum">    1626 </span>                :<span class="lineCov">          1 :     free(pll.ll[i].segment_lengths);</span>
+<span class="lineNum">    1627 </span>                :            :   }
+<span class="lineNum">    1628 </span>                :<span class="lineCov">          1 :   free(pll.ll);</span>
+<span class="lineNum">    1629 </span>                :            :   
+<span class="lineNum">    1630 </span>                :<span class="lineCov">          1 :   return ret;</span>
+<a name="1631"><span class="lineNum">    1631 </span>                :            : }</a>
+<span class="lineNum">    1632 </span>                :            : 
+<span class="lineNum">    1633 </span>                :<span class="lineCov">          1 : int msLineLabelPoint(mapObj *map, lineObj *p, textSymbolObj *ts, struct line_lengths *ll, struct label_auto_result *lar, labelObj *label, double resolutionfactor)</span>
+<span class="lineNum">    1634 </span>                :            : {
+<span class="lineNum">    1635 </span>                :            :   int j, l, n, point_repeat;
+<span class="lineNum">    1636 </span>                :            :   double t, theta, fwd_length, point_distance;
+<span class="lineNum">    1637 </span>                :            :   double center_point_position, left_point_position, right_point_position, point_position;
+<span class="lineNum">    1638 </span>                :            :   double repeat_distance = -1;
+<span class="lineNum">    1639 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(label) {</span>
+<span class="lineNum">    1640 </span>                :<span class="lineCov">          1 :     repeat_distance = label-&gt;repeatdistance * resolutionfactor;</span>
+<span class="lineNum">    1641 </span>                :            :   }
+<span class="lineNum">    1642 </span>                :            : 
+<span class="lineNum">    1643 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(UNLIKELY(p-&gt;numpoints &lt; 2))</span>
+<span class="lineNum">    1644 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">    1645 </span>                :            :   point_distance = 0;
+<span class="lineNum">    1646 </span>                :            :   point_repeat = 1;
+<span class="lineNum">    1647 </span>                :<span class="lineCov">          1 :   left_point_position = right_point_position = center_point_position = ll-&gt;total_length / 2.0;</span>
+<span class="lineNum">    1648 </span>                :            : 
+<span class="lineNum">    1649 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (repeat_distance &gt; 0) {</span>
+<span class="lineNum">    1650 </span>                :<span class="lineCov">          1 :     point_repeat = ll-&gt;total_length / repeat_distance;</span>
+<span class="lineNum">    1651 </span>                :            : 
+<span class="lineNum">    1652 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (point_repeat &gt; 1) {</span>
+<span class="lineNum">    1653 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (point_repeat % 2 == 0)</span>
+<span class="lineNum">    1654 </span>                :<span class="lineNoCov">          0 :         point_repeat -= 1;</span>
+<span class="lineNum">    1655 </span>                :<span class="lineCov">          1 :       point_distance = (ll-&gt;total_length / point_repeat); /* buffer allowed per point */</span>
 <span class="lineNum">    1656 </span>                :            : 
-<span class="lineNum">    1657 </span>                :<span class="lineCov">          1 :       point_repeat = (point_repeat-1)/2+1;</span>
-<span class="lineNum">    1658 </span>                :            :     } else
-<span class="lineNum">    1659 </span>                :            :       point_repeat = 1;
-<span class="lineNum">    1660 </span>                :            :   }
-<span class="lineNum">    1661 </span>                :            : 
-<span class="lineNum">    1662 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (l=0; l &lt; point_repeat; ++l) {</span>
-<span class="lineNum">    1663 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (l == point_repeat-1) { /* last point to place is always the center point */</span>
-<span class="lineNum">    1664 </span>                :            :       point_position = center_point_position;
-<span class="lineNum">    1665 </span>                :            :       n = 1;
-<span class="lineNum">    1666 </span>                :            :     } else {
-<span class="lineNum">    1667 </span>                :            :       point_position = right_point_position;
-<span class="lineNum">    1668 </span>                :            :       n = 0;
-<span class="lineNum">    1669 </span>                :            :     }
-<span class="lineNum">    1670 </span>                :            : 
-<span class="lineNum">    1671 </span>                :            :     do {
-<span class="lineNum">    1672 </span>                :<span class="lineCov">          1 :       lar-&gt;angles = msSmallRealloc(lar-&gt;angles, (lar-&gt;num_label_points+1)*sizeof(double));</span>
-<span class="lineNum">    1673 </span>                :<span class="lineCov">          1 :       lar-&gt;label_points = msSmallRealloc(lar-&gt;label_points, (lar-&gt;num_label_points+1)*sizeof(pointObj));</span>
+<span class="lineNum">    1657 </span>                :            :       /* initial point position */
+<span class="lineNum">    1658 </span>                :<span class="lineCov">          1 :       left_point_position -= ((point_repeat-1)/2 * point_distance);</span>
+<span class="lineNum">    1659 </span>                :<span class="lineCov">          1 :       right_point_position += ((point_repeat-1)/2 * point_distance);</span>
+<span class="lineNum">    1660 </span>                :            : 
+<span class="lineNum">    1661 </span>                :<span class="lineCov">          1 :       point_repeat = (point_repeat-1)/2+1;</span>
+<span class="lineNum">    1662 </span>                :            :     } else
+<span class="lineNum">    1663 </span>                :            :       point_repeat = 1;
+<span class="lineNum">    1664 </span>                :            :   }
+<span class="lineNum">    1665 </span>                :            : 
+<span class="lineNum">    1666 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (l=0; l &lt; point_repeat; ++l) {</span>
+<span class="lineNum">    1667 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (l == point_repeat-1) { /* last point to place is always the center point */</span>
+<span class="lineNum">    1668 </span>                :            :       point_position = center_point_position;
+<span class="lineNum">    1669 </span>                :            :       n = 1;
+<span class="lineNum">    1670 </span>                :            :     } else {
+<span class="lineNum">    1671 </span>                :            :       point_position = right_point_position;
+<span class="lineNum">    1672 </span>                :            :       n = 0;
+<span class="lineNum">    1673 </span>                :            :     }
 <span class="lineNum">    1674 </span>                :            : 
-<span class="lineNum">    1675 </span>                :            :       /* if there is only 1 label to place... put it in the middle of the current segment (as old behavior) */
-<span class="lineNum">    1676 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if ( point_repeat == 1 ) {</span>
-<span class="lineNum">    1677 </span>                :<span class="lineCov">          1 :         j = ll-&gt;longest_segment_index;</span>
-<span class="lineNum">    1678 </span>                :<span class="lineCov">          1 :         lar-&gt;label_points[lar-&gt;num_label_points].x = (p-&gt;point[j-1].x + p-&gt;point[j].x)/2.0;</span>
-<span class="lineNum">    1679 </span>                :<span class="lineCov">          1 :         lar-&gt;label_points[lar-&gt;num_label_points].y = (p-&gt;point[j-1].y + p-&gt;point[j].y)/2.0;</span>
-<span class="lineNum">    1680 </span>                :            :       } else {
-<span class="lineNum">    1681 </span>                :            :         j=0;
-<span class="lineNum">    1682 </span>                :            :         fwd_length = 0;
-<span class="lineNum">    1683 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         while (fwd_length &lt; point_position) {</span>
-<span class="lineNum">    1684 </span>                :<span class="lineCov">          1 :           fwd_length += ll-&gt;segment_lengths[j++];</span>
-<span class="lineNum">    1685 </span>                :            :         }
-<span class="lineNum">    1686 </span>                :            :         assert(j&gt;0);
-<span class="lineNum">    1687 </span>                :            : 
-<span class="lineNum">    1688 </span>                :<span class="lineCov">          1 :         t = 1 - (fwd_length - point_position) / ll-&gt;segment_lengths[j-1];</span>
-<span class="lineNum">    1689 </span>                :<span class="lineCov">          1 :         lar-&gt;label_points[lar-&gt;num_label_points].x = t * (p-&gt;point[j].x - p-&gt;point[j-1].x) + p-&gt;point[j-1].x;</span>
-<span class="lineNum">    1690 </span>                :<span class="lineCov">          1 :         lar-&gt;label_points[lar-&gt;num_label_points].y = t * (p-&gt;point[j].y - p-&gt;point[j-1].y) + p-&gt;point[j-1].y;</span>
-<span class="lineNum">    1691 </span>                :            :       }
-<span class="lineNum">    1692 </span>                :            : 
-<span class="lineNum">    1693 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(label &amp;&amp; ts) {</span>
-<span class="lineNum">    1694 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(label-&gt;anglemode != MS_NONE) {</span>
-<span class="lineNum">    1695 </span>                :<span class="lineCov">          1 :           theta = atan2(p-&gt;point[j].x - p-&gt;point[j-1].x, p-&gt;point[j].y - p-&gt;point[j-1].y);</span>
-<span class="lineNum">    1696 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if(label-&gt;anglemode == MS_AUTO2) {</span>
-<span class="lineNum">    1697 </span>                :<span class="lineCov">          1 :             theta -= MS_PI2;</span>
-<span class="lineNum">    1698 </span>                :            :           } else { /* AUTO, FOLLOW */
-<span class="lineNum">    1699 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if(p-&gt;point[j-1].x &lt; p-&gt;point[j].x) { /* i.e. to the left */</span>
-<span class="lineNum">    1700 </span>                :<span class="lineCov">          1 :               theta -= MS_PI2;</span>
-<span class="lineNum">    1701 </span>                :            :             } else {
-<span class="lineNum">    1702 </span>                :<span class="lineCov">          1 :               theta += MS_PI2;</span>
-<span class="lineNum">    1703 </span>                :            :             }
-<span class="lineNum">    1704 </span>                :            :           }
-<span class="lineNum">    1705 </span>                :<span class="lineCov">          1 :           lar-&gt;angles[lar-&gt;num_label_points] = theta;</span>
-<span class="lineNum">    1706 </span>                :            :         } else {
-<span class="lineNum">    1707 </span>                :<span class="lineCov">          1 :           lar-&gt;angles[lar-&gt;num_label_points] = MS_DEG_TO_RAD * ts-&gt;label-&gt;angle;</span>
-<span class="lineNum">    1708 </span>                :            :         }
-<span class="lineNum">    1709 </span>                :            :       } else {
-<span class="lineNum">    1710 </span>                :<span class="lineNoCov">          0 :         lar-&gt;angles[lar-&gt;num_label_points] = 0;</span>
-<span class="lineNum">    1711 </span>                :            :       }
-<span class="lineNum">    1712 </span>                :<span class="lineCov">          1 :       lar-&gt;num_label_points++;</span>
-<span class="lineNum">    1713 </span>                :            : 
-<span class="lineNum">    1714 </span>                :            :       point_position = left_point_position;
-<span class="lineNum">    1715 </span>                :<span class="lineCov">          1 :       n++;</span>
-<span class="lineNum">    1716 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     } while (n&lt;2); /* we place the right point then the left point. */</span>
+<span class="lineNum">    1675 </span>                :            :     do {
+<span class="lineNum">    1676 </span>                :<span class="lineCov">          1 :       lar-&gt;angles = msSmallRealloc(lar-&gt;angles, (lar-&gt;num_label_points+1)*sizeof(double));</span>
+<span class="lineNum">    1677 </span>                :<span class="lineCov">          1 :       lar-&gt;label_points = msSmallRealloc(lar-&gt;label_points, (lar-&gt;num_label_points+1)*sizeof(pointObj));</span>
+<span class="lineNum">    1678 </span>                :            : 
+<span class="lineNum">    1679 </span>                :            :       /* if there is only 1 label to place... put it in the middle of the current segment (as old behavior) */
+<span class="lineNum">    1680 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if ( point_repeat == 1 ) {</span>
+<span class="lineNum">    1681 </span>                :<span class="lineCov">          1 :         j = ll-&gt;longest_segment_index;</span>
+<span class="lineNum">    1682 </span>                :<span class="lineCov">          1 :         lar-&gt;label_points[lar-&gt;num_label_points].x = (p-&gt;point[j-1].x + p-&gt;point[j].x)/2.0;</span>
+<span class="lineNum">    1683 </span>                :<span class="lineCov">          1 :         lar-&gt;label_points[lar-&gt;num_label_points].y = (p-&gt;point[j-1].y + p-&gt;point[j].y)/2.0;</span>
+<span class="lineNum">    1684 </span>                :            :       } else {
+<span class="lineNum">    1685 </span>                :            :         j=0;
+<span class="lineNum">    1686 </span>                :            :         fwd_length = 0;
+<span class="lineNum">    1687 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         while (fwd_length &lt; point_position) {</span>
+<span class="lineNum">    1688 </span>                :<span class="lineCov">          1 :           fwd_length += ll-&gt;segment_lengths[j++];</span>
+<span class="lineNum">    1689 </span>                :            :         }
+<span class="lineNum">    1690 </span>                :            :         assert(j&gt;0);
+<span class="lineNum">    1691 </span>                :            : 
+<span class="lineNum">    1692 </span>                :<span class="lineCov">          1 :         t = 1 - (fwd_length - point_position) / ll-&gt;segment_lengths[j-1];</span>
+<span class="lineNum">    1693 </span>                :<span class="lineCov">          1 :         lar-&gt;label_points[lar-&gt;num_label_points].x = t * (p-&gt;point[j].x - p-&gt;point[j-1].x) + p-&gt;point[j-1].x;</span>
+<span class="lineNum">    1694 </span>                :<span class="lineCov">          1 :         lar-&gt;label_points[lar-&gt;num_label_points].y = t * (p-&gt;point[j].y - p-&gt;point[j-1].y) + p-&gt;point[j-1].y;</span>
+<span class="lineNum">    1695 </span>                :            :       }
+<span class="lineNum">    1696 </span>                :            : 
+<span class="lineNum">    1697 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(label &amp;&amp; ts) {</span>
+<span class="lineNum">    1698 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(label-&gt;anglemode != MS_NONE) {</span>
+<span class="lineNum">    1699 </span>                :<span class="lineCov">          1 :           theta = atan2(p-&gt;point[j].x - p-&gt;point[j-1].x, p-&gt;point[j].y - p-&gt;point[j-1].y);</span>
+<span class="lineNum">    1700 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if(label-&gt;anglemode == MS_AUTO2) {</span>
+<span class="lineNum">    1701 </span>                :<span class="lineCov">          1 :             theta -= MS_PI2;</span>
+<span class="lineNum">    1702 </span>                :            :           } else { /* AUTO, FOLLOW */
+<span class="lineNum">    1703 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if(p-&gt;point[j-1].x &lt; p-&gt;point[j].x) { /* i.e. to the left */</span>
+<span class="lineNum">    1704 </span>                :<span class="lineCov">          1 :               theta -= MS_PI2;</span>
+<span class="lineNum">    1705 </span>                :            :             } else {
+<span class="lineNum">    1706 </span>                :<span class="lineCov">          1 :               theta += MS_PI2;</span>
+<span class="lineNum">    1707 </span>                :            :             }
+<span class="lineNum">    1708 </span>                :            :           }
+<span class="lineNum">    1709 </span>                :<span class="lineCov">          1 :           lar-&gt;angles[lar-&gt;num_label_points] = theta;</span>
+<span class="lineNum">    1710 </span>                :            :         } else {
+<span class="lineNum">    1711 </span>                :<span class="lineCov">          1 :           lar-&gt;angles[lar-&gt;num_label_points] = MS_DEG_TO_RAD * ts-&gt;label-&gt;angle;</span>
+<span class="lineNum">    1712 </span>                :            :         }
+<span class="lineNum">    1713 </span>                :            :       } else {
+<span class="lineNum">    1714 </span>                :<span class="lineNoCov">          0 :         lar-&gt;angles[lar-&gt;num_label_points] = 0;</span>
+<span class="lineNum">    1715 </span>                :            :       }
+<span class="lineNum">    1716 </span>                :<span class="lineCov">          1 :       lar-&gt;num_label_points++;</span>
 <span class="lineNum">    1717 </span>                :            : 
-<span class="lineNum">    1718 </span>                :<span class="lineCov">          1 :     right_point_position -= point_distance;</span>
-<span class="lineNum">    1719 </span>                :<span class="lineCov">          1 :     left_point_position += point_distance;</span>
-<span class="lineNum">    1720 </span>                :            :   }
+<span class="lineNum">    1718 </span>                :            :       point_position = left_point_position;
+<span class="lineNum">    1719 </span>                :<span class="lineCov">          1 :       n++;</span>
+<span class="lineNum">    1720 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     } while (n&lt;2); /* we place the right point then the left point. */</span>
 <span class="lineNum">    1721 </span>                :            : 
-<span class="lineNum">    1722 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">    1723 </span>                :            : }
-<span class="lineNum">    1724 </span>                :            : 
-<a name="1725"><span class="lineNum">    1725 </span>                :            : </a>
-<span class="lineNum">    1726 </span>                :            : /* Calculate the labelpath for each line if repeatdistance is enabled, else the labelpath of the longest line segment */
-<span class="lineNum">    1727 </span>                :<span class="lineCov">          1 : int msPolylineLabelPath(mapObj *map, imageObj *image, shapeObj *p, textSymbolObj *ts, labelObj *label, struct label_follow_result *lfr)</span>
-<span class="lineNum">    1728 </span>                :            : {
-<span class="lineNum">    1729 </span>                :            :   struct polyline_lengths pll;
-<span class="lineNum">    1730 </span>                :            :   int i,ret = MS_SUCCESS;
-<span class="lineNum">    1731 </span>                :            :   double minfeaturesize = -1;
-<span class="lineNum">    1732 </span>                :            :   assert(ts-&gt;annotext);
-<span class="lineNum">    1733 </span>                :<span class="lineCov">          1 :   lfr-&gt;num_follow_labels = lfr-&gt;lar.num_label_points = 0;</span>
-<span class="lineNum">    1734 </span>                :            : 
-<span class="lineNum">    1735 </span>                :            :   /* we first offset the line if we want an offsetted label */
-<span class="lineNum">    1736 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(label-&gt;offsetx != 0 &amp;&amp; IS_PERPENDICULAR_OFFSET(label-&gt;offsety)) {</span>
-<span class="lineNum">    1737 </span>                :            :     double offset;
-<span class="lineNum">    1738 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(label-&gt;offsetx &gt; 0) {</span>
-<span class="lineNum">    1739 </span>                :<span class="lineCov">          1 :       offset = label-&gt;offsetx + label-&gt;size/2;</span>
-<span class="lineNum">    1740 </span>                :            :     } else {
-<span class="lineNum">    1741 </span>                :<span class="lineNoCov">          0 :       offset = label-&gt;offsetx - label-&gt;size/2;</span>
-<span class="lineNum">    1742 </span>                :            :     }
-<span class="lineNum">    1743 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :     if(label-&gt;offsety == MS_LABEL_PERPENDICULAR_TOP_OFFSET &amp;&amp; p-&gt;numlines&gt;0 &amp;&amp; p-&gt;line[0].numpoints &gt; 0) {</span>
+<span class="lineNum">    1722 </span>                :<span class="lineCov">          1 :     right_point_position -= point_distance;</span>
+<span class="lineNum">    1723 </span>                :<span class="lineCov">          1 :     left_point_position += point_distance;</span>
+<span class="lineNum">    1724 </span>                :            :   }
+<span class="lineNum">    1725 </span>                :            : 
+<span class="lineNum">    1726 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">    1727 </span>                :            : }
+<span class="lineNum">    1728 </span>                :            : 
+<a name="1729"><span class="lineNum">    1729 </span>                :            : </a>
+<span class="lineNum">    1730 </span>                :            : /* Calculate the labelpath for each line if repeatdistance is enabled, else the labelpath of the longest line segment */
+<span class="lineNum">    1731 </span>                :<span class="lineCov">          1 : int msPolylineLabelPath(mapObj *map, imageObj *image, shapeObj *p, textSymbolObj *ts, labelObj *label, struct label_follow_result *lfr)</span>
+<span class="lineNum">    1732 </span>                :            : {
+<span class="lineNum">    1733 </span>                :            :   struct polyline_lengths pll;
+<span class="lineNum">    1734 </span>                :            :   int i,ret = MS_SUCCESS;
+<span class="lineNum">    1735 </span>                :            :   double minfeaturesize = -1;
+<span class="lineNum">    1736 </span>                :            :   assert(ts-&gt;annotext);
+<span class="lineNum">    1737 </span>                :<span class="lineCov">          1 :   lfr-&gt;num_follow_labels = lfr-&gt;lar.num_label_points = 0;</span>
+<span class="lineNum">    1738 </span>                :            : 
+<span class="lineNum">    1739 </span>                :            :   /* we first offset the line if we want an offsetted label */
+<span class="lineNum">    1740 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(label-&gt;offsetx != 0 &amp;&amp; IS_PERPENDICULAR_OFFSET(label-&gt;offsety)) {</span>
+<span class="lineNum">    1741 </span>                :            :     double offset;
+<span class="lineNum">    1742 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(label-&gt;offsetx &gt; 0) {</span>
+<span class="lineNum">    1743 </span>                :<span class="lineCov">          1 :       offset = label-&gt;offsetx + label-&gt;size/2;</span>
+<span class="lineNum">    1744 </span>                :            :     } else {
+<span class="lineNum">    1745 </span>                :<span class="lineNoCov">          0 :       offset = label-&gt;offsetx - label-&gt;size/2;</span>
+<span class="lineNum">    1746 </span>                :            :     }
+<span class="lineNum">    1747 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :     if(label-&gt;offsety == MS_LABEL_PERPENDICULAR_TOP_OFFSET &amp;&amp; p-&gt;numlines&gt;0 &amp;&amp; p-&gt;line[0].numpoints &gt; 0) {</span>
 <span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
-<span class="lineNum">    1744 </span>                :            :       /* is the line mostly left-to-right or right-to-left ?
-<span class="lineNum">    1745 </span>                :            :        * FIXME this should be done line by line, by stepping through shape-&gt;lines, however
-<span class="lineNum">    1746 </span>                :            :        * the OffsetPolyline function works on shapeObjs, not lineObjs
-<span class="lineNum">    1747 </span>                :            :        * we only check the first line
-<span class="lineNum">    1748 </span>                :            :        */
-<span class="lineNum">    1749 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(p-&gt;line[0].point[0].x &lt; p-&gt;line[0].point[p-&gt;line[0].numpoints-1].x) {</span>
-<span class="lineNum">    1750 </span>                :            :         /* line is left to right */
-<span class="lineNum">    1751 </span>                :<span class="lineNoCov">          0 :           offset = -offset;</span>
-<span class="lineNum">    1752 </span>                :            :       }
-<span class="lineNum">    1753 </span>                :            :     }
-<span class="lineNum">    1754 </span>                :<span class="lineCov">          1 :     p = msOffsetPolyline(p,offset, MS_STYLE_SINGLE_SIDED_OFFSET);</span>
-<span class="lineNum">    1755 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(!p) return MS_FAILURE;</span>
-<span class="lineNum">    1756 </span>                :            :   }
-<span class="lineNum">    1757 </span>                :            : 
-<span class="lineNum">    1758 </span>                :            :   /* compute line lengths, in order to:
-<span class="lineNum">    1759 </span>                :            :     - extract the longest line if we're not repeating
-<span class="lineNum">    1760 </span>                :            :     - check that each line is longer than the text length if using minfeaturesize auto
-<span class="lineNum">    1761 </span>                :            :     - check that each line is long enough if using minfeaturesize
-<span class="lineNum">    1762 </span>                :            :    */
-<span class="lineNum">    1763 </span>                :<span class="lineCov">          1 :   msPolylineComputeLineSegments(p, &amp;pll);</span>
-<span class="lineNum">    1764 </span>                :            :  
-<span class="lineNum">    1765 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(label-&gt;autominfeaturesize) {</span>
-<span class="lineNum">    1766 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(!ts-&gt;textpath) {</span>
-<span class="lineNum">    1767 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(UNLIKELY(MS_FAILURE == msComputeTextPath(map,ts))) {</span>
-<span class="lineNum">    1768 </span>                :            :         return MS_FAILURE;
-<span class="lineNum">    1769 </span>                :            :       }
-<span class="lineNum">    1770 </span>                :            :     }
-<span class="lineNum">    1771 </span>                :<span class="lineNoCov">          0 :     minfeaturesize = ts-&gt;textpath-&gt;bounds.bbox.maxx;</span>
-<span class="lineNum">    1772 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   } else if(label-&gt;minfeaturesize) {</span>
-<span class="lineNum">    1773 </span>                :<span class="lineCov">          1 :     minfeaturesize = label-&gt;minfeaturesize * image-&gt;resolutionfactor;</span>
-<span class="lineNum">    1774 </span>                :            :   }
-<span class="lineNum">    1775 </span>                :            : 
-<span class="lineNum">    1776 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(label-&gt;repeatdistance &gt; 0) {</span>
-<span class="lineNum">    1777 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for(i=0; i&lt;p-&gt;numlines; i++) {</span>
-<span class="lineNum">    1778 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(pll.ll[i].total_length &gt; minfeaturesize) {</span>
-<span class="lineNum">    1779 </span>                :<span class="lineNoCov">          0 :         ret = msLineLabelPath(map,image,&amp;p-&gt;line[i], ts, &amp;pll.ll[i],lfr, label);</span>
-<span class="lineNum">    1780 </span>                :            :       }
-<span class="lineNum">    1781 </span>                :            :     }
-<span class="lineNum">    1782 </span>                :            :   } else {
-<span class="lineNum">    1783 </span>                :<span class="lineCov">          1 :     i = pll.longest_line_index;</span>
-<span class="lineNum">    1784 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(pll.ll[i].total_length &gt; minfeaturesize) {</span>
-<span class="lineNum">    1785 </span>                :<span class="lineCov">          1 :       ret = msLineLabelPath(map,image,&amp;p-&gt;line[i], ts, &amp;pll.ll[i],lfr, label);</span>
-<span class="lineNum">    1786 </span>                :            :     }
-<span class="lineNum">    1787 </span>                :            :   }
-<span class="lineNum">    1788 </span>                :            : 
-<span class="lineNum">    1789 </span>                :            :   /* freeing memory: allocated by msPolylineComputeLineSegments */
-<span class="lineNum">    1790 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for ( i = 0; i &lt; p-&gt;numlines; i++ ) {</span>
-<span class="lineNum">    1791 </span>                :<span class="lineCov">          1 :     free(pll.ll[i].segment_lengths);</span>
-<span class="lineNum">    1792 </span>                :            :   }
-<span class="lineNum">    1793 </span>                :<span class="lineCov">          1 :   free(pll.ll);</span>
-<span class="lineNum">    1794 </span>                :            :   
-<span class="lineNum">    1795 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(IS_PERPENDICULAR_OFFSET(label-&gt;offsety) &amp;&amp; label-&gt;offsetx != 0) {</span>
-<span class="lineNum">    1796 </span>                :<span class="lineCov">          1 :      msFreeShape(p);</span>
-<span class="lineNum">    1797 </span>                :<span class="lineCov">          1 :      msFree(p);</span>
-<span class="lineNum">    1798 </span>                :            :   }
-<span class="lineNum">    1799 </span>                :            :   return ret;
-<span class="lineNum">    1800 </span>                :            : }
-<span class="lineNum">    1801 </span>                :            : 
-<span class="lineNum">    1802 </span>                :            : /*
-<span class="lineNum">    1803 </span>                :            :  * Calculate a series of label points for each character in the label for a
-<span class="lineNum">    1804 </span>                :            :  * given line. The resultant series of points is stored in *labelpath,
-<span class="lineNum">    1805 </span>                :            :  * which is added to the labelpaths array. Note that the points and bounds
-<span class="lineNum">    1806 </span>                :            :  * are allocated in this function.  The polyline must be converted to image
-<a name="1807"><span class="lineNum">    1807 </span>                :            :  * coordinates before calling this function.</a>
-<span class="lineNum">    1808 </span>                :            :  */
-<span class="lineNum">    1809 </span>                :<span class="lineCov">          1 : int msLineLabelPath(mapObj *map, imageObj *img, lineObj *p, textSymbolObj *ts, struct line_lengths *ll, struct label_follow_result *lfr, labelObj *label)</span>
-<span class="lineNum">    1810 </span>                :            : {
-<span class="lineNum">    1811 </span>                :            :   double distance_along_segment;
-<span class="lineNum">    1812 </span>                :<span class="lineCov">          1 :   double repeat_distance = label-&gt;repeatdistance * ts-&gt;resolutionfactor;</span>
-<span class="lineNum">    1813 </span>                :            :   double segment_length, fwd_line_length, rev_line_length, text_length, text_start_length, label_buffer, text_end_length;
-<span class="lineNum">    1814 </span>                :            :   double right_label_position, left_label_position, center_label_position;
-<span class="lineNum">    1815 </span>                :            : 
-<span class="lineNum">    1816 </span>                :            :   int j,k,l,n, inc, final_j, label_repeat;
-<span class="lineNum">    1817 </span>                :            :   double direction;
-<span class="lineNum">    1818 </span>                :            :   rectObj bbox;
-<span class="lineNum">    1819 </span>                :            :   lineObj *bounds;
-<span class="lineNum">    1820 </span>                :            :   double t;
-<span class="lineNum">    1821 </span>                :            :   double cx, cy; /* centre of a character, x &amp; y values. */
-<span class="lineNum">    1822 </span>                :            : 
-<span class="lineNum">    1823 </span>                :            :   double theta;
-<span class="lineNum">    1824 </span>                :            :   double dx, dy, w, cos_t, sin_t;
-<span class="lineNum">    1825 </span>                :            : 
-<span class="lineNum">    1826 </span>                :            :   const double letterspacing = 1.00;
-<span class="lineNum">    1827 </span>                :            :   /* As per RFC 60, if label-&gt;maxoverlapangle == 0 then fall back on pre-6.0 behavior
-<span class="lineNum">    1828 </span>                :            :      which was to use maxoverlapangle = 0.4*MS_PI ( 40% of 180 degrees ) */
-<span class="lineNum">    1829 </span>                :            :   double maxoverlapangle = 0.4 * MS_PI;
-<span class="lineNum">    1830 </span>                :            : 
-<span class="lineNum">    1831 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(p-&gt;numpoints &lt; 2) { /* degenerate */</span>
-<span class="lineNum">    1832 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">    1833 </span>                :            :   }
-<span class="lineNum">    1834 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(p-&gt;numpoints == 2) /* use the regular angled text algorithm */</span>
-<span class="lineNum">    1835 </span>                :            :     goto ANGLEFOLLOW_FAILURE;
-<span class="lineNum">    1836 </span>                :            :   
-<span class="lineNum">    1837 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!ts-&gt;textpath) {</span>
-<span class="lineNum">    1838 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if(UNLIKELY(MS_FAILURE == msComputeTextPath(map,ts))) {</span>
-<span class="lineNum">    1839 </span>                :            :       return MS_FAILURE;
-<span class="lineNum">    1840 </span>                :            :     }
-<span class="lineNum">    1841 </span>                :            :   }
-<span class="lineNum">    1842 </span>                :            :   
-<span class="lineNum">    1843 </span>                :            :   /* skip the label and use the normal algorithm if it has fewer than 2 characters */
-<span class="lineNum">    1844 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(ts-&gt;textpath-&gt;numglyphs &lt; 2)</span>
-<span class="lineNum">    1845 </span>                :            :     goto ANGLEFOLLOW_FAILURE;
-<span class="lineNum">    1846 </span>                :            : 
-<span class="lineNum">    1847 </span>                :            : 
-<span class="lineNum">    1848 </span>                :<span class="lineCov">          1 :   text_length = letterspacing * ts-&gt;textpath-&gt;bounds.bbox.maxx;</span>
-<span class="lineNum">    1849 </span>                :            : 
-<span class="lineNum">    1850 </span>                :            :   /*
-<span class="lineNum">    1851 </span>                :            :   ** if the text length is way longer than the line, skip adding the
-<span class="lineNum">    1852 </span>                :            :   ** label if it isn't forced (long extrapolated labels tend to be ugly)
-<span class="lineNum">    1853 </span>                :            :   */
-<span class="lineNum">    1854 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :   if ( text_length &gt; 1.5 * ll-&gt;total_length &amp;&amp; ts-&gt;label-&gt;force == MS_FALSE ) {</span>
-<span class="lineNum">    1855 </span>                :            :     return MS_SUCCESS;
-<span class="lineNum">    1856 </span>                :            :   }
-<span class="lineNum">    1857 </span>                :            : 
-<span class="lineNum">    1858 </span>                :            :   /* We compute the number of labels we can repeat in the line */
-<span class="lineNum">    1859 </span>                :            :   text_end_length = 0;
-<span class="lineNum">    1860 </span>                :<span class="lineCov">          1 :   left_label_position = right_label_position = center_label_position = (ll-&gt;total_length - text_length) / 2.0;</span>
-<span class="lineNum">    1861 </span>                :<span class="lineCov">          1 :   label_repeat = (ll-&gt;total_length / (text_length + repeat_distance));</span>
-<span class="lineNum">    1862 </span>                :<span class="lineCov">          1 :   label_buffer = (ll-&gt;total_length / label_repeat);</span>
-<span class="lineNum">    1863 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (repeat_distance &gt; 0 &amp;&amp; label_repeat &gt; 1) {</span>
-<span class="lineNum">    1864 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (label_repeat % 2 == 0) {</span>
-<span class="lineNum">    1865 </span>                :<span class="lineNoCov">          0 :       label_repeat -= 1;</span>
-<span class="lineNum">    1866 </span>                :            :     }
-<span class="lineNum">    1867 </span>                :            :     /* text_start_length = (label_buffer / 2) - (text_length / 2); */
-<span class="lineNum">    1868 </span>                :            : 
-<span class="lineNum">    1869 </span>                :            :     /* initial point position */
-<span class="lineNum">    1870 </span>                :<span class="lineNoCov">          0 :     left_label_position -= ((label_repeat-1)/2 * label_buffer);</span>
-<span class="lineNum">    1871 </span>                :<span class="lineNoCov">          0 :     right_label_position += ((label_repeat-1)/2 * label_buffer);</span>
+<span class="lineNum">    1748 </span>                :            :       /* is the line mostly left-to-right or right-to-left ?
+<span class="lineNum">    1749 </span>                :            :        * FIXME this should be done line by line, by stepping through shape-&gt;lines, however
+<span class="lineNum">    1750 </span>                :            :        * the OffsetPolyline function works on shapeObjs, not lineObjs
+<span class="lineNum">    1751 </span>                :            :        * we only check the first line
+<span class="lineNum">    1752 </span>                :            :        */
+<span class="lineNum">    1753 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(p-&gt;line[0].point[0].x &lt; p-&gt;line[0].point[p-&gt;line[0].numpoints-1].x) {</span>
+<span class="lineNum">    1754 </span>                :            :         /* line is left to right */
+<span class="lineNum">    1755 </span>                :<span class="lineNoCov">          0 :           offset = -offset;</span>
+<span class="lineNum">    1756 </span>                :            :       }
+<span class="lineNum">    1757 </span>                :            :     }
+<span class="lineNum">    1758 </span>                :<span class="lineCov">          1 :     p = msOffsetPolyline(p,offset, MS_STYLE_SINGLE_SIDED_OFFSET);</span>
+<span class="lineNum">    1759 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(!p) return MS_FAILURE;</span>
+<span class="lineNum">    1760 </span>                :            :   }
+<span class="lineNum">    1761 </span>                :            : 
+<span class="lineNum">    1762 </span>                :            :   /* compute line lengths, in order to:
+<span class="lineNum">    1763 </span>                :            :     - extract the longest line if we're not repeating
+<span class="lineNum">    1764 </span>                :            :     - check that each line is longer than the text length if using minfeaturesize auto
+<span class="lineNum">    1765 </span>                :            :     - check that each line is long enough if using minfeaturesize
+<span class="lineNum">    1766 </span>                :            :    */
+<span class="lineNum">    1767 </span>                :<span class="lineCov">          1 :   msPolylineComputeLineSegments(p, &amp;pll);</span>
+<span class="lineNum">    1768 </span>                :            :  
+<span class="lineNum">    1769 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(label-&gt;autominfeaturesize) {</span>
+<span class="lineNum">    1770 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(!ts-&gt;textpath) {</span>
+<span class="lineNum">    1771 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(UNLIKELY(MS_FAILURE == msComputeTextPath(map,ts))) {</span>
+<span class="lineNum">    1772 </span>                :            :         return MS_FAILURE;
+<span class="lineNum">    1773 </span>                :            :       }
+<span class="lineNum">    1774 </span>                :            :     }
+<span class="lineNum">    1775 </span>                :<span class="lineNoCov">          0 :     minfeaturesize = ts-&gt;textpath-&gt;bounds.bbox.maxx;</span>
+<span class="lineNum">    1776 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   } else if(label-&gt;minfeaturesize) {</span>
+<span class="lineNum">    1777 </span>                :<span class="lineCov">          1 :     minfeaturesize = label-&gt;minfeaturesize * image-&gt;resolutionfactor;</span>
+<span class="lineNum">    1778 </span>                :            :   }
+<span class="lineNum">    1779 </span>                :            : 
+<span class="lineNum">    1780 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(label-&gt;repeatdistance &gt; 0) {</span>
+<span class="lineNum">    1781 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for(i=0; i&lt;p-&gt;numlines; i++) {</span>
+<span class="lineNum">    1782 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(pll.ll[i].total_length &gt; minfeaturesize) {</span>
+<span class="lineNum">    1783 </span>                :<span class="lineNoCov">          0 :         ret = msLineLabelPath(map,image,&amp;p-&gt;line[i], ts, &amp;pll.ll[i],lfr, label);</span>
+<span class="lineNum">    1784 </span>                :            :       }
+<span class="lineNum">    1785 </span>                :            :     }
+<span class="lineNum">    1786 </span>                :            :   } else {
+<span class="lineNum">    1787 </span>                :<span class="lineCov">          1 :     i = pll.longest_line_index;</span>
+<span class="lineNum">    1788 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(pll.ll[i].total_length &gt; minfeaturesize) {</span>
+<span class="lineNum">    1789 </span>                :<span class="lineCov">          1 :       ret = msLineLabelPath(map,image,&amp;p-&gt;line[i], ts, &amp;pll.ll[i],lfr, label);</span>
+<span class="lineNum">    1790 </span>                :            :     }
+<span class="lineNum">    1791 </span>                :            :   }
+<span class="lineNum">    1792 </span>                :            : 
+<span class="lineNum">    1793 </span>                :            :   /* freeing memory: allocated by msPolylineComputeLineSegments */
+<span class="lineNum">    1794 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for ( i = 0; i &lt; p-&gt;numlines; i++ ) {</span>
+<span class="lineNum">    1795 </span>                :<span class="lineCov">          1 :     free(pll.ll[i].segment_lengths);</span>
+<span class="lineNum">    1796 </span>                :            :   }
+<span class="lineNum">    1797 </span>                :<span class="lineCov">          1 :   free(pll.ll);</span>
+<span class="lineNum">    1798 </span>                :            :   
+<span class="lineNum">    1799 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(IS_PERPENDICULAR_OFFSET(label-&gt;offsety) &amp;&amp; label-&gt;offsetx != 0) {</span>
+<span class="lineNum">    1800 </span>                :<span class="lineCov">          1 :      msFreeShape(p);</span>
+<span class="lineNum">    1801 </span>                :<span class="lineCov">          1 :      msFree(p);</span>
+<span class="lineNum">    1802 </span>                :            :   }
+<span class="lineNum">    1803 </span>                :            :   return ret;
+<span class="lineNum">    1804 </span>                :            : }
+<span class="lineNum">    1805 </span>                :            : 
+<span class="lineNum">    1806 </span>                :            : /*
+<span class="lineNum">    1807 </span>                :            :  * Calculate a series of label points for each character in the label for a
+<span class="lineNum">    1808 </span>                :            :  * given line. The resultant series of points is stored in *labelpath,
+<span class="lineNum">    1809 </span>                :            :  * which is added to the labelpaths array. Note that the points and bounds
+<span class="lineNum">    1810 </span>                :            :  * are allocated in this function.  The polyline must be converted to image
+<a name="1811"><span class="lineNum">    1811 </span>                :            :  * coordinates before calling this function.</a>
+<span class="lineNum">    1812 </span>                :            :  */
+<span class="lineNum">    1813 </span>                :<span class="lineCov">          1 : int msLineLabelPath(mapObj *map, imageObj *img, lineObj *p, textSymbolObj *ts, struct line_lengths *ll, struct label_follow_result *lfr, labelObj *label)</span>
+<span class="lineNum">    1814 </span>                :            : {
+<span class="lineNum">    1815 </span>                :            :   double distance_along_segment;
+<span class="lineNum">    1816 </span>                :<span class="lineCov">          1 :   double repeat_distance = label-&gt;repeatdistance * ts-&gt;resolutionfactor;</span>
+<span class="lineNum">    1817 </span>                :            :   double segment_length, fwd_line_length, rev_line_length, text_length, text_start_length, label_buffer, text_end_length;
+<span class="lineNum">    1818 </span>                :            :   double right_label_position, left_label_position, center_label_position;
+<span class="lineNum">    1819 </span>                :            : 
+<span class="lineNum">    1820 </span>                :            :   int j,k,l,n, inc, final_j, label_repeat;
+<span class="lineNum">    1821 </span>                :            :   double direction;
+<span class="lineNum">    1822 </span>                :            :   rectObj bbox;
+<span class="lineNum">    1823 </span>                :            :   lineObj *bounds;
+<span class="lineNum">    1824 </span>                :            :   double t;
+<span class="lineNum">    1825 </span>                :            :   double cx, cy; /* centre of a character, x &amp; y values. */
+<span class="lineNum">    1826 </span>                :            : 
+<span class="lineNum">    1827 </span>                :            :   double theta;
+<span class="lineNum">    1828 </span>                :            :   double dx, dy, w, cos_t, sin_t;
+<span class="lineNum">    1829 </span>                :            : 
+<span class="lineNum">    1830 </span>                :            :   const double letterspacing = 1.00;
+<span class="lineNum">    1831 </span>                :            :   /* As per RFC 60, if label-&gt;maxoverlapangle == 0 then fall back on pre-6.0 behavior
+<span class="lineNum">    1832 </span>                :            :      which was to use maxoverlapangle = 0.4*MS_PI ( 40% of 180 degrees ) */
+<span class="lineNum">    1833 </span>                :            :   double maxoverlapangle = 0.4 * MS_PI;
+<span class="lineNum">    1834 </span>                :            : 
+<span class="lineNum">    1835 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(p-&gt;numpoints &lt; 2) { /* degenerate */</span>
+<span class="lineNum">    1836 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">    1837 </span>                :            :   }
+<span class="lineNum">    1838 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(p-&gt;numpoints == 2) /* use the regular angled text algorithm */</span>
+<span class="lineNum">    1839 </span>                :            :     goto ANGLEFOLLOW_FAILURE;
+<span class="lineNum">    1840 </span>                :            :   
+<span class="lineNum">    1841 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!ts-&gt;textpath) {</span>
+<span class="lineNum">    1842 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if(UNLIKELY(MS_FAILURE == msComputeTextPath(map,ts))) {</span>
+<span class="lineNum">    1843 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">    1844 </span>                :            :     }
+<span class="lineNum">    1845 </span>                :            :   }
+<span class="lineNum">    1846 </span>                :            :   
+<span class="lineNum">    1847 </span>                :            :   /* skip the label and use the normal algorithm if it has fewer than 2 characters */
+<span class="lineNum">    1848 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(ts-&gt;textpath-&gt;numglyphs &lt; 2)</span>
+<span class="lineNum">    1849 </span>                :            :     goto ANGLEFOLLOW_FAILURE;
+<span class="lineNum">    1850 </span>                :            : 
+<span class="lineNum">    1851 </span>                :            : 
+<span class="lineNum">    1852 </span>                :<span class="lineCov">          1 :   text_length = letterspacing * ts-&gt;textpath-&gt;bounds.bbox.maxx;</span>
+<span class="lineNum">    1853 </span>                :            : 
+<span class="lineNum">    1854 </span>                :            :   /*
+<span class="lineNum">    1855 </span>                :            :   ** if the text length is way longer than the line, skip adding the
+<span class="lineNum">    1856 </span>                :            :   ** label if it isn't forced (long extrapolated labels tend to be ugly)
+<span class="lineNum">    1857 </span>                :            :   */
+<span class="lineNum">    1858 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :   if ( text_length &gt; 1.5 * ll-&gt;total_length &amp;&amp; ts-&gt;label-&gt;force == MS_FALSE ) {</span>
+<span class="lineNum">    1859 </span>                :            :     return MS_SUCCESS;
+<span class="lineNum">    1860 </span>                :            :   }
+<span class="lineNum">    1861 </span>                :            : 
+<span class="lineNum">    1862 </span>                :            :   /* We compute the number of labels we can repeat in the line */
+<span class="lineNum">    1863 </span>                :            :   text_end_length = 0;
+<span class="lineNum">    1864 </span>                :<span class="lineCov">          1 :   left_label_position = right_label_position = center_label_position = (ll-&gt;total_length - text_length) / 2.0;</span>
+<span class="lineNum">    1865 </span>                :<span class="lineCov">          1 :   label_repeat = (ll-&gt;total_length / (text_length + repeat_distance));</span>
+<span class="lineNum">    1866 </span>                :<span class="lineCov">          1 :   label_buffer = (ll-&gt;total_length / label_repeat);</span>
+<span class="lineNum">    1867 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (repeat_distance &gt; 0 &amp;&amp; label_repeat &gt; 1) {</span>
+<span class="lineNum">    1868 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (label_repeat % 2 == 0) {</span>
+<span class="lineNum">    1869 </span>                :<span class="lineNoCov">          0 :       label_repeat -= 1;</span>
+<span class="lineNum">    1870 </span>                :            :     }
+<span class="lineNum">    1871 </span>                :            :     /* text_start_length = (label_buffer / 2) - (text_length / 2); */
 <span class="lineNum">    1872 </span>                :            : 
-<span class="lineNum">    1873 </span>                :<span class="lineNoCov">          0 :     label_repeat = (label_repeat-1)/2+1;</span>
-<span class="lineNum">    1874 </span>                :            :   } else {
-<span class="lineNum">    1875 </span>                :            :     label_repeat = 1;
-<span class="lineNum">    1876 </span>                :<span class="lineCov">          1 :     center_label_position = (ll-&gt;total_length - text_length) / 2.0;</span>
-<span class="lineNum">    1877 </span>                :            :   }
-<span class="lineNum">    1878 </span>                :            :   
-<span class="lineNum">    1879 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(label-&gt;maxoverlapangle &gt; 0)</span>
-<span class="lineNum">    1880 </span>                :<span class="lineCov">          1 :     maxoverlapangle = label-&gt;maxoverlapangle * MS_DEG_TO_RAD; /* radian */</span>
-<span class="lineNum">    1881 </span>                :            :   
-<span class="lineNum">    1882 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (l=0; l &lt; label_repeat; l++) {</span>
-<span class="lineNum">    1883 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (l == label_repeat-1) { /* last label to place is always the center label */</span>
-<span class="lineNum">    1884 </span>                :            :       text_start_length = center_label_position;
-<span class="lineNum">    1885 </span>                :            :       n = 1;
-<span class="lineNum">    1886 </span>                :            :     } else {
-<span class="lineNum">    1887 </span>                :            :       text_start_length = right_label_position;
-<span class="lineNum">    1888 </span>                :            :       n = 0;
-<span class="lineNum">    1889 </span>                :            :     }
-<span class="lineNum">    1890 </span>                :            : 
-<span class="lineNum">    1891 </span>                :            :     do {
-<span class="lineNum">    1892 </span>                :<span class="lineCov">          1 :       textPathObj *tp = msSmallCalloc(1,sizeof(textPathObj));</span>
-<span class="lineNum">    1893 </span>                :            :       /* copy the textPath, we will be overriding the copy's positions and angles */
-<span class="lineNum">    1894 </span>                :<span class="lineCov">          1 :       msCopyTextPath(tp,ts-&gt;textpath);</span>
-<span class="lineNum">    1895 </span>                :<span class="lineCov">          1 :       tp-&gt;bounds.poly = msSmallMalloc(sizeof(lineObj));</span>
-<span class="lineNum">    1896 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(k=0;k&lt;tp-&gt;numglyphs;k++) {</span>
-<span class="lineNum">    1897 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k].pnt.x = 0;</span>
-<span class="lineNum">    1898 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k].pnt.y = 0;</span>
-<span class="lineNum">    1899 </span>                :            :       }
-<span class="lineNum">    1900 </span>                :<span class="lineCov">          1 :       bounds = tp-&gt;bounds.poly;</span>
-<span class="lineNum">    1901 </span>                :            : 
-<span class="lineNum">    1902 </span>                :            : 
-<span class="lineNum">    1903 </span>                :            :       /*
-<span class="lineNum">    1904 </span>                :            :       ** The bounds will have two points for each character plus an endpoint:
-<span class="lineNum">    1905 </span>                :            :       ** the UL corners of each bbox will be tied together and the LL corners
-<span class="lineNum">    1906 </span>                :            :       ** will be tied together.
-<span class="lineNum">    1907 </span>                :            :       */
-<span class="lineNum">    1908 </span>                :<span class="lineCov">          1 :       bounds-&gt;numpoints = 2*tp-&gt;numglyphs + 1;</span>
-<span class="lineNum">    1909 </span>                :<span class="lineCov">          1 :       bounds-&gt;point = (pointObj *) msSmallMalloc(sizeof(pointObj) * bounds-&gt;numpoints);</span>
-<span class="lineNum">    1910 </span>                :            : 
-<span class="lineNum">    1911 </span>                :            :       /* the points start at (line_length - text_length) / 2 in order to be centred */
-<span class="lineNum">    1912 </span>                :            :       /* text_start_length = (line_length - text_length) / 2.0; */
-<span class="lineNum">    1913 </span>                :            : 
-<span class="lineNum">    1914 </span>                :            :       /* the text is longer than the line: extrapolate the first and last segments */
-<span class="lineNum">    1915 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(text_start_length &lt; 0.0) {</span>
-<span class="lineNum">    1916 </span>                :            :         j = 0;
-<span class="lineNum">    1917 </span>                :<span class="lineNoCov">          0 :         final_j = p-&gt;numpoints - 1;</span>
-<span class="lineNum">    1918 </span>                :            :         fwd_line_length = rev_line_length = 0;
-<span class="lineNum">    1919 </span>                :            :       } else {
-<span class="lineNum">    1920 </span>                :            :         /* proceed until we've traversed text_start_length in distance */
-<span class="lineNum">    1921 </span>                :            :         fwd_line_length = 0;
-<span class="lineNum">    1922 </span>                :            :         j = 0;
-<span class="lineNum">    1923 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         while ( fwd_line_length &lt; text_start_length )</span>
-<span class="lineNum">    1924 </span>                :<span class="lineCov">          1 :           fwd_line_length += ll-&gt;segment_lengths[j++];</span>
-<span class="lineNum">    1925 </span>                :            : 
-<span class="lineNum">    1926 </span>                :<span class="lineCov">          1 :         j--;</span>
-<span class="lineNum">    1927 </span>                :            : 
-<span class="lineNum">    1928 </span>                :            :         /* determine the last segment */
-<span class="lineNum">    1929 </span>                :            :         rev_line_length = 0;
-<span class="lineNum">    1930 </span>                :<span class="lineCov">          1 :         final_j = p-&gt;numpoints - 1;</span>
+<span class="lineNum">    1873 </span>                :            :     /* initial point position */
+<span class="lineNum">    1874 </span>                :<span class="lineNoCov">          0 :     left_label_position -= ((label_repeat-1)/2 * label_buffer);</span>
+<span class="lineNum">    1875 </span>                :<span class="lineNoCov">          0 :     right_label_position += ((label_repeat-1)/2 * label_buffer);</span>
+<span class="lineNum">    1876 </span>                :            : 
+<span class="lineNum">    1877 </span>                :<span class="lineNoCov">          0 :     label_repeat = (label_repeat-1)/2+1;</span>
+<span class="lineNum">    1878 </span>                :            :   } else {
+<span class="lineNum">    1879 </span>                :            :     label_repeat = 1;
+<span class="lineNum">    1880 </span>                :<span class="lineCov">          1 :     center_label_position = (ll-&gt;total_length - text_length) / 2.0;</span>
+<span class="lineNum">    1881 </span>                :            :   }
+<span class="lineNum">    1882 </span>                :            :   
+<span class="lineNum">    1883 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(label-&gt;maxoverlapangle &gt; 0)</span>
+<span class="lineNum">    1884 </span>                :<span class="lineCov">          1 :     maxoverlapangle = label-&gt;maxoverlapangle * MS_DEG_TO_RAD; /* radian */</span>
+<span class="lineNum">    1885 </span>                :            :   
+<span class="lineNum">    1886 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (l=0; l &lt; label_repeat; l++) {</span>
+<span class="lineNum">    1887 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (l == label_repeat-1) { /* last label to place is always the center label */</span>
+<span class="lineNum">    1888 </span>                :            :       text_start_length = center_label_position;
+<span class="lineNum">    1889 </span>                :            :       n = 1;
+<span class="lineNum">    1890 </span>                :            :     } else {
+<span class="lineNum">    1891 </span>                :            :       text_start_length = right_label_position;
+<span class="lineNum">    1892 </span>                :            :       n = 0;
+<span class="lineNum">    1893 </span>                :            :     }
+<span class="lineNum">    1894 </span>                :            : 
+<span class="lineNum">    1895 </span>                :            :     do {
+<span class="lineNum">    1896 </span>                :<span class="lineCov">          1 :       textPathObj *tp = msSmallCalloc(1,sizeof(textPathObj));</span>
+<span class="lineNum">    1897 </span>                :            :       /* copy the textPath, we will be overriding the copy's positions and angles */
+<span class="lineNum">    1898 </span>                :<span class="lineCov">          1 :       msCopyTextPath(tp,ts-&gt;textpath);</span>
+<span class="lineNum">    1899 </span>                :<span class="lineCov">          1 :       tp-&gt;bounds.poly = msSmallMalloc(sizeof(lineObj));</span>
+<span class="lineNum">    1900 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(k=0;k&lt;tp-&gt;numglyphs;k++) {</span>
+<span class="lineNum">    1901 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k].pnt.x = 0;</span>
+<span class="lineNum">    1902 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k].pnt.y = 0;</span>
+<span class="lineNum">    1903 </span>                :            :       }
+<span class="lineNum">    1904 </span>                :<span class="lineCov">          1 :       bounds = tp-&gt;bounds.poly;</span>
+<span class="lineNum">    1905 </span>                :            : 
+<span class="lineNum">    1906 </span>                :            : 
+<span class="lineNum">    1907 </span>                :            :       /*
+<span class="lineNum">    1908 </span>                :            :       ** The bounds will have two points for each character plus an endpoint:
+<span class="lineNum">    1909 </span>                :            :       ** the UL corners of each bbox will be tied together and the LL corners
+<span class="lineNum">    1910 </span>                :            :       ** will be tied together.
+<span class="lineNum">    1911 </span>                :            :       */
+<span class="lineNum">    1912 </span>                :<span class="lineCov">          1 :       bounds-&gt;numpoints = 2*tp-&gt;numglyphs + 1;</span>
+<span class="lineNum">    1913 </span>                :<span class="lineCov">          1 :       bounds-&gt;point = (pointObj *) msSmallMalloc(sizeof(pointObj) * bounds-&gt;numpoints);</span>
+<span class="lineNum">    1914 </span>                :            : 
+<span class="lineNum">    1915 </span>                :            :       /* the points start at (line_length - text_length) / 2 in order to be centred */
+<span class="lineNum">    1916 </span>                :            :       /* text_start_length = (line_length - text_length) / 2.0; */
+<span class="lineNum">    1917 </span>                :            : 
+<span class="lineNum">    1918 </span>                :            :       /* the text is longer than the line: extrapolate the first and last segments */
+<span class="lineNum">    1919 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(text_start_length &lt; 0.0) {</span>
+<span class="lineNum">    1920 </span>                :            :         j = 0;
+<span class="lineNum">    1921 </span>                :<span class="lineNoCov">          0 :         final_j = p-&gt;numpoints - 1;</span>
+<span class="lineNum">    1922 </span>                :            :         fwd_line_length = rev_line_length = 0;
+<span class="lineNum">    1923 </span>                :            :       } else {
+<span class="lineNum">    1924 </span>                :            :         /* proceed until we've traversed text_start_length in distance */
+<span class="lineNum">    1925 </span>                :            :         fwd_line_length = 0;
+<span class="lineNum">    1926 </span>                :            :         j = 0;
+<span class="lineNum">    1927 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         while ( fwd_line_length &lt; text_start_length )</span>
+<span class="lineNum">    1928 </span>                :<span class="lineCov">          1 :           fwd_line_length += ll-&gt;segment_lengths[j++];</span>
+<span class="lineNum">    1929 </span>                :            : 
+<span class="lineNum">    1930 </span>                :<span class="lineCov">          1 :         j--;</span>
 <span class="lineNum">    1931 </span>                :            : 
-<span class="lineNum">    1932 </span>                :<span class="lineCov">          1 :         text_end_length = ll-&gt;total_length - (text_start_length + text_length);</span>
-<span class="lineNum">    1933 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         while(rev_line_length &lt; text_end_length) {</span>
-<span class="lineNum">    1934 </span>                :<span class="lineCov">          1 :           rev_line_length += ll-&gt;segment_lengths[final_j - 1];</span>
-<span class="lineNum">    1935 </span>                :<span class="lineCov">          1 :           final_j--;</span>
-<span class="lineNum">    1936 </span>                :            :         }
-<span class="lineNum">    1937 </span>                :<span class="lineCov">          1 :         final_j++;</span>
-<span class="lineNum">    1938 </span>                :            :       }
-<span class="lineNum">    1939 </span>                :            : 
-<span class="lineNum">    1940 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(final_j == 0)</span>
-<span class="lineNum">    1941 </span>                :            :         final_j = 1;
-<span class="lineNum">    1942 </span>                :            : 
-<span class="lineNum">    1943 </span>                :            :       /* determine if the line is mostly left to right or right to left,
-<span class="lineNum">    1944 </span>                :            :          see bug 1620 discussion by Steve Woodbridge */
-<span class="lineNum">    1945 </span>                :<span class="lineCov">          1 :       direction = p-&gt;point[final_j].x - p-&gt;point[j].x;</span>
+<span class="lineNum">    1932 </span>                :            :         /* determine the last segment */
+<span class="lineNum">    1933 </span>                :            :         rev_line_length = 0;
+<span class="lineNum">    1934 </span>                :<span class="lineCov">          1 :         final_j = p-&gt;numpoints - 1;</span>
+<span class="lineNum">    1935 </span>                :            : 
+<span class="lineNum">    1936 </span>                :<span class="lineCov">          1 :         text_end_length = ll-&gt;total_length - (text_start_length + text_length);</span>
+<span class="lineNum">    1937 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         while(rev_line_length &lt; text_end_length) {</span>
+<span class="lineNum">    1938 </span>                :<span class="lineCov">          1 :           rev_line_length += ll-&gt;segment_lengths[final_j - 1];</span>
+<span class="lineNum">    1939 </span>                :<span class="lineCov">          1 :           final_j--;</span>
+<span class="lineNum">    1940 </span>                :            :         }
+<span class="lineNum">    1941 </span>                :<span class="lineCov">          1 :         final_j++;</span>
+<span class="lineNum">    1942 </span>                :            :       }
+<span class="lineNum">    1943 </span>                :            : 
+<span class="lineNum">    1944 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(final_j == 0)</span>
+<span class="lineNum">    1945 </span>                :            :         final_j = 1;
 <span class="lineNum">    1946 </span>                :            : 
-<span class="lineNum">    1947 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(direction &gt; 0) {</span>
-<span class="lineNum">    1948 </span>                :            :         inc = 1; /* j is already correct */
-<span class="lineNum">    1949 </span>                :            : 
-<span class="lineNum">    1950 </span>                :            :         /* length of the segment containing the starting point */
-<span class="lineNum">    1951 </span>                :<span class="lineCov">          1 :         segment_length = ll-&gt;segment_lengths[j];</span>
-<span class="lineNum">    1952 </span>                :            : 
-<span class="lineNum">    1953 </span>                :            :         /* determine how far along the segment we need to go */
-<span class="lineNum">    1954 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(text_start_length &lt; 0.0)</span>
-<span class="lineNum">    1955 </span>                :<span class="lineNoCov">          0 :           t = text_start_length / segment_length;</span>
-<span class="lineNum">    1956 </span>                :            :         else
-<span class="lineNum">    1957 </span>                :<span class="lineCov">          1 :           t = 1 - (fwd_line_length - text_start_length) / segment_length;</span>
-<span class="lineNum">    1958 </span>                :            :       } else {
-<span class="lineNum">    1959 </span>                :            :         j = final_j;
-<span class="lineNum">    1960 </span>                :            :         inc = -1;
-<span class="lineNum">    1961 </span>                :            : 
-<span class="lineNum">    1962 </span>                :            :         /* length of the segment containing the starting point */
-<span class="lineNum">    1963 </span>                :<span class="lineCov">          1 :         segment_length = ll-&gt;segment_lengths[j-1];</span>
-<span class="lineNum">    1964 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(text_start_length &lt; 0.0)</span>
-<span class="lineNum">    1965 </span>                :<span class="lineNoCov">          0 :           t = text_start_length / segment_length;</span>
-<span class="lineNum">    1966 </span>                :            :         else
-<span class="lineNum">    1967 </span>                :<span class="lineCov">          1 :           t = 1 - (rev_line_length - text_end_length) / segment_length;</span>
-<span class="lineNum">    1968 </span>                :            :       }
-<span class="lineNum">    1969 </span>                :            : 
-<span class="lineNum">    1970 </span>                :<span class="lineCov">          1 :       distance_along_segment = t * segment_length; /* starting point */</span>
-<span class="lineNum">    1971 </span>                :            : 
-<span class="lineNum">    1972 </span>                :            :       theta = 0;
-<span class="lineNum">    1973 </span>                :            :       k = 0;
-<span class="lineNum">    1974 </span>                :            :       w = 0;
-<span class="lineNum">    1975 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       while ( k &lt; tp-&gt;numglyphs ) {</span>
-<span class="lineNum">    1976 </span>                :            :         double x,y;
-<span class="lineNum">    1977 </span>                :            : 
-<span class="lineNum">    1978 </span>                :<span class="lineCov">          1 :         x = t * (p-&gt;point[j+inc].x - p-&gt;point[j].x) + p-&gt;point[j].x;</span>
-<span class="lineNum">    1979 </span>                :<span class="lineCov">          1 :         y = t * (p-&gt;point[j+inc].y - p-&gt;point[j].y) + p-&gt;point[j].y;</span>
-<span class="lineNum">    1980 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k].pnt.x = x;</span>
-<span class="lineNum">    1981 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k].pnt.y = y;</span>
-<span class="lineNum">    1982 </span>                :            : 
-<span class="lineNum">    1983 </span>                :            : 
-<span class="lineNum">    1984 </span>                :<span class="lineCov">          1 :         w = letterspacing*tp-&gt;glyphs[k].glyph-&gt;metrics.advance;</span>
-<span class="lineNum">    1985 </span>                :            : 
-<span class="lineNum">    1986 </span>                :            :         /* add the character's width to the distance along the line */
-<span class="lineNum">    1987 </span>                :<span class="lineCov">          1 :         distance_along_segment += w;</span>
-<span class="lineNum">    1988 </span>                :            : 
-<span class="lineNum">    1989 </span>                :            :         /* if we still have segments left and we've past the current segment, move to the next one */
-<span class="lineNum">    1990 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(inc == 1 &amp;&amp; j &lt; p-&gt;numpoints - 2) {</span>
-<span class="lineNum">    1991 </span>                :            : 
-<span class="lineNum">    1992 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :           while ( j &lt; p-&gt;numpoints - 2 &amp;&amp; distance_along_segment &gt; ll-&gt;segment_lengths[j] ) {</span>
-<span class="lineNum">    1993 </span>                :<span class="lineCov">          1 :             distance_along_segment -= ll-&gt;segment_lengths[j];</span>
-<span class="lineNum">    1994 </span>                :<span class="lineCov">          1 :             j += inc; /* move to next segment */</span>
-<span class="lineNum">    1995 </span>                :            :           }
-<span class="lineNum">    1996 </span>                :            : 
-<span class="lineNum">    1997 </span>                :<span class="lineCov">          1 :           segment_length = ll-&gt;segment_lengths[j];</span>
-<span class="lineNum">    1998 </span>                :            : 
-<span class="lineNum">    1999 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         } else if( inc == -1 &amp;&amp; j &gt; 1 ) {</span>
+<span class="lineNum">    1947 </span>                :            :       /* determine if the line is mostly left to right or right to left,
+<span class="lineNum">    1948 </span>                :            :          see bug 1620 discussion by Steve Woodbridge */
+<span class="lineNum">    1949 </span>                :<span class="lineCov">          1 :       direction = p-&gt;point[final_j].x - p-&gt;point[j].x;</span>
+<span class="lineNum">    1950 </span>                :            : 
+<span class="lineNum">    1951 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(direction &gt; 0) {</span>
+<span class="lineNum">    1952 </span>                :            :         inc = 1; /* j is already correct */
+<span class="lineNum">    1953 </span>                :            : 
+<span class="lineNum">    1954 </span>                :            :         /* length of the segment containing the starting point */
+<span class="lineNum">    1955 </span>                :<span class="lineCov">          1 :         segment_length = ll-&gt;segment_lengths[j];</span>
+<span class="lineNum">    1956 </span>                :            : 
+<span class="lineNum">    1957 </span>                :            :         /* determine how far along the segment we need to go */
+<span class="lineNum">    1958 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(text_start_length &lt; 0.0)</span>
+<span class="lineNum">    1959 </span>                :<span class="lineNoCov">          0 :           t = text_start_length / segment_length;</span>
+<span class="lineNum">    1960 </span>                :            :         else
+<span class="lineNum">    1961 </span>                :<span class="lineCov">          1 :           t = 1 - (fwd_line_length - text_start_length) / segment_length;</span>
+<span class="lineNum">    1962 </span>                :            :       } else {
+<span class="lineNum">    1963 </span>                :            :         j = final_j;
+<span class="lineNum">    1964 </span>                :            :         inc = -1;
+<span class="lineNum">    1965 </span>                :            : 
+<span class="lineNum">    1966 </span>                :            :         /* length of the segment containing the starting point */
+<span class="lineNum">    1967 </span>                :<span class="lineCov">          1 :         segment_length = ll-&gt;segment_lengths[j-1];</span>
+<span class="lineNum">    1968 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(text_start_length &lt; 0.0)</span>
+<span class="lineNum">    1969 </span>                :<span class="lineNoCov">          0 :           t = text_start_length / segment_length;</span>
+<span class="lineNum">    1970 </span>                :            :         else
+<span class="lineNum">    1971 </span>                :<span class="lineCov">          1 :           t = 1 - (rev_line_length - text_end_length) / segment_length;</span>
+<span class="lineNum">    1972 </span>                :            :       }
+<span class="lineNum">    1973 </span>                :            : 
+<span class="lineNum">    1974 </span>                :<span class="lineCov">          1 :       distance_along_segment = t * segment_length; /* starting point */</span>
+<span class="lineNum">    1975 </span>                :            : 
+<span class="lineNum">    1976 </span>                :            :       theta = 0;
+<span class="lineNum">    1977 </span>                :            :       k = 0;
+<span class="lineNum">    1978 </span>                :            :       w = 0;
+<span class="lineNum">    1979 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       while ( k &lt; tp-&gt;numglyphs ) {</span>
+<span class="lineNum">    1980 </span>                :            :         double x,y;
+<span class="lineNum">    1981 </span>                :            : 
+<span class="lineNum">    1982 </span>                :<span class="lineCov">          1 :         x = t * (p-&gt;point[j+inc].x - p-&gt;point[j].x) + p-&gt;point[j].x;</span>
+<span class="lineNum">    1983 </span>                :<span class="lineCov">          1 :         y = t * (p-&gt;point[j+inc].y - p-&gt;point[j].y) + p-&gt;point[j].y;</span>
+<span class="lineNum">    1984 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k].pnt.x = x;</span>
+<span class="lineNum">    1985 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k].pnt.y = y;</span>
+<span class="lineNum">    1986 </span>                :            : 
+<span class="lineNum">    1987 </span>                :            : 
+<span class="lineNum">    1988 </span>                :<span class="lineCov">          1 :         w = letterspacing*tp-&gt;glyphs[k].glyph-&gt;metrics.advance;</span>
+<span class="lineNum">    1989 </span>                :            : 
+<span class="lineNum">    1990 </span>                :            :         /* add the character's width to the distance along the line */
+<span class="lineNum">    1991 </span>                :<span class="lineCov">          1 :         distance_along_segment += w;</span>
+<span class="lineNum">    1992 </span>                :            : 
+<span class="lineNum">    1993 </span>                :            :         /* if we still have segments left and we've past the current segment, move to the next one */
+<span class="lineNum">    1994 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(inc == 1 &amp;&amp; j &lt; p-&gt;numpoints - 2) {</span>
+<span class="lineNum">    1995 </span>                :            : 
+<span class="lineNum">    1996 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :           while ( j &lt; p-&gt;numpoints - 2 &amp;&amp; distance_along_segment &gt; ll-&gt;segment_lengths[j] ) {</span>
+<span class="lineNum">    1997 </span>                :<span class="lineCov">          1 :             distance_along_segment -= ll-&gt;segment_lengths[j];</span>
+<span class="lineNum">    1998 </span>                :<span class="lineCov">          1 :             j += inc; /* move to next segment */</span>
+<span class="lineNum">    1999 </span>                :            :           }
 <span class="lineNum">    2000 </span>                :            : 
-<span class="lineNum">    2001 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :           while ( j &gt; 1 &amp;&amp; distance_along_segment &gt; ll-&gt;segment_lengths[j-1] ) {</span>
-<span class="lineNum">    2002 </span>                :<span class="lineCov">          1 :             distance_along_segment -= ll-&gt;segment_lengths[j-1];</span>
-<span class="lineNum">    2003 </span>                :<span class="lineCov">          1 :             j += inc; /* move to next segment */</span>
-<span class="lineNum">    2004 </span>                :            :           }
-<span class="lineNum">    2005 </span>                :            : 
-<span class="lineNum">    2006 </span>                :<span class="lineCov">          1 :           segment_length = ll-&gt;segment_lengths[j-1];</span>
-<span class="lineNum">    2007 </span>                :            :         }
-<span class="lineNum">    2008 </span>                :            : 
-<span class="lineNum">    2009 </span>                :            :         /* Recalculate interpolation parameter */
-<span class="lineNum">    2010 </span>                :<span class="lineCov">          1 :         t = distance_along_segment / segment_length;</span>
-<span class="lineNum">    2011 </span>                :            : 
-<span class="lineNum">    2012 </span>                :<span class="lineCov">          1 :         k++;</span>
-<span class="lineNum">    2013 </span>                :            :       }
-<span class="lineNum">    2014 </span>                :            : 
-<span class="lineNum">    2015 </span>                :            :       /* pre-calc the character's centre y value.  Used for rotation adjustment. */
-<span class="lineNum">    2016 </span>                :<span class="lineCov">          1 :       cy = -ts-&gt;textpath-&gt;glyph_size / 2.0;</span>
-<span class="lineNum">    2017 </span>                :            : #ifdef USE_KERNEL
-<span class="lineNum">    2018 </span>                :            :       tp-&gt;glyphs[0].pnt.x /= kernel_normal;
-<span class="lineNum">    2019 </span>                :            :       tp-&gt;glyphs[0].pnt.y /= kernel_normal;
-<span class="lineNum">    2020 </span>                :            : #endif
-<span class="lineNum">    2021 </span>                :            : 
-<span class="lineNum">    2022 </span>                :            :       /* Average the points and calculate each angle */
-<span class="lineNum">    2023 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for (k = 1; k &lt;= tp-&gt;numglyphs; k++) {</span>
-<span class="lineNum">    2024 </span>                :            :         double anglediff;
-<span class="lineNum">    2025 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if ( k &lt; tp-&gt;numglyphs ) {</span>
-<span class="lineNum">    2026 </span>                :            : #ifdef USE_KERNEL
-<span class="lineNum">    2027 </span>                :            :           tp-&gt;glyphs[k].pnt.x /= kernel_normal;
-<span class="lineNum">    2028 </span>                :            :           tp-&gt;glyphs[k].pnt.y /= kernel_normal;
-<span class="lineNum">    2029 </span>                :            : #endif
-<span class="lineNum">    2030 </span>                :<span class="lineCov">          1 :           dx = tp-&gt;glyphs[k].pnt.x - tp-&gt;glyphs[k-1].pnt.x;</span>
-<span class="lineNum">    2031 </span>                :<span class="lineCov">          1 :           dy = tp-&gt;glyphs[k].pnt.y - tp-&gt;glyphs[k-1].pnt.y;</span>
-<span class="lineNum">    2032 </span>                :            :         } else {
-<span class="lineNum">    2033 </span>                :            :           /* Handle the last character */
-<span class="lineNum">    2034 </span>                :<span class="lineCov">          1 :           dx = t * (p-&gt;point[j+inc].x - p-&gt;point[j].x) + p-&gt;point[j].x - tp-&gt;glyphs[k-1].pnt.x;</span>
-<span class="lineNum">    2035 </span>                :<span class="lineCov">          1 :           dy = t * (p-&gt;point[j+inc].y - p-&gt;point[j].y) + p-&gt;point[j].y - tp-&gt;glyphs[k-1].pnt.y;</span>
-<span class="lineNum">    2036 </span>                :            :         }
-<span class="lineNum">    2037 </span>                :            : 
-<span class="lineNum">    2038 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(dx || dy || k==1) {</span>
-<span class="lineNum">    2039 </span>                :<span class="lineCov">          1 :           theta = -atan2(dy,dx);</span>
-<span class="lineNum">    2040 </span>                :            : 
-<span class="lineNum">    2041 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if (maxoverlapangle &gt; 0 &amp;&amp; k &gt; 1) {</span>
-<span class="lineNum">    2042 </span>                :            :             /* If the difference between the last char angle and the current one
-<span class="lineNum">    2043 </span>                :            :              is greater than the MAXOVERLAPANGLE value (set at 80% of 180deg by default)
-<span class="lineNum">    2044 </span>                :            :              , bail the label */
-<span class="lineNum">    2045 </span>                :<span class="lineCov">          1 :             anglediff = fabs(theta - tp-&gt;glyphs[k-2].rot);</span>
-<span class="lineNum">    2046 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             anglediff = MS_MIN(anglediff, MS_2PI - anglediff);</span>
-<span class="lineNum">    2047 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if(anglediff &gt; maxoverlapangle ) {</span>
-<span class="lineNum">    2048 </span>                :            :               goto LABEL_FAILURE;
-<span class="lineNum">    2049 </span>                :            :             }
-<span class="lineNum">    2050 </span>                :            :           }
-<span class="lineNum">    2051 </span>                :            :         } else {
-<span class="lineNum">    2052 </span>                :            :           /*
-<span class="lineNum">    2053 </span>                :            :            * handle the 0-advance case, as the complex text shaping may have placed multiple
-<span class="lineNum">    2054 </span>                :            :            * glyphs at the same position
-<span class="lineNum">    2055 </span>                :            :            */
-<span class="lineNum">    2056 </span>                :<span class="lineNoCov">          0 :           theta = tp-&gt;glyphs[k-2].rot;</span>
-<span class="lineNum">    2057 </span>                :            :         }
-<span class="lineNum">    2058 </span>                :            : 
-<span class="lineNum">    2059 </span>                :            :         /* msDebug(&quot;s: %c (x,y): (%0.2f,%0.2f) t: %0.2f\n&quot;, string[k-1], labelpath-&gt;path.point[k-1].x, labelpath-&gt;path.point[k-1].y, theta); */
-<span class="lineNum">    2060 </span>                :            : 
-<span class="lineNum">    2061 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k-1].rot = theta;</span>
+<span class="lineNum">    2001 </span>                :<span class="lineCov">          1 :           segment_length = ll-&gt;segment_lengths[j];</span>
+<span class="lineNum">    2002 </span>                :            : 
+<span class="lineNum">    2003 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         } else if( inc == -1 &amp;&amp; j &gt; 1 ) {</span>
+<span class="lineNum">    2004 </span>                :            : 
+<span class="lineNum">    2005 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :           while ( j &gt; 1 &amp;&amp; distance_along_segment &gt; ll-&gt;segment_lengths[j-1] ) {</span>
+<span class="lineNum">    2006 </span>                :<span class="lineCov">          1 :             distance_along_segment -= ll-&gt;segment_lengths[j-1];</span>
+<span class="lineNum">    2007 </span>                :<span class="lineCov">          1 :             j += inc; /* move to next segment */</span>
+<span class="lineNum">    2008 </span>                :            :           }
+<span class="lineNum">    2009 </span>                :            : 
+<span class="lineNum">    2010 </span>                :<span class="lineCov">          1 :           segment_length = ll-&gt;segment_lengths[j-1];</span>
+<span class="lineNum">    2011 </span>                :            :         }
+<span class="lineNum">    2012 </span>                :            : 
+<span class="lineNum">    2013 </span>                :            :         /* Recalculate interpolation parameter */
+<span class="lineNum">    2014 </span>                :<span class="lineCov">          1 :         t = distance_along_segment / segment_length;</span>
+<span class="lineNum">    2015 </span>                :            : 
+<span class="lineNum">    2016 </span>                :<span class="lineCov">          1 :         k++;</span>
+<span class="lineNum">    2017 </span>                :            :       }
+<span class="lineNum">    2018 </span>                :            : 
+<span class="lineNum">    2019 </span>                :            :       /* pre-calc the character's centre y value.  Used for rotation adjustment. */
+<span class="lineNum">    2020 </span>                :<span class="lineCov">          1 :       cy = -ts-&gt;textpath-&gt;glyph_size / 2.0;</span>
+<span class="lineNum">    2021 </span>                :            : #ifdef USE_KERNEL
+<span class="lineNum">    2022 </span>                :            :       tp-&gt;glyphs[0].pnt.x /= kernel_normal;
+<span class="lineNum">    2023 </span>                :            :       tp-&gt;glyphs[0].pnt.y /= kernel_normal;
+<span class="lineNum">    2024 </span>                :            : #endif
+<span class="lineNum">    2025 </span>                :            : 
+<span class="lineNum">    2026 </span>                :            :       /* Average the points and calculate each angle */
+<span class="lineNum">    2027 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for (k = 1; k &lt;= tp-&gt;numglyphs; k++) {</span>
+<span class="lineNum">    2028 </span>                :            :         double anglediff;
+<span class="lineNum">    2029 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if ( k &lt; tp-&gt;numglyphs ) {</span>
+<span class="lineNum">    2030 </span>                :            : #ifdef USE_KERNEL
+<span class="lineNum">    2031 </span>                :            :           tp-&gt;glyphs[k].pnt.x /= kernel_normal;
+<span class="lineNum">    2032 </span>                :            :           tp-&gt;glyphs[k].pnt.y /= kernel_normal;
+<span class="lineNum">    2033 </span>                :            : #endif
+<span class="lineNum">    2034 </span>                :<span class="lineCov">          1 :           dx = tp-&gt;glyphs[k].pnt.x - tp-&gt;glyphs[k-1].pnt.x;</span>
+<span class="lineNum">    2035 </span>                :<span class="lineCov">          1 :           dy = tp-&gt;glyphs[k].pnt.y - tp-&gt;glyphs[k-1].pnt.y;</span>
+<span class="lineNum">    2036 </span>                :            :         } else {
+<span class="lineNum">    2037 </span>                :            :           /* Handle the last character */
+<span class="lineNum">    2038 </span>                :<span class="lineCov">          1 :           dx = t * (p-&gt;point[j+inc].x - p-&gt;point[j].x) + p-&gt;point[j].x - tp-&gt;glyphs[k-1].pnt.x;</span>
+<span class="lineNum">    2039 </span>                :<span class="lineCov">          1 :           dy = t * (p-&gt;point[j+inc].y - p-&gt;point[j].y) + p-&gt;point[j].y - tp-&gt;glyphs[k-1].pnt.y;</span>
+<span class="lineNum">    2040 </span>                :            :         }
+<span class="lineNum">    2041 </span>                :            : 
+<span class="lineNum">    2042 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(dx || dy || k==1) {</span>
+<span class="lineNum">    2043 </span>                :<span class="lineCov">          1 :           theta = -atan2(dy,dx);</span>
+<span class="lineNum">    2044 </span>                :            : 
+<span class="lineNum">    2045 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if (maxoverlapangle &gt; 0 &amp;&amp; k &gt; 1) {</span>
+<span class="lineNum">    2046 </span>                :            :             /* If the difference between the last char angle and the current one
+<span class="lineNum">    2047 </span>                :            :              is greater than the MAXOVERLAPANGLE value (set at 80% of 180deg by default)
+<span class="lineNum">    2048 </span>                :            :              , bail the label */
+<span class="lineNum">    2049 </span>                :<span class="lineCov">          1 :             anglediff = fabs(theta - tp-&gt;glyphs[k-2].rot);</span>
+<span class="lineNum">    2050 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             anglediff = MS_MIN(anglediff, MS_2PI - anglediff);</span>
+<span class="lineNum">    2051 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if(anglediff &gt; maxoverlapangle ) {</span>
+<span class="lineNum">    2052 </span>                :            :               goto LABEL_FAILURE;
+<span class="lineNum">    2053 </span>                :            :             }
+<span class="lineNum">    2054 </span>                :            :           }
+<span class="lineNum">    2055 </span>                :            :         } else {
+<span class="lineNum">    2056 </span>                :            :           /*
+<span class="lineNum">    2057 </span>                :            :            * handle the 0-advance case, as the complex text shaping may have placed multiple
+<span class="lineNum">    2058 </span>                :            :            * glyphs at the same position
+<span class="lineNum">    2059 </span>                :            :            */
+<span class="lineNum">    2060 </span>                :<span class="lineNoCov">          0 :           theta = tp-&gt;glyphs[k-2].rot;</span>
+<span class="lineNum">    2061 </span>                :            :         }
 <span class="lineNum">    2062 </span>                :            : 
-<span class="lineNum">    2063 </span>                :            : 
-<span class="lineNum">    2064 </span>                :            :         /* Move the previous point so that when the character is rotated and
-<span class="lineNum">    2065 </span>                :            :            placed it is centred on the line */
-<span class="lineNum">    2066 </span>                :<span class="lineCov">          1 :         cos_t = cos(theta);</span>
-<span class="lineNum">    2067 </span>                :<span class="lineCov">          1 :         sin_t = sin(theta);</span>
-<span class="lineNum">    2068 </span>                :            : 
-<span class="lineNum">    2069 </span>                :<span class="lineCov">          1 :         w = letterspacing*tp-&gt;glyphs[k-1].glyph-&gt;metrics.advance;</span>
-<span class="lineNum">    2070 </span>                :            : 
-<span class="lineNum">    2071 </span>                :            :         cx = 0; /* Center the character vertically only */
+<span class="lineNum">    2063 </span>                :            :         /* msDebug(&quot;s: %c (x,y): (%0.2f,%0.2f) t: %0.2f\n&quot;, string[k-1], labelpath-&gt;path.point[k-1].x, labelpath-&gt;path.point[k-1].y, theta); */
+<span class="lineNum">    2064 </span>                :            : 
+<span class="lineNum">    2065 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k-1].rot = theta;</span>
+<span class="lineNum">    2066 </span>                :            : 
+<span class="lineNum">    2067 </span>                :            : 
+<span class="lineNum">    2068 </span>                :            :         /* Move the previous point so that when the character is rotated and
+<span class="lineNum">    2069 </span>                :            :            placed it is centred on the line */
+<span class="lineNum">    2070 </span>                :<span class="lineCov">          1 :         cos_t = cos(theta);</span>
+<span class="lineNum">    2071 </span>                :<span class="lineCov">          1 :         sin_t = sin(theta);</span>
 <span class="lineNum">    2072 </span>                :            : 
-<span class="lineNum">    2073 </span>                :<span class="lineCov">          1 :         dx = - (cx * cos_t + cy * sin_t);</span>
-<span class="lineNum">    2074 </span>                :<span class="lineCov">          1 :         dy = - (cy * cos_t - cx * sin_t);</span>
-<span class="lineNum">    2075 </span>                :            : 
-<span class="lineNum">    2076 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k-1].pnt.x += dx;</span>
-<span class="lineNum">    2077 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k-1].pnt.y += dy;</span>
-<span class="lineNum">    2078 </span>                :            : 
-<span class="lineNum">    2079 </span>                :            :         /* Calculate the bounds */
-<span class="lineNum">    2080 </span>                :<span class="lineCov">          1 :         bbox.minx = 0;</span>
-<span class="lineNum">    2081 </span>                :            :         bbox.maxx = w;
-<span class="lineNum">    2082 </span>                :<span class="lineCov">          1 :         bbox.maxy = 0;</span>
-<span class="lineNum">    2083 </span>                :<span class="lineCov">          1 :         bbox.miny = -ts-&gt;textpath-&gt;glyph_size;</span>
-<span class="lineNum">    2084 </span>                :            : 
-<span class="lineNum">    2085 </span>                :            :         /* Add the label buffer to the bounds */
-<span class="lineNum">    2086 </span>                :<span class="lineCov">          1 :         bbox.maxx += ts-&gt;label-&gt;buffer * ts-&gt;resolutionfactor;</span>
-<span class="lineNum">    2087 </span>                :<span class="lineCov">          1 :         bbox.maxy += ts-&gt;label-&gt;buffer * ts-&gt;resolutionfactor;</span>
-<span class="lineNum">    2088 </span>                :<span class="lineCov">          1 :         bbox.minx -= ts-&gt;label-&gt;buffer * ts-&gt;resolutionfactor;</span>
-<span class="lineNum">    2089 </span>                :<span class="lineCov">          1 :         bbox.miny -= ts-&gt;label-&gt;buffer * ts-&gt;resolutionfactor;</span>
-<span class="lineNum">    2090 </span>                :            : 
-<span class="lineNum">    2091 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if ( k &lt; tp-&gt;numglyphs ) {</span>
-<span class="lineNum">    2092 </span>                :            :           /* Transform the bbox too.  We take the UL and LL corners and rotate
-<span class="lineNum">    2093 </span>                :            :              then translate them. */
-<span class="lineNum">    2094 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[k-1].x = (bbox.minx * cos_t + bbox.maxy * sin_t) + tp-&gt;glyphs[k-1].pnt.x;</span>
-<span class="lineNum">    2095 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[k-1].y = (bbox.maxy * cos_t - bbox.minx * sin_t) + tp-&gt;glyphs[k-1].pnt.y;</span>
-<span class="lineNum">    2096 </span>                :            : 
-<span class="lineNum">    2097 </span>                :            :           /* Start at end and work towards the half way point */
-<span class="lineNum">    2098 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[bounds-&gt;numpoints - k - 1].x = (bbox.minx * cos_t + bbox.miny * sin_t) + tp-&gt;glyphs[k-1].pnt.x;</span>
-<span class="lineNum">    2099 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[bounds-&gt;numpoints - k - 1].y = (bbox.miny * cos_t - bbox.minx * sin_t) + tp-&gt;glyphs[k-1].pnt.y;</span>
+<span class="lineNum">    2073 </span>                :<span class="lineCov">          1 :         w = letterspacing*tp-&gt;glyphs[k-1].glyph-&gt;metrics.advance;</span>
+<span class="lineNum">    2074 </span>                :            : 
+<span class="lineNum">    2075 </span>                :            :         cx = 0; /* Center the character vertically only */
+<span class="lineNum">    2076 </span>                :            : 
+<span class="lineNum">    2077 </span>                :<span class="lineCov">          1 :         dx = - (cx * cos_t + cy * sin_t);</span>
+<span class="lineNum">    2078 </span>                :<span class="lineCov">          1 :         dy = - (cy * cos_t - cx * sin_t);</span>
+<span class="lineNum">    2079 </span>                :            : 
+<span class="lineNum">    2080 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k-1].pnt.x += dx;</span>
+<span class="lineNum">    2081 </span>                :<span class="lineCov">          1 :         tp-&gt;glyphs[k-1].pnt.y += dy;</span>
+<span class="lineNum">    2082 </span>                :            : 
+<span class="lineNum">    2083 </span>                :            :         /* Calculate the bounds */
+<span class="lineNum">    2084 </span>                :<span class="lineCov">          1 :         bbox.minx = 0;</span>
+<span class="lineNum">    2085 </span>                :            :         bbox.maxx = w;
+<span class="lineNum">    2086 </span>                :<span class="lineCov">          1 :         bbox.maxy = 0;</span>
+<span class="lineNum">    2087 </span>                :<span class="lineCov">          1 :         bbox.miny = -ts-&gt;textpath-&gt;glyph_size;</span>
+<span class="lineNum">    2088 </span>                :            : 
+<span class="lineNum">    2089 </span>                :            :         /* Add the label buffer to the bounds */
+<span class="lineNum">    2090 </span>                :<span class="lineCov">          1 :         bbox.maxx += ts-&gt;label-&gt;buffer * ts-&gt;resolutionfactor;</span>
+<span class="lineNum">    2091 </span>                :<span class="lineCov">          1 :         bbox.maxy += ts-&gt;label-&gt;buffer * ts-&gt;resolutionfactor;</span>
+<span class="lineNum">    2092 </span>                :<span class="lineCov">          1 :         bbox.minx -= ts-&gt;label-&gt;buffer * ts-&gt;resolutionfactor;</span>
+<span class="lineNum">    2093 </span>                :<span class="lineCov">          1 :         bbox.miny -= ts-&gt;label-&gt;buffer * ts-&gt;resolutionfactor;</span>
+<span class="lineNum">    2094 </span>                :            : 
+<span class="lineNum">    2095 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if ( k &lt; tp-&gt;numglyphs ) {</span>
+<span class="lineNum">    2096 </span>                :            :           /* Transform the bbox too.  We take the UL and LL corners and rotate
+<span class="lineNum">    2097 </span>                :            :              then translate them. */
+<span class="lineNum">    2098 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[k-1].x = (bbox.minx * cos_t + bbox.maxy * sin_t) + tp-&gt;glyphs[k-1].pnt.x;</span>
+<span class="lineNum">    2099 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[k-1].y = (bbox.maxy * cos_t - bbox.minx * sin_t) + tp-&gt;glyphs[k-1].pnt.y;</span>
 <span class="lineNum">    2100 </span>                :            : 
-<span class="lineNum">    2101 </span>                :            :         } else {
-<span class="lineNum">    2102 </span>                :            : 
-<span class="lineNum">    2103 </span>                :            :           /* This is the last character in the string so we take the UR and LR
-<span class="lineNum">    2104 </span>                :            :              corners of the bbox */
-<span class="lineNum">    2105 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[k-1].x = (bbox.maxx * cos_t + bbox.maxy * sin_t) + tp-&gt;glyphs[k-1].pnt.x;</span>
-<span class="lineNum">    2106 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[k-1].y = (bbox.maxy * cos_t - bbox.maxx * sin_t) + tp-&gt;glyphs[k-1].pnt.y;</span>
-<span class="lineNum">    2107 </span>                :            : 
-<span class="lineNum">    2108 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[bounds-&gt;numpoints - k - 1].x = (bbox.maxx * cos_t + bbox.miny * sin_t) + tp-&gt;glyphs[k-1].pnt.x;</span>
-<span class="lineNum">    2109 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[bounds-&gt;numpoints - k - 1].y = (bbox.miny * cos_t - bbox.maxx * sin_t) + tp-&gt;glyphs[k-1].pnt.y;</span>
-<span class="lineNum">    2110 </span>                :            :         }
+<span class="lineNum">    2101 </span>                :            :           /* Start at end and work towards the half way point */
+<span class="lineNum">    2102 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[bounds-&gt;numpoints - k - 1].x = (bbox.minx * cos_t + bbox.miny * sin_t) + tp-&gt;glyphs[k-1].pnt.x;</span>
+<span class="lineNum">    2103 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[bounds-&gt;numpoints - k - 1].y = (bbox.miny * cos_t - bbox.minx * sin_t) + tp-&gt;glyphs[k-1].pnt.y;</span>
+<span class="lineNum">    2104 </span>                :            : 
+<span class="lineNum">    2105 </span>                :            :         } else {
+<span class="lineNum">    2106 </span>                :            : 
+<span class="lineNum">    2107 </span>                :            :           /* This is the last character in the string so we take the UR and LR
+<span class="lineNum">    2108 </span>                :            :              corners of the bbox */
+<span class="lineNum">    2109 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[k-1].x = (bbox.maxx * cos_t + bbox.maxy * sin_t) + tp-&gt;glyphs[k-1].pnt.x;</span>
+<span class="lineNum">    2110 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[k-1].y = (bbox.maxy * cos_t - bbox.maxx * sin_t) + tp-&gt;glyphs[k-1].pnt.y;</span>
 <span class="lineNum">    2111 </span>                :            : 
-<span class="lineNum">    2112 </span>                :            :       }
-<span class="lineNum">    2113 </span>                :            : 
-<span class="lineNum">    2114 </span>                :            :       /* Close the bounds */
-<span class="lineNum">    2115 </span>                :<span class="lineCov">          1 :       bounds-&gt;point[bounds-&gt;numpoints - 1].x = bounds-&gt;point[0].x;</span>
-<span class="lineNum">    2116 </span>                :<span class="lineCov">          1 :       bounds-&gt;point[bounds-&gt;numpoints - 1].y = bounds-&gt;point[0].y;</span>
+<span class="lineNum">    2112 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[bounds-&gt;numpoints - k - 1].x = (bbox.maxx * cos_t + bbox.miny * sin_t) + tp-&gt;glyphs[k-1].pnt.x;</span>
+<span class="lineNum">    2113 </span>                :<span class="lineCov">          1 :           bounds-&gt;point[bounds-&gt;numpoints - k - 1].y = (bbox.miny * cos_t - bbox.maxx * sin_t) + tp-&gt;glyphs[k-1].pnt.y;</span>
+<span class="lineNum">    2114 </span>                :            :         }
+<span class="lineNum">    2115 </span>                :            : 
+<span class="lineNum">    2116 </span>                :            :       }
 <span class="lineNum">    2117 </span>                :            : 
-<span class="lineNum">    2118 </span>                :            :       /* compute the bounds */
-<span class="lineNum">    2119 </span>                :<span class="lineCov">          1 :       fastComputeBounds(bounds,&amp;tp-&gt;bounds.bbox);</span>
-<span class="lineNum">    2120 </span>                :            : 
-<span class="lineNum">    2121 </span>                :<span class="lineCov">          1 :       goto LABEL_END;</span>
-<span class="lineNum">    2122 </span>                :            : 
-<span class="lineNum">    2123 </span>                :            : LABEL_FAILURE:
+<span class="lineNum">    2118 </span>                :            :       /* Close the bounds */
+<span class="lineNum">    2119 </span>                :<span class="lineCov">          1 :       bounds-&gt;point[bounds-&gt;numpoints - 1].x = bounds-&gt;point[0].x;</span>
+<span class="lineNum">    2120 </span>                :<span class="lineCov">          1 :       bounds-&gt;point[bounds-&gt;numpoints - 1].y = bounds-&gt;point[0].y;</span>
+<span class="lineNum">    2121 </span>                :            : 
+<span class="lineNum">    2122 </span>                :            :       /* compute the bounds */
+<span class="lineNum">    2123 </span>                :<span class="lineCov">          1 :       fastComputeBounds(bounds,&amp;tp-&gt;bounds.bbox);</span>
 <span class="lineNum">    2124 </span>                :            : 
-<span class="lineNum">    2125 </span>                :            :       
-<span class="lineNum">    2126 </span>                :<span class="lineCov">          1 :       freeTextPath(tp);</span>
-<span class="lineNum">    2127 </span>                :<span class="lineCov">          1 :       free(tp);</span>
-<span class="lineNum">    2128 </span>                :<span class="lineCov">          1 :       goto NEXT_REPEAT;</span>
-<span class="lineNum">    2129 </span>                :            : 
-<span class="lineNum">    2130 </span>                :            : LABEL_END:
-<span class="lineNum">    2131 </span>                :            :       {
-<span class="lineNum">    2132 </span>                :            :         textPathObj *tmptp;
-<span class="lineNum">    2133 </span>                :            :         textSymbolObj *tsnew;
-<span class="lineNum">    2134 </span>                :<span class="lineCov">          1 :         lfr-&gt;num_follow_labels++;</span>
-<span class="lineNum">    2135 </span>                :<span class="lineCov">          1 :         lfr-&gt;follow_labels = msSmallRealloc(lfr-&gt;follow_labels,lfr-&gt;num_follow_labels * sizeof(textSymbolObj*));</span>
-<span class="lineNum">    2136 </span>                :<span class="lineCov">          1 :         tmptp = ts-&gt;textpath;</span>
-<span class="lineNum">    2137 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath = NULL;</span>
-<span class="lineNum">    2138 </span>                :<span class="lineCov">          1 :         lfr-&gt;follow_labels[lfr-&gt;num_follow_labels - 1] = msSmallMalloc(sizeof(textSymbolObj));</span>
-<span class="lineNum">    2139 </span>                :<span class="lineCov">          1 :         tsnew = lfr-&gt;follow_labels[lfr-&gt;num_follow_labels - 1];</span>
-<span class="lineNum">    2140 </span>                :<span class="lineCov">          1 :         initTextSymbol(tsnew);</span>
-<span class="lineNum">    2141 </span>                :<span class="lineCov">          1 :         msCopyTextSymbol(tsnew,ts);</span>
-<span class="lineNum">    2142 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath = tmptp;</span>
-<span class="lineNum">    2143 </span>                :<span class="lineCov">          1 :         tsnew-&gt;textpath = tp;</span>
-<span class="lineNum">    2144 </span>                :<span class="lineCov">          1 :         tsnew-&gt;textpath-&gt;absolute = 1;</span>
-<span class="lineNum">    2145 </span>                :            :       }
-<span class="lineNum">    2146 </span>                :            : NEXT_REPEAT:
-<span class="lineNum">    2147 </span>                :            :       text_start_length = left_label_position;
-<span class="lineNum">    2148 </span>                :<span class="lineCov">          1 :       n++;</span>
-<span class="lineNum">    2149 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     } while (n&lt;2);</span>
-<span class="lineNum">    2150 </span>                :            : 
-<span class="lineNum">    2151 </span>                :<span class="lineCov">          1 :     right_label_position -= label_buffer;</span>
-<span class="lineNum">    2152 </span>                :<span class="lineCov">          1 :     left_label_position += label_buffer;</span>
-<span class="lineNum">    2153 </span>                :            : 
-<span class="lineNum">    2154 </span>                :            :   }
-<span class="lineNum">    2155 </span>                :            : 
-<span class="lineNum">    2156 </span>                :            :   goto END; /* normal exit */
+<span class="lineNum">    2125 </span>                :<span class="lineCov">          1 :       goto LABEL_END;</span>
+<span class="lineNum">    2126 </span>                :            : 
+<span class="lineNum">    2127 </span>                :            : LABEL_FAILURE:
+<span class="lineNum">    2128 </span>                :            : 
+<span class="lineNum">    2129 </span>                :            :       
+<span class="lineNum">    2130 </span>                :<span class="lineCov">          1 :       freeTextPath(tp);</span>
+<span class="lineNum">    2131 </span>                :<span class="lineCov">          1 :       free(tp);</span>
+<span class="lineNum">    2132 </span>                :<span class="lineCov">          1 :       goto NEXT_REPEAT;</span>
+<span class="lineNum">    2133 </span>                :            : 
+<span class="lineNum">    2134 </span>                :            : LABEL_END:
+<span class="lineNum">    2135 </span>                :            :       {
+<span class="lineNum">    2136 </span>                :            :         textPathObj *tmptp;
+<span class="lineNum">    2137 </span>                :            :         textSymbolObj *tsnew;
+<span class="lineNum">    2138 </span>                :<span class="lineCov">          1 :         lfr-&gt;num_follow_labels++;</span>
+<span class="lineNum">    2139 </span>                :<span class="lineCov">          1 :         lfr-&gt;follow_labels = msSmallRealloc(lfr-&gt;follow_labels,lfr-&gt;num_follow_labels * sizeof(textSymbolObj*));</span>
+<span class="lineNum">    2140 </span>                :<span class="lineCov">          1 :         tmptp = ts-&gt;textpath;</span>
+<span class="lineNum">    2141 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath = NULL;</span>
+<span class="lineNum">    2142 </span>                :<span class="lineCov">          1 :         lfr-&gt;follow_labels[lfr-&gt;num_follow_labels - 1] = msSmallMalloc(sizeof(textSymbolObj));</span>
+<span class="lineNum">    2143 </span>                :<span class="lineCov">          1 :         tsnew = lfr-&gt;follow_labels[lfr-&gt;num_follow_labels - 1];</span>
+<span class="lineNum">    2144 </span>                :<span class="lineCov">          1 :         initTextSymbol(tsnew);</span>
+<span class="lineNum">    2145 </span>                :<span class="lineCov">          1 :         msCopyTextSymbol(tsnew,ts);</span>
+<span class="lineNum">    2146 </span>                :<span class="lineCov">          1 :         ts-&gt;textpath = tmptp;</span>
+<span class="lineNum">    2147 </span>                :<span class="lineCov">          1 :         tsnew-&gt;textpath = tp;</span>
+<span class="lineNum">    2148 </span>                :<span class="lineCov">          1 :         tsnew-&gt;textpath-&gt;absolute = 1;</span>
+<span class="lineNum">    2149 </span>                :            :       }
+<span class="lineNum">    2150 </span>                :            : NEXT_REPEAT:
+<span class="lineNum">    2151 </span>                :            :       text_start_length = left_label_position;
+<span class="lineNum">    2152 </span>                :<span class="lineCov">          1 :       n++;</span>
+<span class="lineNum">    2153 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     } while (n&lt;2);</span>
+<span class="lineNum">    2154 </span>                :            : 
+<span class="lineNum">    2155 </span>                :<span class="lineCov">          1 :     right_label_position -= label_buffer;</span>
+<span class="lineNum">    2156 </span>                :<span class="lineCov">          1 :     left_label_position += label_buffer;</span>
 <span class="lineNum">    2157 </span>                :            : 
-<span class="lineNum">    2158 </span>                :            : ANGLEFOLLOW_FAILURE: /* Angle follow failure: compute angle auto labels */
-<span class="lineNum">    2159 </span>                :<span class="lineCov">          1 :   return msLineLabelPoint(map,p,ts,ll,&amp;lfr-&gt;lar,label, img-&gt;resolutionfactor);</span>
-<span class="lineNum">    2160 </span>                :            : 
-<span class="lineNum">    2161 </span>                :            : END:
-<span class="lineNum">    2162 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">    2163 </span>                :            : }
+<span class="lineNum">    2158 </span>                :            :   }
+<span class="lineNum">    2159 </span>                :            : 
+<span class="lineNum">    2160 </span>                :            :   goto END; /* normal exit */
+<span class="lineNum">    2161 </span>                :            : 
+<span class="lineNum">    2162 </span>                :            : ANGLEFOLLOW_FAILURE: /* Angle follow failure: compute angle auto labels */
+<span class="lineNum">    2163 </span>                :<span class="lineCov">          1 :   return msLineLabelPoint(map,p,ts,ll,&amp;lfr-&gt;lar,label, img-&gt;resolutionfactor);</span>
 <span class="lineNum">    2164 </span>                :            : 
-<span class="lineNum">    2165 </span>                :            : /* ===========================================================================
-<span class="lineNum">    2166 </span>                :            :    Pretty printing of primitive objects
-<a name="2167"><span class="lineNum">    2167 </span>                :            :    ======================================================================== */</a>
+<span class="lineNum">    2165 </span>                :            : END:
+<span class="lineNum">    2166 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">    2167 </span>                :            : }
 <span class="lineNum">    2168 </span>                :            : 
-<span class="lineNum">    2169 </span>                :<span class="lineNoCov">          0 : void msRectToFormattedString(rectObj *rect, char *format, char *buffer, int buffer_length)</span>
-<span class="lineNum">    2170 </span>                :            : {
-<span class="lineNum">    2171 </span>                :<span class="lineNoCov">          0 :   snprintf(buffer, buffer_length, format, rect-&gt;minx, rect-&gt;miny, rect-&gt;maxx, rect-&gt;maxy);</span>
-<a name="2172"><span class="lineNum">    2172 </span>                :<span class="lineNoCov">          0 : }</span></a>
-<span class="lineNum">    2173 </span>                :            : 
-<span class="lineNum">    2174 </span>                :<span class="lineNoCov">          0 : void msPointToFormattedString(pointObj *point, const char *format, char *buffer, int buffer_length)</span>
-<span class="lineNum">    2175 </span>                :            : {
-<span class="lineNum">    2176 </span>                :            : #ifdef USE_POINT_Z_M
-<span class="lineNum">    2177 </span>                :<span class="lineNoCov">          0 :   snprintf(buffer, buffer_length, format, point-&gt;x, point-&gt;y, point-&gt;z, point-&gt;m);</span>
-<span class="lineNum">    2178 </span>                :            : #else
-<span class="lineNum">    2179 </span>                :            :   snprintf(buffer, buffer_length, format, point-&gt;x, point-&gt;y);
-<span class="lineNum">    2180 </span>                :            : #endif
-<span class="lineNum">    2181 </span>                :<span class="lineNoCov">          0 : }</span>
-<a name="2182"><span class="lineNum">    2182 </span>                :            : </a>
-<span class="lineNum">    2183 </span>                :            : /* Returns true if a shape contains only degenerate parts */
-<span class="lineNum">    2184 </span>                :<span class="lineNoCov">          0 : int msIsDegenerateShape(shapeObj *shape)</span>
-<span class="lineNum">    2185 </span>                :            : {
-<span class="lineNum">    2186 </span>                :            :   int i;
-<span class="lineNum">    2187 </span>                :            :   int non_degenerate_parts = 0;
-<span class="lineNum">    2188 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for(i=0; i&lt;shape-&gt;numlines; i++) { /* e.g. part */</span>
-<span class="lineNum">    2189 </span>                :            : 
-<span class="lineNum">    2190 </span>                :            :     /* skip degenerate parts, really should only happen with pixel output */
-<span class="lineNum">    2191 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if((shape-&gt;type == MS_SHAPE_LINE &amp;&amp; shape-&gt;line[i].numpoints &lt; 2) ||</span>
+<span class="lineNum">    2169 </span>                :            : /* ===========================================================================
+<span class="lineNum">    2170 </span>                :            :    Pretty printing of primitive objects
+<a name="2171"><span class="lineNum">    2171 </span>                :            :    ======================================================================== */</a>
+<span class="lineNum">    2172 </span>                :            : 
+<span class="lineNum">    2173 </span>                :<span class="lineNoCov">          0 : void msRectToFormattedString(rectObj *rect, char *format, char *buffer, int buffer_length)</span>
+<span class="lineNum">    2174 </span>                :            : {
+<span class="lineNum">    2175 </span>                :<span class="lineNoCov">          0 :   snprintf(buffer, buffer_length, format, rect-&gt;minx, rect-&gt;miny, rect-&gt;maxx, rect-&gt;maxy);</span>
+<a name="2176"><span class="lineNum">    2176 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    2177 </span>                :            : 
+<span class="lineNum">    2178 </span>                :<span class="lineNoCov">          0 : void msPointToFormattedString(pointObj *point, const char *format, char *buffer, int buffer_length)</span>
+<span class="lineNum">    2179 </span>                :            : {
+<span class="lineNum">    2180 </span>                :            : #ifdef USE_POINT_Z_M
+<span class="lineNum">    2181 </span>                :<span class="lineNoCov">          0 :   snprintf(buffer, buffer_length, format, point-&gt;x, point-&gt;y, point-&gt;z, point-&gt;m);</span>
+<span class="lineNum">    2182 </span>                :            : #else
+<span class="lineNum">    2183 </span>                :            :   snprintf(buffer, buffer_length, format, point-&gt;x, point-&gt;y);
+<span class="lineNum">    2184 </span>                :            : #endif
+<span class="lineNum">    2185 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="2186"><span class="lineNum">    2186 </span>                :            : </a>
+<span class="lineNum">    2187 </span>                :            : /* Returns true if a shape contains only degenerate parts */
+<span class="lineNum">    2188 </span>                :<span class="lineNoCov">          0 : int msIsDegenerateShape(shapeObj *shape)</span>
+<span class="lineNum">    2189 </span>                :            : {
+<span class="lineNum">    2190 </span>                :            :   int i;
+<span class="lineNum">    2191 </span>                :            :   int non_degenerate_parts = 0;
+<span class="lineNum">    2192 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for(i=0; i&lt;shape-&gt;numlines; i++) { /* e.g. part */</span>
+<span class="lineNum">    2193 </span>                :            : 
+<span class="lineNum">    2194 </span>                :            :     /* skip degenerate parts, really should only happen with pixel output */
+<span class="lineNum">    2195 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if((shape-&gt;type == MS_SHAPE_LINE &amp;&amp; shape-&gt;line[i].numpoints &lt; 2) ||</span>
 <span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
-<span class="lineNum">    2192 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         (shape-&gt;type == MS_SHAPE_POLYGON &amp;&amp; shape-&gt;line[i].numpoints &lt; 3))</span>
-<span class="lineNum">    2193 </span>                :<span class="lineNoCov">          0 :       continue;</span>
-<span class="lineNum">    2194 </span>                :            : 
-<span class="lineNum">    2195 </span>                :<span class="lineNoCov">          0 :     non_degenerate_parts++;</span>
-<span class="lineNum">    2196 </span>                :            :   }
-<span class="lineNum">    2197 </span>                :<span class="lineNoCov">          0 :   return( non_degenerate_parts == 0 );</span>
-<span class="lineNum">    2198 </span>                :<span class="lineCov">          1 : }</span>
-<span class="lineNum">    2199 </span>                :            : 
+<span class="lineNum">    2196 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         (shape-&gt;type == MS_SHAPE_POLYGON &amp;&amp; shape-&gt;line[i].numpoints &lt; 3))</span>
+<span class="lineNum">    2197 </span>                :<span class="lineNoCov">          0 :       continue;</span>
+<span class="lineNum">    2198 </span>                :            : 
+<span class="lineNum">    2199 </span>                :<span class="lineNoCov">          0 :     non_degenerate_parts++;</span>
+<span class="lineNum">    2200 </span>                :            :   }
+<span class="lineNum">    2201 </span>                :<span class="lineNoCov">          0 :   return( non_degenerate_parts == 0 );</span>
+<span class="lineNum">    2202 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">    2203 </span>                :            : 
 </pre>
       </td>
     </tr>
