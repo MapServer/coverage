@@ -32,8 +32,8 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntry">240</td>
-            <td class="headerCovTableEntry">461</td>
-            <td class="headerCovTableEntryLo">52.1 %</td>
+            <td class="headerCovTableEntry">471</td>
+            <td class="headerCovTableEntryLo">51.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -50,8 +50,8 @@
             <td></td>
             <td class="headerItem">Branches:</td>
             <td class="headerCovTableEntry">171</td>
-            <td class="headerCovTableEntry">393</td>
-            <td class="headerCovTableEntryLo">43.5 %</td>
+            <td class="headerCovTableEntry">403</td>
+            <td class="headerCovTableEntryLo">42.4 %</td>
           </tr>
           <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -881,237 +881,252 @@
 <span class="lineNum">     805 </span>                :            :                 }
 <span class="lineNum">     806 </span>                :            :             }
 <span class="lineNum">     807 </span>                :            :         }
-<span class="lineNum">     808 </span>                :            :     }
-<span class="lineNum">     809 </span>                :            :     return symbol;
-<span class="lineNum">     810 </span>                :            :   }
-<a name="811"><span class="lineNum">     811 </span>                :            : }</a>
-<span class="lineNum">     812 </span>                :            : 
-<span class="lineNum">     813 </span>                :<span class="lineNoCov">          0 : int msSaveSymbolSetStream(symbolSetObj *symbolset, FILE *stream)</span>
-<span class="lineNum">     814 </span>                :            : {
-<span class="lineNum">     815 </span>                :            :   int i;
-<span class="lineNum">     816 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!symbolset || !stream) {</span>
-<span class="lineNum">     817 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_SYMERR, &quot;Cannot save symbolset.&quot;, &quot;msSaveSymbolSetStream()&quot;);</span>
-<span class="lineNum">     818 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     819 </span>                :            :   }
-<span class="lineNum">     820 </span>                :            :   /* Don't ever write out the default symbol at index 0 */
-<span class="lineNum">     821 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i=1; i&lt;symbolset-&gt;numsymbols; i++) {</span>
-<span class="lineNum">     822 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(!symbolset-&gt;symbol[i]-&gt;inmapfile) writeSymbol((symbolset-&gt;symbol[i]), stream);</span>
-<span class="lineNum">     823 </span>                :            :   }
-<span class="lineNum">     824 </span>                :            :   return MS_SUCCESS;
-<a name="825"><span class="lineNum">     825 </span>                :            : }</a>
-<span class="lineNum">     826 </span>                :            : 
-<span class="lineNum">     827 </span>                :<span class="lineNoCov">          0 : int msSaveSymbolSet(symbolSetObj *symbolset, const char *filename)</span>
-<span class="lineNum">     828 </span>                :            : {
-<span class="lineNum">     829 </span>                :            :   FILE *stream;
-<span class="lineNum">     830 </span>                :            :   int retval;
-<span class="lineNum">     831 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!filename || strlen(filename) == 0) {</span>
-<span class="lineNum">     832 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_SYMERR, &quot;Invalid filename.&quot;, &quot;msSaveSymbolSet()&quot;);</span>
+<span class="lineNum">     808 </span>                :            :         /* Update symbol references in labelcache */
+<span class="lineNum">     809 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for(c = 0; c &lt; MS_MAX_LABEL_PRIORITY; c++) {</span>
+<span class="lineNum">     810 </span>                :<span class="lineNoCov">          0 :             labelCacheSlotObj *cacheslot = &amp;(symbolset-&gt;map-&gt;labelcache.slots[c]);</span>
+<span class="lineNum">     811 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             for(l = 0; l &lt; cacheslot-&gt;numlabels; l++) {</span>
+<span class="lineNum">     812 </span>                :<span class="lineNoCov">          0 :                 labelCacheMemberObj *cachePtr = &amp;(cacheslot-&gt;labels[l]);</span>
+<span class="lineNum">     813 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 for(lb = 0; lb &lt; cachePtr-&gt;numtextsymbols; lb++) {</span>
+<span class="lineNum">     814 </span>                :<span class="lineNoCov">          0 :                     label = cachePtr-&gt;textsymbols[lb]-&gt;label;</span>
+<span class="lineNum">     815 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                     for (s = 0; s &lt; label-&gt;numstyles; s++) {</span>
+<span class="lineNum">     816 </span>                :<span class="lineNoCov">          0 :                         style = label-&gt;styles[s];</span>
+<span class="lineNum">     817 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (style-&gt;symbol &gt;= nSymbolIndex)</span>
+<span class="lineNum">     818 </span>                :<span class="lineNoCov">          0 :                             --style-&gt;symbol;</span>
+<span class="lineNum">     819 </span>                :            :                     }
+<span class="lineNum">     820 </span>                :            :                 }
+<span class="lineNum">     821 </span>                :            :             }
+<span class="lineNum">     822 </span>                :            :         }
+<span class="lineNum">     823 </span>                :            :     }
+<span class="lineNum">     824 </span>                :            :     return symbol;
+<span class="lineNum">     825 </span>                :            :   }
+<a name="826"><span class="lineNum">     826 </span>                :            : }</a>
+<span class="lineNum">     827 </span>                :            : 
+<span class="lineNum">     828 </span>                :<span class="lineNoCov">          0 : int msSaveSymbolSetStream(symbolSetObj *symbolset, FILE *stream)</span>
+<span class="lineNum">     829 </span>                :            : {
+<span class="lineNum">     830 </span>                :            :   int i;
+<span class="lineNum">     831 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!symbolset || !stream) {</span>
+<span class="lineNum">     832 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_SYMERR, &quot;Cannot save symbolset.&quot;, &quot;msSaveSymbolSetStream()&quot;);</span>
 <span class="lineNum">     833 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
 <span class="lineNum">     834 </span>                :            :   }
-<span class="lineNum">     835 </span>                :<span class="lineNoCov">          0 :   stream = fopen(filename, &quot;w&quot;);</span>
-<span class="lineNum">     836 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (stream) {</span>
-<span class="lineNum">     837 </span>                :            :     fprintf(stream, &quot;SYMBOLSET\n&quot;);
-<span class="lineNum">     838 </span>                :<span class="lineNoCov">          0 :     retval = msSaveSymbolSetStream(symbolset, stream);</span>
-<span class="lineNum">     839 </span>                :            :     fprintf(stream, &quot;END\n&quot;);
-<span class="lineNum">     840 </span>                :<span class="lineNoCov">          0 :     fclose(stream);</span>
-<span class="lineNum">     841 </span>                :            :   } else {
-<span class="lineNum">     842 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_SYMERR, &quot;Could not write to %s&quot;, &quot;msSaveSymbolSet()&quot;,</span>
-<span class="lineNum">     843 </span>                :            :                filename);
-<span class="lineNum">     844 </span>                :            :     retval = MS_FAILURE;
-<span class="lineNum">     845 </span>                :            :   }
-<span class="lineNum">     846 </span>                :<span class="lineNoCov">          0 :   return retval;</span>
-<a name="847"><span class="lineNum">     847 </span>                :            : }</a>
-<span class="lineNum">     848 </span>                :            : 
-<span class="lineNum">     849 </span>                :<span class="lineNoCov">          0 : int msLoadImageSymbol(symbolObj *symbol, const char *filename)</span>
-<span class="lineNum">     850 </span>                :            : {
-<span class="lineNum">     851 </span>                :<span class="lineNoCov">          0 :   msFree(symbol-&gt;full_pixmap_path);</span>
-<span class="lineNum">     852 </span>                :<span class="lineNoCov">          0 :   symbol-&gt;full_pixmap_path = msStrdup(filename);</span>
-<span class="lineNum">     853 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<a name="854"><span class="lineNum">     854 </span>                :            : }</a>
-<span class="lineNum">     855 </span>                :            : 
-<span class="lineNum">     856 </span>                :<span class="lineCov">          1 : int msPreloadImageSymbol(rendererVTableObj *renderer, symbolObj *symbol)</span>
-<span class="lineNum">     857 </span>                :            : {
-<span class="lineNum">     858 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(symbol-&gt;pixmap_buffer &amp;&amp; symbol-&gt;renderer == renderer)</span>
-<span class="lineNum">     859 </span>                :            :     return MS_SUCCESS;
-<span class="lineNum">     860 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(symbol-&gt;pixmap_buffer) { /* other renderer was used, start again */</span>
-<span class="lineNum">     861 </span>                :<span class="lineNoCov">          0 :     msFreeRasterBuffer(symbol-&gt;pixmap_buffer);</span>
-<span class="lineNum">     862 </span>                :            :   } else {
-<span class="lineNum">     863 </span>                :<span class="lineCov">          1 :     symbol-&gt;pixmap_buffer = (rasterBufferObj*)calloc(1,sizeof(rasterBufferObj));</span>
-<span class="lineNum">     864 </span>                :            :   }
-<span class="lineNum">     865 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(MS_SUCCESS != renderer-&gt;loadImageFromFile(symbol-&gt;full_pixmap_path, symbol-&gt;pixmap_buffer)) {</span>
-<span class="lineNum">     866 </span>                :            :     /* Free pixmap_buffer already allocated */
-<span class="lineNum">     867 </span>                :<span class="lineNoCov">          0 :     free(symbol-&gt;pixmap_buffer);</span>
-<span class="lineNum">     868 </span>                :<span class="lineNoCov">          0 :     symbol-&gt;pixmap_buffer = NULL;</span>
-<span class="lineNum">     869 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     870 </span>                :            :   }
-<span class="lineNum">     871 </span>                :<span class="lineCov">          1 :   symbol-&gt;renderer = renderer;</span>
-<span class="lineNum">     872 </span>                :<span class="lineCov">          1 :   symbol-&gt;sizex = symbol-&gt;pixmap_buffer-&gt;width;</span>
-<span class="lineNum">     873 </span>                :<span class="lineCov">          1 :   symbol-&gt;sizey = symbol-&gt;pixmap_buffer-&gt;height;</span>
-<span class="lineNum">     874 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     875 </span>                :            : 
-<span class="lineNum">     876 </span>                :            : }
-<span class="lineNum">     877 </span>                :            : 
-<span class="lineNum">     878 </span>                :            : /***********************************************************************
-<span class="lineNum">     879 </span>                :            :  * msCopySymbol()                                                      *
-<span class="lineNum">     880 </span>                :            :  *                                                                     *
-<span class="lineNum">     881 </span>                :            :  * Copy a symbolObj, using mapfile.c:initSymbol(), msCopyPoint()       *
-<span class="lineNum">     882 </span>                :            :  * gdImageCreate(), gdImageCopy()                                      *
-<a name="883"><span class="lineNum">     883 </span>                :            :  **********************************************************************/</a>
-<span class="lineNum">     884 </span>                :            : 
-<span class="lineNum">     885 </span>                :<span class="lineNoCov">          0 : int msCopySymbol(symbolObj *dst, symbolObj *src, mapObj *map)</span>
-<span class="lineNum">     886 </span>                :            : {
-<span class="lineNum">     887 </span>                :            :   int i;
-<span class="lineNum">     888 </span>                :            : 
-<span class="lineNum">     889 </span>                :<span class="lineNoCov">          0 :   initSymbol(dst);</span>
+<span class="lineNum">     835 </span>                :            :   /* Don't ever write out the default symbol at index 0 */
+<span class="lineNum">     836 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i=1; i&lt;symbolset-&gt;numsymbols; i++) {</span>
+<span class="lineNum">     837 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(!symbolset-&gt;symbol[i]-&gt;inmapfile) writeSymbol((symbolset-&gt;symbol[i]), stream);</span>
+<span class="lineNum">     838 </span>                :            :   }
+<span class="lineNum">     839 </span>                :            :   return MS_SUCCESS;
+<a name="840"><span class="lineNum">     840 </span>                :            : }</a>
+<span class="lineNum">     841 </span>                :            : 
+<span class="lineNum">     842 </span>                :<span class="lineNoCov">          0 : int msSaveSymbolSet(symbolSetObj *symbolset, const char *filename)</span>
+<span class="lineNum">     843 </span>                :            : {
+<span class="lineNum">     844 </span>                :            :   FILE *stream;
+<span class="lineNum">     845 </span>                :            :   int retval;
+<span class="lineNum">     846 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!filename || strlen(filename) == 0) {</span>
+<span class="lineNum">     847 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_SYMERR, &quot;Invalid filename.&quot;, &quot;msSaveSymbolSet()&quot;);</span>
+<span class="lineNum">     848 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     849 </span>                :            :   }
+<span class="lineNum">     850 </span>                :<span class="lineNoCov">          0 :   stream = fopen(filename, &quot;w&quot;);</span>
+<span class="lineNum">     851 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (stream) {</span>
+<span class="lineNum">     852 </span>                :            :     fprintf(stream, &quot;SYMBOLSET\n&quot;);
+<span class="lineNum">     853 </span>                :<span class="lineNoCov">          0 :     retval = msSaveSymbolSetStream(symbolset, stream);</span>
+<span class="lineNum">     854 </span>                :            :     fprintf(stream, &quot;END\n&quot;);
+<span class="lineNum">     855 </span>                :<span class="lineNoCov">          0 :     fclose(stream);</span>
+<span class="lineNum">     856 </span>                :            :   } else {
+<span class="lineNum">     857 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_SYMERR, &quot;Could not write to %s&quot;, &quot;msSaveSymbolSet()&quot;,</span>
+<span class="lineNum">     858 </span>                :            :                filename);
+<span class="lineNum">     859 </span>                :            :     retval = MS_FAILURE;
+<span class="lineNum">     860 </span>                :            :   }
+<span class="lineNum">     861 </span>                :<span class="lineNoCov">          0 :   return retval;</span>
+<a name="862"><span class="lineNum">     862 </span>                :            : }</a>
+<span class="lineNum">     863 </span>                :            : 
+<span class="lineNum">     864 </span>                :<span class="lineNoCov">          0 : int msLoadImageSymbol(symbolObj *symbol, const char *filename)</span>
+<span class="lineNum">     865 </span>                :            : {
+<span class="lineNum">     866 </span>                :<span class="lineNoCov">          0 :   msFree(symbol-&gt;full_pixmap_path);</span>
+<span class="lineNum">     867 </span>                :<span class="lineNoCov">          0 :   symbol-&gt;full_pixmap_path = msStrdup(filename);</span>
+<span class="lineNum">     868 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<a name="869"><span class="lineNum">     869 </span>                :            : }</a>
+<span class="lineNum">     870 </span>                :            : 
+<span class="lineNum">     871 </span>                :<span class="lineCov">          1 : int msPreloadImageSymbol(rendererVTableObj *renderer, symbolObj *symbol)</span>
+<span class="lineNum">     872 </span>                :            : {
+<span class="lineNum">     873 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(symbol-&gt;pixmap_buffer &amp;&amp; symbol-&gt;renderer == renderer)</span>
+<span class="lineNum">     874 </span>                :            :     return MS_SUCCESS;
+<span class="lineNum">     875 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(symbol-&gt;pixmap_buffer) { /* other renderer was used, start again */</span>
+<span class="lineNum">     876 </span>                :<span class="lineNoCov">          0 :     msFreeRasterBuffer(symbol-&gt;pixmap_buffer);</span>
+<span class="lineNum">     877 </span>                :            :   } else {
+<span class="lineNum">     878 </span>                :<span class="lineCov">          1 :     symbol-&gt;pixmap_buffer = (rasterBufferObj*)calloc(1,sizeof(rasterBufferObj));</span>
+<span class="lineNum">     879 </span>                :            :   }
+<span class="lineNum">     880 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(MS_SUCCESS != renderer-&gt;loadImageFromFile(symbol-&gt;full_pixmap_path, symbol-&gt;pixmap_buffer)) {</span>
+<span class="lineNum">     881 </span>                :            :     /* Free pixmap_buffer already allocated */
+<span class="lineNum">     882 </span>                :<span class="lineNoCov">          0 :     free(symbol-&gt;pixmap_buffer);</span>
+<span class="lineNum">     883 </span>                :<span class="lineNoCov">          0 :     symbol-&gt;pixmap_buffer = NULL;</span>
+<span class="lineNum">     884 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     885 </span>                :            :   }
+<span class="lineNum">     886 </span>                :<span class="lineCov">          1 :   symbol-&gt;renderer = renderer;</span>
+<span class="lineNum">     887 </span>                :<span class="lineCov">          1 :   symbol-&gt;sizex = symbol-&gt;pixmap_buffer-&gt;width;</span>
+<span class="lineNum">     888 </span>                :<span class="lineCov">          1 :   symbol-&gt;sizey = symbol-&gt;pixmap_buffer-&gt;height;</span>
+<span class="lineNum">     889 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
 <span class="lineNum">     890 </span>                :            : 
-<span class="lineNum">     891 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;name, src-&gt;name);</span>
-<span class="lineNum">     892 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(type);</span>
-<span class="lineNum">     893 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(inmapfile);</span>
-<span class="lineNum">     894 </span>                :            : 
-<span class="lineNum">     895 </span>                :            :   /* map is a special case */
-<span class="lineNum">     896 </span>                :<span class="lineNoCov">          0 :   dst-&gt;map = map;</span>
-<span class="lineNum">     897 </span>                :            : 
-<span class="lineNum">     898 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(sizex);</span>
-<span class="lineNum">     899 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(sizey);</span>
-<span class="lineNum">     900 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(anchorpoint_x);</span>
-<span class="lineNum">     901 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(anchorpoint_y);</span>
-<span class="lineNum">     902 </span>                :            : 
-<span class="lineNum">     903 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i=0; i &lt; src-&gt;numpoints; i++) {</span>
-<span class="lineNum">     904 </span>                :<span class="lineNoCov">          0 :     MS_COPYPOINT(&amp;(dst-&gt;points[i]), &amp;(src-&gt;points[i]));</span>
-<span class="lineNum">     905 </span>                :            :   }
-<span class="lineNum">     906 </span>                :            : 
-<span class="lineNum">     907 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(numpoints);</span>
-<span class="lineNum">     908 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(filled);</span>
+<span class="lineNum">     891 </span>                :            : }
+<span class="lineNum">     892 </span>                :            : 
+<span class="lineNum">     893 </span>                :            : /***********************************************************************
+<span class="lineNum">     894 </span>                :            :  * msCopySymbol()                                                      *
+<span class="lineNum">     895 </span>                :            :  *                                                                     *
+<span class="lineNum">     896 </span>                :            :  * Copy a symbolObj, using mapfile.c:initSymbol(), msCopyPoint()       *
+<span class="lineNum">     897 </span>                :            :  * gdImageCreate(), gdImageCopy()                                      *
+<a name="898"><span class="lineNum">     898 </span>                :            :  **********************************************************************/</a>
+<span class="lineNum">     899 </span>                :            : 
+<span class="lineNum">     900 </span>                :<span class="lineNoCov">          0 : int msCopySymbol(symbolObj *dst, symbolObj *src, mapObj *map)</span>
+<span class="lineNum">     901 </span>                :            : {
+<span class="lineNum">     902 </span>                :            :   int i;
+<span class="lineNum">     903 </span>                :            : 
+<span class="lineNum">     904 </span>                :<span class="lineNoCov">          0 :   initSymbol(dst);</span>
+<span class="lineNum">     905 </span>                :            : 
+<span class="lineNum">     906 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;name, src-&gt;name);</span>
+<span class="lineNum">     907 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(type);</span>
+<span class="lineNum">     908 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(inmapfile);</span>
 <span class="lineNum">     909 </span>                :            : 
-<span class="lineNum">     910 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;imagepath, src-&gt;imagepath);</span>
-<span class="lineNum">     911 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(transparent);</span>
-<span class="lineNum">     912 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(transparentcolor);</span>
-<span class="lineNum">     913 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;character, src-&gt;character);</span>
-<span class="lineNum">     914 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;font, src-&gt;font);</span>
-<span class="lineNum">     915 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;full_pixmap_path,src-&gt;full_pixmap_path);</span>
-<span class="lineNum">     916 </span>                :            : 
-<span class="lineNum">     917 </span>                :<span class="lineNoCov">          0 :   return(MS_SUCCESS);</span>
-<span class="lineNum">     918 </span>                :            : }
-<span class="lineNum">     919 </span>                :            : 
-<span class="lineNum">     920 </span>                :            : /***********************************************************************
-<span class="lineNum">     921 </span>                :            :  * msCopySymbolSet()                                                   *
-<span class="lineNum">     922 </span>                :            :  *                                                                     *
-<span class="lineNum">     923 </span>                :            :  * Copy a symbolSetObj using msCopyFontSet(), msCopySymbol()           *
-<a name="924"><span class="lineNum">     924 </span>                :            :  **********************************************************************/</a>
-<span class="lineNum">     925 </span>                :            : 
-<span class="lineNum">     926 </span>                :<span class="lineNoCov">          0 : int msCopySymbolSet(symbolSetObj *dst, symbolSetObj *src, mapObj *map)</span>
-<span class="lineNum">     927 </span>                :            : {
-<span class="lineNum">     928 </span>                :            :   int i, return_value;
-<span class="lineNum">     929 </span>                :            : 
-<span class="lineNum">     930 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;filename, src-&gt;filename);</span>
+<span class="lineNum">     910 </span>                :            :   /* map is a special case */
+<span class="lineNum">     911 </span>                :<span class="lineNoCov">          0 :   dst-&gt;map = map;</span>
+<span class="lineNum">     912 </span>                :            : 
+<span class="lineNum">     913 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(sizex);</span>
+<span class="lineNum">     914 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(sizey);</span>
+<span class="lineNum">     915 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(anchorpoint_x);</span>
+<span class="lineNum">     916 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(anchorpoint_y);</span>
+<span class="lineNum">     917 </span>                :            : 
+<span class="lineNum">     918 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i=0; i &lt; src-&gt;numpoints; i++) {</span>
+<span class="lineNum">     919 </span>                :<span class="lineNoCov">          0 :     MS_COPYPOINT(&amp;(dst-&gt;points[i]), &amp;(src-&gt;points[i]));</span>
+<span class="lineNum">     920 </span>                :            :   }
+<span class="lineNum">     921 </span>                :            : 
+<span class="lineNum">     922 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(numpoints);</span>
+<span class="lineNum">     923 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(filled);</span>
+<span class="lineNum">     924 </span>                :            : 
+<span class="lineNum">     925 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;imagepath, src-&gt;imagepath);</span>
+<span class="lineNum">     926 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(transparent);</span>
+<span class="lineNum">     927 </span>                :<span class="lineNoCov">          0 :   MS_COPYSTELEM(transparentcolor);</span>
+<span class="lineNum">     928 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;character, src-&gt;character);</span>
+<span class="lineNum">     929 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;font, src-&gt;font);</span>
+<span class="lineNum">     930 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;full_pixmap_path,src-&gt;full_pixmap_path);</span>
 <span class="lineNum">     931 </span>                :            : 
-<span class="lineNum">     932 </span>                :<span class="lineNoCov">          0 :   dst-&gt;map = map;</span>
-<span class="lineNum">     933 </span>                :<span class="lineNoCov">          0 :   dst-&gt;fontset = &amp;(map-&gt;fontset);</span>
+<span class="lineNum">     932 </span>                :<span class="lineNoCov">          0 :   return(MS_SUCCESS);</span>
+<span class="lineNum">     933 </span>                :            : }
 <span class="lineNum">     934 </span>                :            : 
-<span class="lineNum">     935 </span>                :            :   /* Copy child symbols */
-<span class="lineNum">     936 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i = 0; i &lt; src-&gt;numsymbols; i++) {</span>
-<span class="lineNum">     937 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (msGrowSymbolSet(dst) == NULL)</span>
-<span class="lineNum">     938 </span>                :            :       return MS_FAILURE;
-<span class="lineNum">     939 </span>                :<span class="lineNoCov">          0 :     return_value = msCopySymbol(dst-&gt;symbol[i], src-&gt;symbol[i], map);</span>
-<span class="lineNum">     940 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (return_value != MS_SUCCESS) {</span>
-<span class="lineNum">     941 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MEMERR,&quot;Failed to copy symbol.&quot;,&quot;msCopySymbolSet()&quot;);</span>
-<span class="lineNum">     942 </span>                :<span class="lineNoCov">          0 :       return(MS_FAILURE);</span>
-<span class="lineNum">     943 </span>                :            :     }
-<span class="lineNum">     944 </span>                :<span class="lineNoCov">          0 :     dst-&gt;numsymbols++;</span>
-<span class="lineNum">     945 </span>                :            :   }
+<span class="lineNum">     935 </span>                :            : /***********************************************************************
+<span class="lineNum">     936 </span>                :            :  * msCopySymbolSet()                                                   *
+<span class="lineNum">     937 </span>                :            :  *                                                                     *
+<span class="lineNum">     938 </span>                :            :  * Copy a symbolSetObj using msCopyFontSet(), msCopySymbol()           *
+<a name="939"><span class="lineNum">     939 </span>                :            :  **********************************************************************/</a>
+<span class="lineNum">     940 </span>                :            : 
+<span class="lineNum">     941 </span>                :<span class="lineNoCov">          0 : int msCopySymbolSet(symbolSetObj *dst, symbolSetObj *src, mapObj *map)</span>
+<span class="lineNum">     942 </span>                :            : {
+<span class="lineNum">     943 </span>                :            :   int i, return_value;
+<span class="lineNum">     944 </span>                :            : 
+<span class="lineNum">     945 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_COPYSTRING(dst-&gt;filename, src-&gt;filename);</span>
 <span class="lineNum">     946 </span>                :            : 
-<span class="lineNum">     947 </span>                :            :   /* MS_COPYSTELEM(imagecachesize); */
-<span class="lineNum">     948 </span>                :            : 
-<span class="lineNum">     949 </span>                :            :   /* I have a feeling that the code below is not quite right - Sean */
-<span class="lineNum">     950 </span>                :            :   /*copyProperty(&amp;(dst-&gt;imagecache), &amp;(src-&gt;imagecache),
-<span class="lineNum">     951 </span>                :            :                sizeof(struct imageCacheObj));
-<span class="lineNum">     952 </span>                :            :    */
-<span class="lineNum">     953 </span>                :            : 
-<span class="lineNum">     954 </span>                :<span class="lineNoCov">          0 :   dst-&gt;imagecachesize = 0; /* since we are not copying the cache set the cache  to NUNLL and the size to 0 (bug 1521) */</span>
-<span class="lineNum">     955 </span>                :<span class="lineNoCov">          0 :   dst-&gt;imagecache = NULL;</span>
-<span class="lineNum">     956 </span>                :            : 
-<span class="lineNum">     957 </span>                :<span class="lineNoCov">          0 :   return(MS_SUCCESS);</span>
-<a name="958"><span class="lineNum">     958 </span>                :            : }</a>
-<span class="lineNum">     959 </span>                :            : 
-<span class="lineNum">     960 </span>                :<span class="lineNoCov">          0 : static void get_bbox(pointObj *poiList, int numpoints, double *minx, double *miny, double *maxx, double *maxy)</span>
-<span class="lineNum">     961 </span>                :            : {
-<span class="lineNum">     962 </span>                :            :   int j;
+<span class="lineNum">     947 </span>                :<span class="lineNoCov">          0 :   dst-&gt;map = map;</span>
+<span class="lineNum">     948 </span>                :<span class="lineNoCov">          0 :   dst-&gt;fontset = &amp;(map-&gt;fontset);</span>
+<span class="lineNum">     949 </span>                :            : 
+<span class="lineNum">     950 </span>                :            :   /* Copy child symbols */
+<span class="lineNum">     951 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i = 0; i &lt; src-&gt;numsymbols; i++) {</span>
+<span class="lineNum">     952 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (msGrowSymbolSet(dst) == NULL)</span>
+<span class="lineNum">     953 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">     954 </span>                :<span class="lineNoCov">          0 :     return_value = msCopySymbol(dst-&gt;symbol[i], src-&gt;symbol[i], map);</span>
+<span class="lineNum">     955 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (return_value != MS_SUCCESS) {</span>
+<span class="lineNum">     956 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MEMERR,&quot;Failed to copy symbol.&quot;,&quot;msCopySymbolSet()&quot;);</span>
+<span class="lineNum">     957 </span>                :<span class="lineNoCov">          0 :       return(MS_FAILURE);</span>
+<span class="lineNum">     958 </span>                :            :     }
+<span class="lineNum">     959 </span>                :<span class="lineNoCov">          0 :     dst-&gt;numsymbols++;</span>
+<span class="lineNum">     960 </span>                :            :   }
+<span class="lineNum">     961 </span>                :            : 
+<span class="lineNum">     962 </span>                :            :   /* MS_COPYSTELEM(imagecachesize); */
 <span class="lineNum">     963 </span>                :            : 
-<span class="lineNum">     964 </span>                :<span class="lineNoCov">          0 :   *minx = *maxx = poiList[0].x;</span>
-<span class="lineNum">     965 </span>                :<span class="lineNoCov">          0 :   *miny = *maxy = poiList[0].y;</span>
-<span class="lineNum">     966 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for(j=1; j&lt;numpoints; j++) {</span>
-<span class="lineNum">     967 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if ((poiList[j].x==-99.0) || (poiList[j].y==-99.0)) continue;</span>
-<span class="lineNum">     968 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     *minx = MS_MIN(*minx, poiList[j].x);</span>
-<span class="lineNum">     969 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     *maxx = MS_MAX(*maxx, poiList[j].x);</span>
-<span class="lineNum">     970 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     *miny = MS_MIN(*miny, poiList[j].y);</span>
-<span class="lineNum">     971 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     *maxy = MS_MAX(*maxy, poiList[j].y);</span>
-<span class="lineNum">     972 </span>                :            :   }
-<span class="lineNum">     973 </span>                :            : 
-<span class="lineNum">     974 </span>                :<span class="lineNoCov">          0 :   return;</span>
-<span class="lineNum">     975 </span>                :            : }
-<span class="lineNum">     976 </span>                :            : 
-<span class="lineNum">     977 </span>                :            : /*
-<span class="lineNum">     978 </span>                :            :  ** msRotateSymbol - Clockwise rotation of a symbol definition. Contributed
-<span class="lineNum">     979 </span>                :            :  ** by MapMedia, with clean up by SDL. Currently only type VECTOR and PIXMAP
-<a name="980"><span class="lineNum">     980 </span>                :            :  ** symbols are handled.</a>
-<span class="lineNum">     981 </span>                :            :  */
-<span class="lineNum">     982 </span>                :<span class="lineNoCov">          0 : symbolObj *msRotateVectorSymbol(symbolObj *symbol, double angle)</span>
-<span class="lineNum">     983 </span>                :            : {
-<span class="lineNum">     984 </span>                :            :   double angle_rad=0.0;
-<span class="lineNum">     985 </span>                :            :   double cos_a, sin_a;
-<span class="lineNum">     986 </span>                :<span class="lineNoCov">          0 :   double minx=0.0, miny=0.0, maxx=0.0, maxy=0.0;</span>
-<span class="lineNum">     987 </span>                :            :   symbolObj *newSymbol = NULL;
-<span class="lineNum">     988 </span>                :            :   double dp_x, dp_y, xcor, ycor;
-<span class="lineNum">     989 </span>                :            :   double TOL=0.00000000001;
-<span class="lineNum">     990 </span>                :            :   int i;
+<span class="lineNum">     964 </span>                :            :   /* I have a feeling that the code below is not quite right - Sean */
+<span class="lineNum">     965 </span>                :            :   /*copyProperty(&amp;(dst-&gt;imagecache), &amp;(src-&gt;imagecache),
+<span class="lineNum">     966 </span>                :            :                sizeof(struct imageCacheObj));
+<span class="lineNum">     967 </span>                :            :    */
+<span class="lineNum">     968 </span>                :            : 
+<span class="lineNum">     969 </span>                :<span class="lineNoCov">          0 :   dst-&gt;imagecachesize = 0; /* since we are not copying the cache set the cache  to NUNLL and the size to 0 (bug 1521) */</span>
+<span class="lineNum">     970 </span>                :<span class="lineNoCov">          0 :   dst-&gt;imagecache = NULL;</span>
+<span class="lineNum">     971 </span>                :            : 
+<span class="lineNum">     972 </span>                :<span class="lineNoCov">          0 :   return(MS_SUCCESS);</span>
+<a name="973"><span class="lineNum">     973 </span>                :            : }</a>
+<span class="lineNum">     974 </span>                :            : 
+<span class="lineNum">     975 </span>                :<span class="lineNoCov">          0 : static void get_bbox(pointObj *poiList, int numpoints, double *minx, double *miny, double *maxx, double *maxy)</span>
+<span class="lineNum">     976 </span>                :            : {
+<span class="lineNum">     977 </span>                :            :   int j;
+<span class="lineNum">     978 </span>                :            : 
+<span class="lineNum">     979 </span>                :<span class="lineNoCov">          0 :   *minx = *maxx = poiList[0].x;</span>
+<span class="lineNum">     980 </span>                :<span class="lineNoCov">          0 :   *miny = *maxy = poiList[0].y;</span>
+<span class="lineNum">     981 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for(j=1; j&lt;numpoints; j++) {</span>
+<span class="lineNum">     982 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if ((poiList[j].x==-99.0) || (poiList[j].y==-99.0)) continue;</span>
+<span class="lineNum">     983 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     *minx = MS_MIN(*minx, poiList[j].x);</span>
+<span class="lineNum">     984 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     *maxx = MS_MAX(*maxx, poiList[j].x);</span>
+<span class="lineNum">     985 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     *miny = MS_MIN(*miny, poiList[j].y);</span>
+<span class="lineNum">     986 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     *maxy = MS_MAX(*maxy, poiList[j].y);</span>
+<span class="lineNum">     987 </span>                :            :   }
+<span class="lineNum">     988 </span>                :            : 
+<span class="lineNum">     989 </span>                :<span class="lineNoCov">          0 :   return;</span>
+<span class="lineNum">     990 </span>                :            : }
 <span class="lineNum">     991 </span>                :            : 
-<span class="lineNum">     992 </span>                :            :   /* assert(symbol-&gt;type == MS_SYMBOL_VECTOR); */
-<span class="lineNum">     993 </span>                :            : 
-<span class="lineNum">     994 </span>                :<span class="lineNoCov">          0 :   newSymbol = (symbolObj *) malloc(sizeof(symbolObj));</span>
-<span class="lineNum">     995 </span>                :<span class="lineNoCov">          0 :   msCopySymbol(newSymbol, symbol, NULL); /* TODO: do we really want to do this for all symbol types? */</span>
-<span class="lineNum">     996 </span>                :            : 
-<span class="lineNum">     997 </span>                :<span class="lineNoCov">          0 :   angle_rad = (MS_DEG_TO_RAD*angle);</span>
-<span class="lineNum">     998 </span>                :            : 
-<span class="lineNum">     999 </span>                :            : 
-<span class="lineNum">    1000 </span>                :<span class="lineNoCov">          0 :   sin_a = sin(angle_rad);</span>
-<span class="lineNum">    1001 </span>                :<span class="lineNoCov">          0 :   cos_a = cos(angle_rad);</span>
-<span class="lineNum">    1002 </span>                :            : 
-<span class="lineNum">    1003 </span>                :<span class="lineNoCov">          0 :   dp_x = symbol-&gt;sizex * .5; /* get the shift vector at 0,0 */</span>
-<span class="lineNum">    1004 </span>                :<span class="lineNoCov">          0 :   dp_y = symbol-&gt;sizey * .5;</span>
-<span class="lineNum">    1005 </span>                :            : 
-<span class="lineNum">    1006 </span>                :            :   /* center at 0,0 and rotate; then move back */
-<span class="lineNum">    1007 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for( i=0; i &lt; symbol-&gt;numpoints; i++) {</span>
-<span class="lineNum">    1008 </span>                :            :     /* don't rotate PENUP commands (TODO: should use a constant here) */
-<span class="lineNum">    1009 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if ((symbol-&gt;points[i].x == -99.0) &amp;&amp; (symbol-&gt;points[i].y == -99.0) ) {</span>
-<span class="lineNum">    1010 </span>                :<span class="lineNoCov">          0 :       newSymbol-&gt;points[i].x = -99.0;</span>
-<span class="lineNum">    1011 </span>                :<span class="lineNoCov">          0 :       newSymbol-&gt;points[i].y = -99.0;</span>
-<span class="lineNum">    1012 </span>                :<span class="lineNoCov">          0 :       continue;</span>
-<span class="lineNum">    1013 </span>                :            :     }
+<span class="lineNum">     992 </span>                :            : /*
+<span class="lineNum">     993 </span>                :            :  ** msRotateSymbol - Clockwise rotation of a symbol definition. Contributed
+<span class="lineNum">     994 </span>                :            :  ** by MapMedia, with clean up by SDL. Currently only type VECTOR and PIXMAP
+<a name="995"><span class="lineNum">     995 </span>                :            :  ** symbols are handled.</a>
+<span class="lineNum">     996 </span>                :            :  */
+<span class="lineNum">     997 </span>                :<span class="lineNoCov">          0 : symbolObj *msRotateVectorSymbol(symbolObj *symbol, double angle)</span>
+<span class="lineNum">     998 </span>                :            : {
+<span class="lineNum">     999 </span>                :            :   double angle_rad=0.0;
+<span class="lineNum">    1000 </span>                :            :   double cos_a, sin_a;
+<span class="lineNum">    1001 </span>                :<span class="lineNoCov">          0 :   double minx=0.0, miny=0.0, maxx=0.0, maxy=0.0;</span>
+<span class="lineNum">    1002 </span>                :            :   symbolObj *newSymbol = NULL;
+<span class="lineNum">    1003 </span>                :            :   double dp_x, dp_y, xcor, ycor;
+<span class="lineNum">    1004 </span>                :            :   double TOL=0.00000000001;
+<span class="lineNum">    1005 </span>                :            :   int i;
+<span class="lineNum">    1006 </span>                :            : 
+<span class="lineNum">    1007 </span>                :            :   /* assert(symbol-&gt;type == MS_SYMBOL_VECTOR); */
+<span class="lineNum">    1008 </span>                :            : 
+<span class="lineNum">    1009 </span>                :<span class="lineNoCov">          0 :   newSymbol = (symbolObj *) malloc(sizeof(symbolObj));</span>
+<span class="lineNum">    1010 </span>                :<span class="lineNoCov">          0 :   msCopySymbol(newSymbol, symbol, NULL); /* TODO: do we really want to do this for all symbol types? */</span>
+<span class="lineNum">    1011 </span>                :            : 
+<span class="lineNum">    1012 </span>                :<span class="lineNoCov">          0 :   angle_rad = (MS_DEG_TO_RAD*angle);</span>
+<span class="lineNum">    1013 </span>                :            : 
 <span class="lineNum">    1014 </span>                :            : 
-<span class="lineNum">    1015 </span>                :<span class="lineNoCov">          0 :     newSymbol-&gt;points[i].x = dp_x + ((symbol-&gt;points[i].x-dp_x)*cos_a - (symbol-&gt;points[i].y-dp_y)*sin_a);</span>
-<span class="lineNum">    1016 </span>                :<span class="lineNoCov">          0 :     newSymbol-&gt;points[i].y = dp_y + ((symbol-&gt;points[i].x-dp_x)*sin_a + (symbol-&gt;points[i].y-dp_y)*cos_a);</span>
-<span class="lineNum">    1017 </span>                :            :   }
-<span class="lineNum">    1018 </span>                :            : 
-<span class="lineNum">    1019 </span>                :            :   /* get the new bbox of the symbol, because we need it to get the new dimensions of the new symbol */
-<span class="lineNum">    1020 </span>                :<span class="lineNoCov">          0 :   get_bbox(newSymbol-&gt;points, newSymbol-&gt;numpoints, &amp;minx, &amp;miny, &amp;maxx, &amp;maxy);</span>
-<span class="lineNum">    1021 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if ( (fabs(minx)&gt;TOL) || (fabs(miny)&gt;TOL) ) {</span>
-<span class="lineNum">    1022 </span>                :<span class="lineNoCov">          0 :     xcor = minx*-1.0; /* symbols always start at 0,0 so get the shift vector */</span>
-<span class="lineNum">    1023 </span>                :<span class="lineNoCov">          0 :     ycor = miny*-1.0;</span>
-<span class="lineNum">    1024 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for( i=0; i &lt; newSymbol-&gt;numpoints; i++) {</span>
-<span class="lineNum">    1025 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if ((newSymbol-&gt;points[i].x == -99.0) &amp;&amp; (newSymbol-&gt;points[i].y == -99.0))</span>
-<span class="lineNum">    1026 </span>                :<span class="lineNoCov">          0 :         continue;</span>
-<span class="lineNum">    1027 </span>                :<span class="lineNoCov">          0 :       newSymbol-&gt;points[i].x = newSymbol-&gt;points[i].x + xcor;</span>
-<span class="lineNum">    1028 </span>                :<span class="lineNoCov">          0 :       newSymbol-&gt;points[i].y = newSymbol-&gt;points[i].y + ycor;</span>
-<span class="lineNum">    1029 </span>                :            :     }
-<span class="lineNum">    1030 </span>                :            : 
-<span class="lineNum">    1031 </span>                :            :     /* update the bbox to get the final dimension values for the symbol */
-<span class="lineNum">    1032 </span>                :<span class="lineNoCov">          0 :     get_bbox(newSymbol-&gt;points, newSymbol-&gt;numpoints, &amp;minx, &amp;miny, &amp;maxx, &amp;maxy);</span>
-<span class="lineNum">    1033 </span>                :            :   }
-<span class="lineNum">    1034 </span>                :            : 
-<span class="lineNum">    1035 </span>                :<span class="lineNoCov">          0 :   newSymbol-&gt;sizex = maxx;</span>
-<span class="lineNum">    1036 </span>                :<span class="lineNoCov">          0 :   newSymbol-&gt;sizey = maxy;</span>
-<span class="lineNum">    1037 </span>                :<span class="lineNoCov">          0 :   return newSymbol;</span>
-<span class="lineNum">    1038 </span>                :            : }
+<span class="lineNum">    1015 </span>                :<span class="lineNoCov">          0 :   sin_a = sin(angle_rad);</span>
+<span class="lineNum">    1016 </span>                :<span class="lineNoCov">          0 :   cos_a = cos(angle_rad);</span>
+<span class="lineNum">    1017 </span>                :            : 
+<span class="lineNum">    1018 </span>                :<span class="lineNoCov">          0 :   dp_x = symbol-&gt;sizex * .5; /* get the shift vector at 0,0 */</span>
+<span class="lineNum">    1019 </span>                :<span class="lineNoCov">          0 :   dp_y = symbol-&gt;sizey * .5;</span>
+<span class="lineNum">    1020 </span>                :            : 
+<span class="lineNum">    1021 </span>                :            :   /* center at 0,0 and rotate; then move back */
+<span class="lineNum">    1022 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for( i=0; i &lt; symbol-&gt;numpoints; i++) {</span>
+<span class="lineNum">    1023 </span>                :            :     /* don't rotate PENUP commands (TODO: should use a constant here) */
+<span class="lineNum">    1024 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if ((symbol-&gt;points[i].x == -99.0) &amp;&amp; (symbol-&gt;points[i].y == -99.0) ) {</span>
+<span class="lineNum">    1025 </span>                :<span class="lineNoCov">          0 :       newSymbol-&gt;points[i].x = -99.0;</span>
+<span class="lineNum">    1026 </span>                :<span class="lineNoCov">          0 :       newSymbol-&gt;points[i].y = -99.0;</span>
+<span class="lineNum">    1027 </span>                :<span class="lineNoCov">          0 :       continue;</span>
+<span class="lineNum">    1028 </span>                :            :     }
+<span class="lineNum">    1029 </span>                :            : 
+<span class="lineNum">    1030 </span>                :<span class="lineNoCov">          0 :     newSymbol-&gt;points[i].x = dp_x + ((symbol-&gt;points[i].x-dp_x)*cos_a - (symbol-&gt;points[i].y-dp_y)*sin_a);</span>
+<span class="lineNum">    1031 </span>                :<span class="lineNoCov">          0 :     newSymbol-&gt;points[i].y = dp_y + ((symbol-&gt;points[i].x-dp_x)*sin_a + (symbol-&gt;points[i].y-dp_y)*cos_a);</span>
+<span class="lineNum">    1032 </span>                :            :   }
+<span class="lineNum">    1033 </span>                :            : 
+<span class="lineNum">    1034 </span>                :            :   /* get the new bbox of the symbol, because we need it to get the new dimensions of the new symbol */
+<span class="lineNum">    1035 </span>                :<span class="lineNoCov">          0 :   get_bbox(newSymbol-&gt;points, newSymbol-&gt;numpoints, &amp;minx, &amp;miny, &amp;maxx, &amp;maxy);</span>
+<span class="lineNum">    1036 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if ( (fabs(minx)&gt;TOL) || (fabs(miny)&gt;TOL) ) {</span>
+<span class="lineNum">    1037 </span>                :<span class="lineNoCov">          0 :     xcor = minx*-1.0; /* symbols always start at 0,0 so get the shift vector */</span>
+<span class="lineNum">    1038 </span>                :<span class="lineNoCov">          0 :     ycor = miny*-1.0;</span>
+<span class="lineNum">    1039 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for( i=0; i &lt; newSymbol-&gt;numpoints; i++) {</span>
+<span class="lineNum">    1040 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if ((newSymbol-&gt;points[i].x == -99.0) &amp;&amp; (newSymbol-&gt;points[i].y == -99.0))</span>
+<span class="lineNum">    1041 </span>                :<span class="lineNoCov">          0 :         continue;</span>
+<span class="lineNum">    1042 </span>                :<span class="lineNoCov">          0 :       newSymbol-&gt;points[i].x = newSymbol-&gt;points[i].x + xcor;</span>
+<span class="lineNum">    1043 </span>                :<span class="lineNoCov">          0 :       newSymbol-&gt;points[i].y = newSymbol-&gt;points[i].y + ycor;</span>
+<span class="lineNum">    1044 </span>                :            :     }
+<span class="lineNum">    1045 </span>                :            : 
+<span class="lineNum">    1046 </span>                :            :     /* update the bbox to get the final dimension values for the symbol */
+<span class="lineNum">    1047 </span>                :<span class="lineNoCov">          0 :     get_bbox(newSymbol-&gt;points, newSymbol-&gt;numpoints, &amp;minx, &amp;miny, &amp;maxx, &amp;maxy);</span>
+<span class="lineNum">    1048 </span>                :            :   }
+<span class="lineNum">    1049 </span>                :            : 
+<span class="lineNum">    1050 </span>                :<span class="lineNoCov">          0 :   newSymbol-&gt;sizex = maxx;</span>
+<span class="lineNum">    1051 </span>                :<span class="lineNoCov">          0 :   newSymbol-&gt;sizey = maxy;</span>
+<span class="lineNum">    1052 </span>                :<span class="lineNoCov">          0 :   return newSymbol;</span>
+<span class="lineNum">    1053 </span>                :            : }
 </pre>
       </td>
     </tr>
