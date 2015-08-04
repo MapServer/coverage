@@ -3666,273 +3666,270 @@
 <span class="lineNum">    3581 </span>                :            : #ifdef USE_POSTGIS
 <span class="lineNum">    3582 </span>                :            :   tokenListNodeObjPtr node = NULL;
 <span class="lineNum">    3583 </span>                :            : 
-<span class="lineNum">    3584 </span>                :            :   int resolution; /* date/time resolution */
-<span class="lineNum">    3585 </span>                :            :   int noDate;
-<span class="lineNum">    3586 </span>                :            : 
-<span class="lineNum">    3587 </span>                :            :   char *snippet = NULL;
-<span class="lineNum">    3588 </span>                :            :   char *native_string = NULL;
-<span class="lineNum">    3589 </span>                :            :   char *strtmpl = NULL;
-<span class="lineNum">    3590 </span>                :            :   char *stresc = NULL;
+<span class="lineNum">    3584 </span>                :            :   char *snippet = NULL;
+<span class="lineNum">    3585 </span>                :            :   char *native_string = NULL;
+<span class="lineNum">    3586 </span>                :            :   char *strtmpl = NULL;
+<span class="lineNum">    3587 </span>                :            :   char *stresc = NULL;
+<span class="lineNum">    3588 </span>                :            : 
+<span class="lineNum">    3589 </span>                :            :   int comparisonToken = -1;
+<span class="lineNum">    3590 </span>                :            :   int bindingToken = -1;
 <span class="lineNum">    3591 </span>                :            : 
-<span class="lineNum">    3592 </span>                :            :   int comparisonToken = -1;
-<span class="lineNum">    3593 </span>                :            :   int bindingToken = -1;
-<span class="lineNum">    3594 </span>                :            : 
-<span class="lineNum">    3595 </span>                :<span class="lineCov">          1 :   msPostGISLayerInfo *layerinfo = layer-&gt;layerinfo;</span>
-<span class="lineNum">    3596 </span>                :            : 
-<span class="lineNum">    3597 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!filter-&gt;string) return MS_SUCCESS; /* not an error, just nothing to do */</span>
-<span class="lineNum">    3598 </span>                :            : 
-<span class="lineNum">    3599 </span>                :            :   // fprintf(stderr, &quot;input: %s, %s, %d\n&quot;, filter-&gt;string, filteritem, filter-&gt;type);
-<span class="lineNum">    3600 </span>                :            : 
-<span class="lineNum">    3601 </span>                :            :   /*
-<span class="lineNum">    3602 </span>                :            :   ** FILTERs use MapServer syntax *only* (#5001).
-<span class="lineNum">    3603 </span>                :            :   */
-<span class="lineNum">    3604 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :   if(filter-&gt;type == MS_STRING &amp;&amp; filter-&gt;string &amp;&amp; filteritem) { /* item/value pair - add escaping */</span>
-<span class="lineNum">    3605 </span>                :            : 
-<span class="lineNum">    3606 </span>                :<span class="lineNoCov">          0 :     stresc = msLayerEscapePropertyName(layer, filteritem);</span>
-<span class="lineNum">    3607 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(filter-&gt;flags &amp; MS_EXP_INSENSITIVE) {</span>
-<span class="lineNum">    3608 </span>                :<span class="lineNoCov">          0 :       native_string = msStringConcatenate(native_string, &quot;upper(&quot;);</span>
+<span class="lineNum">    3592 </span>                :<span class="lineCov">          1 :   msPostGISLayerInfo *layerinfo = layer-&gt;layerinfo;</span>
+<span class="lineNum">    3593 </span>                :            : 
+<span class="lineNum">    3594 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!filter-&gt;string) return MS_SUCCESS; /* not an error, just nothing to do */</span>
+<span class="lineNum">    3595 </span>                :            : 
+<span class="lineNum">    3596 </span>                :            :   // fprintf(stderr, &quot;input: %s, %s, %d\n&quot;, filter-&gt;string, filteritem, filter-&gt;type);
+<span class="lineNum">    3597 </span>                :            : 
+<span class="lineNum">    3598 </span>                :            :   /*
+<span class="lineNum">    3599 </span>                :            :   ** FILTERs use MapServer syntax *only* (#5001).
+<span class="lineNum">    3600 </span>                :            :   */
+<span class="lineNum">    3601 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :   if(filter-&gt;type == MS_STRING &amp;&amp; filter-&gt;string &amp;&amp; filteritem) { /* item/value pair - add escaping */</span>
+<span class="lineNum">    3602 </span>                :            : 
+<span class="lineNum">    3603 </span>                :<span class="lineNoCov">          0 :     stresc = msLayerEscapePropertyName(layer, filteritem);</span>
+<span class="lineNum">    3604 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(filter-&gt;flags &amp; MS_EXP_INSENSITIVE) {</span>
+<span class="lineNum">    3605 </span>                :<span class="lineNoCov">          0 :       native_string = msStringConcatenate(native_string, &quot;upper(&quot;);</span>
+<span class="lineNum">    3606 </span>                :<span class="lineNoCov">          0 :       native_string = msStringConcatenate(native_string, stresc);</span>
+<span class="lineNum">    3607 </span>                :<span class="lineNoCov">          0 :       native_string = msStringConcatenate(native_string, &quot;::text) = upper(&quot;);</span>
+<span class="lineNum">    3608 </span>                :            :     } else {
 <span class="lineNum">    3609 </span>                :<span class="lineNoCov">          0 :       native_string = msStringConcatenate(native_string, stresc);</span>
-<span class="lineNum">    3610 </span>                :<span class="lineNoCov">          0 :       native_string = msStringConcatenate(native_string, &quot;::text) = upper(&quot;);</span>
-<span class="lineNum">    3611 </span>                :            :     } else {
-<span class="lineNum">    3612 </span>                :<span class="lineNoCov">          0 :       native_string = msStringConcatenate(native_string, stresc);</span>
-<span class="lineNum">    3613 </span>                :<span class="lineNoCov">          0 :       native_string = msStringConcatenate(native_string, &quot;::text = &quot;);</span>
-<span class="lineNum">    3614 </span>                :            :     }
-<span class="lineNum">    3615 </span>                :<span class="lineNoCov">          0 :     msFree(stresc);</span>
-<span class="lineNum">    3616 </span>                :            : 
-<span class="lineNum">    3617 </span>                :            :     strtmpl = &quot;'%s'&quot;;  /* don't have a type for the righthand literal so assume it's a string and we quote */
-<span class="lineNum">    3618 </span>                :<span class="lineNoCov">          0 :     stresc = msPostGISEscapeSQLParam(layer, filter-&gt;string);    </span>
-<span class="lineNum">    3619 </span>                :<span class="lineNoCov">          0 :     snippet = (char *) msSmallMalloc(strlen(strtmpl) + strlen(stresc));</span>
-<span class="lineNum">    3620 </span>                :            :     sprintf(snippet, strtmpl, stresc);
-<span class="lineNum">    3621 </span>                :<span class="lineNoCov">          0 :     native_string = msStringConcatenate(native_string, snippet);</span>
-<span class="lineNum">    3622 </span>                :<span class="lineNoCov">          0 :     msFree(snippet);</span>
-<span class="lineNum">    3623 </span>                :<span class="lineNoCov">          0 :     msFree(stresc);</span>
+<span class="lineNum">    3610 </span>                :<span class="lineNoCov">          0 :       native_string = msStringConcatenate(native_string, &quot;::text = &quot;);</span>
+<span class="lineNum">    3611 </span>                :            :     }
+<span class="lineNum">    3612 </span>                :<span class="lineNoCov">          0 :     msFree(stresc);</span>
+<span class="lineNum">    3613 </span>                :            : 
+<span class="lineNum">    3614 </span>                :            :     strtmpl = &quot;'%s'&quot;;  /* don't have a type for the righthand literal so assume it's a string and we quote */
+<span class="lineNum">    3615 </span>                :<span class="lineNoCov">          0 :     stresc = msPostGISEscapeSQLParam(layer, filter-&gt;string);    </span>
+<span class="lineNum">    3616 </span>                :<span class="lineNoCov">          0 :     snippet = (char *) msSmallMalloc(strlen(strtmpl) + strlen(stresc));</span>
+<span class="lineNum">    3617 </span>                :            :     sprintf(snippet, strtmpl, stresc);
+<span class="lineNum">    3618 </span>                :<span class="lineNoCov">          0 :     native_string = msStringConcatenate(native_string, snippet);</span>
+<span class="lineNum">    3619 </span>                :<span class="lineNoCov">          0 :     msFree(snippet);</span>
+<span class="lineNum">    3620 </span>                :<span class="lineNoCov">          0 :     msFree(stresc);</span>
+<span class="lineNum">    3621 </span>                :            : 
+<span class="lineNum">    3622 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(filter-&gt;flags &amp; MS_EXP_INSENSITIVE) native_string = msStringConcatenate(native_string, &quot;)&quot;);</span>
+<span class="lineNum">    3623 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   } else if(filter-&gt;type == MS_REGEX &amp;&amp; filter-&gt;string &amp;&amp; filteritem) { /* item/regex pair  - add escaping */</span>
 <span class="lineNum">    3624 </span>                :            : 
-<span class="lineNum">    3625 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(filter-&gt;flags &amp; MS_EXP_INSENSITIVE) native_string = msStringConcatenate(native_string, &quot;)&quot;);</span>
-<span class="lineNum">    3626 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   } else if(filter-&gt;type == MS_REGEX &amp;&amp; filter-&gt;string &amp;&amp; filteritem) { /* item/regex pair  - add escaping */</span>
-<span class="lineNum">    3627 </span>                :            : 
-<span class="lineNum">    3628 </span>                :<span class="lineCov">          1 :     stresc = msLayerEscapePropertyName(layer, filteritem);</span>
-<span class="lineNum">    3629 </span>                :<span class="lineCov">          1 :     native_string = msStringConcatenate(native_string, stresc);</span>
-<span class="lineNum">    3630 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(filter-&gt;flags &amp; MS_EXP_INSENSITIVE) {</span>
-<span class="lineNum">    3631 </span>                :<span class="lineNoCov">          0 :       native_string = msStringConcatenate(native_string, &quot;::text ~* &quot;);</span>
-<span class="lineNum">    3632 </span>                :            :     } else {
-<span class="lineNum">    3633 </span>                :<span class="lineCov">          1 :       native_string = msStringConcatenate(native_string, &quot;::text ~ &quot;);</span>
-<span class="lineNum">    3634 </span>                :            :     }
-<span class="lineNum">    3635 </span>                :<span class="lineCov">          1 :     msFree(stresc);</span>
-<span class="lineNum">    3636 </span>                :            : 
-<span class="lineNum">    3637 </span>                :            :     strtmpl = &quot;'%s'&quot;;
-<span class="lineNum">    3638 </span>                :<span class="lineCov">          1 :     stresc = msPostGISEscapeSQLParam(layer, filter-&gt;string);</span>
-<span class="lineNum">    3639 </span>                :<span class="lineCov">          1 :     snippet = (char *) msSmallMalloc(strlen(strtmpl) + strlen(stresc));</span>
-<span class="lineNum">    3640 </span>                :            :     sprintf(snippet, strtmpl, stresc);
-<span class="lineNum">    3641 </span>                :<span class="lineCov">          1 :     native_string = msStringConcatenate(native_string, snippet);</span>
-<span class="lineNum">    3642 </span>                :<span class="lineCov">          1 :     msFree(snippet);</span>
-<span class="lineNum">    3643 </span>                :<span class="lineCov">          1 :     msFree(stresc);</span>
-<span class="lineNum">    3644 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   } else if(filter-&gt;type == MS_EXPRESSION) {</span>
-<span class="lineNum">    3645 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if(msPostGISParseData(layer) != MS_SUCCESS) return MS_FAILURE;</span>
-<span class="lineNum">    3646 </span>                :            : 
-<span class="lineNum">    3647 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(layer-&gt;debug &gt;= 2) msDebug(&quot;msPostGISLayerTranslateFilter. String: %s.\n&quot;, filter-&gt;string);</span>
-<span class="lineNum">    3648 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(!filter-&gt;tokens) return MS_SUCCESS;</span>
-<span class="lineNum">    3649 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(layer-&gt;debug &gt;= 2) msDebug(&quot;msPostGISLayerTranslateFilter. There are tokens to process... \n&quot;);</span>
+<span class="lineNum">    3625 </span>                :<span class="lineCov">          1 :     stresc = msLayerEscapePropertyName(layer, filteritem);</span>
+<span class="lineNum">    3626 </span>                :<span class="lineCov">          1 :     native_string = msStringConcatenate(native_string, stresc);</span>
+<span class="lineNum">    3627 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(filter-&gt;flags &amp; MS_EXP_INSENSITIVE) {</span>
+<span class="lineNum">    3628 </span>                :<span class="lineNoCov">          0 :       native_string = msStringConcatenate(native_string, &quot;::text ~* &quot;);</span>
+<span class="lineNum">    3629 </span>                :            :     } else {
+<span class="lineNum">    3630 </span>                :<span class="lineCov">          1 :       native_string = msStringConcatenate(native_string, &quot;::text ~ &quot;);</span>
+<span class="lineNum">    3631 </span>                :            :     }
+<span class="lineNum">    3632 </span>                :<span class="lineCov">          1 :     msFree(stresc);</span>
+<span class="lineNum">    3633 </span>                :            : 
+<span class="lineNum">    3634 </span>                :            :     strtmpl = &quot;'%s'&quot;;
+<span class="lineNum">    3635 </span>                :<span class="lineCov">          1 :     stresc = msPostGISEscapeSQLParam(layer, filter-&gt;string);</span>
+<span class="lineNum">    3636 </span>                :<span class="lineCov">          1 :     snippet = (char *) msSmallMalloc(strlen(strtmpl) + strlen(stresc));</span>
+<span class="lineNum">    3637 </span>                :            :     sprintf(snippet, strtmpl, stresc);
+<span class="lineNum">    3638 </span>                :<span class="lineCov">          1 :     native_string = msStringConcatenate(native_string, snippet);</span>
+<span class="lineNum">    3639 </span>                :<span class="lineCov">          1 :     msFree(snippet);</span>
+<span class="lineNum">    3640 </span>                :<span class="lineCov">          1 :     msFree(stresc);</span>
+<span class="lineNum">    3641 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   } else if(filter-&gt;type == MS_EXPRESSION) {</span>
+<span class="lineNum">    3642 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if(msPostGISParseData(layer) != MS_SUCCESS) return MS_FAILURE;</span>
+<span class="lineNum">    3643 </span>                :            : 
+<span class="lineNum">    3644 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(layer-&gt;debug &gt;= 2) msDebug(&quot;msPostGISLayerTranslateFilter. String: %s.\n&quot;, filter-&gt;string);</span>
+<span class="lineNum">    3645 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(!filter-&gt;tokens) return MS_SUCCESS;</span>
+<span class="lineNum">    3646 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(layer-&gt;debug &gt;= 2) msDebug(&quot;msPostGISLayerTranslateFilter. There are tokens to process... \n&quot;);</span>
+<span class="lineNum">    3647 </span>                :            : 
+<span class="lineNum">    3648 </span>                :<span class="lineCov">          1 :     node = filter-&gt;tokens;</span>
+<span class="lineNum">    3649 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     while (node != NULL) {      </span>
 <span class="lineNum">    3650 </span>                :            : 
-<span class="lineNum">    3651 </span>                :<span class="lineCov">          1 :     node = filter-&gt;tokens;</span>
-<span class="lineNum">    3652 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     while (node != NULL) {      </span>
-<span class="lineNum">    3653 </span>                :            : 
-<span class="lineNum">    3654 </span>                :            :       /*
-<span class="lineNum">    3655 </span>                :            :       ** Do any token caching/tracking here, easier to have it in one place.
-<span class="lineNum">    3656 </span>                :            :       */
-<span class="lineNum">    3657 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(node-&gt;token == MS_TOKEN_BINDING_TIME) {</span>
-<span class="lineNum">    3658 </span>                :<span class="lineCov">          1 :         bindingToken = node-&gt;token;</span>
-<span class="lineNum">    3659 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       } else if(node-&gt;token == MS_TOKEN_COMPARISON_EQ || node-&gt;token == MS_TOKEN_COMPARISON_NE ||</span>
-<span class="lineNum">    3660 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :          node-&gt;token == MS_TOKEN_COMPARISON_GT || node-&gt;token == MS_TOKEN_COMPARISON_GE || </span>
-<span class="lineNum">    3661 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :          node-&gt;token == MS_TOKEN_COMPARISON_LT || node-&gt;token == MS_TOKEN_COMPARISON_LE) {</span>
-<span class="lineNum">    3662 </span>                :<span class="lineCov">          1 :         comparisonToken = node-&gt;token;</span>
-<span class="lineNum">    3663 </span>                :            :       }
-<span class="lineNum">    3664 </span>                :            : 
-<span class="lineNum">    3665 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span> :<span class="lineCov">          1 :       switch(node-&gt;token) {</span>
+<span class="lineNum">    3651 </span>                :            :       /*
+<span class="lineNum">    3652 </span>                :            :       ** Do any token caching/tracking here, easier to have it in one place.
+<span class="lineNum">    3653 </span>                :            :       */
+<span class="lineNum">    3654 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(node-&gt;token == MS_TOKEN_BINDING_TIME) {</span>
+<span class="lineNum">    3655 </span>                :<span class="lineCov">          1 :         bindingToken = node-&gt;token;</span>
+<span class="lineNum">    3656 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       } else if(node-&gt;token == MS_TOKEN_COMPARISON_EQ || node-&gt;token == MS_TOKEN_COMPARISON_NE ||</span>
+<span class="lineNum">    3657 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :          node-&gt;token == MS_TOKEN_COMPARISON_GT || node-&gt;token == MS_TOKEN_COMPARISON_GE || </span>
+<span class="lineNum">    3658 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :          node-&gt;token == MS_TOKEN_COMPARISON_LT || node-&gt;token == MS_TOKEN_COMPARISON_LE) {</span>
+<span class="lineNum">    3659 </span>                :<span class="lineCov">          1 :         comparisonToken = node-&gt;token;</span>
+<span class="lineNum">    3660 </span>                :            :       }
+<span class="lineNum">    3661 </span>                :            : 
+<span class="lineNum">    3662 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span> :<span class="lineCov">          1 :       switch(node-&gt;token) {</span>
 <span class="lineNum">         </span><span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span><span class="branchCov" title="Branch 6 was taken X times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken X times"> + </span> 
 <span class="lineNum">         </span>      <span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>]
-<span class="lineNum">    3666 </span>                :            : 
-<span class="lineNum">    3667 </span>                :            :         /* literal tokens */
-<span class="lineNum">    3668 </span>                :            :         case MS_TOKEN_LITERAL_BOOLEAN:
-<span class="lineNum">    3669 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           if(node-&gt;tokenval.dblval == MS_TRUE)</span>
-<span class="lineNum">    3670 </span>                :<span class="lineCov">          1 :             native_string = msStringConcatenate(native_string, &quot;TRUE&quot;);</span>
-<span class="lineNum">    3671 </span>                :            :           else
-<span class="lineNum">    3672 </span>                :<span class="lineNoCov">          0 :             native_string = msStringConcatenate(native_string, &quot;FALSE&quot;);</span>
-<span class="lineNum">    3673 </span>                :            :           break;
-<span class="lineNum">    3674 </span>                :            :         case MS_TOKEN_LITERAL_NUMBER:
-<span class="lineNum">    3675 </span>                :            :     strtmpl = &quot;%lf&quot;;
-<span class="lineNum">    3676 </span>                :<span class="lineCov">          1 :           snippet = (char *) msSmallMalloc(strlen(strtmpl) + 16);</span>
-<span class="lineNum">    3677 </span>                :<span class="lineCov">          1 :           sprintf(snippet, strtmpl, node-&gt;tokenval.dblval);</span>
-<span class="lineNum">    3678 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, snippet);</span>
-<span class="lineNum">    3679 </span>                :<span class="lineCov">          1 :           msFree(snippet);</span>
-<span class="lineNum">    3680 </span>                :<span class="lineCov">          1 :           break;</span>
-<span class="lineNum">    3681 </span>                :            :         case MS_TOKEN_LITERAL_STRING:
-<span class="lineNum">    3682 </span>                :            :           strtmpl = &quot;'%s'&quot;;
-<span class="lineNum">    3683 </span>                :<span class="lineCov">          1 :           stresc = msPostGISEscapeSQLParam(layer, node-&gt;tokenval.strval);</span>
-<span class="lineNum">    3684 </span>                :<span class="lineCov">          1 :           snippet = (char *) msSmallMalloc(strlen(strtmpl) + strlen(stresc));</span>
-<span class="lineNum">    3685 </span>                :            :           sprintf(snippet, strtmpl, stresc);
-<span class="lineNum">    3686 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, snippet);</span>
-<span class="lineNum">    3687 </span>                :<span class="lineCov">          1 :           msFree(snippet);</span>
-<span class="lineNum">    3688 </span>                :<span class="lineCov">          1 :           msFree(stresc);</span>
-<span class="lineNum">    3689 </span>                :<span class="lineCov">          1 :           break;</span>
-<span class="lineNum">    3690 </span>                :            :         case MS_TOKEN_LITERAL_TIME: {
-<span class="lineNum">    3691 </span>                :<span class="lineCov">          1 :     snippet = (char *) msSmallMalloc(512);</span>
-<span class="lineNum">    3692 </span>                :            : 
-<span class="lineNum">    3693 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if(comparisonToken == MS_TOKEN_COMPARISON_EQ) { // TODO: support !=</span>
-<span class="lineNum">    3694 </span>                :<span class="lineCov">          1 :             createPostgresTimeCompareEquals(node-&gt;tokensrc, snippet, 512);</span>
-<span class="lineNum">    3695 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           } else if(comparisonToken == MS_TOKEN_COMPARISON_GT || comparisonToken == MS_TOKEN_COMPARISON_GE) {</span>
-<span class="lineNum">    3696 </span>                :<span class="lineCov">          1 :             createPostgresTimeCompareGreaterThan(node-&gt;tokensrc, snippet, 512);</span>
-<span class="lineNum">    3697 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           } else if(comparisonToken == MS_TOKEN_COMPARISON_LT || comparisonToken == MS_TOKEN_COMPARISON_LE) {</span>
-<span class="lineNum">    3698 </span>                :<span class="lineCov">          1 :             createPostgresTimeCompareLessThan(node-&gt;tokensrc, snippet, 512);</span>
-<span class="lineNum">    3699 </span>                :            :           } else {
-<span class="lineNum">    3700 </span>                :            :             goto cleanup;
-<span class="lineNum">    3701 </span>                :            :           }
-<span class="lineNum">    3702 </span>                :            : 
-<span class="lineNum">    3703 </span>                :            :           comparisonToken = -1; bindingToken = -1; /* reset */
-<span class="lineNum">    3704 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, snippet);</span>
-<span class="lineNum">    3705 </span>                :<span class="lineCov">          1 :           msFree(snippet);</span>
-<span class="lineNum">    3706 </span>                :<span class="lineCov">          1 :           break;</span>
-<span class="lineNum">    3707 </span>                :            :     }
-<span class="lineNum">    3708 </span>                :            :         case MS_TOKEN_LITERAL_SHAPE:
-<span class="lineNum">    3709 </span>                :            :         {
-<span class="lineNum">    3710 </span>                :<span class="lineCov">          1 :           char* wkt = msShapeToWKT(node-&gt;tokenval.shpval);</span>
-<span class="lineNum">    3711 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, &quot;ST_GeomFromText('&quot;);</span>
-<span class="lineNum">    3712 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, wkt);</span>
-<span class="lineNum">    3713 </span>                :<span class="lineCov">          1 :           msFree(wkt);</span>
-<span class="lineNum">    3714 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, &quot;'&quot;);</span>
-<span class="lineNum">    3715 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :           if(layerinfo-&gt;srid &amp;&amp; strcmp(layerinfo-&gt;srid, &quot;&quot;) != 0) {</span>
-<span class="lineNum">    3716 </span>                :<span class="lineCov">          1 :             native_string = msStringConcatenate(native_string, &quot;,&quot;);</span>
-<span class="lineNum">    3717 </span>                :<span class="lineCov">          1 :             native_string = msStringConcatenate(native_string, layerinfo-&gt;srid);</span>
-<span class="lineNum">    3718 </span>                :            :           }
-<span class="lineNum">    3719 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, &quot;)&quot;);</span>
-<span class="lineNum">    3720 </span>                :<span class="lineCov">          1 :           break;</span>
-<span class="lineNum">    3721 </span>                :            :         }
-<span class="lineNum">    3722 </span>                :            : 
-<span class="lineNum">    3723 </span>                :            :   /* data binding tokens */
-<span class="lineNum">    3724 </span>                :            :         case MS_TOKEN_BINDING_TIME:
-<span class="lineNum">    3725 </span>                :            :         case MS_TOKEN_BINDING_DOUBLE:
-<span class="lineNum">    3726 </span>                :            :         case MS_TOKEN_BINDING_INTEGER:
-<span class="lineNum">    3727 </span>                :            :         case MS_TOKEN_BINDING_STRING:
-<span class="lineNum">    3728 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :           if(node-&gt;token == MS_TOKEN_BINDING_STRING || node-&gt;next-&gt;token == MS_TOKEN_COMPARISON_RE || node-&gt;next-&gt;token == MS_TOKEN_COMPARISON_IRE)</span>
+<span class="lineNum">    3663 </span>                :            : 
+<span class="lineNum">    3664 </span>                :            :         /* literal tokens */
+<span class="lineNum">    3665 </span>                :            :         case MS_TOKEN_LITERAL_BOOLEAN:
+<span class="lineNum">    3666 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           if(node-&gt;tokenval.dblval == MS_TRUE)</span>
+<span class="lineNum">    3667 </span>                :<span class="lineCov">          1 :             native_string = msStringConcatenate(native_string, &quot;TRUE&quot;);</span>
+<span class="lineNum">    3668 </span>                :            :           else
+<span class="lineNum">    3669 </span>                :<span class="lineNoCov">          0 :             native_string = msStringConcatenate(native_string, &quot;FALSE&quot;);</span>
+<span class="lineNum">    3670 </span>                :            :           break;
+<span class="lineNum">    3671 </span>                :            :         case MS_TOKEN_LITERAL_NUMBER:
+<span class="lineNum">    3672 </span>                :            :     strtmpl = &quot;%lf&quot;;
+<span class="lineNum">    3673 </span>                :<span class="lineCov">          1 :           snippet = (char *) msSmallMalloc(strlen(strtmpl) + 16);</span>
+<span class="lineNum">    3674 </span>                :<span class="lineCov">          1 :           sprintf(snippet, strtmpl, node-&gt;tokenval.dblval);</span>
+<span class="lineNum">    3675 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, snippet);</span>
+<span class="lineNum">    3676 </span>                :<span class="lineCov">          1 :           msFree(snippet);</span>
+<span class="lineNum">    3677 </span>                :<span class="lineCov">          1 :           break;</span>
+<span class="lineNum">    3678 </span>                :            :         case MS_TOKEN_LITERAL_STRING:
+<span class="lineNum">    3679 </span>                :            :           strtmpl = &quot;'%s'&quot;;
+<span class="lineNum">    3680 </span>                :<span class="lineCov">          1 :           stresc = msPostGISEscapeSQLParam(layer, node-&gt;tokenval.strval);</span>
+<span class="lineNum">    3681 </span>                :<span class="lineCov">          1 :           snippet = (char *) msSmallMalloc(strlen(strtmpl) + strlen(stresc));</span>
+<span class="lineNum">    3682 </span>                :            :           sprintf(snippet, strtmpl, stresc);
+<span class="lineNum">    3683 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, snippet);</span>
+<span class="lineNum">    3684 </span>                :<span class="lineCov">          1 :           msFree(snippet);</span>
+<span class="lineNum">    3685 </span>                :<span class="lineCov">          1 :           msFree(stresc);</span>
+<span class="lineNum">    3686 </span>                :<span class="lineCov">          1 :           break;</span>
+<span class="lineNum">    3687 </span>                :            :         case MS_TOKEN_LITERAL_TIME: {
+<span class="lineNum">    3688 </span>                :<span class="lineCov">          1 :     snippet = (char *) msSmallMalloc(512);</span>
+<span class="lineNum">    3689 </span>                :            : 
+<span class="lineNum">    3690 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if(comparisonToken == MS_TOKEN_COMPARISON_EQ) { // TODO: support !=</span>
+<span class="lineNum">    3691 </span>                :<span class="lineCov">          1 :             createPostgresTimeCompareEquals(node-&gt;tokensrc, snippet, 512);</span>
+<span class="lineNum">    3692 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           } else if(comparisonToken == MS_TOKEN_COMPARISON_GT || comparisonToken == MS_TOKEN_COMPARISON_GE) {</span>
+<span class="lineNum">    3693 </span>                :<span class="lineCov">          1 :             createPostgresTimeCompareGreaterThan(node-&gt;tokensrc, snippet, 512);</span>
+<span class="lineNum">    3694 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           } else if(comparisonToken == MS_TOKEN_COMPARISON_LT || comparisonToken == MS_TOKEN_COMPARISON_LE) {</span>
+<span class="lineNum">    3695 </span>                :<span class="lineCov">          1 :             createPostgresTimeCompareLessThan(node-&gt;tokensrc, snippet, 512);</span>
+<span class="lineNum">    3696 </span>                :            :           } else {
+<span class="lineNum">    3697 </span>                :            :             goto cleanup;
+<span class="lineNum">    3698 </span>                :            :           }
+<span class="lineNum">    3699 </span>                :            : 
+<span class="lineNum">    3700 </span>                :            :           comparisonToken = -1; bindingToken = -1; /* reset */
+<span class="lineNum">    3701 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, snippet);</span>
+<span class="lineNum">    3702 </span>                :<span class="lineCov">          1 :           msFree(snippet);</span>
+<span class="lineNum">    3703 </span>                :<span class="lineCov">          1 :           break;</span>
+<span class="lineNum">    3704 </span>                :            :     }
+<span class="lineNum">    3705 </span>                :            :         case MS_TOKEN_LITERAL_SHAPE:
+<span class="lineNum">    3706 </span>                :            :         {
+<span class="lineNum">    3707 </span>                :<span class="lineCov">          1 :           char* wkt = msShapeToWKT(node-&gt;tokenval.shpval);</span>
+<span class="lineNum">    3708 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, &quot;ST_GeomFromText('&quot;);</span>
+<span class="lineNum">    3709 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, wkt);</span>
+<span class="lineNum">    3710 </span>                :<span class="lineCov">          1 :           msFree(wkt);</span>
+<span class="lineNum">    3711 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, &quot;'&quot;);</span>
+<span class="lineNum">    3712 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :           if(layerinfo-&gt;srid &amp;&amp; strcmp(layerinfo-&gt;srid, &quot;&quot;) != 0) {</span>
+<span class="lineNum">    3713 </span>                :<span class="lineCov">          1 :             native_string = msStringConcatenate(native_string, &quot;,&quot;);</span>
+<span class="lineNum">    3714 </span>                :<span class="lineCov">          1 :             native_string = msStringConcatenate(native_string, layerinfo-&gt;srid);</span>
+<span class="lineNum">    3715 </span>                :            :           }
+<span class="lineNum">    3716 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, &quot;)&quot;);</span>
+<span class="lineNum">    3717 </span>                :<span class="lineCov">          1 :           break;</span>
+<span class="lineNum">    3718 </span>                :            :         }
+<span class="lineNum">    3719 </span>                :            : 
+<span class="lineNum">    3720 </span>                :            :   /* data binding tokens */
+<span class="lineNum">    3721 </span>                :            :         case MS_TOKEN_BINDING_TIME:
+<span class="lineNum">    3722 </span>                :            :         case MS_TOKEN_BINDING_DOUBLE:
+<span class="lineNum">    3723 </span>                :            :         case MS_TOKEN_BINDING_INTEGER:
+<span class="lineNum">    3724 </span>                :            :         case MS_TOKEN_BINDING_STRING:
+<span class="lineNum">    3725 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :           if(node-&gt;token == MS_TOKEN_BINDING_STRING || node-&gt;next-&gt;token == MS_TOKEN_COMPARISON_RE || node-&gt;next-&gt;token == MS_TOKEN_COMPARISON_IRE)</span>
 <span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
-<span class="lineNum">    3729 </span>                :            :             strtmpl = &quot;%s::text&quot;; /* explicit cast necessary for certain operators */
-<span class="lineNum">    3730 </span>                :            :           else
-<span class="lineNum">    3731 </span>                :            :             strtmpl = &quot;%s&quot;;
-<span class="lineNum">    3732 </span>                :<span class="lineCov">          1 :           stresc = msLayerEscapePropertyName(layer, node-&gt;tokenval.bindval.item);</span>
-<span class="lineNum">    3733 </span>                :<span class="lineCov">          1 :           snippet = (char *) msSmallMalloc(strlen(strtmpl) + strlen(stresc));</span>
-<span class="lineNum">    3734 </span>                :<span class="lineCov">          1 :           sprintf(snippet, strtmpl, stresc);</span>
-<span class="lineNum">    3735 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, snippet);</span>
-<span class="lineNum">    3736 </span>                :<span class="lineCov">          1 :           msFree(snippet);</span>
-<span class="lineNum">    3737 </span>                :<span class="lineCov">          1 :           msFree(stresc);       </span>
+<span class="lineNum">    3726 </span>                :            :             strtmpl = &quot;%s::text&quot;; /* explicit cast necessary for certain operators */
+<span class="lineNum">    3727 </span>                :            :           else
+<span class="lineNum">    3728 </span>                :            :             strtmpl = &quot;%s&quot;;
+<span class="lineNum">    3729 </span>                :<span class="lineCov">          1 :           stresc = msLayerEscapePropertyName(layer, node-&gt;tokenval.bindval.item);</span>
+<span class="lineNum">    3730 </span>                :<span class="lineCov">          1 :           snippet = (char *) msSmallMalloc(strlen(strtmpl) + strlen(stresc));</span>
+<span class="lineNum">    3731 </span>                :<span class="lineCov">          1 :           sprintf(snippet, strtmpl, stresc);</span>
+<span class="lineNum">    3732 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, snippet);</span>
+<span class="lineNum">    3733 </span>                :<span class="lineCov">          1 :           msFree(snippet);</span>
+<span class="lineNum">    3734 </span>                :<span class="lineCov">          1 :           msFree(stresc);       </span>
+<span class="lineNum">    3735 </span>                :<span class="lineCov">          1 :           break;</span>
+<span class="lineNum">    3736 </span>                :            :         case MS_TOKEN_BINDING_SHAPE:
+<span class="lineNum">    3737 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, layerinfo-&gt;geomcolumn);</span>
 <span class="lineNum">    3738 </span>                :<span class="lineCov">          1 :           break;</span>
-<span class="lineNum">    3739 </span>                :            :         case MS_TOKEN_BINDING_SHAPE:
-<span class="lineNum">    3740 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, layerinfo-&gt;geomcolumn);</span>
-<span class="lineNum">    3741 </span>                :<span class="lineCov">          1 :           break;</span>
-<span class="lineNum">    3742 </span>                :            :         case MS_TOKEN_BINDING_MAP_CELLSIZE:
-<span class="lineNum">    3743 </span>                :            :           strtmpl = &quot;%lf&quot;;
-<span class="lineNum">    3744 </span>                :<span class="lineNoCov">          0 :           snippet = (char *) msSmallMalloc(strlen(strtmpl) + 16);</span>
-<span class="lineNum">    3745 </span>                :<span class="lineNoCov">          0 :           sprintf(snippet, strtmpl, layer-&gt;map-&gt;cellsize);</span>
-<span class="lineNum">    3746 </span>                :<span class="lineNoCov">          0 :           native_string = msStringConcatenate(native_string, snippet);</span>
-<span class="lineNum">    3747 </span>                :<span class="lineNoCov">          0 :           msFree(snippet);</span>
-<span class="lineNum">    3748 </span>                :<span class="lineNoCov">          0 :     break;</span>
-<span class="lineNum">    3749 </span>                :            : 
-<span class="lineNum">    3750 </span>                :            :   /* spatial comparison tokens */
-<span class="lineNum">    3751 </span>                :            :         case MS_TOKEN_COMPARISON_INTERSECTS:
-<span class="lineNum">    3752 </span>                :            :         case MS_TOKEN_COMPARISON_DISJOINT:
-<span class="lineNum">    3753 </span>                :            :         case MS_TOKEN_COMPARISON_TOUCHES:
-<span class="lineNum">    3754 </span>                :            :         case MS_TOKEN_COMPARISON_OVERLAPS:
-<span class="lineNum">    3755 </span>                :            :         case MS_TOKEN_COMPARISON_CROSSES:
-<span class="lineNum">    3756 </span>                :            :         case MS_TOKEN_COMPARISON_WITHIN:
-<span class="lineNum">    3757 </span>                :            :         case MS_TOKEN_COMPARISON_CONTAINS:
-<span class="lineNum">    3758 </span>                :            :         case MS_TOKEN_COMPARISON_EQUALS:
-<span class="lineNum">    3759 </span>                :            :         case MS_TOKEN_COMPARISON_DWITHIN:
-<span class="lineNum">    3760 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           if(node-&gt;next-&gt;token != '(') goto cleanup;</span>
-<span class="lineNum">    3761 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, &quot;st_&quot;);</span>
-<span class="lineNum">    3762 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, msExpressionTokenToString(node-&gt;token));</span>
-<span class="lineNum">    3763 </span>                :<span class="lineCov">          1 :           break;</span>
-<span class="lineNum">    3764 </span>                :            : 
-<span class="lineNum">    3765 </span>                :            :   /* functions */
-<span class="lineNum">    3766 </span>                :            :         case MS_TOKEN_FUNCTION_LENGTH:
-<span class="lineNum">    3767 </span>                :            :         case MS_TOKEN_FUNCTION_AREA:
-<span class="lineNum">    3768 </span>                :            :         case MS_TOKEN_FUNCTION_BUFFER:
-<span class="lineNum">    3769 </span>                :            :         case MS_TOKEN_FUNCTION_DIFFERENCE:
-<span class="lineNum">    3770 </span>                :<span class="lineNoCov">          0 :           native_string = msStringConcatenate(native_string, &quot;st_&quot;);</span>
-<span class="lineNum">    3771 </span>                :<span class="lineNoCov">          0 :           native_string = msStringConcatenate(native_string, msExpressionTokenToString(node-&gt;token));</span>
-<span class="lineNum">    3772 </span>                :<span class="lineNoCov">          0 :           break;</span>
-<span class="lineNum">    3773 </span>                :            : 
-<span class="lineNum">    3774 </span>                :            :   /* unsupported tokens */ 
-<span class="lineNum">    3775 </span>                :            :   case MS_TOKEN_COMPARISON_IEQ:
-<span class="lineNum">    3776 </span>                :            :         case MS_TOKEN_COMPARISON_BEYOND:
-<span class="lineNum">    3777 </span>                :            :   case MS_TOKEN_FUNCTION_TOSTRING:
-<span class="lineNum">    3778 </span>                :            :   case MS_TOKEN_FUNCTION_ROUND:
-<span class="lineNum">    3779 </span>                :            :   case MS_TOKEN_FUNCTION_SIMPLIFY:
-<span class="lineNum">    3780 </span>                :            :         case MS_TOKEN_FUNCTION_SIMPLIFYPT:        
-<span class="lineNum">    3781 </span>                :            :         case MS_TOKEN_FUNCTION_GENERALIZE:
-<span class="lineNum">    3782 </span>                :            :           goto cleanup;
-<span class="lineNum">    3783 </span>                :            :           break;
+<span class="lineNum">    3739 </span>                :            :         case MS_TOKEN_BINDING_MAP_CELLSIZE:
+<span class="lineNum">    3740 </span>                :            :           strtmpl = &quot;%lf&quot;;
+<span class="lineNum">    3741 </span>                :<span class="lineNoCov">          0 :           snippet = (char *) msSmallMalloc(strlen(strtmpl) + 16);</span>
+<span class="lineNum">    3742 </span>                :<span class="lineNoCov">          0 :           sprintf(snippet, strtmpl, layer-&gt;map-&gt;cellsize);</span>
+<span class="lineNum">    3743 </span>                :<span class="lineNoCov">          0 :           native_string = msStringConcatenate(native_string, snippet);</span>
+<span class="lineNum">    3744 </span>                :<span class="lineNoCov">          0 :           msFree(snippet);</span>
+<span class="lineNum">    3745 </span>                :<span class="lineNoCov">          0 :     break;</span>
+<span class="lineNum">    3746 </span>                :            : 
+<span class="lineNum">    3747 </span>                :            :   /* spatial comparison tokens */
+<span class="lineNum">    3748 </span>                :            :         case MS_TOKEN_COMPARISON_INTERSECTS:
+<span class="lineNum">    3749 </span>                :            :         case MS_TOKEN_COMPARISON_DISJOINT:
+<span class="lineNum">    3750 </span>                :            :         case MS_TOKEN_COMPARISON_TOUCHES:
+<span class="lineNum">    3751 </span>                :            :         case MS_TOKEN_COMPARISON_OVERLAPS:
+<span class="lineNum">    3752 </span>                :            :         case MS_TOKEN_COMPARISON_CROSSES:
+<span class="lineNum">    3753 </span>                :            :         case MS_TOKEN_COMPARISON_WITHIN:
+<span class="lineNum">    3754 </span>                :            :         case MS_TOKEN_COMPARISON_CONTAINS:
+<span class="lineNum">    3755 </span>                :            :         case MS_TOKEN_COMPARISON_EQUALS:
+<span class="lineNum">    3756 </span>                :            :         case MS_TOKEN_COMPARISON_DWITHIN:
+<span class="lineNum">    3757 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           if(node-&gt;next-&gt;token != '(') goto cleanup;</span>
+<span class="lineNum">    3758 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, &quot;st_&quot;);</span>
+<span class="lineNum">    3759 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, msExpressionTokenToString(node-&gt;token));</span>
+<span class="lineNum">    3760 </span>                :<span class="lineCov">          1 :           break;</span>
+<span class="lineNum">    3761 </span>                :            : 
+<span class="lineNum">    3762 </span>                :            :   /* functions */
+<span class="lineNum">    3763 </span>                :            :         case MS_TOKEN_FUNCTION_LENGTH:
+<span class="lineNum">    3764 </span>                :            :         case MS_TOKEN_FUNCTION_AREA:
+<span class="lineNum">    3765 </span>                :            :         case MS_TOKEN_FUNCTION_BUFFER:
+<span class="lineNum">    3766 </span>                :            :         case MS_TOKEN_FUNCTION_DIFFERENCE:
+<span class="lineNum">    3767 </span>                :<span class="lineNoCov">          0 :           native_string = msStringConcatenate(native_string, &quot;st_&quot;);</span>
+<span class="lineNum">    3768 </span>                :<span class="lineNoCov">          0 :           native_string = msStringConcatenate(native_string, msExpressionTokenToString(node-&gt;token));</span>
+<span class="lineNum">    3769 </span>                :<span class="lineNoCov">          0 :           break;</span>
+<span class="lineNum">    3770 </span>                :            : 
+<span class="lineNum">    3771 </span>                :            :   /* unsupported tokens */ 
+<span class="lineNum">    3772 </span>                :            :   case MS_TOKEN_COMPARISON_IEQ:
+<span class="lineNum">    3773 </span>                :            :         case MS_TOKEN_COMPARISON_BEYOND:
+<span class="lineNum">    3774 </span>                :            :   case MS_TOKEN_FUNCTION_TOSTRING:
+<span class="lineNum">    3775 </span>                :            :   case MS_TOKEN_FUNCTION_ROUND:
+<span class="lineNum">    3776 </span>                :            :   case MS_TOKEN_FUNCTION_SIMPLIFY:
+<span class="lineNum">    3777 </span>                :            :         case MS_TOKEN_FUNCTION_SIMPLIFYPT:        
+<span class="lineNum">    3778 </span>                :            :         case MS_TOKEN_FUNCTION_GENERALIZE:
+<span class="lineNum">    3779 </span>                :            :           goto cleanup;
+<span class="lineNum">    3780 </span>                :            :           break;
+<span class="lineNum">    3781 </span>                :            : 
+<span class="lineNum">    3782 </span>                :            :         default:
+<span class="lineNum">    3783 </span>                :            :           /* by default accept the general token to string conversion */
 <span class="lineNum">    3784 </span>                :            : 
-<span class="lineNum">    3785 </span>                :            :         default:
-<span class="lineNum">    3786 </span>                :            :           /* by default accept the general token to string conversion */
-<span class="lineNum">    3787 </span>                :            : 
-<span class="lineNum">    3788 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :           if(bindingToken == MS_TOKEN_BINDING_TIME &amp;&amp; (node-&gt;token == MS_TOKEN_COMPARISON_EQ || node-&gt;token == MS_TOKEN_COMPARISON_NE)) break; /* skip, handled elsewhere */</span>
-<span class="lineNum">    3789 </span>                :            : 
-<span class="lineNum">    3790 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, msExpressionTokenToString(node-&gt;token));</span>
-<span class="lineNum">    3791 </span>                :<span class="lineCov">          1 :           break;</span>
-<span class="lineNum">    3792 </span>                :            :         }
-<span class="lineNum">    3793 </span>                :            : 
-<span class="lineNum">    3794 </span>                :<span class="lineCov">          1 :       node = node-&gt;next;</span>
-<span class="lineNum">    3795 </span>                :            :     }
-<span class="lineNum">    3796 </span>                :            :   }
+<span class="lineNum">    3785 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :           if(bindingToken == MS_TOKEN_BINDING_TIME &amp;&amp; (node-&gt;token == MS_TOKEN_COMPARISON_EQ || node-&gt;token == MS_TOKEN_COMPARISON_NE)) break; /* skip, handled elsewhere */</span>
+<span class="lineNum">    3786 </span>                :            : 
+<span class="lineNum">    3787 </span>                :<span class="lineCov">          1 :           native_string = msStringConcatenate(native_string, msExpressionTokenToString(node-&gt;token));</span>
+<span class="lineNum">    3788 </span>                :<span class="lineCov">          1 :           break;</span>
+<span class="lineNum">    3789 </span>                :            :         }
+<span class="lineNum">    3790 </span>                :            : 
+<span class="lineNum">    3791 </span>                :<span class="lineCov">          1 :       node = node-&gt;next;</span>
+<span class="lineNum">    3792 </span>                :            :     }
+<span class="lineNum">    3793 </span>                :            :   }
+<span class="lineNum">    3794 </span>                :            : 
+<span class="lineNum">    3795 </span>                :<span class="lineCov">          1 :   filter-&gt;native_string = msStrdup(native_string);    </span>
+<span class="lineNum">    3796 </span>                :<span class="lineCov">          1 :   msFree(native_string);</span>
 <span class="lineNum">    3797 </span>                :            : 
-<span class="lineNum">    3798 </span>                :<span class="lineCov">          1 :   filter-&gt;native_string = msStrdup(native_string);    </span>
-<span class="lineNum">    3799 </span>                :<span class="lineCov">          1 :   msFree(native_string);</span>
-<span class="lineNum">    3800 </span>                :            : 
-<span class="lineNum">    3801 </span>                :            :   // fprintf(stderr, &quot;output: %s\n&quot;, filter-&gt;native_string); 
-<span class="lineNum">    3802 </span>                :            : 
-<span class="lineNum">    3803 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    3804 </span>                :            : 
-<span class="lineNum">    3805 </span>                :            : cleanup:
-<span class="lineNum">    3806 </span>                :<span class="lineCov">          1 :   msSetError(MS_MISCERR, &quot;Translation to native SQL failed.&quot;, &quot;msPostGISLayerTranslateFilter()&quot;);</span>
-<span class="lineNum">    3807 </span>                :<span class="lineCov">          1 :   msFree(native_string);</span>
-<span class="lineNum">    3808 </span>                :<span class="lineCov">          1 :   return MS_FAILURE;</span>
-<span class="lineNum">    3809 </span>                :            : #else
-<span class="lineNum">    3810 </span>                :            :   msSetError(MS_MISCERR, &quot;PostGIS support is not available.&quot;, &quot;msPostGISLayerTranslateFilter()&quot;);
-<span class="lineNum">    3811 </span>                :            :   return MS_FAILURE;
-<span class="lineNum">    3812 </span>                :            : #endif
-<a name="3813"><span class="lineNum">    3813 </span>                :            : }</a>
-<span class="lineNum">    3814 </span>                :            : 
-<span class="lineNum">    3815 </span>                :<span class="lineCov">          1 : int msPostGISLayerInitializeVirtualTable(layerObj *layer)</span>
-<span class="lineNum">    3816 </span>                :            : {
-<span class="lineNum">    3817 </span>                :            :   assert(layer != NULL);
-<span class="lineNum">    3818 </span>                :            :   assert(layer-&gt;vtable != NULL);
-<span class="lineNum">    3819 </span>                :            : 
-<span class="lineNum">    3820 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerTranslateFilter = msPostGISLayerTranslateFilter;</span>
-<span class="lineNum">    3821 </span>                :            : 
-<span class="lineNum">    3822 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msPostGISLayerInitItemInfo;</span>
-<span class="lineNum">    3823 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msPostGISLayerFreeItemInfo;</span>
-<span class="lineNum">    3824 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerOpen = msPostGISLayerOpen;</span>
-<span class="lineNum">    3825 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerIsOpen = msPostGISLayerIsOpen;</span>
-<span class="lineNum">    3826 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msPostGISLayerWhichShapes;</span>
-<span class="lineNum">    3827 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msPostGISLayerNextShape;</span>
-<span class="lineNum">    3828 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msPostGISLayerGetShape;</span>
-<span class="lineNum">    3829 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msPostGISLayerClose;</span>
-<span class="lineNum">    3830 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetItems = msPostGISLayerGetItems;</span>
-<span class="lineNum">    3831 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetExtent = msPostGISLayerGetExtent;</span>
-<span class="lineNum">    3832 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerApplyFilterToLayer = msLayerApplyCondSQLFilterToLayer;</span>
-<span class="lineNum">    3833 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, not supported for this layer */
-<span class="lineNum">    3834 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCloseConnection = msPostGISLayerClose; */
-<span class="lineNum">    3835 </span>                :            :   // layer-&gt;vtable-&gt;LayerSetTimeFilter = msPostGISLayerSetTimeFilter;
-<span class="lineNum">    3836 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msLayerMakeBackticsTimeFilter;</span>
-<span class="lineNum">    3837 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
-<span class="lineNum">    3838 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
-<span class="lineNum">    3839 </span>                :            : 
-<span class="lineNum">    3840 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoProjection, use defaut*/
-<span class="lineNum">    3841 </span>                :            : 
-<span class="lineNum">    3842 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerEscapeSQLParam = msPostGISEscapeSQLParam;</span>
-<span class="lineNum">    3843 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerEnablePaging = msPostGISEnablePaging;</span>
-<span class="lineNum">    3844 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetPaging = msPostGISGetPaging;</span>
-<span class="lineNum">    3845 </span>                :            : 
-<span class="lineNum">    3846 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    3847 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">    3798 </span>                :            :   // fprintf(stderr, &quot;output: %s\n&quot;, filter-&gt;native_string); 
+<span class="lineNum">    3799 </span>                :            : 
+<span class="lineNum">    3800 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    3801 </span>                :            : 
+<span class="lineNum">    3802 </span>                :            : cleanup:
+<span class="lineNum">    3803 </span>                :<span class="lineCov">          1 :   msSetError(MS_MISCERR, &quot;Translation to native SQL failed.&quot;, &quot;msPostGISLayerTranslateFilter()&quot;);</span>
+<span class="lineNum">    3804 </span>                :<span class="lineCov">          1 :   msFree(native_string);</span>
+<span class="lineNum">    3805 </span>                :<span class="lineCov">          1 :   return MS_FAILURE;</span>
+<span class="lineNum">    3806 </span>                :            : #else
+<span class="lineNum">    3807 </span>                :            :   msSetError(MS_MISCERR, &quot;PostGIS support is not available.&quot;, &quot;msPostGISLayerTranslateFilter()&quot;);
+<span class="lineNum">    3808 </span>                :            :   return MS_FAILURE;
+<span class="lineNum">    3809 </span>                :            : #endif
+<a name="3810"><span class="lineNum">    3810 </span>                :            : }</a>
+<span class="lineNum">    3811 </span>                :            : 
+<span class="lineNum">    3812 </span>                :<span class="lineCov">          1 : int msPostGISLayerInitializeVirtualTable(layerObj *layer)</span>
+<span class="lineNum">    3813 </span>                :            : {
+<span class="lineNum">    3814 </span>                :            :   assert(layer != NULL);
+<span class="lineNum">    3815 </span>                :            :   assert(layer-&gt;vtable != NULL);
+<span class="lineNum">    3816 </span>                :            : 
+<span class="lineNum">    3817 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerTranslateFilter = msPostGISLayerTranslateFilter;</span>
+<span class="lineNum">    3818 </span>                :            : 
+<span class="lineNum">    3819 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msPostGISLayerInitItemInfo;</span>
+<span class="lineNum">    3820 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msPostGISLayerFreeItemInfo;</span>
+<span class="lineNum">    3821 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerOpen = msPostGISLayerOpen;</span>
+<span class="lineNum">    3822 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerIsOpen = msPostGISLayerIsOpen;</span>
+<span class="lineNum">    3823 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msPostGISLayerWhichShapes;</span>
+<span class="lineNum">    3824 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msPostGISLayerNextShape;</span>
+<span class="lineNum">    3825 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msPostGISLayerGetShape;</span>
+<span class="lineNum">    3826 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msPostGISLayerClose;</span>
+<span class="lineNum">    3827 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetItems = msPostGISLayerGetItems;</span>
+<span class="lineNum">    3828 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetExtent = msPostGISLayerGetExtent;</span>
+<span class="lineNum">    3829 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerApplyFilterToLayer = msLayerApplyCondSQLFilterToLayer;</span>
+<span class="lineNum">    3830 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, not supported for this layer */
+<span class="lineNum">    3831 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCloseConnection = msPostGISLayerClose; */
+<span class="lineNum">    3832 </span>                :            :   // layer-&gt;vtable-&gt;LayerSetTimeFilter = msPostGISLayerSetTimeFilter;
+<span class="lineNum">    3833 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msLayerMakeBackticsTimeFilter;</span>
+<span class="lineNum">    3834 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
+<span class="lineNum">    3835 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
+<span class="lineNum">    3836 </span>                :            : 
+<span class="lineNum">    3837 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoProjection, use defaut*/
+<span class="lineNum">    3838 </span>                :            : 
+<span class="lineNum">    3839 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerEscapeSQLParam = msPostGISEscapeSQLParam;</span>
+<span class="lineNum">    3840 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerEnablePaging = msPostGISEnablePaging;</span>
+<span class="lineNum">    3841 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetPaging = msPostGISGetPaging;</span>
+<span class="lineNum">    3842 </span>                :            : 
+<span class="lineNum">    3843 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    3844 </span>                :<span class="lineCov">          1 : }</span>
 </pre>
       </td>
     </tr>
