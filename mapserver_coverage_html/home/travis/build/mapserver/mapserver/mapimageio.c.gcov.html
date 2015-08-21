@@ -1137,57 +1137,49 @@
 <span class="lineNum">    1058 </span>                :            : 
 <span class="lineNum">    1059 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   } while (recordType != TERMINATE_RECORD_TYPE);</span>
 <span class="lineNum">    1060 </span>                :            : 
-<span class="lineNum">    1061 </span>                :            : 
-<span class="lineNum">    1062 </span>                :            : #if defined GIFLIB_MAJOR &amp;&amp; GIFLIB_MINOR &amp;&amp; ((GIFLIB_MAJOR == 5 &amp;&amp; GIFLIB_MINOR &gt;= 1) || (GIFLIB_MAJOR &gt; 5))
-<span class="lineNum">    1063 </span>                :            :   if (DGifCloseFile(image, &amp;errcode) == GIF_ERROR) {
-<span class="lineNum">    1064 </span>                :            :     msSetError(MS_MISCERR,&quot;failed to close gif after loading: %s&quot;,&quot;readGIF()&quot;, gif_error_msg(errcode));
-<span class="lineNum">    1065 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">    1066 </span>                :            :   }
-<span class="lineNum">    1067 </span>                :            : #else
-<span class="lineNum">    1068 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (DGifCloseFile(image) == GIF_ERROR) {</span>
-<span class="lineNum">    1069 </span>                :            : #if defined GIFLIB_MAJOR &amp;&amp; GIFLIB_MAJOR &gt;= 5
-<span class="lineNum">    1070 </span>                :            :     msSetError(MS_MISCERR,&quot;failed to close gif after loading: %s&quot;,&quot;readGIF()&quot;, gif_error_msg(image-&gt;Error));
-<span class="lineNum">    1071 </span>                :            : #else
-<span class="lineNum">    1072 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR,&quot;failed to close gif after loading: %s&quot;,&quot;readGIF()&quot;, gif_error_msg());</span>
-<span class="lineNum">    1073 </span>                :            : #endif
-<span class="lineNum">    1074 </span>                :<span class="lineCov">          1 :     return MS_FAILURE;</span>
-<span class="lineNum">    1075 </span>                :            :   }
-<span class="lineNum">    1076 </span>                :            : #endif
-<span class="lineNum">    1077 </span>                :            : 
-<span class="lineNum">    1078 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">    1079 </span>                :            : }
-<a name="1080"><span class="lineNum">    1080 </span>                :            : #endif</a>
-<span class="lineNum">    1081 </span>                :            : 
-<span class="lineNum">    1082 </span>                :<span class="lineCov">          1 : int msLoadMSRasterBufferFromFile(char *path, rasterBufferObj *rb)</span>
-<span class="lineNum">    1083 </span>                :            : {
-<span class="lineNum">    1084 </span>                :            :   FILE *stream;
-<span class="lineNum">    1085 </span>                :            :   unsigned char signature[8];
-<span class="lineNum">    1086 </span>                :            :   int ret = MS_FAILURE;
-<span class="lineNum">    1087 </span>                :<span class="lineCov">          1 :   stream = fopen(path,&quot;rb&quot;);</span>
-<span class="lineNum">    1088 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!stream) {</span>
-<span class="lineNum">    1089 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;unable to open file %s for reading&quot;, &quot;msLoadMSRasterBufferFromFile()&quot;, path);</span>
-<span class="lineNum">    1090 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1091 </span>                :            :   }
-<span class="lineNum">    1092 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(1 != fread(signature,8,1,stream)) {</span>
-<span class="lineNum">    1093 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Unable to read header from image file %s&quot;, &quot;msLoadMSRasterBufferFromFile()&quot;,path);</span>
-<span class="lineNum">    1094 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1095 </span>                :            :   }
-<span class="lineNum">    1096 </span>                :<span class="lineCov">          1 :   fclose(stream);</span>
-<span class="lineNum">    1097 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(png_sig_cmp(signature,0,8) == 0) {</span>
-<span class="lineNum">    1098 </span>                :<span class="lineCov">          1 :     ret = readPNG(path,rb);</span>
-<span class="lineNum">    1099 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   } else if (!strncmp((char*)signature,&quot;GIF&quot;,3)) {</span>
-<span class="lineNum">    1100 </span>                :            : #ifdef USE_GIF
-<span class="lineNum">    1101 </span>                :<span class="lineCov">          1 :     ret = readGIF(path,rb);</span>
-<span class="lineNum">    1102 </span>                :            : #else
-<span class="lineNum">    1103 </span>                :            :     msSetError(MS_MISCERR,&quot;pixmap %s seems to be GIF formatted, but this server is compiled without GIF support&quot;,&quot;readImage()&quot;,path);
-<span class="lineNum">    1104 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">    1105 </span>                :            : #endif
-<span class="lineNum">    1106 </span>                :            :   } else {
-<span class="lineNum">    1107 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR,&quot;unsupported pixmap format&quot;,&quot;readImage()&quot;);</span>
-<span class="lineNum">    1108 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1109 </span>                :            :   }
-<span class="lineNum">    1110 </span>                :<span class="lineCov">          1 :   return ret;</span>
-<span class="lineNum">    1111 </span>                :            : }
+<span class="lineNum">    1061 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (DGifCloseFile(image) == GIF_ERROR) {</span>
+<span class="lineNum">    1062 </span>                :            : #if defined GIFLIB_MAJOR &amp;&amp; GIFLIB_MAJOR &gt;= 5
+<span class="lineNum">    1063 </span>                :            :     msSetError(MS_MISCERR,&quot;failed to close gif after loading: %s&quot;,&quot;readGIF()&quot;, gif_error_msg(image-&gt;Error));
+<span class="lineNum">    1064 </span>                :            : #else
+<span class="lineNum">    1065 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR,&quot;failed to close gif after loading: %s&quot;,&quot;readGIF()&quot;, gif_error_msg());</span>
+<span class="lineNum">    1066 </span>                :            : #endif
+<span class="lineNum">    1067 </span>                :<span class="lineCov">          1 :     return MS_FAILURE;</span>
+<span class="lineNum">    1068 </span>                :            :   }
+<span class="lineNum">    1069 </span>                :            : 
+<span class="lineNum">    1070 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">    1071 </span>                :            : }
+<a name="1072"><span class="lineNum">    1072 </span>                :            : #endif</a>
+<span class="lineNum">    1073 </span>                :            : 
+<span class="lineNum">    1074 </span>                :<span class="lineCov">          1 : int msLoadMSRasterBufferFromFile(char *path, rasterBufferObj *rb)</span>
+<span class="lineNum">    1075 </span>                :            : {
+<span class="lineNum">    1076 </span>                :            :   FILE *stream;
+<span class="lineNum">    1077 </span>                :            :   unsigned char signature[8];
+<span class="lineNum">    1078 </span>                :            :   int ret = MS_FAILURE;
+<span class="lineNum">    1079 </span>                :<span class="lineCov">          1 :   stream = fopen(path,&quot;rb&quot;);</span>
+<span class="lineNum">    1080 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!stream) {</span>
+<span class="lineNum">    1081 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;unable to open file %s for reading&quot;, &quot;msLoadMSRasterBufferFromFile()&quot;, path);</span>
+<span class="lineNum">    1082 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1083 </span>                :            :   }
+<span class="lineNum">    1084 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(1 != fread(signature,8,1,stream)) {</span>
+<span class="lineNum">    1085 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Unable to read header from image file %s&quot;, &quot;msLoadMSRasterBufferFromFile()&quot;,path);</span>
+<span class="lineNum">    1086 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1087 </span>                :            :   }
+<span class="lineNum">    1088 </span>                :<span class="lineCov">          1 :   fclose(stream);</span>
+<span class="lineNum">    1089 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(png_sig_cmp(signature,0,8) == 0) {</span>
+<span class="lineNum">    1090 </span>                :<span class="lineCov">          1 :     ret = readPNG(path,rb);</span>
+<span class="lineNum">    1091 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   } else if (!strncmp((char*)signature,&quot;GIF&quot;,3)) {</span>
+<span class="lineNum">    1092 </span>                :            : #ifdef USE_GIF
+<span class="lineNum">    1093 </span>                :<span class="lineCov">          1 :     ret = readGIF(path,rb);</span>
+<span class="lineNum">    1094 </span>                :            : #else
+<span class="lineNum">    1095 </span>                :            :     msSetError(MS_MISCERR,&quot;pixmap %s seems to be GIF formatted, but this server is compiled without GIF support&quot;,&quot;readImage()&quot;,path);
+<span class="lineNum">    1096 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">    1097 </span>                :            : #endif
+<span class="lineNum">    1098 </span>                :            :   } else {
+<span class="lineNum">    1099 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR,&quot;unsupported pixmap format&quot;,&quot;readImage()&quot;);</span>
+<span class="lineNum">    1100 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1101 </span>                :            :   }
+<span class="lineNum">    1102 </span>                :<span class="lineCov">          1 :   return ret;</span>
+<span class="lineNum">    1103 </span>                :            : }
 </pre>
       </td>
     </tr>
