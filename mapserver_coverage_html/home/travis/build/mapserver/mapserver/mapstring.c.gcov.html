@@ -2275,50 +2275,50 @@
 <span class="lineNum">    2198 </span>                :            :   char *outp, *out = NULL;
 <span class="lineNum">    2199 </span>                :            :   size_t len, bufsize, bufleft, iconv_status;
 <span class="lineNum">    2200 </span>                :            :   int i;
-<span class="lineNum">    2201 </span>                :            : #endif
-<span class="lineNum">    2202 </span>                :            : 
-<span class="lineNum">    2203 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if( !layer-&gt;encoding || !*layer-&gt;encoding || !strcasecmp(layer-&gt;encoding, &quot;UTF-8&quot;))</span>
+<span class="lineNum">    2201 </span>                :            : 
+<span class="lineNum">    2202 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if( !layer-&gt;encoding || !*layer-&gt;encoding || !strcasecmp(layer-&gt;encoding, &quot;UTF-8&quot;))</span>
 <span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
-<span class="lineNum">    2204 </span>                :            :     return MS_SUCCESS;
-<span class="lineNum">    2205 </span>                :            : 
-<span class="lineNum">    2206 </span>                :            : #ifdef USE_ICONV
-<span class="lineNum">    2207 </span>                :<span class="lineCov">          1 :   cd = iconv_open(&quot;UTF-8&quot;, layer-&gt;encoding);</span>
-<span class="lineNum">    2208 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(cd == (iconv_t)-1) {</span>
-<span class="lineNum">    2209 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_IDENTERR, &quot;Encoding not supported by libiconv (%s).&quot;,</span>
-<span class="lineNum">    2210 </span>                :            :                &quot;msGetEncodedString()&quot;, layer-&gt;encoding);
-<span class="lineNum">    2211 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    2212 </span>                :            :   }
-<span class="lineNum">    2213 </span>                :            : 
-<span class="lineNum">    2214 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0;i &lt;shape-&gt;numvalues; i++) {</span>
-<span class="lineNum">    2215 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(!shape-&gt;values[i] || (len = strlen(shape-&gt;values[i]))==0) {</span>
-<span class="lineNum">    2216 </span>                :<span class="lineNoCov">          0 :       continue;    /* Nothing to do */</span>
-<span class="lineNum">    2217 </span>                :            :     }
-<span class="lineNum">    2218 </span>                :            : 
-<span class="lineNum">    2219 </span>                :<span class="lineCov">          1 :     bufsize = len * 6 + 1; /* Each UTF-8 char can be up to 6 bytes */</span>
-<span class="lineNum">    2220 </span>                :<span class="lineCov">          1 :     inp = shape-&gt;values[i];</span>
-<span class="lineNum">    2221 </span>                :<span class="lineCov">          1 :     out = (char*) msSmallMalloc(bufsize);</span>
-<span class="lineNum">    2222 </span>                :            : 
-<span class="lineNum">    2223 </span>                :<span class="lineCov">          1 :     strlcpy(out, shape-&gt;values[i], bufsize);</span>
-<span class="lineNum">    2224 </span>                :<span class="lineCov">          1 :     outp = out;</span>
-<span class="lineNum">    2225 </span>                :            : 
-<span class="lineNum">    2226 </span>                :<span class="lineCov">          1 :     bufleft = bufsize;</span>
-<span class="lineNum">    2227 </span>                :            :     iconv_status = -1;
-<span class="lineNum">    2228 </span>                :            : 
-<span class="lineNum">    2229 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     while (len &gt; 0) {</span>
-<span class="lineNum">    2230 </span>                :<span class="lineCov">          1 :       iconv_status = iconv(cd, (char**)&amp;inp, &amp;len, &amp;outp, &amp;bufleft);</span>
-<span class="lineNum">    2231 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(iconv_status == -1) {</span>
-<span class="lineNum">    2232 </span>                :<span class="lineNoCov">          0 :         msFree(out);</span>
-<span class="lineNum">    2233 </span>                :<span class="lineCov">          1 :         continue; /* silently ignore failed conversions */</span>
-<span class="lineNum">    2234 </span>                :            :       }
-<span class="lineNum">    2235 </span>                :            :     }
-<span class="lineNum">    2236 </span>                :<span class="lineCov">          1 :     out[bufsize - bufleft] = '\0';</span>
-<span class="lineNum">    2237 </span>                :<span class="lineCov">          1 :     msFree(shape-&gt;values[i]);</span>
-<span class="lineNum">    2238 </span>                :<span class="lineCov">          1 :     shape-&gt;values[i] = out;</span>
-<span class="lineNum">    2239 </span>                :            :   }
-<span class="lineNum">    2240 </span>                :<span class="lineCov">          1 :   iconv_close(cd);</span>
-<span class="lineNum">    2241 </span>                :            : 
-<span class="lineNum">    2242 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    2243 </span>                :            : #else
+<span class="lineNum">    2203 </span>                :            :     return MS_SUCCESS;
+<span class="lineNum">    2204 </span>                :            : 
+<span class="lineNum">    2205 </span>                :<span class="lineCov">          1 :   cd = iconv_open(&quot;UTF-8&quot;, layer-&gt;encoding);</span>
+<span class="lineNum">    2206 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(cd == (iconv_t)-1) {</span>
+<span class="lineNum">    2207 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_IDENTERR, &quot;Encoding not supported by libiconv (%s).&quot;,</span>
+<span class="lineNum">    2208 </span>                :            :                &quot;msGetEncodedString()&quot;, layer-&gt;encoding);
+<span class="lineNum">    2209 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    2210 </span>                :            :   }
+<span class="lineNum">    2211 </span>                :            : 
+<span class="lineNum">    2212 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0;i &lt;shape-&gt;numvalues; i++) {</span>
+<span class="lineNum">    2213 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(!shape-&gt;values[i] || (len = strlen(shape-&gt;values[i]))==0) {</span>
+<span class="lineNum">    2214 </span>                :<span class="lineNoCov">          0 :       continue;    /* Nothing to do */</span>
+<span class="lineNum">    2215 </span>                :            :     }
+<span class="lineNum">    2216 </span>                :            : 
+<span class="lineNum">    2217 </span>                :<span class="lineCov">          1 :     bufsize = len * 6 + 1; /* Each UTF-8 char can be up to 6 bytes */</span>
+<span class="lineNum">    2218 </span>                :<span class="lineCov">          1 :     inp = shape-&gt;values[i];</span>
+<span class="lineNum">    2219 </span>                :<span class="lineCov">          1 :     out = (char*) msSmallMalloc(bufsize);</span>
+<span class="lineNum">    2220 </span>                :            : 
+<span class="lineNum">    2221 </span>                :<span class="lineCov">          1 :     strlcpy(out, shape-&gt;values[i], bufsize);</span>
+<span class="lineNum">    2222 </span>                :<span class="lineCov">          1 :     outp = out;</span>
+<span class="lineNum">    2223 </span>                :            : 
+<span class="lineNum">    2224 </span>                :<span class="lineCov">          1 :     bufleft = bufsize;</span>
+<span class="lineNum">    2225 </span>                :            :     iconv_status = -1;
+<span class="lineNum">    2226 </span>                :            : 
+<span class="lineNum">    2227 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     while (len &gt; 0) {</span>
+<span class="lineNum">    2228 </span>                :<span class="lineCov">          1 :       iconv_status = iconv(cd, (char**)&amp;inp, &amp;len, &amp;outp, &amp;bufleft);</span>
+<span class="lineNum">    2229 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(iconv_status == -1) {</span>
+<span class="lineNum">    2230 </span>                :<span class="lineNoCov">          0 :         msFree(out);</span>
+<span class="lineNum">    2231 </span>                :<span class="lineCov">          1 :         continue; /* silently ignore failed conversions */</span>
+<span class="lineNum">    2232 </span>                :            :       }
+<span class="lineNum">    2233 </span>                :            :     }
+<span class="lineNum">    2234 </span>                :<span class="lineCov">          1 :     out[bufsize - bufleft] = '\0';</span>
+<span class="lineNum">    2235 </span>                :<span class="lineCov">          1 :     msFree(shape-&gt;values[i]);</span>
+<span class="lineNum">    2236 </span>                :<span class="lineCov">          1 :     shape-&gt;values[i] = out;</span>
+<span class="lineNum">    2237 </span>                :            :   }
+<span class="lineNum">    2238 </span>                :<span class="lineCov">          1 :   iconv_close(cd);</span>
+<span class="lineNum">    2239 </span>                :            : 
+<span class="lineNum">    2240 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    2241 </span>                :            : #else
+<span class="lineNum">    2242 </span>                :            :   if( !layer-&gt;encoding || !*layer-&gt;encoding || !strcasecmp(layer-&gt;encoding, &quot;UTF-8&quot;))
+<span class="lineNum">    2243 </span>                :            :     return MS_SUCCESS;
 <span class="lineNum">    2244 </span>                :            :   msSetError(MS_MISCERR, &quot;Not implemented since Iconv is not enabled.&quot;, &quot;msGetEncodedString()&quot;);
 <span class="lineNum">    2245 </span>                :            :   return MS_FAILURE;
 <span class="lineNum">    2246 </span>                :            : #endif
