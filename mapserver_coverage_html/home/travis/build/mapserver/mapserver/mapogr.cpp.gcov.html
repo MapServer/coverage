@@ -3803,155 +3803,156 @@
 <span class="lineNum">    3648 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msOGRLayerWhichShapes;</span>
 <span class="lineNum">    3649 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msOGRLayerNextShape;</span>
 <span class="lineNum">    3650 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msOGRLayerGetShape;</span>
-<span class="lineNum">    3651 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msOGRLayerClose;</span>
-<span class="lineNum">    3652 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetItems = msOGRLayerGetItems;</span>
-<span class="lineNum">    3653 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetExtent = msOGRLayerGetExtent;</span>
-<span class="lineNum">    3654 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetAutoStyle = msOGRLayerGetAutoStyle;</span>
-<span class="lineNum">    3655 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCloseConnection, use default */
-<span class="lineNum">    3656 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerApplyFilterToLayer = msLayerApplyCondSQLFilterToLayer;</span>
-<span class="lineNum">    3657 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msLayerMakeBackticsTimeFilter;</span>
-<span class="lineNum">    3658 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
-<span class="lineNum">    3659 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
-<span class="lineNum">    3660 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoProjection, use defaut*/
-<span class="lineNum">    3661 </span>                :            : 
-<span class="lineNum">    3662 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerEscapeSQLParam = msOGREscapeSQLParam;</span>
-<span class="lineNum">    3663 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerEscapePropertyName = msOGREscapePropertyName;</span>
-<span class="lineNum">    3664 </span>                :            : 
-<span class="lineNum">    3665 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    3666 </span>                :            : }
-<span class="lineNum">    3667 </span>                :            : 
-<span class="lineNum">    3668 </span>                :            : /************************************************************************/
-<a name="3669"><span class="lineNum">    3669 </span>                :            : /*                         msOGRShapeFromWKT()                          */</a>
-<span class="lineNum">    3670 </span>                :            : /************************************************************************/
-<span class="lineNum">    3671 </span>                :<span class="lineNoCov">          0 : shapeObj *msOGRShapeFromWKT(const char *string)</span>
-<span class="lineNum">    3672 </span>                :            : {
-<span class="lineNum">    3673 </span>                :            : #ifdef USE_OGR
-<span class="lineNum">    3674 </span>                :<span class="lineNoCov">          0 :   OGRGeometryH hGeom = NULL;</span>
-<span class="lineNum">    3675 </span>                :            :   shapeObj *shape=NULL;
-<span class="lineNum">    3676 </span>                :            : 
-<span class="lineNum">    3677 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(!string)</span>
-<span class="lineNum">    3678 </span>                :            :     return NULL;
-<span class="lineNum">    3679 </span>                :            : 
-<span class="lineNum">    3680 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( OGR_G_CreateFromWkt( (char **)&amp;string, NULL, &amp;hGeom ) != OGRERR_NONE ) {</span>
-<span class="lineNum">    3681 </span>                :            :     msSetError(MS_OGRERR, &quot;Failed to parse WKT string.&quot;,
-<span class="lineNum">    3682 </span>                :<span class="lineNoCov">          0 :                &quot;msOGRShapeFromWKT()&quot; );</span>
-<span class="lineNum">    3683 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
-<span class="lineNum">    3684 </span>                :            :   }
-<span class="lineNum">    3685 </span>                :            : 
-<span class="lineNum">    3686 </span>                :            :   /* Initialize a corresponding shapeObj */
-<span class="lineNum">    3687 </span>                :            : 
-<span class="lineNum">    3688 </span>                :<span class="lineNoCov">          0 :   shape = (shapeObj *) malloc(sizeof(shapeObj));</span>
-<span class="lineNum">    3689 </span>                :<span class="lineNoCov">          0 :   msInitShape(shape);</span>
-<span class="lineNum">    3690 </span>                :            : 
-<span class="lineNum">    3691 </span>                :            :   /* translate WKT into an OGRGeometry. */
-<span class="lineNum">    3692 </span>                :            : 
-<span class="lineNum">    3693 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( msOGRGeometryToShape( hGeom, shape,</span>
-<span class="lineNum">    3694 </span>                :<span class="lineNoCov">          0 :                             wkbFlatten(OGR_G_GetGeometryType(hGeom)) )</span>
-<span class="lineNum">    3695 </span>                :            :       == MS_FAILURE ) {
-<span class="lineNum">    3696 </span>                :<span class="lineNoCov">          0 :     free( shape );</span>
-<span class="lineNum">    3697 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
-<span class="lineNum">    3698 </span>                :            :   }
-<span class="lineNum">    3699 </span>                :            : 
-<span class="lineNum">    3700 </span>                :<span class="lineNoCov">          0 :   OGR_G_DestroyGeometry( hGeom );</span>
-<span class="lineNum">    3701 </span>                :            : 
-<span class="lineNum">    3702 </span>                :<span class="lineNoCov">          0 :   return shape;</span>
-<span class="lineNum">    3703 </span>                :            : #else
-<span class="lineNum">    3704 </span>                :            :   msSetError(MS_OGRERR, &quot;OGR support is not available.&quot;,&quot;msOGRShapeFromWKT()&quot;);
-<span class="lineNum">    3705 </span>                :            :   return NULL;
-<span class="lineNum">    3706 </span>                :            : #endif
-<span class="lineNum">    3707 </span>                :            : }
-<span class="lineNum">    3708 </span>                :            : 
-<span class="lineNum">    3709 </span>                :            : /************************************************************************/
-<a name="3710"><span class="lineNum">    3710 </span>                :            : /*                          msOGRShapeToWKT()                           */</a>
-<span class="lineNum">    3711 </span>                :            : /************************************************************************/
-<span class="lineNum">    3712 </span>                :<span class="lineNoCov">          0 : char *msOGRShapeToWKT(shapeObj *shape)</span>
-<span class="lineNum">    3713 </span>                :            : {
-<span class="lineNum">    3714 </span>                :            : #ifdef USE_OGR
-<span class="lineNum">    3715 </span>                :            :   OGRGeometryH hGeom = NULL;
-<span class="lineNum">    3716 </span>                :            :   int          i;
-<span class="lineNum">    3717 </span>                :            :   char        *wkt = NULL;
-<span class="lineNum">    3718 </span>                :            : 
-<span class="lineNum">    3719 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(!shape)</span>
-<span class="lineNum">    3720 </span>                :            :     return NULL;
-<span class="lineNum">    3721 </span>                :            : 
-<span class="lineNum">    3722 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( shape-&gt;type == MS_SHAPE_POINT &amp;&amp; shape-&gt;numlines == 1</span>
+<span class="lineNum">    3651 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetShapeCount, use default */
+<span class="lineNum">    3652 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msOGRLayerClose;</span>
+<span class="lineNum">    3653 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetItems = msOGRLayerGetItems;</span>
+<span class="lineNum">    3654 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetExtent = msOGRLayerGetExtent;</span>
+<span class="lineNum">    3655 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetAutoStyle = msOGRLayerGetAutoStyle;</span>
+<span class="lineNum">    3656 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCloseConnection, use default */
+<span class="lineNum">    3657 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerApplyFilterToLayer = msLayerApplyCondSQLFilterToLayer;</span>
+<span class="lineNum">    3658 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msLayerMakeBackticsTimeFilter;</span>
+<span class="lineNum">    3659 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
+<span class="lineNum">    3660 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
+<span class="lineNum">    3661 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoProjection, use defaut*/
+<span class="lineNum">    3662 </span>                :            : 
+<span class="lineNum">    3663 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerEscapeSQLParam = msOGREscapeSQLParam;</span>
+<span class="lineNum">    3664 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerEscapePropertyName = msOGREscapePropertyName;</span>
+<span class="lineNum">    3665 </span>                :            : 
+<span class="lineNum">    3666 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    3667 </span>                :            : }
+<span class="lineNum">    3668 </span>                :            : 
+<span class="lineNum">    3669 </span>                :            : /************************************************************************/
+<a name="3670"><span class="lineNum">    3670 </span>                :            : /*                         msOGRShapeFromWKT()                          */</a>
+<span class="lineNum">    3671 </span>                :            : /************************************************************************/
+<span class="lineNum">    3672 </span>                :<span class="lineNoCov">          0 : shapeObj *msOGRShapeFromWKT(const char *string)</span>
+<span class="lineNum">    3673 </span>                :            : {
+<span class="lineNum">    3674 </span>                :            : #ifdef USE_OGR
+<span class="lineNum">    3675 </span>                :<span class="lineNoCov">          0 :   OGRGeometryH hGeom = NULL;</span>
+<span class="lineNum">    3676 </span>                :            :   shapeObj *shape=NULL;
+<span class="lineNum">    3677 </span>                :            : 
+<span class="lineNum">    3678 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(!string)</span>
+<span class="lineNum">    3679 </span>                :            :     return NULL;
+<span class="lineNum">    3680 </span>                :            : 
+<span class="lineNum">    3681 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( OGR_G_CreateFromWkt( (char **)&amp;string, NULL, &amp;hGeom ) != OGRERR_NONE ) {</span>
+<span class="lineNum">    3682 </span>                :            :     msSetError(MS_OGRERR, &quot;Failed to parse WKT string.&quot;,
+<span class="lineNum">    3683 </span>                :<span class="lineNoCov">          0 :                &quot;msOGRShapeFromWKT()&quot; );</span>
+<span class="lineNum">    3684 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    3685 </span>                :            :   }
+<span class="lineNum">    3686 </span>                :            : 
+<span class="lineNum">    3687 </span>                :            :   /* Initialize a corresponding shapeObj */
+<span class="lineNum">    3688 </span>                :            : 
+<span class="lineNum">    3689 </span>                :<span class="lineNoCov">          0 :   shape = (shapeObj *) malloc(sizeof(shapeObj));</span>
+<span class="lineNum">    3690 </span>                :<span class="lineNoCov">          0 :   msInitShape(shape);</span>
+<span class="lineNum">    3691 </span>                :            : 
+<span class="lineNum">    3692 </span>                :            :   /* translate WKT into an OGRGeometry. */
+<span class="lineNum">    3693 </span>                :            : 
+<span class="lineNum">    3694 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( msOGRGeometryToShape( hGeom, shape,</span>
+<span class="lineNum">    3695 </span>                :<span class="lineNoCov">          0 :                             wkbFlatten(OGR_G_GetGeometryType(hGeom)) )</span>
+<span class="lineNum">    3696 </span>                :            :       == MS_FAILURE ) {
+<span class="lineNum">    3697 </span>                :<span class="lineNoCov">          0 :     free( shape );</span>
+<span class="lineNum">    3698 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    3699 </span>                :            :   }
+<span class="lineNum">    3700 </span>                :            : 
+<span class="lineNum">    3701 </span>                :<span class="lineNoCov">          0 :   OGR_G_DestroyGeometry( hGeom );</span>
+<span class="lineNum">    3702 </span>                :            : 
+<span class="lineNum">    3703 </span>                :<span class="lineNoCov">          0 :   return shape;</span>
+<span class="lineNum">    3704 </span>                :            : #else
+<span class="lineNum">    3705 </span>                :            :   msSetError(MS_OGRERR, &quot;OGR support is not available.&quot;,&quot;msOGRShapeFromWKT()&quot;);
+<span class="lineNum">    3706 </span>                :            :   return NULL;
+<span class="lineNum">    3707 </span>                :            : #endif
+<span class="lineNum">    3708 </span>                :            : }
+<span class="lineNum">    3709 </span>                :            : 
+<span class="lineNum">    3710 </span>                :            : /************************************************************************/
+<a name="3711"><span class="lineNum">    3711 </span>                :            : /*                          msOGRShapeToWKT()                           */</a>
+<span class="lineNum">    3712 </span>                :            : /************************************************************************/
+<span class="lineNum">    3713 </span>                :<span class="lineNoCov">          0 : char *msOGRShapeToWKT(shapeObj *shape)</span>
+<span class="lineNum">    3714 </span>                :            : {
+<span class="lineNum">    3715 </span>                :            : #ifdef USE_OGR
+<span class="lineNum">    3716 </span>                :            :   OGRGeometryH hGeom = NULL;
+<span class="lineNum">    3717 </span>                :            :   int          i;
+<span class="lineNum">    3718 </span>                :            :   char        *wkt = NULL;
+<span class="lineNum">    3719 </span>                :            : 
+<span class="lineNum">    3720 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(!shape)</span>
+<span class="lineNum">    3721 </span>                :            :     return NULL;
+<span class="lineNum">    3722 </span>                :            : 
+<span class="lineNum">    3723 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( shape-&gt;type == MS_SHAPE_POINT &amp;&amp; shape-&gt;numlines == 1</span>
 <span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
-<span class="lineNum">    3723 </span>                :<span class="lineNoCov">          0 :       &amp;&amp; shape-&gt;line[0].numpoints == 1 ) {</span>
-<span class="lineNum">    3724 </span>                :<span class="lineNoCov">          0 :     hGeom = OGR_G_CreateGeometry( wkbPoint );</span>
-<span class="lineNum">    3725 </span>                :            :     OGR_G_SetPoint_2D( hGeom, 0,
-<span class="lineNum">    3726 </span>                :<span class="lineNoCov">          0 :                        shape-&gt;line[0].point[0].x,</span>
-<span class="lineNum">    3727 </span>                :<span class="lineNoCov">          0 :                        shape-&gt;line[0].point[0].y );</span>
-<span class="lineNum">    3728 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   } else if( shape-&gt;type == MS_SHAPE_POINT &amp;&amp; shape-&gt;numlines == 1</span>
+<span class="lineNum">    3724 </span>                :<span class="lineNoCov">          0 :       &amp;&amp; shape-&gt;line[0].numpoints == 1 ) {</span>
+<span class="lineNum">    3725 </span>                :<span class="lineNoCov">          0 :     hGeom = OGR_G_CreateGeometry( wkbPoint );</span>
+<span class="lineNum">    3726 </span>                :            :     OGR_G_SetPoint_2D( hGeom, 0,
+<span class="lineNum">    3727 </span>                :<span class="lineNoCov">          0 :                        shape-&gt;line[0].point[0].x,</span>
+<span class="lineNum">    3728 </span>                :<span class="lineNoCov">          0 :                        shape-&gt;line[0].point[0].y );</span>
+<span class="lineNum">    3729 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   } else if( shape-&gt;type == MS_SHAPE_POINT &amp;&amp; shape-&gt;numlines == 1</span>
 <span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
-<span class="lineNum">    3729 </span>                :<span class="lineNoCov">          0 :              &amp;&amp; shape-&gt;line[0].numpoints &gt; 1 ) {</span>
-<span class="lineNum">    3730 </span>                :<span class="lineNoCov">          0 :     hGeom = OGR_G_CreateGeometry( wkbMultiPoint );</span>
-<span class="lineNum">    3731 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for( i = 0; i &lt; shape-&gt;line[0].numpoints; i++ ) {</span>
-<span class="lineNum">    3732 </span>                :            :       OGRGeometryH hPoint;
-<span class="lineNum">    3733 </span>                :            : 
-<span class="lineNum">    3734 </span>                :<span class="lineNoCov">          0 :       hPoint = OGR_G_CreateGeometry( wkbPoint );</span>
-<span class="lineNum">    3735 </span>                :            :       OGR_G_SetPoint_2D( hPoint, 0,
-<span class="lineNum">    3736 </span>                :<span class="lineNoCov">          0 :                          shape-&gt;line[0].point[i].x,</span>
-<span class="lineNum">    3737 </span>                :<span class="lineNoCov">          0 :                          shape-&gt;line[0].point[i].y );</span>
-<span class="lineNum">    3738 </span>                :<span class="lineNoCov">          0 :       OGR_G_AddGeometryDirectly( hGeom, hPoint );</span>
-<span class="lineNum">    3739 </span>                :            :     }
-<span class="lineNum">    3740 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   } else if( shape-&gt;type == MS_SHAPE_LINE &amp;&amp; shape-&gt;numlines == 1 ) {</span>
-<span class="lineNum">    3741 </span>                :<span class="lineNoCov">          0 :     hGeom = OGR_G_CreateGeometry( wkbLineString );</span>
-<span class="lineNum">    3742 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for( i = 0; i &lt; shape-&gt;line[0].numpoints; i++ ) {</span>
-<span class="lineNum">    3743 </span>                :            :       OGR_G_AddPoint_2D( hGeom,
-<span class="lineNum">    3744 </span>                :<span class="lineNoCov">          0 :                          shape-&gt;line[0].point[i].x,</span>
-<span class="lineNum">    3745 </span>                :<span class="lineNoCov">          0 :                          shape-&gt;line[0].point[i].y );</span>
-<span class="lineNum">    3746 </span>                :            :     }
-<span class="lineNum">    3747 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   } else if( shape-&gt;type == MS_SHAPE_LINE &amp;&amp; shape-&gt;numlines &gt; 1 ) {</span>
-<span class="lineNum">    3748 </span>                :<span class="lineNoCov">          0 :     OGRGeometryH hMultiLine = OGR_G_CreateGeometry( wkbMultiLineString );</span>
-<span class="lineNum">    3749 </span>                :            :     int iLine;
-<span class="lineNum">    3750 </span>                :            : 
-<span class="lineNum">    3751 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for( iLine = 0; iLine &lt; shape-&gt;numlines; iLine++ ) {</span>
-<span class="lineNum">    3752 </span>                :<span class="lineNoCov">          0 :       hGeom = OGR_G_CreateGeometry( wkbLineString );</span>
-<span class="lineNum">    3753 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for( i = 0; i &lt; shape-&gt;line[iLine].numpoints; i++ ) {</span>
-<span class="lineNum">    3754 </span>                :            :         OGR_G_AddPoint_2D( hGeom,
-<span class="lineNum">    3755 </span>                :<span class="lineNoCov">          0 :                            shape-&gt;line[iLine].point[i].x,</span>
-<span class="lineNum">    3756 </span>                :<span class="lineNoCov">          0 :                            shape-&gt;line[iLine].point[i].y );</span>
-<span class="lineNum">    3757 </span>                :            :       }
-<span class="lineNum">    3758 </span>                :            : 
-<span class="lineNum">    3759 </span>                :<span class="lineNoCov">          0 :       OGR_G_AddGeometryDirectly( hMultiLine, hGeom );</span>
-<span class="lineNum">    3760 </span>                :            :     }
-<span class="lineNum">    3761 </span>                :            : 
-<span class="lineNum">    3762 </span>                :            :     hGeom = hMultiLine;
-<span class="lineNum">    3763 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   } else if( shape-&gt;type == MS_SHAPE_POLYGON ) {</span>
-<span class="lineNum">    3764 </span>                :            :     int iLine;
-<span class="lineNum">    3765 </span>                :            : 
-<span class="lineNum">    3766 </span>                :            :     /* actually, it is pretty hard to be sure rings 1+ are interior */
-<span class="lineNum">    3767 </span>                :<span class="lineNoCov">          0 :     hGeom = OGR_G_CreateGeometry( wkbPolygon );</span>
-<span class="lineNum">    3768 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for( iLine = 0; iLine &lt; shape-&gt;numlines; iLine++ ) {</span>
-<span class="lineNum">    3769 </span>                :            :       OGRGeometryH hRing;
-<span class="lineNum">    3770 </span>                :<span class="lineNoCov">          0 :       hRing = OGR_G_CreateGeometry( wkbLinearRing );</span>
-<span class="lineNum">    3771 </span>                :            : 
-<span class="lineNum">    3772 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for( i = 0; i &lt; shape-&gt;line[iLine].numpoints; i++ ) {</span>
-<span class="lineNum">    3773 </span>                :            :         OGR_G_AddPoint_2D( hRing,
-<span class="lineNum">    3774 </span>                :<span class="lineNoCov">          0 :                            shape-&gt;line[iLine].point[i].x,</span>
-<span class="lineNum">    3775 </span>                :<span class="lineNoCov">          0 :                            shape-&gt;line[iLine].point[i].y );</span>
-<span class="lineNum">    3776 </span>                :            :       }
-<span class="lineNum">    3777 </span>                :<span class="lineNoCov">          0 :       OGR_G_AddGeometryDirectly( hGeom, hRing );</span>
-<span class="lineNum">    3778 </span>                :            :     }
-<span class="lineNum">    3779 </span>                :            :   } else {
-<span class="lineNum">    3780 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_OGRERR, &quot;OGR support is not available.&quot;, &quot;msOGRShapeToWKT()&quot;);</span>
-<span class="lineNum">    3781 </span>                :            :   }
-<span class="lineNum">    3782 </span>                :            : 
-<span class="lineNum">    3783 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( hGeom != NULL ) {</span>
-<span class="lineNum">    3784 </span>                :            :     char *pszOGRWkt;
-<span class="lineNum">    3785 </span>                :            : 
-<span class="lineNum">    3786 </span>                :<span class="lineNoCov">          0 :     OGR_G_ExportToWkt( hGeom, &amp;pszOGRWkt );</span>
-<span class="lineNum">    3787 </span>                :<span class="lineNoCov">          0 :     wkt = msStrdup( pszOGRWkt );</span>
-<span class="lineNum">    3788 </span>                :<span class="lineNoCov">          0 :     CPLFree( pszOGRWkt );</span>
-<span class="lineNum">    3789 </span>                :            :   }
-<span class="lineNum">    3790 </span>                :            : 
-<span class="lineNum">    3791 </span>                :<span class="lineNoCov">          0 :   return wkt;</span>
-<span class="lineNum">    3792 </span>                :            : #else
-<span class="lineNum">    3793 </span>                :            :   msSetError(MS_OGRERR, &quot;OGR support is not available.&quot;, &quot;msOGRShapeToWKT()&quot;);
-<span class="lineNum">    3794 </span>                :            :   return NULL;
-<span class="lineNum">    3795 </span>                :            : #endif
-<span class="lineNum">    3796 </span>                :<span class="lineCov">          1 : }</span>
-<span class="lineNum">    3797 </span>                :            : 
+<span class="lineNum">    3730 </span>                :<span class="lineNoCov">          0 :              &amp;&amp; shape-&gt;line[0].numpoints &gt; 1 ) {</span>
+<span class="lineNum">    3731 </span>                :<span class="lineNoCov">          0 :     hGeom = OGR_G_CreateGeometry( wkbMultiPoint );</span>
+<span class="lineNum">    3732 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for( i = 0; i &lt; shape-&gt;line[0].numpoints; i++ ) {</span>
+<span class="lineNum">    3733 </span>                :            :       OGRGeometryH hPoint;
+<span class="lineNum">    3734 </span>                :            : 
+<span class="lineNum">    3735 </span>                :<span class="lineNoCov">          0 :       hPoint = OGR_G_CreateGeometry( wkbPoint );</span>
+<span class="lineNum">    3736 </span>                :            :       OGR_G_SetPoint_2D( hPoint, 0,
+<span class="lineNum">    3737 </span>                :<span class="lineNoCov">          0 :                          shape-&gt;line[0].point[i].x,</span>
+<span class="lineNum">    3738 </span>                :<span class="lineNoCov">          0 :                          shape-&gt;line[0].point[i].y );</span>
+<span class="lineNum">    3739 </span>                :<span class="lineNoCov">          0 :       OGR_G_AddGeometryDirectly( hGeom, hPoint );</span>
+<span class="lineNum">    3740 </span>                :            :     }
+<span class="lineNum">    3741 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   } else if( shape-&gt;type == MS_SHAPE_LINE &amp;&amp; shape-&gt;numlines == 1 ) {</span>
+<span class="lineNum">    3742 </span>                :<span class="lineNoCov">          0 :     hGeom = OGR_G_CreateGeometry( wkbLineString );</span>
+<span class="lineNum">    3743 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for( i = 0; i &lt; shape-&gt;line[0].numpoints; i++ ) {</span>
+<span class="lineNum">    3744 </span>                :            :       OGR_G_AddPoint_2D( hGeom,
+<span class="lineNum">    3745 </span>                :<span class="lineNoCov">          0 :                          shape-&gt;line[0].point[i].x,</span>
+<span class="lineNum">    3746 </span>                :<span class="lineNoCov">          0 :                          shape-&gt;line[0].point[i].y );</span>
+<span class="lineNum">    3747 </span>                :            :     }
+<span class="lineNum">    3748 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   } else if( shape-&gt;type == MS_SHAPE_LINE &amp;&amp; shape-&gt;numlines &gt; 1 ) {</span>
+<span class="lineNum">    3749 </span>                :<span class="lineNoCov">          0 :     OGRGeometryH hMultiLine = OGR_G_CreateGeometry( wkbMultiLineString );</span>
+<span class="lineNum">    3750 </span>                :            :     int iLine;
+<span class="lineNum">    3751 </span>                :            : 
+<span class="lineNum">    3752 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for( iLine = 0; iLine &lt; shape-&gt;numlines; iLine++ ) {</span>
+<span class="lineNum">    3753 </span>                :<span class="lineNoCov">          0 :       hGeom = OGR_G_CreateGeometry( wkbLineString );</span>
+<span class="lineNum">    3754 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for( i = 0; i &lt; shape-&gt;line[iLine].numpoints; i++ ) {</span>
+<span class="lineNum">    3755 </span>                :            :         OGR_G_AddPoint_2D( hGeom,
+<span class="lineNum">    3756 </span>                :<span class="lineNoCov">          0 :                            shape-&gt;line[iLine].point[i].x,</span>
+<span class="lineNum">    3757 </span>                :<span class="lineNoCov">          0 :                            shape-&gt;line[iLine].point[i].y );</span>
+<span class="lineNum">    3758 </span>                :            :       }
+<span class="lineNum">    3759 </span>                :            : 
+<span class="lineNum">    3760 </span>                :<span class="lineNoCov">          0 :       OGR_G_AddGeometryDirectly( hMultiLine, hGeom );</span>
+<span class="lineNum">    3761 </span>                :            :     }
+<span class="lineNum">    3762 </span>                :            : 
+<span class="lineNum">    3763 </span>                :            :     hGeom = hMultiLine;
+<span class="lineNum">    3764 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   } else if( shape-&gt;type == MS_SHAPE_POLYGON ) {</span>
+<span class="lineNum">    3765 </span>                :            :     int iLine;
+<span class="lineNum">    3766 </span>                :            : 
+<span class="lineNum">    3767 </span>                :            :     /* actually, it is pretty hard to be sure rings 1+ are interior */
+<span class="lineNum">    3768 </span>                :<span class="lineNoCov">          0 :     hGeom = OGR_G_CreateGeometry( wkbPolygon );</span>
+<span class="lineNum">    3769 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for( iLine = 0; iLine &lt; shape-&gt;numlines; iLine++ ) {</span>
+<span class="lineNum">    3770 </span>                :            :       OGRGeometryH hRing;
+<span class="lineNum">    3771 </span>                :<span class="lineNoCov">          0 :       hRing = OGR_G_CreateGeometry( wkbLinearRing );</span>
+<span class="lineNum">    3772 </span>                :            : 
+<span class="lineNum">    3773 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for( i = 0; i &lt; shape-&gt;line[iLine].numpoints; i++ ) {</span>
+<span class="lineNum">    3774 </span>                :            :         OGR_G_AddPoint_2D( hRing,
+<span class="lineNum">    3775 </span>                :<span class="lineNoCov">          0 :                            shape-&gt;line[iLine].point[i].x,</span>
+<span class="lineNum">    3776 </span>                :<span class="lineNoCov">          0 :                            shape-&gt;line[iLine].point[i].y );</span>
+<span class="lineNum">    3777 </span>                :            :       }
+<span class="lineNum">    3778 </span>                :<span class="lineNoCov">          0 :       OGR_G_AddGeometryDirectly( hGeom, hRing );</span>
+<span class="lineNum">    3779 </span>                :            :     }
+<span class="lineNum">    3780 </span>                :            :   } else {
+<span class="lineNum">    3781 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_OGRERR, &quot;OGR support is not available.&quot;, &quot;msOGRShapeToWKT()&quot;);</span>
+<span class="lineNum">    3782 </span>                :            :   }
+<span class="lineNum">    3783 </span>                :            : 
+<span class="lineNum">    3784 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( hGeom != NULL ) {</span>
+<span class="lineNum">    3785 </span>                :            :     char *pszOGRWkt;
+<span class="lineNum">    3786 </span>                :            : 
+<span class="lineNum">    3787 </span>                :<span class="lineNoCov">          0 :     OGR_G_ExportToWkt( hGeom, &amp;pszOGRWkt );</span>
+<span class="lineNum">    3788 </span>                :<span class="lineNoCov">          0 :     wkt = msStrdup( pszOGRWkt );</span>
+<span class="lineNum">    3789 </span>                :<span class="lineNoCov">          0 :     CPLFree( pszOGRWkt );</span>
+<span class="lineNum">    3790 </span>                :            :   }
+<span class="lineNum">    3791 </span>                :            : 
+<span class="lineNum">    3792 </span>                :<span class="lineNoCov">          0 :   return wkt;</span>
+<span class="lineNum">    3793 </span>                :            : #else
+<span class="lineNum">    3794 </span>                :            :   msSetError(MS_OGRERR, &quot;OGR support is not available.&quot;, &quot;msOGRShapeToWKT()&quot;);
+<span class="lineNum">    3795 </span>                :            :   return NULL;
+<span class="lineNum">    3796 </span>                :            : #endif
+<span class="lineNum">    3797 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">    3798 </span>                :            : 
 </pre>
       </td>
     </tr>
