@@ -290,21 +290,21 @@
 <span class="lineNum">     219 </span>                :<span class="lineCov">          1 :     urx = GEO_TRANS(adfInvGeoTransform+0,copyRect.maxx,copyRect.maxy);</span>
 <span class="lineNum">     220 </span>                :<span class="lineCov">          1 :     ury = GEO_TRANS(adfInvGeoTransform+3,copyRect.maxx,copyRect.maxy);</span>
 <span class="lineNum">     221 </span>                :            : 
-<span class="lineNum">     222 </span>                :<span class="lineCov">          1 :     src_xoff = MAX(0,(int) floor(llx+0.5));</span>
-<span class="lineNum">     223 </span>                :<span class="lineCov">          1 :     src_yoff = MAX(0,(int) floor(ury+0.5));</span>
-<span class="lineNum">     224 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     src_xsize = MIN(MAX(0,(int) (urx - llx + 0.5)),</span>
+<span class="lineNum">     222 </span>                :<span class="lineCov">          1 :     src_xoff = MS_MAX(0,(int) floor(llx+0.5));</span>
+<span class="lineNum">     223 </span>                :<span class="lineCov">          1 :     src_yoff = MS_MAX(0,(int) floor(ury+0.5));</span>
+<span class="lineNum">     224 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     src_xsize = MS_MIN(MS_MAX(0,(int) (urx - llx + 0.5)),</span>
 <span class="lineNum">     225 </span>                :            :                     GDALGetRasterXSize(hDS) - src_xoff);
-<span class="lineNum">     226 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     src_ysize = MIN(MAX(0,(int) (lly - ury + 0.5)),</span>
+<span class="lineNum">     226 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     src_ysize = MS_MIN(MS_MAX(0,(int) (lly - ury + 0.5)),</span>
 <span class="lineNum">     227 </span>                :            :                     GDALGetRasterYSize(hDS) - src_yoff);
 <span class="lineNum">     228 </span>                :            : 
 <span class="lineNum">     229 </span>                :            :     /* We want very small windows to use at least one source pixel (#4172) */
 <span class="lineNum">     230 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :     if( src_xsize == 0 &amp;&amp; (urx - llx) &gt; 0.0 ) {</span>
 <span class="lineNum">     231 </span>                :            :       src_xsize = 1;
-<span class="lineNum">     232 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       src_xoff = MIN(src_xoff,GDALGetRasterXSize(hDS)-1);</span>
+<span class="lineNum">     232 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       src_xoff = MS_MIN(src_xoff,GDALGetRasterXSize(hDS)-1);</span>
 <span class="lineNum">     233 </span>                :            :     }
 <span class="lineNum">     234 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :     if( src_ysize == 0 &amp;&amp; (lly - ury) &gt; 0.0 ) {</span>
 <span class="lineNum">     235 </span>                :            :       src_ysize = 1;
-<span class="lineNum">     236 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       src_yoff = MIN(src_yoff,GDALGetRasterYSize(hDS)-1);</span>
+<span class="lineNum">     236 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       src_yoff = MS_MIN(src_yoff,GDALGetRasterYSize(hDS)-1);</span>
 <span class="lineNum">     237 </span>                :            :     }
 <span class="lineNum">     238 </span>                :            : 
 <span class="lineNum">     239 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( src_xsize == 0 || src_ysize == 0 ) {</span>
@@ -324,11 +324,11 @@
 <span class="lineNum">     253 </span>                :            : 
 <span class="lineNum">     254 </span>                :<span class="lineCov">          1 :     dst_lrx = (int) ((copyRect.maxx - mapRect.minx) / map-&gt;cellsize + 0.5);</span>
 <span class="lineNum">     255 </span>                :<span class="lineCov">          1 :     dst_lry = (int) ((mapRect.maxy - copyRect.miny) / map-&gt;cellsize + 0.5);</span>
-<span class="lineNum">     256 </span>                :<span class="lineCov">          1 :     dst_lrx = MAX(0,MIN(image-&gt;width,dst_lrx));</span>
-<span class="lineNum">     257 </span>                :<span class="lineCov">          1 :     dst_lry = MAX(0,MIN(image-&gt;height,dst_lry));</span>
+<span class="lineNum">     256 </span>                :<span class="lineCov">          1 :     dst_lrx = MS_MAX(0,MS_MIN(image-&gt;width,dst_lrx));</span>
+<span class="lineNum">     257 </span>                :<span class="lineCov">          1 :     dst_lry = MS_MAX(0,MS_MIN(image-&gt;height,dst_lry));</span>
 <span class="lineNum">     258 </span>                :            : 
-<span class="lineNum">     259 </span>                :<span class="lineCov">          1 :     dst_xsize = MAX(0,MIN(image-&gt;width,dst_lrx - dst_xoff));</span>
-<span class="lineNum">     260 </span>                :<span class="lineCov">          1 :     dst_ysize = MAX(0,MIN(image-&gt;height,dst_lry - dst_yoff));</span>
+<span class="lineNum">     259 </span>                :<span class="lineCov">          1 :     dst_xsize = MS_MAX(0,MS_MIN(image-&gt;width,dst_lrx - dst_xoff));</span>
+<span class="lineNum">     260 </span>                :<span class="lineCov">          1 :     dst_ysize = MS_MAX(0,MS_MIN(image-&gt;height,dst_lry - dst_yoff));</span>
 <span class="lineNum">     261 </span>                :            : 
 <span class="lineNum">     262 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( dst_xsize == 0 || dst_ysize == 0 ) {</span>
 <span class="lineNum">     263 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if( layer-&gt;debug )</span>
@@ -363,8 +363,8 @@
 <span class="lineNum">     292 </span>                :            :   else {
 <span class="lineNum">     293 </span>                :            :     dst_xoff = src_xoff = 0;
 <span class="lineNum">     294 </span>                :            :     dst_yoff = src_yoff = 0;
-<span class="lineNum">     295 </span>                :<span class="lineCov">          1 :     dst_xsize = src_xsize = MIN(image-&gt;width,src_xsize);</span>
-<span class="lineNum">     296 </span>                :<span class="lineCov">          1 :     dst_ysize = src_ysize = MIN(image-&gt;height,src_ysize);</span>
+<span class="lineNum">     295 </span>                :<span class="lineCov">          1 :     dst_xsize = src_xsize = MS_MIN(image-&gt;width,src_xsize);</span>
+<span class="lineNum">     296 </span>                :<span class="lineCov">          1 :     dst_ysize = src_ysize = MS_MIN(image-&gt;height,src_ysize);</span>
 <span class="lineNum">     297 </span>                :            :   }
 <span class="lineNum">     298 </span>                :            : 
 <span class="lineNum">     299 </span>                :            :   /*
@@ -617,7 +617,7 @@
 <span class="lineNum">     544 </span>                :<span class="lineNoCov">          0 :       return -1;</span>
 <span class="lineNum">     545 </span>                :            :     }
 <span class="lineNum">     546 </span>                :            : 
-<span class="lineNum">     547 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     color_count = MIN(256,GDALGetColorEntryCount(hColorMap));</span>
+<span class="lineNum">     547 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     color_count = MS_MIN(256,GDALGetColorEntryCount(hColorMap));</span>
 <span class="lineNum">     548 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i=0; i &lt; color_count; i++) {</span>
 <span class="lineNum">     549 </span>                :            :       colorObj pixel;
 <span class="lineNum">     550 </span>                :            :       int colormap_index;
@@ -688,7 +688,7 @@
 <span class="lineNum">     609 </span>                :            :     cmap_set = TRUE;
 <span class="lineNum">     610 </span>                :            : #endif
 <span class="lineNum">     611 </span>                :            : 
-<span class="lineNum">     612 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     color_count = MIN(256,GDALGetColorEntryCount(hColorMap));</span>
+<span class="lineNum">     612 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     color_count = MS_MIN(256,GDALGetColorEntryCount(hColorMap));</span>
 <span class="lineNum">     613 </span>                :            : 
 <span class="lineNum">     614 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i=0; i &lt; color_count; i++) {</span>
 <span class="lineNum">     615 </span>                :            :       GDALColorEntry sEntry;
@@ -989,8 +989,8 @@
 <span class="lineNum">     910 </span>                :<span class="lineNoCov">          0 :         lut_read++;</span>
 <span class="lineNum">     911 </span>                :            :     }
 <span class="lineNum">     912 </span>                :            : 
-<span class="lineNum">     913 </span>                :<span class="lineCov">          1 :     this_in = MAX(0,MIN(nMaxValIn,this_in));</span>
-<span class="lineNum">     914 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     this_out = MAX(0,MIN(255,this_out));</span>
+<span class="lineNum">     913 </span>                :<span class="lineCov">          1 :     this_in = MS_MAX(0,MS_MIN(nMaxValIn,this_in));</span>
+<span class="lineNum">     914 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     this_out = MS_MAX(0,MS_MIN(255,this_out));</span>
 <span class="lineNum">     915 </span>                :            : 
 <span class="lineNum">     916 </span>                :            :     /* apply linear values from last in:out to this in:out */
 <span class="lineNum">     917 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( lut_i = last_in; lut_i &lt;= this_in; lut_i++ ) {</span>
@@ -1559,8 +1559,8 @@
 <span class="lineNum">    1480 </span>                :            :           bMinMaxSet = TRUE;
 <span class="lineNum">    1481 </span>                :            :         }
 <span class="lineNum">    1482 </span>                :            : 
-<span class="lineNum">    1483 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         dfScaleMin = MIN(dfScaleMin,pafRawData[i]);</span>
-<span class="lineNum">    1484 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         dfScaleMax = MAX(dfScaleMax,pafRawData[i]);</span>
+<span class="lineNum">    1483 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         dfScaleMin = MS_MIN(dfScaleMin,pafRawData[i]);</span>
+<span class="lineNum">    1484 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         dfScaleMax = MS_MAX(dfScaleMax,pafRawData[i]);</span>
 <span class="lineNum">    1485 </span>                :            :       }
 <span class="lineNum">    1486 </span>                :            : 
 <span class="lineNum">    1487 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( dfScaleMin == dfScaleMax )</span>
@@ -2065,8 +2065,8 @@
 <span class="lineNum">    1984 </span>                :<span class="lineCov">          1 :       fDataMin = fDataMax = pafRawData[i];</span>
 <span class="lineNum">    1985 </span>                :            :       bGotFirstValue = TRUE;
 <span class="lineNum">    1986 </span>                :            :     } else {
-<span class="lineNum">    1987 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :       fDataMin = MIN(fDataMin,pafRawData[i]);</span>
-<span class="lineNum">    1988 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :       fDataMax = MAX(fDataMax,pafRawData[i]);</span>
+<span class="lineNum">    1987 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :       fDataMin = MS_MIN(fDataMin,pafRawData[i]);</span>
+<span class="lineNum">    1988 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :       fDataMax = MS_MAX(fDataMax,pafRawData[i]);</span>
 <span class="lineNum">    1989 </span>                :            :     }
 <span class="lineNum">    1990 </span>                :            :   }
 <span class="lineNum">    1991 </span>                :            : 
@@ -2327,7 +2327,7 @@
 <span class="lineNum">    2234 </span>                :            :   /* -------------------------------------------------------------------- */
 <span class="lineNum">    2235 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( CSLFetchNameValue( layer-&gt;processing, &quot;BANDS&quot; ) == NULL ) {</span>
 <span class="lineNum">    2236 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( max_bands &gt; 0 )</span>
-<span class="lineNum">    2237 </span>                :<span class="lineCov">          1 :       *band_count = MIN(file_bands,max_bands);</span>
+<span class="lineNum">    2237 </span>                :<span class="lineCov">          1 :       *band_count = MS_MIN(file_bands,max_bands);</span>
 <span class="lineNum">    2238 </span>                :            :     else
 <span class="lineNum">    2239 </span>                :<span class="lineCov">          1 :       *band_count = file_bands;</span>
 <span class="lineNum">    2240 </span>                :            : 
