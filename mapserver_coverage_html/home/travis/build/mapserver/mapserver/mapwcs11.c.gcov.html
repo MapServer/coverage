@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">380</td>
-            <td class="headerCovTableEntry">479</td>
-            <td class="headerCovTableEntryMed">79.3 %</td>
+            <td class="headerCovTableEntry">381</td>
+            <td class="headerCovTableEntry">480</td>
+            <td class="headerCovTableEntryMed">79.4 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -1300,166 +1300,167 @@
 <span class="lineNum">    1227 </span>                :            :   /*      output a single &quot;stock&quot; filename.                               */
 <span class="lineNum">    1228 </span>                :            :   /* -------------------------------------------------------------------- */
 <span class="lineNum">    1229 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( filename == NULL ) {</span>
-<span class="lineNum">    1230 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     msIO_fprintf(</span>
+<span class="lineNum">    1230 </span>                :<span class="lineCov">          1 :     msOutputFormatResolveFromImage( map, image );</span>
+<span class="lineNum">    1231 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     msIO_fprintf(</span>
 <span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
-<span class="lineNum">    1231 </span>                :            :       stdout,
-<span class="lineNum">    1232 </span>                :            :       &quot;    &lt;ows:Reference xlink:href=\&quot;cid:coverage/wcs.%s\&quot;/&gt;\n&quot;
-<span class="lineNum">    1233 </span>                :            :       &quot;  &lt;/Coverage&gt;\n&quot;
-<span class="lineNum">    1234 </span>                :            :       &quot;&lt;/Coverages&gt;\n&quot;
-<span class="lineNum">    1235 </span>                :            :       &quot;\r\n--wcs\r\n&quot;
-<span class="lineNum">    1236 </span>                :            :       &quot;Content-Type: %s\r\n&quot;
-<span class="lineNum">    1237 </span>                :            :       &quot;Content-Description: coverage data\r\n&quot;
-<span class="lineNum">    1238 </span>                :            :       &quot;Content-Transfer-Encoding: binary\r\n&quot;
-<span class="lineNum">    1239 </span>                :            :       &quot;Content-ID: coverage/wcs.%s\r\n&quot;
-<span class="lineNum">    1240 </span>                :            :       &quot;Content-Disposition: INLINE\r\n\r\n&quot;,
-<span class="lineNum">    1241 </span>                :<span class="lineCov">          1 :       MS_IMAGE_EXTENSION(map-&gt;outputformat),</span>
-<span class="lineNum">    1242 </span>                :<span class="lineCov">          1 :       MS_IMAGE_MIME_TYPE(map-&gt;outputformat),</span>
-<span class="lineNum">    1243 </span>                :<span class="lineCov">          1 :       MS_IMAGE_EXTENSION(map-&gt;outputformat));</span>
-<span class="lineNum">    1244 </span>                :            : 
-<span class="lineNum">    1245 </span>                :<span class="lineCov">          1 :     status = msSaveImage(map, image, NULL);</span>
-<span class="lineNum">    1246 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( status != MS_SUCCESS ) {</span>
-<span class="lineNum">    1247 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR, &quot;msSaveImage() failed&quot;, &quot;msWCSReturnCoverage11()&quot;);</span>
-<span class="lineNum">    1248 </span>                :<span class="lineNoCov">          0 :       return msWCSException11(map, &quot;NoApplicableCode&quot;, &quot;mapserv&quot;, params-&gt;version);</span>
-<span class="lineNum">    1249 </span>                :            :     }
-<span class="lineNum">    1250 </span>                :            : 
-<span class="lineNum">    1251 </span>                :<span class="lineCov">          1 :     msIO_fprintf( stdout, &quot;\r\n--wcs--\r\n&quot; );</span>
-<span class="lineNum">    1252 </span>                :<span class="lineCov">          1 :     return MS_SUCCESS;</span>
-<span class="lineNum">    1253 </span>                :            :   }
-<span class="lineNum">    1254 </span>                :            : 
-<span class="lineNum">    1255 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1256 </span>                :            :   /*      When potentially listing multiple files, we take great care     */
-<span class="lineNum">    1257 </span>                :            :   /*      to identify the &quot;primary&quot; file and list it first.  In fact      */
-<span class="lineNum">    1258 </span>                :            :   /*      it is the only file listed in the coverages document.           */
-<span class="lineNum">    1259 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1260 </span>                :            :   {
-<span class="lineNum">    1261 </span>                :<span class="lineCov">          1 :     char **all_files = CPLReadDir( base_dir );</span>
-<span class="lineNum">    1262 </span>                :<span class="lineCov">          1 :     int count = CSLCount(all_files);</span>
-<span class="lineNum">    1263 </span>                :            : 
-<span class="lineNum">    1264 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if( msIO_needBinaryStdout() == MS_FAILURE )</span>
-<span class="lineNum">    1265 </span>                :            :       return MS_FAILURE;
-<span class="lineNum">    1266 </span>                :            : 
-<span class="lineNum">    1267 </span>                :<span class="lineCov">          1 :     msAcquireLock( TLOCK_GDAL );</span>
-<span class="lineNum">    1268 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = count-1; i &gt;= 0; i-- ) {</span>
-<span class="lineNum">    1269 </span>                :<span class="lineCov">          1 :       const char *this_file = all_files[i];</span>
-<span class="lineNum">    1270 </span>                :            : 
-<span class="lineNum">    1271 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( EQUAL(this_file,&quot;.&quot;) || EQUAL(this_file,&quot;..&quot;) ) {</span>
-<span class="lineNum">    1272 </span>                :<span class="lineNoCov">          0 :         all_files = CSLRemoveStrings( all_files, i, 1, NULL );</span>
-<span class="lineNum">    1273 </span>                :<span class="lineNoCov">          0 :         continue;</span>
-<span class="lineNum">    1274 </span>                :            :       }
-<span class="lineNum">    1275 </span>                :            : 
-<span class="lineNum">    1276 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( i &gt; 0 &amp;&amp; EQUAL(this_file,CPLGetFilename(filename)) ) {</span>
-<span class="lineNum">    1277 </span>                :<span class="lineNoCov">          0 :         all_files = CSLRemoveStrings( all_files, i, 1, NULL );</span>
-<span class="lineNum">    1278 </span>                :<span class="lineNoCov">          0 :         all_files = CSLInsertString(all_files,0,CPLGetFilename(filename));</span>
-<span class="lineNum">    1279 </span>                :<span class="lineNoCov">          0 :         i++;</span>
-<span class="lineNum">    1280 </span>                :            :       }
-<span class="lineNum">    1281 </span>                :            :     }
-<span class="lineNum">    1282 </span>                :            : 
-<span class="lineNum">    1283 </span>                :<span class="lineCov">          1 :     msIO_fprintf(</span>
-<span class="lineNum">    1284 </span>                :            :       stdout,
-<span class="lineNum">    1285 </span>                :            :       &quot;    &lt;ows:Reference xlink:href=\&quot;cid:coverage/%s\&quot;/&gt;\n&quot;
-<span class="lineNum">    1286 </span>                :            :       &quot;  &lt;/Coverage&gt;\n&quot;
-<span class="lineNum">    1287 </span>                :            :       &quot;&lt;/Coverages&gt;\n&quot;,
-<span class="lineNum">    1288 </span>                :            :       CPLGetFilename(filename) );
-<span class="lineNum">    1289 </span>                :            : 
-<span class="lineNum">    1290 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">    1291 </span>                :            :     /*      Dump all the files in the memory directory as mime sections.    */
-<span class="lineNum">    1292 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">    1293 </span>                :<span class="lineCov">          1 :     count = CSLCount(all_files);</span>
-<span class="lineNum">    1294 </span>                :            : 
-<span class="lineNum">    1295 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = 0; i &lt; count; i++ ) {</span>
-<span class="lineNum">    1296 </span>                :            :       const char *mimetype = NULL;
-<span class="lineNum">    1297 </span>                :            :       FILE *fp;
-<span class="lineNum">    1298 </span>                :            :       unsigned char block[4000];
-<span class="lineNum">    1299 </span>                :            :       int bytes_read;
-<span class="lineNum">    1300 </span>                :            : 
-<span class="lineNum">    1301 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( i == 0 )</span>
-<span class="lineNum">    1302 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         mimetype = MS_IMAGE_MIME_TYPE(map-&gt;outputformat);</span>
-<span class="lineNum">    1303 </span>                :            : 
-<span class="lineNum">    1304 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( mimetype == NULL )</span>
-<span class="lineNum">    1305 </span>                :            :         mimetype = &quot;application/octet-stream&quot;;
-<span class="lineNum">    1306 </span>                :            : 
-<span class="lineNum">    1307 </span>                :<span class="lineCov">          1 :       msIO_fprintf(</span>
-<span class="lineNum">    1308 </span>                :            :         stdout,
-<span class="lineNum">    1309 </span>                :            :         &quot;\r\n--wcs\r\n&quot;
-<span class="lineNum">    1310 </span>                :            :         &quot;Content-Type: %s\r\n&quot;
-<span class="lineNum">    1311 </span>                :            :         &quot;Content-Description: coverage data\r\n&quot;
-<span class="lineNum">    1312 </span>                :            :         &quot;Content-Transfer-Encoding: binary\r\n&quot;
-<span class="lineNum">    1313 </span>                :            :         &quot;Content-ID: coverage/%s\r\n&quot;
-<span class="lineNum">    1314 </span>                :            :         &quot;Content-Disposition: INLINE\r\n\r\n&quot;,
-<span class="lineNum">    1315 </span>                :            :         mimetype,
-<span class="lineNum">    1316 </span>                :<span class="lineCov">          1 :         all_files[i]);</span>
-<span class="lineNum">    1317 </span>                :            : 
-<span class="lineNum">    1318 </span>                :<span class="lineCov">          1 :       fp = VSIFOpenL(</span>
-<span class="lineNum">    1319 </span>                :<span class="lineCov">          1 :              CPLFormFilename(base_dir, all_files[i], NULL),</span>
-<span class="lineNum">    1320 </span>                :            :              &quot;rb&quot; );
-<span class="lineNum">    1321 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( fp == NULL ) {</span>
-<span class="lineNum">    1322 </span>                :<span class="lineNoCov">          0 :         msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">    1323 </span>                :<span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
-<span class="lineNum">    1324 </span>                :            :                     &quot;Failed to open %s for streaming to stdout.&quot;,
-<span class="lineNum">    1325 </span>                :<span class="lineNoCov">          0 :                     &quot;msWCSReturnCoverage11()&quot;, all_files[i] );</span>
-<span class="lineNum">    1326 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
-<span class="lineNum">    1327 </span>                :            :       }
-<span class="lineNum">    1328 </span>                :            : 
-<span class="lineNum">    1329 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       while( (bytes_read = VSIFReadL(block, 1, sizeof(block), fp)) &gt; 0 )</span>
-<span class="lineNum">    1330 </span>                :<span class="lineCov">          1 :         msIO_fwrite( block, 1, bytes_read, stdout );</span>
-<span class="lineNum">    1331 </span>                :            : 
-<span class="lineNum">    1332 </span>                :<span class="lineCov">          1 :       VSIFCloseL( fp );</span>
-<span class="lineNum">    1333 </span>                :            : 
-<span class="lineNum">    1334 </span>                :<span class="lineCov">          1 :       VSIUnlink( CPLFormFilename(base_dir, all_files[i], NULL) );</span>
-<span class="lineNum">    1335 </span>                :            :     }
-<span class="lineNum">    1336 </span>                :            : 
-<span class="lineNum">    1337 </span>                :<span class="lineCov">          1 :     msFree(base_dir);</span>
-<span class="lineNum">    1338 </span>                :<span class="lineCov">          1 :     msFree(filename);</span>
-<span class="lineNum">    1339 </span>                :<span class="lineCov">          1 :     CSLDestroy( all_files );</span>
-<span class="lineNum">    1340 </span>                :<span class="lineCov">          1 :     msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">    1341 </span>                :            : 
-<span class="lineNum">    1342 </span>                :<span class="lineCov">          1 :     msIO_fprintf( stdout, &quot;\r\n--wcs--\r\n&quot; );</span>
-<span class="lineNum">    1343 </span>                :<span class="lineCov">          1 :     return MS_SUCCESS;</span>
-<span class="lineNum">    1344 </span>                :            :   }
-<span class="lineNum">    1345 </span>                :            : }
-<span class="lineNum">    1346 </span>                :            : #endif /* defined(USE_WCS_SVR) &amp;&amp; defined(USE_LIBXML2) */
-<span class="lineNum">    1347 </span>                :            : 
-<span class="lineNum">    1348 </span>                :            : /************************************************************************/
-<span class="lineNum">    1349 </span>                :            : /* ==================================================================== */
-<span class="lineNum">    1350 </span>                :            : /*  If we don't have libxml2 but WCS SVR was selected, then         */
-<span class="lineNum">    1351 </span>                :            : /*      report WCS 1.1 requests as unsupported.                         */
-<span class="lineNum">    1352 </span>                :            : /* ==================================================================== */
-<span class="lineNum">    1353 </span>                :            : /************************************************************************/
-<span class="lineNum">    1354 </span>                :            : 
-<span class="lineNum">    1355 </span>                :            : #if defined(USE_WCS_SVR) &amp;&amp; !defined(USE_LIBXML2)
-<span class="lineNum">    1356 </span>                :            : 
-<span class="lineNum">    1357 </span>                :            : #include &quot;mapwcs.h&quot;
-<span class="lineNum">    1358 </span>                :            : 
-<span class="lineNum">    1359 </span>                :            : /* ==================================================================== */
-<span class="lineNum">    1360 </span>                :            : 
-<span class="lineNum">    1361 </span>                :            : int msWCSDescribeCoverage11(mapObj *map, wcsParamsObj *params,
-<span class="lineNum">    1362 </span>                :            :                             owsRequestObj *ows_request)
-<span class="lineNum">    1363 </span>                :            : {
-<span class="lineNum">    1364 </span>                :            :   msSetError( MS_WCSERR,
-<span class="lineNum">    1365 </span>                :            :               &quot;WCS 1.1 request made, but mapserver requires libxml2 for WCS 1.1 services and this is not configured.&quot;,
-<span class="lineNum">    1366 </span>                :            :               &quot;msWCSDescribeCoverage11()&quot; );
-<span class="lineNum">    1367 </span>                :            :   return msWCSException11(map, &quot;NoApplicableCode&quot;, &quot;mapserv&quot;, params-&gt;version);
-<span class="lineNum">    1368 </span>                :            : }
-<span class="lineNum">    1369 </span>                :            : 
-<span class="lineNum">    1370 </span>                :            : /* ==================================================================== */
-<span class="lineNum">    1371 </span>                :            : 
-<span class="lineNum">    1372 </span>                :            : int msWCSGetCapabilities11(mapObj *map, wcsParamsObj *params,
-<span class="lineNum">    1373 </span>                :            :                            cgiRequestObj *req, owsRequestObj *ows_request)
-<span class="lineNum">    1374 </span>                :            : {
-<span class="lineNum">    1375 </span>                :            :   msSetError( MS_WCSERR,
-<span class="lineNum">    1376 </span>                :            :               &quot;WCS 1.1 request made, but mapserver requires libxml2 for WCS 1.1 services and this is not configured.&quot;,
-<span class="lineNum">    1377 </span>                :            :               &quot;msWCSGetCapabilities11()&quot; );
-<span class="lineNum">    1378 </span>                :            : 
-<span class="lineNum">    1379 </span>                :            :   return msWCSException11(map, &quot;NoApplicableCode&quot;, &quot;mapserv&quot;, params-&gt;version);
-<span class="lineNum">    1380 </span>                :            : }
-<span class="lineNum">    1381 </span>                :            : 
-<span class="lineNum">    1382 </span>                :            : int msWCSException11(mapObj *map, const char *exceptionCode, const char *locator, const char *version)
-<span class="lineNum">    1383 </span>                :            : {
-<span class="lineNum">    1384 </span>                :            :   /* fallback to reporting using 1.0 style exceptions. */
-<span class="lineNum">    1385 </span>                :            :   return msWCSException( map, exceptionCode, locator, &quot;1.0.0&quot; );
-<span class="lineNum">    1386 </span>                :            : }
-<span class="lineNum">    1387 </span>                :            : 
-<span class="lineNum">    1388 </span>                :            : #endif /* defined(USE_WCS_SVR) &amp;&amp; !defined(USE_LIBXML2) */
+<span class="lineNum">    1232 </span>                :            :       stdout,
+<span class="lineNum">    1233 </span>                :            :       &quot;    &lt;ows:Reference xlink:href=\&quot;cid:coverage/wcs.%s\&quot;/&gt;\n&quot;
+<span class="lineNum">    1234 </span>                :            :       &quot;  &lt;/Coverage&gt;\n&quot;
+<span class="lineNum">    1235 </span>                :            :       &quot;&lt;/Coverages&gt;\n&quot;
+<span class="lineNum">    1236 </span>                :            :       &quot;\r\n--wcs\r\n&quot;
+<span class="lineNum">    1237 </span>                :            :       &quot;Content-Type: %s\r\n&quot;
+<span class="lineNum">    1238 </span>                :            :       &quot;Content-Description: coverage data\r\n&quot;
+<span class="lineNum">    1239 </span>                :            :       &quot;Content-Transfer-Encoding: binary\r\n&quot;
+<span class="lineNum">    1240 </span>                :            :       &quot;Content-ID: coverage/wcs.%s\r\n&quot;
+<span class="lineNum">    1241 </span>                :            :       &quot;Content-Disposition: INLINE\r\n\r\n&quot;,
+<span class="lineNum">    1242 </span>                :<span class="lineCov">          1 :       MS_IMAGE_EXTENSION(map-&gt;outputformat),</span>
+<span class="lineNum">    1243 </span>                :<span class="lineCov">          1 :       MS_IMAGE_MIME_TYPE(map-&gt;outputformat),</span>
+<span class="lineNum">    1244 </span>                :<span class="lineCov">          1 :       MS_IMAGE_EXTENSION(map-&gt;outputformat));</span>
+<span class="lineNum">    1245 </span>                :            : 
+<span class="lineNum">    1246 </span>                :<span class="lineCov">          1 :     status = msSaveImage(map, image, NULL);</span>
+<span class="lineNum">    1247 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( status != MS_SUCCESS ) {</span>
+<span class="lineNum">    1248 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR, &quot;msSaveImage() failed&quot;, &quot;msWCSReturnCoverage11()&quot;);</span>
+<span class="lineNum">    1249 </span>                :<span class="lineNoCov">          0 :       return msWCSException11(map, &quot;NoApplicableCode&quot;, &quot;mapserv&quot;, params-&gt;version);</span>
+<span class="lineNum">    1250 </span>                :            :     }
+<span class="lineNum">    1251 </span>                :            : 
+<span class="lineNum">    1252 </span>                :<span class="lineCov">          1 :     msIO_fprintf( stdout, &quot;\r\n--wcs--\r\n&quot; );</span>
+<span class="lineNum">    1253 </span>                :<span class="lineCov">          1 :     return MS_SUCCESS;</span>
+<span class="lineNum">    1254 </span>                :            :   }
+<span class="lineNum">    1255 </span>                :            : 
+<span class="lineNum">    1256 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1257 </span>                :            :   /*      When potentially listing multiple files, we take great care     */
+<span class="lineNum">    1258 </span>                :            :   /*      to identify the &quot;primary&quot; file and list it first.  In fact      */
+<span class="lineNum">    1259 </span>                :            :   /*      it is the only file listed in the coverages document.           */
+<span class="lineNum">    1260 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1261 </span>                :            :   {
+<span class="lineNum">    1262 </span>                :<span class="lineCov">          1 :     char **all_files = CPLReadDir( base_dir );</span>
+<span class="lineNum">    1263 </span>                :<span class="lineCov">          1 :     int count = CSLCount(all_files);</span>
+<span class="lineNum">    1264 </span>                :            : 
+<span class="lineNum">    1265 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if( msIO_needBinaryStdout() == MS_FAILURE )</span>
+<span class="lineNum">    1266 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">    1267 </span>                :            : 
+<span class="lineNum">    1268 </span>                :<span class="lineCov">          1 :     msAcquireLock( TLOCK_GDAL );</span>
+<span class="lineNum">    1269 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = count-1; i &gt;= 0; i-- ) {</span>
+<span class="lineNum">    1270 </span>                :<span class="lineCov">          1 :       const char *this_file = all_files[i];</span>
+<span class="lineNum">    1271 </span>                :            : 
+<span class="lineNum">    1272 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( EQUAL(this_file,&quot;.&quot;) || EQUAL(this_file,&quot;..&quot;) ) {</span>
+<span class="lineNum">    1273 </span>                :<span class="lineNoCov">          0 :         all_files = CSLRemoveStrings( all_files, i, 1, NULL );</span>
+<span class="lineNum">    1274 </span>                :<span class="lineNoCov">          0 :         continue;</span>
+<span class="lineNum">    1275 </span>                :            :       }
+<span class="lineNum">    1276 </span>                :            : 
+<span class="lineNum">    1277 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( i &gt; 0 &amp;&amp; EQUAL(this_file,CPLGetFilename(filename)) ) {</span>
+<span class="lineNum">    1278 </span>                :<span class="lineNoCov">          0 :         all_files = CSLRemoveStrings( all_files, i, 1, NULL );</span>
+<span class="lineNum">    1279 </span>                :<span class="lineNoCov">          0 :         all_files = CSLInsertString(all_files,0,CPLGetFilename(filename));</span>
+<span class="lineNum">    1280 </span>                :<span class="lineNoCov">          0 :         i++;</span>
+<span class="lineNum">    1281 </span>                :            :       }
+<span class="lineNum">    1282 </span>                :            :     }
+<span class="lineNum">    1283 </span>                :            : 
+<span class="lineNum">    1284 </span>                :<span class="lineCov">          1 :     msIO_fprintf(</span>
+<span class="lineNum">    1285 </span>                :            :       stdout,
+<span class="lineNum">    1286 </span>                :            :       &quot;    &lt;ows:Reference xlink:href=\&quot;cid:coverage/%s\&quot;/&gt;\n&quot;
+<span class="lineNum">    1287 </span>                :            :       &quot;  &lt;/Coverage&gt;\n&quot;
+<span class="lineNum">    1288 </span>                :            :       &quot;&lt;/Coverages&gt;\n&quot;,
+<span class="lineNum">    1289 </span>                :            :       CPLGetFilename(filename) );
+<span class="lineNum">    1290 </span>                :            : 
+<span class="lineNum">    1291 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1292 </span>                :            :     /*      Dump all the files in the memory directory as mime sections.    */
+<span class="lineNum">    1293 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1294 </span>                :<span class="lineCov">          1 :     count = CSLCount(all_files);</span>
+<span class="lineNum">    1295 </span>                :            : 
+<span class="lineNum">    1296 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = 0; i &lt; count; i++ ) {</span>
+<span class="lineNum">    1297 </span>                :            :       const char *mimetype = NULL;
+<span class="lineNum">    1298 </span>                :            :       FILE *fp;
+<span class="lineNum">    1299 </span>                :            :       unsigned char block[4000];
+<span class="lineNum">    1300 </span>                :            :       int bytes_read;
+<span class="lineNum">    1301 </span>                :            : 
+<span class="lineNum">    1302 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( i == 0 )</span>
+<span class="lineNum">    1303 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         mimetype = MS_IMAGE_MIME_TYPE(map-&gt;outputformat);</span>
+<span class="lineNum">    1304 </span>                :            : 
+<span class="lineNum">    1305 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( mimetype == NULL )</span>
+<span class="lineNum">    1306 </span>                :            :         mimetype = &quot;application/octet-stream&quot;;
+<span class="lineNum">    1307 </span>                :            : 
+<span class="lineNum">    1308 </span>                :<span class="lineCov">          1 :       msIO_fprintf(</span>
+<span class="lineNum">    1309 </span>                :            :         stdout,
+<span class="lineNum">    1310 </span>                :            :         &quot;\r\n--wcs\r\n&quot;
+<span class="lineNum">    1311 </span>                :            :         &quot;Content-Type: %s\r\n&quot;
+<span class="lineNum">    1312 </span>                :            :         &quot;Content-Description: coverage data\r\n&quot;
+<span class="lineNum">    1313 </span>                :            :         &quot;Content-Transfer-Encoding: binary\r\n&quot;
+<span class="lineNum">    1314 </span>                :            :         &quot;Content-ID: coverage/%s\r\n&quot;
+<span class="lineNum">    1315 </span>                :            :         &quot;Content-Disposition: INLINE\r\n\r\n&quot;,
+<span class="lineNum">    1316 </span>                :            :         mimetype,
+<span class="lineNum">    1317 </span>                :<span class="lineCov">          1 :         all_files[i]);</span>
+<span class="lineNum">    1318 </span>                :            : 
+<span class="lineNum">    1319 </span>                :<span class="lineCov">          1 :       fp = VSIFOpenL(</span>
+<span class="lineNum">    1320 </span>                :<span class="lineCov">          1 :              CPLFormFilename(base_dir, all_files[i], NULL),</span>
+<span class="lineNum">    1321 </span>                :            :              &quot;rb&quot; );
+<span class="lineNum">    1322 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( fp == NULL ) {</span>
+<span class="lineNum">    1323 </span>                :<span class="lineNoCov">          0 :         msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">    1324 </span>                :<span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1325 </span>                :            :                     &quot;Failed to open %s for streaming to stdout.&quot;,
+<span class="lineNum">    1326 </span>                :<span class="lineNoCov">          0 :                     &quot;msWCSReturnCoverage11()&quot;, all_files[i] );</span>
+<span class="lineNum">    1327 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">    1328 </span>                :            :       }
+<span class="lineNum">    1329 </span>                :            : 
+<span class="lineNum">    1330 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       while( (bytes_read = VSIFReadL(block, 1, sizeof(block), fp)) &gt; 0 )</span>
+<span class="lineNum">    1331 </span>                :<span class="lineCov">          1 :         msIO_fwrite( block, 1, bytes_read, stdout );</span>
+<span class="lineNum">    1332 </span>                :            : 
+<span class="lineNum">    1333 </span>                :<span class="lineCov">          1 :       VSIFCloseL( fp );</span>
+<span class="lineNum">    1334 </span>                :            : 
+<span class="lineNum">    1335 </span>                :<span class="lineCov">          1 :       VSIUnlink( CPLFormFilename(base_dir, all_files[i], NULL) );</span>
+<span class="lineNum">    1336 </span>                :            :     }
+<span class="lineNum">    1337 </span>                :            : 
+<span class="lineNum">    1338 </span>                :<span class="lineCov">          1 :     msFree(base_dir);</span>
+<span class="lineNum">    1339 </span>                :<span class="lineCov">          1 :     msFree(filename);</span>
+<span class="lineNum">    1340 </span>                :<span class="lineCov">          1 :     CSLDestroy( all_files );</span>
+<span class="lineNum">    1341 </span>                :<span class="lineCov">          1 :     msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">    1342 </span>                :            : 
+<span class="lineNum">    1343 </span>                :<span class="lineCov">          1 :     msIO_fprintf( stdout, &quot;\r\n--wcs--\r\n&quot; );</span>
+<span class="lineNum">    1344 </span>                :<span class="lineCov">          1 :     return MS_SUCCESS;</span>
+<span class="lineNum">    1345 </span>                :            :   }
+<span class="lineNum">    1346 </span>                :            : }
+<span class="lineNum">    1347 </span>                :            : #endif /* defined(USE_WCS_SVR) &amp;&amp; defined(USE_LIBXML2) */
+<span class="lineNum">    1348 </span>                :            : 
+<span class="lineNum">    1349 </span>                :            : /************************************************************************/
+<span class="lineNum">    1350 </span>                :            : /* ==================================================================== */
+<span class="lineNum">    1351 </span>                :            : /*  If we don't have libxml2 but WCS SVR was selected, then         */
+<span class="lineNum">    1352 </span>                :            : /*      report WCS 1.1 requests as unsupported.                         */
+<span class="lineNum">    1353 </span>                :            : /* ==================================================================== */
+<span class="lineNum">    1354 </span>                :            : /************************************************************************/
+<span class="lineNum">    1355 </span>                :            : 
+<span class="lineNum">    1356 </span>                :            : #if defined(USE_WCS_SVR) &amp;&amp; !defined(USE_LIBXML2)
+<span class="lineNum">    1357 </span>                :            : 
+<span class="lineNum">    1358 </span>                :            : #include &quot;mapwcs.h&quot;
+<span class="lineNum">    1359 </span>                :            : 
+<span class="lineNum">    1360 </span>                :            : /* ==================================================================== */
+<span class="lineNum">    1361 </span>                :            : 
+<span class="lineNum">    1362 </span>                :            : int msWCSDescribeCoverage11(mapObj *map, wcsParamsObj *params,
+<span class="lineNum">    1363 </span>                :            :                             owsRequestObj *ows_request)
+<span class="lineNum">    1364 </span>                :            : {
+<span class="lineNum">    1365 </span>                :            :   msSetError( MS_WCSERR,
+<span class="lineNum">    1366 </span>                :            :               &quot;WCS 1.1 request made, but mapserver requires libxml2 for WCS 1.1 services and this is not configured.&quot;,
+<span class="lineNum">    1367 </span>                :            :               &quot;msWCSDescribeCoverage11()&quot; );
+<span class="lineNum">    1368 </span>                :            :   return msWCSException11(map, &quot;NoApplicableCode&quot;, &quot;mapserv&quot;, params-&gt;version);
+<span class="lineNum">    1369 </span>                :            : }
+<span class="lineNum">    1370 </span>                :            : 
+<span class="lineNum">    1371 </span>                :            : /* ==================================================================== */
+<span class="lineNum">    1372 </span>                :            : 
+<span class="lineNum">    1373 </span>                :            : int msWCSGetCapabilities11(mapObj *map, wcsParamsObj *params,
+<span class="lineNum">    1374 </span>                :            :                            cgiRequestObj *req, owsRequestObj *ows_request)
+<span class="lineNum">    1375 </span>                :            : {
+<span class="lineNum">    1376 </span>                :            :   msSetError( MS_WCSERR,
+<span class="lineNum">    1377 </span>                :            :               &quot;WCS 1.1 request made, but mapserver requires libxml2 for WCS 1.1 services and this is not configured.&quot;,
+<span class="lineNum">    1378 </span>                :            :               &quot;msWCSGetCapabilities11()&quot; );
+<span class="lineNum">    1379 </span>                :            : 
+<span class="lineNum">    1380 </span>                :            :   return msWCSException11(map, &quot;NoApplicableCode&quot;, &quot;mapserv&quot;, params-&gt;version);
+<span class="lineNum">    1381 </span>                :            : }
+<span class="lineNum">    1382 </span>                :            : 
+<span class="lineNum">    1383 </span>                :            : int msWCSException11(mapObj *map, const char *exceptionCode, const char *locator, const char *version)
+<span class="lineNum">    1384 </span>                :            : {
+<span class="lineNum">    1385 </span>                :            :   /* fallback to reporting using 1.0 style exceptions. */
+<span class="lineNum">    1386 </span>                :            :   return msWCSException( map, exceptionCode, locator, &quot;1.0.0&quot; );
+<span class="lineNum">    1387 </span>                :            : }
+<span class="lineNum">    1388 </span>                :            : 
+<span class="lineNum">    1389 </span>                :            : #endif /* defined(USE_WCS_SVR) &amp;&amp; !defined(USE_LIBXML2) */
 </pre>
       </td>
     </tr>
