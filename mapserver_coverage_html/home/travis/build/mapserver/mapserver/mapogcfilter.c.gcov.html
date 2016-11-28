@@ -31,27 +31,27 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">987</td>
-            <td class="headerCovTableEntry">1701</td>
-            <td class="headerCovTableEntryLo">58.0 %</td>
+            <td class="headerCovTableEntry">1010</td>
+            <td class="headerCovTableEntry">1725</td>
+            <td class="headerCovTableEntryLo">58.6 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
             <td class="headerValue">XXXX-XX-XX</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">43</td>
-            <td class="headerCovTableEntry">66</td>
-            <td class="headerCovTableEntryLo">65.2 %</td>
+            <td class="headerCovTableEntry">44</td>
+            <td class="headerCovTableEntry">67</td>
+            <td class="headerCovTableEntryLo">65.7 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">668</td>
-            <td class="headerCovTableEntry">1554</td>
-            <td class="headerCovTableEntryLo">43.0 %</td>
+            <td class="headerCovTableEntry">688</td>
+            <td class="headerCovTableEntry">1580</td>
+            <td class="headerCovTableEntryLo">43.5 %</td>
           </tr>
           <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -3763,245 +3763,296 @@
 <span class="lineNum">    3672 </span>                :            : }
 <span class="lineNum">    3673 </span>                :            : 
 <span class="lineNum">    3674 </span>                :            : /************************************************************************/
-<span class="lineNum">    3675 </span>                :            : /*                        FLTCheckInvalidProperty                       */
+<span class="lineNum">    3675 </span>                :            : /*                       FLTProcessPropertyIsNull                       */
 <span class="lineNum">    3676 </span>                :            : /*                                                                      */
-<a name="3677"><span class="lineNum">    3677 </span>                :            : /*      Check that property names are known                             */</a>
-<span class="lineNum">    3678 </span>                :            : /************************************************************************/
-<span class="lineNum">    3679 </span>                :<span class="lineCov">          1 : int FLTCheckInvalidProperty(FilterEncodingNode *psFilterNode,</span>
-<span class="lineNum">    3680 </span>                :            :                             mapObj *map, int i)
-<span class="lineNum">    3681 </span>                :            : {
-<span class="lineNum">    3682 </span>                :            :     int status = MS_SUCCESS;
-<span class="lineNum">    3683 </span>                :            : 
-<span class="lineNum">    3684 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if (psFilterNode-&gt;eType ==  FILTER_NODE_TYPE_COMPARISON &amp;&amp;</span>
-<span class="lineNum">    3685 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode != NULL &amp;&amp;</span>
-<span class="lineNum">    3686 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode-&gt;eType == FILTER_NODE_TYPE_PROPERTYNAME)</span>
-<span class="lineNum">    3687 </span>                :            :     {
-<span class="lineNum">    3688 </span>                :            :         layerObj* lp;
-<span class="lineNum">    3689 </span>                :            :         int layerWasOpened;
-<span class="lineNum">    3690 </span>                :            :         int bFound = MS_FALSE;
-<span class="lineNum">    3691 </span>                :            : 
-<span class="lineNum">    3692 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if ((strcmp(psFilterNode-&gt;pszValue, &quot;PropertyIsNull&quot;) == 0 ||</span>
-<span class="lineNum">    3693 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :              strcmp(psFilterNode-&gt;pszValue, &quot;PropertyIsNil&quot;) == 0) &amp;&amp; </span>
-<span class="lineNum">    3694 </span>                :<span class="lineCov">          1 :              FLTIsGMLDefaultProperty(psFilterNode-&gt;psLeftNode-&gt;pszValue) )</span>
-<span class="lineNum">    3695 </span>                :            :         {
-<span class="lineNum">    3696 </span>                :            :             return MS_SUCCESS;
-<span class="lineNum">    3697 </span>                :            :         }
-<span class="lineNum">    3698 </span>                :            : 
-<span class="lineNum">    3699 </span>                :<span class="lineCov">          1 :         lp = GET_LAYER(map, i);</span>
-<span class="lineNum">    3700 </span>                :<span class="lineCov">          1 :         layerWasOpened = msLayerIsOpen(lp);</span>
-<span class="lineNum">    3701 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineCov">          1 :         if ((layerWasOpened || msLayerOpen(lp) == MS_SUCCESS) </span>
-<span class="lineNum">    3702 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :              &amp;&amp; msLayerGetItems(lp) == MS_SUCCESS) {</span>
-<span class="lineNum">    3703 </span>                :            :           int i;
-<span class="lineNum">    3704 </span>                :<span class="lineCov">          1 :           gmlItemListObj* items = msGMLGetItems(lp, &quot;G&quot;);</span>
-<span class="lineNum">    3705 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           for(i=0; i&lt;items-&gt;numitems; i++) {</span>
-<span class="lineNum">    3706 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :             if (!items-&gt;items[i].name || strlen(items-&gt;items[i].name) &lt;= 0 ||</span>
+<span class="lineNum">    3677 </span>                :            : /*      HACK for PropertyIsNull processing. PostGIS &amp; Spatialite only   */
+<a name="3678"><span class="lineNum">    3678 </span>                :            : /*      for now.                                                        */</a>
+<span class="lineNum">    3679 </span>                :            : /************************************************************************/
+<span class="lineNum">    3680 </span>                :<span class="lineCov">          1 : int FLTProcessPropertyIsNull(FilterEncodingNode *psFilterNode,</span>
+<span class="lineNum">    3681 </span>                :            :                             mapObj *map, int i)
+<span class="lineNum">    3682 </span>                :            : {
+<span class="lineNum">    3683 </span>                :            :     int status = MS_SUCCESS;
+<span class="lineNum">    3684 </span>                :            : 
+<span class="lineNum">    3685 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if (psFilterNode-&gt;eType == FILTER_NODE_TYPE_COMPARISON &amp;&amp;</span>
+<span class="lineNum">    3686 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode != NULL &amp;&amp;</span>
+<span class="lineNum">    3687 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode-&gt;eType == FILTER_NODE_TYPE_PROPERTYNAME &amp;&amp;</span>
+<span class="lineNum">    3688 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         strcmp(psFilterNode-&gt;pszValue, &quot;PropertyIsNull&quot;) == 0 &amp;&amp;</span>
+<span class="lineNum">    3689 </span>                :<span class="lineCov">          1 :         !FLTIsGMLDefaultProperty(psFilterNode-&gt;psLeftNode-&gt;pszValue) )</span>
+<span class="lineNum">    3690 </span>                :            :     {
+<span class="lineNum">    3691 </span>                :            :         layerObj* lp;
+<span class="lineNum">    3692 </span>                :            :         int layerWasOpened;
+<span class="lineNum">    3693 </span>                :            : 
+<span class="lineNum">    3694 </span>                :<span class="lineCov">          1 :         lp = GET_LAYER(map, i);</span>
+<span class="lineNum">    3695 </span>                :<span class="lineCov">          1 :         layerWasOpened = msLayerIsOpen(lp);</span>
+<span class="lineNum">    3696 </span>                :            : 
+<span class="lineNum">    3697 </span>                :            :         /* Horrible HACK to compensate for the lack of null testing in MapServer */
+<span class="lineNum">    3698 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if( (lp-&gt;connectiontype == MS_POSTGIS ||</span>
+<span class="lineNum">    3699 </span>[<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>][<span class="branchCov" title="Branch 3 was taken X times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          1 :              (lp-&gt;connectiontype == MS_OGR &amp;&amp; msOGRIsSpatialite(lp))) &amp;&amp;</span>
+<span class="lineNum">    3700 </span>                :<span class="lineCov">          1 :             strcmp(psFilterNode-&gt;pszValue, &quot;PropertyIsNull&quot;) == 0 )</span>
+<span class="lineNum">    3701 </span>                :            :         {
+<span class="lineNum">    3702 </span>                :<span class="lineCov">          1 :             msFree(psFilterNode-&gt;pszValue);</span>
+<span class="lineNum">    3703 </span>                :<span class="lineCov">          1 :             psFilterNode-&gt;pszValue = msStrdup(&quot;PropertyIsEqualTo&quot;);</span>
+<span class="lineNum">    3704 </span>                :<span class="lineCov">          1 :             psFilterNode-&gt;psRightNode = FLTCreateBinaryCompFilterEncodingNode();</span>
+<span class="lineNum">    3705 </span>                :<span class="lineCov">          1 :             psFilterNode-&gt;psRightNode-&gt;eType = FILTER_NODE_TYPE_LITERAL;</span>
+<span class="lineNum">    3706 </span>                :<span class="lineCov">          1 :             psFilterNode-&gt;psRightNode-&gt;pszValue = msStrdup(&quot;_MAPSERVER_NULL_&quot;);</span>
+<span class="lineNum">    3707 </span>                :            :         }
+<span class="lineNum">    3708 </span>                :            : 
+<span class="lineNum">    3709 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if (!layerWasOpened) /* do not close the layer if it has been opened somewhere else (paging?) */</span>
+<span class="lineNum">    3710 </span>                :<span class="lineNoCov">          0 :           msLayerClose(lp);</span>
+<span class="lineNum">    3711 </span>                :            :     }
+<span class="lineNum">    3712 </span>                :            : 
+<span class="lineNum">    3713 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (psFilterNode-&gt;psLeftNode)</span>
+<span class="lineNum">    3714 </span>                :            :     {
+<span class="lineNum">    3715 </span>                :<span class="lineCov">          1 :       status = FLTProcessPropertyIsNull(psFilterNode-&gt;psLeftNode, map, i);</span>
+<span class="lineNum">    3716 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( status == MS_SUCCESS )</span>
+<span class="lineNum">    3717 </span>                :            :       {
+<span class="lineNum">    3718 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if (psFilterNode-&gt;psRightNode)</span>
+<span class="lineNum">    3719 </span>                :<span class="lineCov">          1 :             status = FLTProcessPropertyIsNull(psFilterNode-&gt;psRightNode, map, i);</span>
+<span class="lineNum">    3720 </span>                :            :       }
+<span class="lineNum">    3721 </span>                :            :     }
+<span class="lineNum">    3722 </span>                :<span class="lineCov">          1 :     return status;</span>
+<span class="lineNum">    3723 </span>                :            : }
+<span class="lineNum">    3724 </span>                :            : 
+<span class="lineNum">    3725 </span>                :            : /************************************************************************/
+<span class="lineNum">    3726 </span>                :            : /*                        FLTCheckInvalidProperty                       */
+<span class="lineNum">    3727 </span>                :            : /*                                                                      */
+<a name="3728"><span class="lineNum">    3728 </span>                :            : /*      Check that property names are known                             */</a>
+<span class="lineNum">    3729 </span>                :            : /************************************************************************/
+<span class="lineNum">    3730 </span>                :<span class="lineCov">          1 : int FLTCheckInvalidProperty(FilterEncodingNode *psFilterNode,</span>
+<span class="lineNum">    3731 </span>                :            :                             mapObj *map, int i)
+<span class="lineNum">    3732 </span>                :            : {
+<span class="lineNum">    3733 </span>                :            :     int status = MS_SUCCESS;
+<span class="lineNum">    3734 </span>                :            : 
+<span class="lineNum">    3735 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if (psFilterNode-&gt;eType ==  FILTER_NODE_TYPE_COMPARISON &amp;&amp;</span>
+<span class="lineNum">    3736 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode != NULL &amp;&amp;</span>
+<span class="lineNum">    3737 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode-&gt;eType == FILTER_NODE_TYPE_PROPERTYNAME)</span>
+<span class="lineNum">    3738 </span>                :            :     {
+<span class="lineNum">    3739 </span>                :            :         layerObj* lp;
+<span class="lineNum">    3740 </span>                :            :         int layerWasOpened;
+<span class="lineNum">    3741 </span>                :            :         int bFound = MS_FALSE;
+<span class="lineNum">    3742 </span>                :            : 
+<span class="lineNum">    3743 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if ((strcmp(psFilterNode-&gt;pszValue, &quot;PropertyIsNull&quot;) == 0 ||</span>
+<span class="lineNum">    3744 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :              strcmp(psFilterNode-&gt;pszValue, &quot;PropertyIsNil&quot;) == 0) &amp;&amp; </span>
+<span class="lineNum">    3745 </span>                :<span class="lineCov">          1 :              FLTIsGMLDefaultProperty(psFilterNode-&gt;psLeftNode-&gt;pszValue) )</span>
+<span class="lineNum">    3746 </span>                :            :         {
+<span class="lineNum">    3747 </span>                :            :             return MS_SUCCESS;
+<span class="lineNum">    3748 </span>                :            :         }
+<span class="lineNum">    3749 </span>                :            : 
+<span class="lineNum">    3750 </span>                :<span class="lineCov">          1 :         lp = GET_LAYER(map, i);</span>
+<span class="lineNum">    3751 </span>                :<span class="lineCov">          1 :         layerWasOpened = msLayerIsOpen(lp);</span>
+<span class="lineNum">    3752 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineCov">          1 :         if ((layerWasOpened || msLayerOpen(lp) == MS_SUCCESS) </span>
+<span class="lineNum">    3753 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :              &amp;&amp; msLayerGetItems(lp) == MS_SUCCESS) {</span>
+<span class="lineNum">    3754 </span>                :            :           int i;
+<span class="lineNum">    3755 </span>                :<span class="lineCov">          1 :           gmlItemListObj* items = msGMLGetItems(lp, &quot;G&quot;);</span>
+<span class="lineNum">    3756 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           for(i=0; i&lt;items-&gt;numitems; i++) {</span>
+<span class="lineNum">    3757 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :             if (!items-&gt;items[i].name || strlen(items-&gt;items[i].name) &lt;= 0 ||</span>
 <span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>]
-<span class="lineNum">    3707 </span>                :<span class="lineCov">          1 :                 !items-&gt;items[i].visible)</span>
-<span class="lineNum">    3708 </span>                :<span class="lineCov">          1 :               continue;</span>
-<span class="lineNum">    3709 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if (strcasecmp(items-&gt;items[i].name, psFilterNode-&gt;psLeftNode-&gt;pszValue) == 0) {</span>
-<span class="lineNum">    3710 </span>                :            :                 bFound = MS_TRUE;
-<span class="lineNum">    3711 </span>                :            :                 break;
-<span class="lineNum">    3712 </span>                :            :             }
-<span class="lineNum">    3713 </span>                :            :           }
-<span class="lineNum">    3714 </span>                :<span class="lineCov">          1 :           msGMLFreeItems(items);</span>
-<span class="lineNum">    3715 </span>                :            :         }
-<span class="lineNum">    3716 </span>                :            : 
-<span class="lineNum">    3717 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if (!layerWasOpened) /* do not close the layer if it has been opened somewhere else (paging?) */</span>
-<span class="lineNum">    3718 </span>                :<span class="lineNoCov">          0 :           msLayerClose(lp);</span>
-<span class="lineNum">    3719 </span>                :            : 
-<span class="lineNum">    3720 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( !bFound )</span>
-<span class="lineNum">    3721 </span>                :            :         {
-<span class="lineNum">    3722 </span>                :<span class="lineCov">          1 :             msSetError(MS_MISCERR, &quot;Property '%s' is unknown.&quot;,</span>
-<span class="lineNum">    3723 </span>                :<span class="lineCov">          1 :                        &quot;FLTCheckInvalidProperty()&quot;, psFilterNode-&gt;psLeftNode-&gt;pszValue);</span>
-<span class="lineNum">    3724 </span>                :<span class="lineCov">          1 :             return MS_FAILURE;</span>
-<span class="lineNum">    3725 </span>                :            :         }
-<span class="lineNum">    3726 </span>                :            :     }
-<span class="lineNum">    3727 </span>                :            : 
-<span class="lineNum">    3728 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (psFilterNode-&gt;psLeftNode)</span>
-<span class="lineNum">    3729 </span>                :            :     {
-<span class="lineNum">    3730 </span>                :<span class="lineCov">          1 :       status = FLTCheckInvalidProperty(psFilterNode-&gt;psLeftNode, map, i);</span>
-<span class="lineNum">    3731 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( status == MS_SUCCESS )</span>
-<span class="lineNum">    3732 </span>                :            :       {
-<span class="lineNum">    3733 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if (psFilterNode-&gt;psRightNode)</span>
-<span class="lineNum">    3734 </span>                :<span class="lineCov">          1 :             status = FLTCheckInvalidProperty(psFilterNode-&gt;psRightNode, map, i);</span>
-<span class="lineNum">    3735 </span>                :            :       }
-<span class="lineNum">    3736 </span>                :            :     }
-<span class="lineNum">    3737 </span>                :<span class="lineCov">          1 :     return status;</span>
-<span class="lineNum">    3738 </span>                :            : }
-<span class="lineNum">    3739 </span>                :            : 
-<span class="lineNum">    3740 </span>                :            : /************************************************************************/
-<span class="lineNum">    3741 </span>                :            : /*                           FLTSimplify                                */
-<span class="lineNum">    3742 </span>                :            : /*                                                                      */
-<span class="lineNum">    3743 </span>                :            : /*      Simplify the expression by removing parts that evaluate to      */
-<span class="lineNum">    3744 </span>                :            : /*      constants.                                                      */
-<span class="lineNum">    3745 </span>                :            : /*      The passed psFilterNode is potentially consumed by the function */
-<span class="lineNum">    3746 </span>                :            : /*      and replaced by the returned value.                             */
-<span class="lineNum">    3747 </span>                :            : /*      If the function returns NULL, *pnEvaluation = MS_FALSE means    */
-<span class="lineNum">    3748 </span>                :            : /*      that  the filter evaluates to FALSE, or MS_TRUE that it         */
-<a name="3749"><span class="lineNum">    3749 </span>                :            : /*      evaluates to TRUE                                               */</a>
-<span class="lineNum">    3750 </span>                :            : /************************************************************************/
-<span class="lineNum">    3751 </span>                :<span class="lineCov">          1 : FilterEncodingNode* FLTSimplify(FilterEncodingNode *psFilterNode,</span>
-<span class="lineNum">    3752 </span>                :            :                                 int* pnEvaluation)
-<span class="lineNum">    3753 </span>                :            : {
-<span class="lineNum">    3754 </span>                :<span class="lineCov">          1 :     *pnEvaluation = -1;</span>
-<span class="lineNum">    3755 </span>                :            : 
-<span class="lineNum">    3756 </span>                :            :     /* There are no nullable or nillable property in WFS currently */
-<span class="lineNum">    3757 </span>                :            :     /* except gml:name or gml:description that are null */
-<span class="lineNum">    3758 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( psFilterNode-&gt;eType ==  FILTER_NODE_TYPE_COMPARISON &amp;&amp;</span>
-<span class="lineNum">    3759 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         (strcmp(psFilterNode-&gt;pszValue, &quot;PropertyIsNull&quot;) == 0 ||</span>
-<span class="lineNum">    3760 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :          strcmp(psFilterNode-&gt;pszValue, &quot;PropertyIsNil&quot;) == 0 ) &amp;&amp;</span>
-<span class="lineNum">    3761 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode != NULL &amp;&amp;</span>
-<span class="lineNum">    3762 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode-&gt;eType == FILTER_NODE_TYPE_PROPERTYNAME )</span>
-<span class="lineNum">    3763 </span>                :            :     {
-<span class="lineNum">    3764 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( strcmp(psFilterNode-&gt;pszValue, &quot;PropertyIsNull&quot;) == 0 &amp;&amp;</span>
-<span class="lineNum">    3765 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             FLTIsGMLDefaultProperty(psFilterNode-&gt;psLeftNode-&gt;pszValue) &amp;&amp;</span>
-<span class="lineNum">    3766 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             strcmp(psFilterNode-&gt;psLeftNode-&gt;pszValue, &quot;@gml:id&quot;) != 0  &amp;&amp;</span>
-<span class="lineNum">    3767 </span>                :<span class="lineCov">          1 :             strcmp(psFilterNode-&gt;psLeftNode-&gt;pszValue, &quot;gml:boundedBy&quot;) != 0)</span>
-<span class="lineNum">    3768 </span>                :<span class="lineCov">          1 :             *pnEvaluation = MS_TRUE;</span>
-<span class="lineNum">    3769 </span>                :            :         else
-<span class="lineNum">    3770 </span>                :<span class="lineCov">          1 :             *pnEvaluation = MS_FALSE;</span>
-<span class="lineNum">    3771 </span>                :<span class="lineCov">          1 :         FLTFreeFilterEncodingNode(psFilterNode);</span>
-<span class="lineNum">    3772 </span>                :<span class="lineCov">          1 :         return NULL;</span>
-<span class="lineNum">    3773 </span>                :            :     }
-<span class="lineNum">    3774 </span>                :            : 
-<span class="lineNum">    3775 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( psFilterNode-&gt;eType ==  FILTER_NODE_TYPE_LOGICAL &amp;&amp;</span>
-<span class="lineNum">    3776 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         strcasecmp(psFilterNode-&gt;pszValue, &quot;NOT&quot;) == 0 &amp;&amp;</span>
-<span class="lineNum">    3777 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode != NULL )</span>
-<span class="lineNum">    3778 </span>                :            :     {
-<span class="lineNum">    3779 </span>                :            :         int nEvaluation;
-<span class="lineNum">    3780 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode = FLTSimplify(psFilterNode-&gt;psLeftNode,</span>
-<span class="lineNum">    3781 </span>                :            :                                                &amp;nEvaluation);
-<span class="lineNum">    3782 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( psFilterNode-&gt;psLeftNode == NULL )</span>
-<span class="lineNum">    3783 </span>                :            :         {
-<span class="lineNum">    3784 </span>                :<span class="lineCov">          1 :             *pnEvaluation = 1 - nEvaluation;</span>
-<span class="lineNum">    3785 </span>                :<span class="lineCov">          1 :             FLTFreeFilterEncodingNode(psFilterNode);</span>
-<span class="lineNum">    3786 </span>                :<span class="lineCov">          1 :             return NULL;</span>
-<span class="lineNum">    3787 </span>                :            :         }
-<span class="lineNum">    3788 </span>                :            :     }
-<span class="lineNum">    3789 </span>                :            : 
-<span class="lineNum">    3790 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( psFilterNode-&gt;eType ==  FILTER_NODE_TYPE_LOGICAL &amp;&amp;</span>
-<span class="lineNum">    3791 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         (strcasecmp(psFilterNode-&gt;pszValue, &quot;AND&quot;) == 0 ||</span>
-<span class="lineNum">    3792 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :          strcasecmp(psFilterNode-&gt;pszValue, &quot;OR&quot;) == 0) &amp;&amp;</span>
-<span class="lineNum">    3793 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode != NULL &amp;&amp;</span>
-<span class="lineNum">    3794 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psRightNode != NULL )</span>
-<span class="lineNum">    3795 </span>                :            :     {
-<span class="lineNum">    3796 </span>                :            :         FilterEncodingNode* psOtherNode;
-<span class="lineNum">    3797 </span>                :            :         int nEvaluation;
-<span class="lineNum">    3798 </span>                :            :         int nExpectedValForFastExit;
-<span class="lineNum">    3799 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode = FLTSimplify(psFilterNode-&gt;psLeftNode,</span>
-<span class="lineNum">    3800 </span>                :            :                                                &amp;nEvaluation);
-<span class="lineNum">    3801 </span>                :            : 
-<span class="lineNum">    3802 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( strcasecmp(psFilterNode-&gt;pszValue, &quot;AND&quot;) == 0 )</span>
-<span class="lineNum">    3803 </span>                :            :             nExpectedValForFastExit = MS_FALSE;
-<span class="lineNum">    3804 </span>                :            :         else
-<span class="lineNum">    3805 </span>                :            :             nExpectedValForFastExit = MS_TRUE;
+<span class="lineNum">    3758 </span>                :<span class="lineCov">          1 :                 !items-&gt;items[i].visible)</span>
+<span class="lineNum">    3759 </span>                :<span class="lineCov">          1 :               continue;</span>
+<span class="lineNum">    3760 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if (strcasecmp(items-&gt;items[i].name, psFilterNode-&gt;psLeftNode-&gt;pszValue) == 0) {</span>
+<span class="lineNum">    3761 </span>                :            :                 bFound = MS_TRUE;
+<span class="lineNum">    3762 </span>                :            :                 break;
+<span class="lineNum">    3763 </span>                :            :             }
+<span class="lineNum">    3764 </span>                :            :           }
+<span class="lineNum">    3765 </span>                :<span class="lineCov">          1 :           msGMLFreeItems(items);</span>
+<span class="lineNum">    3766 </span>                :            :         }
+<span class="lineNum">    3767 </span>                :            : 
+<span class="lineNum">    3768 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if (!layerWasOpened) /* do not close the layer if it has been opened somewhere else (paging?) */</span>
+<span class="lineNum">    3769 </span>                :<span class="lineNoCov">          0 :           msLayerClose(lp);</span>
+<span class="lineNum">    3770 </span>                :            : 
+<span class="lineNum">    3771 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( !bFound )</span>
+<span class="lineNum">    3772 </span>                :            :         {
+<span class="lineNum">    3773 </span>                :<span class="lineCov">          1 :             msSetError(MS_MISCERR, &quot;Property '%s' is unknown.&quot;,</span>
+<span class="lineNum">    3774 </span>                :<span class="lineCov">          1 :                        &quot;FLTCheckInvalidProperty()&quot;, psFilterNode-&gt;psLeftNode-&gt;pszValue);</span>
+<span class="lineNum">    3775 </span>                :<span class="lineCov">          1 :             return MS_FAILURE;</span>
+<span class="lineNum">    3776 </span>                :            :         }
+<span class="lineNum">    3777 </span>                :            :     }
+<span class="lineNum">    3778 </span>                :            : 
+<span class="lineNum">    3779 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (psFilterNode-&gt;psLeftNode)</span>
+<span class="lineNum">    3780 </span>                :            :     {
+<span class="lineNum">    3781 </span>                :<span class="lineCov">          1 :       status = FLTCheckInvalidProperty(psFilterNode-&gt;psLeftNode, map, i);</span>
+<span class="lineNum">    3782 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( status == MS_SUCCESS )</span>
+<span class="lineNum">    3783 </span>                :            :       {
+<span class="lineNum">    3784 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if (psFilterNode-&gt;psRightNode)</span>
+<span class="lineNum">    3785 </span>                :<span class="lineCov">          1 :             status = FLTCheckInvalidProperty(psFilterNode-&gt;psRightNode, map, i);</span>
+<span class="lineNum">    3786 </span>                :            :       }
+<span class="lineNum">    3787 </span>                :            :     }
+<span class="lineNum">    3788 </span>                :<span class="lineCov">          1 :     return status;</span>
+<span class="lineNum">    3789 </span>                :            : }
+<span class="lineNum">    3790 </span>                :            : 
+<span class="lineNum">    3791 </span>                :            : /************************************************************************/
+<span class="lineNum">    3792 </span>                :            : /*                           FLTSimplify                                */
+<span class="lineNum">    3793 </span>                :            : /*                                                                      */
+<span class="lineNum">    3794 </span>                :            : /*      Simplify the expression by removing parts that evaluate to      */
+<span class="lineNum">    3795 </span>                :            : /*      constants.                                                      */
+<span class="lineNum">    3796 </span>                :            : /*      The passed psFilterNode is potentially consumed by the function */
+<span class="lineNum">    3797 </span>                :            : /*      and replaced by the returned value.                             */
+<span class="lineNum">    3798 </span>                :            : /*      If the function returns NULL, *pnEvaluation = MS_FALSE means    */
+<span class="lineNum">    3799 </span>                :            : /*      that  the filter evaluates to FALSE, or MS_TRUE that it         */
+<a name="3800"><span class="lineNum">    3800 </span>                :            : /*      evaluates to TRUE                                               */</a>
+<span class="lineNum">    3801 </span>                :            : /************************************************************************/
+<span class="lineNum">    3802 </span>                :<span class="lineCov">          1 : FilterEncodingNode* FLTSimplify(FilterEncodingNode *psFilterNode,</span>
+<span class="lineNum">    3803 </span>                :            :                                 int* pnEvaluation)
+<span class="lineNum">    3804 </span>                :            : {
+<span class="lineNum">    3805 </span>                :<span class="lineCov">          1 :     *pnEvaluation = -1;</span>
 <span class="lineNum">    3806 </span>                :            : 
-<span class="lineNum">    3807 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( psFilterNode-&gt;psLeftNode == NULL )</span>
-<span class="lineNum">    3808 </span>                :            :         {
-<span class="lineNum">    3809 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if( nEvaluation == nExpectedValForFastExit )</span>
-<span class="lineNum">    3810 </span>                :            :             {
-<span class="lineNum">    3811 </span>                :<span class="lineCov">          1 :                 *pnEvaluation = nEvaluation;</span>
-<span class="lineNum">    3812 </span>                :<span class="lineCov">          1 :                 FLTFreeFilterEncodingNode(psFilterNode);</span>
-<span class="lineNum">    3813 </span>                :<span class="lineCov">          1 :                 return NULL;</span>
-<span class="lineNum">    3814 </span>                :            :             }
-<span class="lineNum">    3815 </span>                :<span class="lineCov">          1 :             psOtherNode = psFilterNode-&gt;psRightNode;</span>
-<span class="lineNum">    3816 </span>                :<span class="lineCov">          1 :             psFilterNode-&gt;psRightNode = NULL;</span>
-<span class="lineNum">    3817 </span>                :<span class="lineCov">          1 :             FLTFreeFilterEncodingNode(psFilterNode);</span>
-<span class="lineNum">    3818 </span>                :<span class="lineCov">          1 :             return FLTSimplify(psOtherNode, pnEvaluation);</span>
-<span class="lineNum">    3819 </span>                :            :         }
-<span class="lineNum">    3820 </span>                :            :  
-<span class="lineNum">    3821 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psRightNode = FLTSimplify(psFilterNode-&gt;psRightNode,</span>
-<span class="lineNum">    3822 </span>                :            :                                                 &amp;nEvaluation);
-<span class="lineNum">    3823 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( psFilterNode-&gt;psRightNode == NULL )</span>
-<span class="lineNum">    3824 </span>                :            :         {
-<span class="lineNum">    3825 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if( nEvaluation == nExpectedValForFastExit )</span>
-<span class="lineNum">    3826 </span>                :            :             {
-<span class="lineNum">    3827 </span>                :<span class="lineCov">          1 :                 *pnEvaluation = nEvaluation;</span>
-<span class="lineNum">    3828 </span>                :<span class="lineCov">          1 :                 FLTFreeFilterEncodingNode(psFilterNode);</span>
-<span class="lineNum">    3829 </span>                :<span class="lineCov">          1 :                 return NULL;</span>
-<span class="lineNum">    3830 </span>                :            :             }
-<span class="lineNum">    3831 </span>                :<span class="lineCov">          1 :             psOtherNode = psFilterNode-&gt;psLeftNode;</span>
-<span class="lineNum">    3832 </span>                :<span class="lineCov">          1 :             psFilterNode-&gt;psLeftNode = NULL;</span>
-<span class="lineNum">    3833 </span>                :<span class="lineCov">          1 :             FLTFreeFilterEncodingNode(psFilterNode);</span>
-<span class="lineNum">    3834 </span>                :<span class="lineCov">          1 :             return FLTSimplify(psOtherNode, pnEvaluation);</span>
-<span class="lineNum">    3835 </span>                :            :         }
-<span class="lineNum">    3836 </span>                :            :     }
-<span class="lineNum">    3837 </span>                :            : 
-<span class="lineNum">    3838 </span>                :            :     return psFilterNode;
-<span class="lineNum">    3839 </span>                :            : }
+<span class="lineNum">    3807 </span>                :            :     /* There are no nullable or nillable property in WFS currently */
+<span class="lineNum">    3808 </span>                :            :     /* except gml:name or gml:description that are null */
+<span class="lineNum">    3809 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( psFilterNode-&gt;eType ==  FILTER_NODE_TYPE_COMPARISON &amp;&amp;</span>
+<span class="lineNum">    3810 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         (strcmp(psFilterNode-&gt;pszValue, &quot;PropertyIsNull&quot;) == 0 ||</span>
+<span class="lineNum">    3811 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :          strcmp(psFilterNode-&gt;pszValue, &quot;PropertyIsNil&quot;) == 0 ) &amp;&amp;</span>
+<span class="lineNum">    3812 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode != NULL &amp;&amp;</span>
+<span class="lineNum">    3813 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode-&gt;eType == FILTER_NODE_TYPE_PROPERTYNAME )</span>
+<span class="lineNum">    3814 </span>                :            :     {
+<span class="lineNum">    3815 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( strcmp(psFilterNode-&gt;pszValue, &quot;PropertyIsNull&quot;) == 0 &amp;&amp;</span>
+<span class="lineNum">    3816 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             FLTIsGMLDefaultProperty(psFilterNode-&gt;psLeftNode-&gt;pszValue) &amp;&amp;</span>
+<span class="lineNum">    3817 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             strcmp(psFilterNode-&gt;psLeftNode-&gt;pszValue, &quot;@gml:id&quot;) != 0  &amp;&amp;</span>
+<span class="lineNum">    3818 </span>                :<span class="lineCov">          1 :             strcmp(psFilterNode-&gt;psLeftNode-&gt;pszValue, &quot;gml:boundedBy&quot;) != 0)</span>
+<span class="lineNum">    3819 </span>                :<span class="lineCov">          1 :             *pnEvaluation = MS_TRUE;</span>
+<span class="lineNum">    3820 </span>                :            :         else
+<span class="lineNum">    3821 </span>                :<span class="lineCov">          1 :             *pnEvaluation = MS_FALSE;</span>
+<span class="lineNum">    3822 </span>                :<span class="lineCov">          1 :         FLTFreeFilterEncodingNode(psFilterNode);</span>
+<span class="lineNum">    3823 </span>                :<span class="lineCov">          1 :         return NULL;</span>
+<span class="lineNum">    3824 </span>                :            :     }
+<span class="lineNum">    3825 </span>                :            : 
+<span class="lineNum">    3826 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( psFilterNode-&gt;eType ==  FILTER_NODE_TYPE_LOGICAL &amp;&amp;</span>
+<span class="lineNum">    3827 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         strcasecmp(psFilterNode-&gt;pszValue, &quot;NOT&quot;) == 0 &amp;&amp;</span>
+<span class="lineNum">    3828 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode != NULL )</span>
+<span class="lineNum">    3829 </span>                :            :     {
+<span class="lineNum">    3830 </span>                :            :         int nEvaluation;
+<span class="lineNum">    3831 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode = FLTSimplify(psFilterNode-&gt;psLeftNode,</span>
+<span class="lineNum">    3832 </span>                :            :                                                &amp;nEvaluation);
+<span class="lineNum">    3833 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( psFilterNode-&gt;psLeftNode == NULL )</span>
+<span class="lineNum">    3834 </span>                :            :         {
+<span class="lineNum">    3835 </span>                :<span class="lineCov">          1 :             *pnEvaluation = 1 - nEvaluation;</span>
+<span class="lineNum">    3836 </span>                :<span class="lineCov">          1 :             FLTFreeFilterEncodingNode(psFilterNode);</span>
+<span class="lineNum">    3837 </span>                :<span class="lineCov">          1 :             return NULL;</span>
+<span class="lineNum">    3838 </span>                :            :         }
+<span class="lineNum">    3839 </span>                :            :     }
 <span class="lineNum">    3840 </span>                :            : 
-<span class="lineNum">    3841 </span>                :            : 
-<a name="3842"><span class="lineNum">    3842 </span>                :            : #ifdef USE_LIBXML2</a>
-<span class="lineNum">    3843 </span>                :            : 
-<span class="lineNum">    3844 </span>                :<span class="lineCov">          1 : xmlNodePtr FLTGetCapabilities(xmlNsPtr psNsParent, xmlNsPtr psNsOgc, int bTemporal)</span>
-<span class="lineNum">    3845 </span>                :            : {
-<span class="lineNum">    3846 </span>                :            :   xmlNodePtr psRootNode = NULL, psNode = NULL, psSubNode = NULL, psSubSubNode = NULL;
-<span class="lineNum">    3847 </span>                :            : 
-<span class="lineNum">    3848 </span>                :<span class="lineCov">          1 :   psRootNode = xmlNewNode(psNsParent, BAD_CAST &quot;Filter_Capabilities&quot;);</span>
-<span class="lineNum">    3849 </span>                :            : 
-<span class="lineNum">    3850 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psRootNode, psNsOgc, BAD_CAST &quot;Spatial_Capabilities&quot;, NULL);</span>
-<span class="lineNum">    3851 </span>                :            : 
-<span class="lineNum">    3852 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;GeometryOperands&quot;, NULL);</span>
-<span class="lineNum">    3853 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;GeometryOperand&quot;, BAD_CAST &quot;gml:Point&quot;);</span>
-<span class="lineNum">    3854 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;GeometryOperand&quot;, BAD_CAST &quot;gml:LineString&quot;);</span>
-<span class="lineNum">    3855 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;GeometryOperand&quot;, BAD_CAST &quot;gml:Polygon&quot;);</span>
-<span class="lineNum">    3856 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;GeometryOperand&quot;, BAD_CAST &quot;gml:Envelope&quot;);</span>
+<span class="lineNum">    3841 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( psFilterNode-&gt;eType ==  FILTER_NODE_TYPE_LOGICAL &amp;&amp;</span>
+<span class="lineNum">    3842 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         (strcasecmp(psFilterNode-&gt;pszValue, &quot;AND&quot;) == 0 ||</span>
+<span class="lineNum">    3843 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :          strcasecmp(psFilterNode-&gt;pszValue, &quot;OR&quot;) == 0) &amp;&amp;</span>
+<span class="lineNum">    3844 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode != NULL &amp;&amp;</span>
+<span class="lineNum">    3845 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psRightNode != NULL )</span>
+<span class="lineNum">    3846 </span>                :            :     {
+<span class="lineNum">    3847 </span>                :            :         FilterEncodingNode* psOtherNode;
+<span class="lineNum">    3848 </span>                :            :         int nEvaluation;
+<span class="lineNum">    3849 </span>                :            :         int nExpectedValForFastExit;
+<span class="lineNum">    3850 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psLeftNode = FLTSimplify(psFilterNode-&gt;psLeftNode,</span>
+<span class="lineNum">    3851 </span>                :            :                                                &amp;nEvaluation);
+<span class="lineNum">    3852 </span>                :            : 
+<span class="lineNum">    3853 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( strcasecmp(psFilterNode-&gt;pszValue, &quot;AND&quot;) == 0 )</span>
+<span class="lineNum">    3854 </span>                :            :             nExpectedValForFastExit = MS_FALSE;
+<span class="lineNum">    3855 </span>                :            :         else
+<span class="lineNum">    3856 </span>                :            :             nExpectedValForFastExit = MS_TRUE;
 <span class="lineNum">    3857 </span>                :            : 
-<span class="lineNum">    3858 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;SpatialOperators&quot;, NULL);</span>
-<span class="lineNum">    3859 </span>                :            : #ifdef USE_GEOS
-<span class="lineNum">    3860 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
-<span class="lineNum">    3861 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Equals&quot;);</span>
-<span class="lineNum">    3862 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
-<span class="lineNum">    3863 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Disjoint&quot;);</span>
-<span class="lineNum">    3864 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
-<span class="lineNum">    3865 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Touches&quot;);</span>
-<span class="lineNum">    3866 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
-<span class="lineNum">    3867 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Within&quot;);</span>
-<span class="lineNum">    3868 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
-<span class="lineNum">    3869 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Overlaps&quot;);</span>
-<span class="lineNum">    3870 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
-<span class="lineNum">    3871 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Crosses&quot;);</span>
-<span class="lineNum">    3872 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
-<span class="lineNum">    3873 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Intersects&quot;);</span>
-<span class="lineNum">    3874 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
-<span class="lineNum">    3875 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Contains&quot;);</span>
-<span class="lineNum">    3876 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
-<span class="lineNum">    3877 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;DWithin&quot;);</span>
-<span class="lineNum">    3878 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
-<span class="lineNum">    3879 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Beyond&quot;);</span>
-<span class="lineNum">    3880 </span>                :            : #endif
-<span class="lineNum">    3881 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
-<span class="lineNum">    3882 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;BBOX&quot;);</span>
-<span class="lineNum">    3883 </span>                :            : 
-<span class="lineNum">    3884 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (bTemporal) {</span>
-<span class="lineNum">    3885 </span>                :<span class="lineCov">          1 :     psNode = xmlNewChild(psRootNode, psNsOgc, BAD_CAST &quot;Temporal_Capabilities&quot;, NULL);</span>
-<span class="lineNum">    3886 </span>                :<span class="lineCov">          1 :     psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;TemporalOperands&quot;, NULL);</span>
-<span class="lineNum">    3887 </span>                :<span class="lineCov">          1 :     psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;TemporalOperand&quot;, BAD_CAST &quot;gml:TimePeriod&quot;);</span>
-<span class="lineNum">    3888 </span>                :<span class="lineCov">          1 :     psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;TemporalOperand&quot;, BAD_CAST &quot;gml:TimeInstant&quot;);</span>
-<span class="lineNum">    3889 </span>                :            : 
-<span class="lineNum">    3890 </span>                :<span class="lineCov">          1 :     psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;TemporalOperators&quot;, NULL);</span>
-<span class="lineNum">    3891 </span>                :<span class="lineCov">          1 :     psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;TemporalOperator&quot;, NULL);</span>
-<span class="lineNum">    3892 </span>                :<span class="lineCov">          1 :     xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;TM_Equals&quot;);</span>
-<span class="lineNum">    3893 </span>                :            :   }
-<span class="lineNum">    3894 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psRootNode, psNsOgc, BAD_CAST &quot;Scalar_Capabilities&quot;, NULL);</span>
-<span class="lineNum">    3895 </span>                :<span class="lineCov">          1 :   xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;LogicalOperators&quot;, NULL);</span>
-<span class="lineNum">    3896 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperators&quot;, NULL);</span>
-<span class="lineNum">    3897 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;LessThan&quot;);</span>
-<span class="lineNum">    3898 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;GreaterThan&quot;);</span>
-<span class="lineNum">    3899 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;LessThanEqualTo&quot;);</span>
-<span class="lineNum">    3900 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;GreaterThanEqualTo&quot;);</span>
-<span class="lineNum">    3901 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;EqualTo&quot;);</span>
-<span class="lineNum">    3902 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;NotEqualTo&quot;);</span>
-<span class="lineNum">    3903 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;Like&quot;);</span>
-<span class="lineNum">    3904 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;Between&quot;);</span>
-<span class="lineNum">    3905 </span>                :            : 
-<span class="lineNum">    3906 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psRootNode, psNsOgc, BAD_CAST &quot;Id_Capabilities&quot;, NULL);</span>
-<span class="lineNum">    3907 </span>                :<span class="lineCov">          1 :   xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;EID&quot;, NULL);</span>
-<span class="lineNum">    3908 </span>                :<span class="lineCov">          1 :   xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;FID&quot;, NULL);</span>
-<span class="lineNum">    3909 </span>                :<span class="lineCov">          1 :   return psRootNode;</span>
-<span class="lineNum">    3910 </span>                :            : }
-<span class="lineNum">    3911 </span>                :            : #endif
-<span class="lineNum">    3912 </span>                :            : #endif
+<span class="lineNum">    3858 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( psFilterNode-&gt;psLeftNode == NULL )</span>
+<span class="lineNum">    3859 </span>                :            :         {
+<span class="lineNum">    3860 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if( nEvaluation == nExpectedValForFastExit )</span>
+<span class="lineNum">    3861 </span>                :            :             {
+<span class="lineNum">    3862 </span>                :<span class="lineCov">          1 :                 *pnEvaluation = nEvaluation;</span>
+<span class="lineNum">    3863 </span>                :<span class="lineCov">          1 :                 FLTFreeFilterEncodingNode(psFilterNode);</span>
+<span class="lineNum">    3864 </span>                :<span class="lineCov">          1 :                 return NULL;</span>
+<span class="lineNum">    3865 </span>                :            :             }
+<span class="lineNum">    3866 </span>                :<span class="lineCov">          1 :             psOtherNode = psFilterNode-&gt;psRightNode;</span>
+<span class="lineNum">    3867 </span>                :<span class="lineCov">          1 :             psFilterNode-&gt;psRightNode = NULL;</span>
+<span class="lineNum">    3868 </span>                :<span class="lineCov">          1 :             FLTFreeFilterEncodingNode(psFilterNode);</span>
+<span class="lineNum">    3869 </span>                :<span class="lineCov">          1 :             return FLTSimplify(psOtherNode, pnEvaluation);</span>
+<span class="lineNum">    3870 </span>                :            :         }
+<span class="lineNum">    3871 </span>                :            :  
+<span class="lineNum">    3872 </span>                :<span class="lineCov">          1 :         psFilterNode-&gt;psRightNode = FLTSimplify(psFilterNode-&gt;psRightNode,</span>
+<span class="lineNum">    3873 </span>                :            :                                                 &amp;nEvaluation);
+<span class="lineNum">    3874 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( psFilterNode-&gt;psRightNode == NULL )</span>
+<span class="lineNum">    3875 </span>                :            :         {
+<span class="lineNum">    3876 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if( nEvaluation == nExpectedValForFastExit )</span>
+<span class="lineNum">    3877 </span>                :            :             {
+<span class="lineNum">    3878 </span>                :<span class="lineCov">          1 :                 *pnEvaluation = nEvaluation;</span>
+<span class="lineNum">    3879 </span>                :<span class="lineCov">          1 :                 FLTFreeFilterEncodingNode(psFilterNode);</span>
+<span class="lineNum">    3880 </span>                :<span class="lineCov">          1 :                 return NULL;</span>
+<span class="lineNum">    3881 </span>                :            :             }
+<span class="lineNum">    3882 </span>                :<span class="lineCov">          1 :             psOtherNode = psFilterNode-&gt;psLeftNode;</span>
+<span class="lineNum">    3883 </span>                :<span class="lineCov">          1 :             psFilterNode-&gt;psLeftNode = NULL;</span>
+<span class="lineNum">    3884 </span>                :<span class="lineCov">          1 :             FLTFreeFilterEncodingNode(psFilterNode);</span>
+<span class="lineNum">    3885 </span>                :<span class="lineCov">          1 :             return FLTSimplify(psOtherNode, pnEvaluation);</span>
+<span class="lineNum">    3886 </span>                :            :         }
+<span class="lineNum">    3887 </span>                :            :     }
+<span class="lineNum">    3888 </span>                :            : 
+<span class="lineNum">    3889 </span>                :            :     return psFilterNode;
+<span class="lineNum">    3890 </span>                :            : }
+<span class="lineNum">    3891 </span>                :            : 
+<span class="lineNum">    3892 </span>                :            : 
+<a name="3893"><span class="lineNum">    3893 </span>                :            : #ifdef USE_LIBXML2</a>
+<span class="lineNum">    3894 </span>                :            : 
+<span class="lineNum">    3895 </span>                :<span class="lineCov">          1 : xmlNodePtr FLTGetCapabilities(xmlNsPtr psNsParent, xmlNsPtr psNsOgc, int bTemporal)</span>
+<span class="lineNum">    3896 </span>                :            : {
+<span class="lineNum">    3897 </span>                :            :   xmlNodePtr psRootNode = NULL, psNode = NULL, psSubNode = NULL, psSubSubNode = NULL;
+<span class="lineNum">    3898 </span>                :            : 
+<span class="lineNum">    3899 </span>                :<span class="lineCov">          1 :   psRootNode = xmlNewNode(psNsParent, BAD_CAST &quot;Filter_Capabilities&quot;);</span>
+<span class="lineNum">    3900 </span>                :            : 
+<span class="lineNum">    3901 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psRootNode, psNsOgc, BAD_CAST &quot;Spatial_Capabilities&quot;, NULL);</span>
+<span class="lineNum">    3902 </span>                :            : 
+<span class="lineNum">    3903 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;GeometryOperands&quot;, NULL);</span>
+<span class="lineNum">    3904 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;GeometryOperand&quot;, BAD_CAST &quot;gml:Point&quot;);</span>
+<span class="lineNum">    3905 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;GeometryOperand&quot;, BAD_CAST &quot;gml:LineString&quot;);</span>
+<span class="lineNum">    3906 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;GeometryOperand&quot;, BAD_CAST &quot;gml:Polygon&quot;);</span>
+<span class="lineNum">    3907 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;GeometryOperand&quot;, BAD_CAST &quot;gml:Envelope&quot;);</span>
+<span class="lineNum">    3908 </span>                :            : 
+<span class="lineNum">    3909 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;SpatialOperators&quot;, NULL);</span>
+<span class="lineNum">    3910 </span>                :            : #ifdef USE_GEOS
+<span class="lineNum">    3911 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
+<span class="lineNum">    3912 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Equals&quot;);</span>
+<span class="lineNum">    3913 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
+<span class="lineNum">    3914 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Disjoint&quot;);</span>
+<span class="lineNum">    3915 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
+<span class="lineNum">    3916 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Touches&quot;);</span>
+<span class="lineNum">    3917 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
+<span class="lineNum">    3918 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Within&quot;);</span>
+<span class="lineNum">    3919 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
+<span class="lineNum">    3920 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Overlaps&quot;);</span>
+<span class="lineNum">    3921 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
+<span class="lineNum">    3922 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Crosses&quot;);</span>
+<span class="lineNum">    3923 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
+<span class="lineNum">    3924 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Intersects&quot;);</span>
+<span class="lineNum">    3925 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
+<span class="lineNum">    3926 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Contains&quot;);</span>
+<span class="lineNum">    3927 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
+<span class="lineNum">    3928 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;DWithin&quot;);</span>
+<span class="lineNum">    3929 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
+<span class="lineNum">    3930 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;Beyond&quot;);</span>
+<span class="lineNum">    3931 </span>                :            : #endif
+<span class="lineNum">    3932 </span>                :<span class="lineCov">          1 :   psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;SpatialOperator&quot;, NULL);</span>
+<span class="lineNum">    3933 </span>                :<span class="lineCov">          1 :   xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;BBOX&quot;);</span>
+<span class="lineNum">    3934 </span>                :            : 
+<span class="lineNum">    3935 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (bTemporal) {</span>
+<span class="lineNum">    3936 </span>                :<span class="lineCov">          1 :     psNode = xmlNewChild(psRootNode, psNsOgc, BAD_CAST &quot;Temporal_Capabilities&quot;, NULL);</span>
+<span class="lineNum">    3937 </span>                :<span class="lineCov">          1 :     psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;TemporalOperands&quot;, NULL);</span>
+<span class="lineNum">    3938 </span>                :<span class="lineCov">          1 :     psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;TemporalOperand&quot;, BAD_CAST &quot;gml:TimePeriod&quot;);</span>
+<span class="lineNum">    3939 </span>                :<span class="lineCov">          1 :     psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;TemporalOperand&quot;, BAD_CAST &quot;gml:TimeInstant&quot;);</span>
+<span class="lineNum">    3940 </span>                :            : 
+<span class="lineNum">    3941 </span>                :<span class="lineCov">          1 :     psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;TemporalOperators&quot;, NULL);</span>
+<span class="lineNum">    3942 </span>                :<span class="lineCov">          1 :     psSubSubNode = xmlNewChild(psSubNode, psNsOgc, BAD_CAST &quot;TemporalOperator&quot;, NULL);</span>
+<span class="lineNum">    3943 </span>                :<span class="lineCov">          1 :     xmlNewProp(psSubSubNode, BAD_CAST &quot;name&quot;, BAD_CAST &quot;TM_Equals&quot;);</span>
+<span class="lineNum">    3944 </span>                :            :   }
+<span class="lineNum">    3945 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psRootNode, psNsOgc, BAD_CAST &quot;Scalar_Capabilities&quot;, NULL);</span>
+<span class="lineNum">    3946 </span>                :<span class="lineCov">          1 :   xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;LogicalOperators&quot;, NULL);</span>
+<span class="lineNum">    3947 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperators&quot;, NULL);</span>
+<span class="lineNum">    3948 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;LessThan&quot;);</span>
+<span class="lineNum">    3949 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;GreaterThan&quot;);</span>
+<span class="lineNum">    3950 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;LessThanEqualTo&quot;);</span>
+<span class="lineNum">    3951 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;GreaterThanEqualTo&quot;);</span>
+<span class="lineNum">    3952 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;EqualTo&quot;);</span>
+<span class="lineNum">    3953 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;NotEqualTo&quot;);</span>
+<span class="lineNum">    3954 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;Like&quot;);</span>
+<span class="lineNum">    3955 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;ComparisonOperator&quot;, BAD_CAST &quot;Between&quot;);</span>
+<span class="lineNum">    3956 </span>                :            : 
+<span class="lineNum">    3957 </span>                :<span class="lineCov">          1 :   psNode = xmlNewChild(psRootNode, psNsOgc, BAD_CAST &quot;Id_Capabilities&quot;, NULL);</span>
+<span class="lineNum">    3958 </span>                :<span class="lineCov">          1 :   xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;EID&quot;, NULL);</span>
+<span class="lineNum">    3959 </span>                :<span class="lineCov">          1 :   xmlNewChild(psNode, psNsOgc, BAD_CAST &quot;FID&quot;, NULL);</span>
+<span class="lineNum">    3960 </span>                :<span class="lineCov">          1 :   return psRootNode;</span>
+<span class="lineNum">    3961 </span>                :            : }
+<span class="lineNum">    3962 </span>                :            : #endif
+<span class="lineNum">    3963 </span>                :            : #endif
 </pre>
       </td>
     </tr>
