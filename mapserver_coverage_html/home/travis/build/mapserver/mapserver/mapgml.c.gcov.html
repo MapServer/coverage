@@ -31,8 +31,8 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">888</td>
-            <td class="headerCovTableEntry">1055</td>
+            <td class="headerCovTableEntry">890</td>
+            <td class="headerCovTableEntry">1057</td>
             <td class="headerCovTableEntryMed">84.2 %</td>
           </tr>
           <tr>
@@ -49,8 +49,8 @@
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">532</td>
-            <td class="headerCovTableEntry">754</td>
+            <td class="headerCovTableEntry">534</td>
+            <td class="headerCovTableEntry">756</td>
             <td class="headerCovTableEntryLo">70.6 %</td>
           </tr>
           <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
@@ -1824,490 +1824,498 @@
 <span class="lineNum">    1745 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(j=0; j&lt;lp-&gt;resultcache-&gt;numresults; j++) {</span>
 <span class="lineNum">    1746 </span>                :            :         char* pszFID;
 <span class="lineNum">    1747 </span>                :            : 
-<span class="lineNum">    1748 </span>                :<span class="lineCov">          1 :         status = msLayerGetShape(lp, &amp;shape, &amp;(lp-&gt;resultcache-&gt;results[j]));</span>
-<span class="lineNum">    1749 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(status != MS_SUCCESS) {</span>
-<span class="lineNum">    1750 </span>                :<span class="lineNoCov">          0 :           msGMLFreeGroups(groupList);</span>
-<span class="lineNum">    1751 </span>                :<span class="lineNoCov">          0 :           msGMLFreeConstants(constantList);</span>
-<span class="lineNum">    1752 </span>                :<span class="lineNoCov">          0 :           msGMLFreeItems(itemList);</span>
-<span class="lineNum">    1753 </span>                :<span class="lineNoCov">          0 :           msGMLFreeGeometries(geometryList);</span>
-<span class="lineNum">    1754 </span>                :<span class="lineNoCov">          0 :           msFree(layerName);</span>
-<span class="lineNum">    1755 </span>                :<span class="lineNoCov">          0 :           return(status);</span>
-<span class="lineNum">    1756 </span>                :            :         }
-<span class="lineNum">    1757 </span>                :            : 
-<span class="lineNum">    1758 </span>                :            : #ifdef USE_PROJ
-<span class="lineNum">    1759 </span>                :            :         /* project the shape into the map projection (if necessary), note that this projects the bounds as well */
-<span class="lineNum">    1760 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(msProjectionsDiffer(&amp;(lp-&gt;projection), &amp;(map-&gt;projection)))</span>
-<span class="lineNum">    1761 </span>                :<span class="lineCov">          1 :           msProjectShape(&amp;lp-&gt;projection, &amp;map-&gt;projection, &amp;shape);</span>
-<span class="lineNum">    1762 </span>                :            : #endif
-<span class="lineNum">    1763 </span>                :            : 
-<span class="lineNum">    1764 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(featureIdIndex != -1) {</span>
-<span class="lineNum">    1765 </span>                :<span class="lineCov">          1 :             pszFID = (char*) msSmallMalloc( strlen(lp-&gt;name) + 1 + strlen(shape.values[featureIdIndex]) + 1 );</span>
-<span class="lineNum">    1766 </span>                :<span class="lineCov">          1 :             sprintf(pszFID, &quot;%s.%s&quot;, lp-&gt;name, shape.values[featureIdIndex]);</span>
-<span class="lineNum">    1767 </span>                :            :         }
-<span class="lineNum">    1768 </span>                :            :         else
-<span class="lineNum">    1769 </span>                :<span class="lineCov">          1 :             pszFID = msStrdup(&quot;&quot;);</span>
-<span class="lineNum">    1770 </span>                :            : 
+<span class="lineNum">    1748 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( lp-&gt;resultcache-&gt;results[j].shape )</span>
+<span class="lineNum">    1749 </span>                :            :         {
+<span class="lineNum">    1750 </span>                :            :             /* msDebug(&quot;Using cached shape %ld\n&quot;, lp-&gt;resultcache-&gt;results[j].shapeindex); */
+<span class="lineNum">    1751 </span>                :<span class="lineCov">          1 :             msCopyShape(lp-&gt;resultcache-&gt;results[j].shape, &amp;shape);</span>
+<span class="lineNum">    1752 </span>                :            :         }
+<span class="lineNum">    1753 </span>                :            :         else
+<span class="lineNum">    1754 </span>                :            :         {
+<span class="lineNum">    1755 </span>                :<span class="lineCov">          1 :             status = msLayerGetShape(lp, &amp;shape, &amp;(lp-&gt;resultcache-&gt;results[j]));</span>
+<span class="lineNum">    1756 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if(status != MS_SUCCESS) {</span>
+<span class="lineNum">    1757 </span>                :<span class="lineNoCov">          0 :                 msGMLFreeGroups(groupList);</span>
+<span class="lineNum">    1758 </span>                :<span class="lineNoCov">          0 :                 msGMLFreeConstants(constantList);</span>
+<span class="lineNum">    1759 </span>                :<span class="lineNoCov">          0 :                 msGMLFreeItems(itemList);</span>
+<span class="lineNum">    1760 </span>                :<span class="lineNoCov">          0 :                 msGMLFreeGeometries(geometryList);</span>
+<span class="lineNum">    1761 </span>                :<span class="lineNoCov">          0 :                 msFree(layerName);</span>
+<span class="lineNum">    1762 </span>                :<span class="lineNoCov">          0 :                 return(status);</span>
+<span class="lineNum">    1763 </span>                :            :             }
+<span class="lineNum">    1764 </span>                :            :         }
+<span class="lineNum">    1765 </span>                :            : 
+<span class="lineNum">    1766 </span>                :            : #ifdef USE_PROJ
+<span class="lineNum">    1767 </span>                :            :         /* project the shape into the map projection (if necessary), note that this projects the bounds as well */
+<span class="lineNum">    1768 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(msProjectionsDiffer(&amp;(lp-&gt;projection), &amp;(map-&gt;projection)))</span>
+<span class="lineNum">    1769 </span>                :<span class="lineCov">          1 :           msProjectShape(&amp;lp-&gt;projection, &amp;map-&gt;projection, &amp;shape);</span>
+<span class="lineNum">    1770 </span>                :            : #endif
 <span class="lineNum">    1771 </span>                :            : 
-<span class="lineNum">    1772 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( bOutputGMLIdOnly )</span>
-<span class="lineNum">    1773 </span>                :            :         {
-<span class="lineNum">    1774 </span>                :<span class="lineCov">          1 :             msIO_fprintf(stream, &quot;    &lt;wfs:member&gt;%s&lt;/wfs:member&gt;\n&quot;, pszFID);</span>
-<span class="lineNum">    1775 </span>                :<span class="lineCov">          1 :             msFree(pszFID);</span>
-<span class="lineNum">    1776 </span>                :<span class="lineCov">          1 :             msFreeShape(&amp;shape); /* init too */</span>
-<span class="lineNum">    1777 </span>                :<span class="lineCov">          1 :             continue;</span>
-<span class="lineNum">    1778 </span>                :            :         }
+<span class="lineNum">    1772 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(featureIdIndex != -1) {</span>
+<span class="lineNum">    1773 </span>                :<span class="lineCov">          1 :             pszFID = (char*) msSmallMalloc( strlen(lp-&gt;name) + 1 + strlen(shape.values[featureIdIndex]) + 1 );</span>
+<span class="lineNum">    1774 </span>                :<span class="lineCov">          1 :             sprintf(pszFID, &quot;%s.%s&quot;, lp-&gt;name, shape.values[featureIdIndex]);</span>
+<span class="lineNum">    1775 </span>                :            :         }
+<span class="lineNum">    1776 </span>                :            :         else
+<span class="lineNum">    1777 </span>                :<span class="lineCov">          1 :             pszFID = msStrdup(&quot;&quot;);</span>
+<span class="lineNum">    1778 </span>                :            : 
 <span class="lineNum">    1779 </span>                :            : 
-<span class="lineNum">    1780 </span>                :            :         /*
-<span class="lineNum">    1781 </span>                :            :         ** start this feature
-<span class="lineNum">    1782 </span>                :            :         */
-<span class="lineNum">    1783 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( nWFSVersion == OWS_2_0_0 )</span>
-<span class="lineNum">    1784 </span>                :<span class="lineCov">          1 :             msIO_fprintf(stream, &quot;    &lt;wfs:member&gt;\n&quot;);</span>
-<span class="lineNum">    1785 </span>                :            :         else
-<span class="lineNum">    1786 </span>                :<span class="lineCov">          1 :             msIO_fprintf(stream, &quot;    &lt;gml:featureMember&gt;\n&quot;);</span>
-<span class="lineNum">    1787 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(msIsXMLTagValid(layerName) == MS_FALSE)</span>
-<span class="lineNum">    1788 </span>                :<span class="lineNoCov">          0 :             msIO_fprintf(stream, &quot;&lt;!-- WARNING: The value '%s' is not valid in a XML tag context. --&gt;\n&quot;, layerName);</span>
-<span class="lineNum">    1789 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(featureIdIndex != -1) {</span>
-<span class="lineNum">    1790 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if( !bGetPropertyValueRequest )</span>
-<span class="lineNum">    1791 </span>                :            :             {
-<span class="lineNum">    1792 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                 if(outputformat == OWS_GML2)</span>
-<span class="lineNum">    1793 </span>                :<span class="lineCov">          1 :                     msIO_fprintf(stream, &quot;      &lt;%s fid=\&quot;%s\&quot;&gt;\n&quot;, layerName, pszFID);</span>
-<span class="lineNum">    1794 </span>                :            :                 else  /* OWS_GML3 or OWS_GML32 */
-<span class="lineNum">    1795 </span>                :<span class="lineCov">          1 :                     msIO_fprintf(stream, &quot;      &lt;%s gml:id=\&quot;%s\&quot;&gt;\n&quot;, layerName, pszFID);</span>
-<span class="lineNum">    1796 </span>                :            :             }
-<span class="lineNum">    1797 </span>                :            :         } else {
-<span class="lineNum">    1798 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :             if( !bGetPropertyValueRequest )</span>
-<span class="lineNum">    1799 </span>                :<span class="lineCov">          1 :                 msIO_fprintf(stream, &quot;      &lt;%s&gt;\n&quot;, layerName);</span>
-<span class="lineNum">    1800 </span>                :            :         }
-<span class="lineNum">    1801 </span>                :            : 
-<span class="lineNum">    1802 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if (bSwapAxis)</span>
-<span class="lineNum">    1803 </span>                :<span class="lineCov">          1 :           msAxisSwapShape(&amp;shape);</span>
-<span class="lineNum">    1804 </span>                :            : 
-<span class="lineNum">    1805 </span>                :            :         /* write the feature geometry and bounding box */
-<span class="lineNum">    1806 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(!(geometryList &amp;&amp; geometryList-&gt;numgeometries == 1 &amp;&amp;</span>
+<span class="lineNum">    1780 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( bOutputGMLIdOnly )</span>
+<span class="lineNum">    1781 </span>                :            :         {
+<span class="lineNum">    1782 </span>                :<span class="lineCov">          1 :             msIO_fprintf(stream, &quot;    &lt;wfs:member&gt;%s&lt;/wfs:member&gt;\n&quot;, pszFID);</span>
+<span class="lineNum">    1783 </span>                :<span class="lineCov">          1 :             msFree(pszFID);</span>
+<span class="lineNum">    1784 </span>                :<span class="lineCov">          1 :             msFreeShape(&amp;shape); /* init too */</span>
+<span class="lineNum">    1785 </span>                :<span class="lineCov">          1 :             continue;</span>
+<span class="lineNum">    1786 </span>                :            :         }
+<span class="lineNum">    1787 </span>                :            : 
+<span class="lineNum">    1788 </span>                :            :         /*
+<span class="lineNum">    1789 </span>                :            :         ** start this feature
+<span class="lineNum">    1790 </span>                :            :         */
+<span class="lineNum">    1791 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( nWFSVersion == OWS_2_0_0 )</span>
+<span class="lineNum">    1792 </span>                :<span class="lineCov">          1 :             msIO_fprintf(stream, &quot;    &lt;wfs:member&gt;\n&quot;);</span>
+<span class="lineNum">    1793 </span>                :            :         else
+<span class="lineNum">    1794 </span>                :<span class="lineCov">          1 :             msIO_fprintf(stream, &quot;    &lt;gml:featureMember&gt;\n&quot;);</span>
+<span class="lineNum">    1795 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(msIsXMLTagValid(layerName) == MS_FALSE)</span>
+<span class="lineNum">    1796 </span>                :<span class="lineNoCov">          0 :             msIO_fprintf(stream, &quot;&lt;!-- WARNING: The value '%s' is not valid in a XML tag context. --&gt;\n&quot;, layerName);</span>
+<span class="lineNum">    1797 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(featureIdIndex != -1) {</span>
+<span class="lineNum">    1798 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if( !bGetPropertyValueRequest )</span>
+<span class="lineNum">    1799 </span>                :            :             {
+<span class="lineNum">    1800 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                 if(outputformat == OWS_GML2)</span>
+<span class="lineNum">    1801 </span>                :<span class="lineCov">          1 :                     msIO_fprintf(stream, &quot;      &lt;%s fid=\&quot;%s\&quot;&gt;\n&quot;, layerName, pszFID);</span>
+<span class="lineNum">    1802 </span>                :            :                 else  /* OWS_GML3 or OWS_GML32 */
+<span class="lineNum">    1803 </span>                :<span class="lineCov">          1 :                     msIO_fprintf(stream, &quot;      &lt;%s gml:id=\&quot;%s\&quot;&gt;\n&quot;, layerName, pszFID);</span>
+<span class="lineNum">    1804 </span>                :            :             }
+<span class="lineNum">    1805 </span>                :            :         } else {
+<span class="lineNum">    1806 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :             if( !bGetPropertyValueRequest )</span>
+<span class="lineNum">    1807 </span>                :<span class="lineCov">          1 :                 msIO_fprintf(stream, &quot;      &lt;%s&gt;\n&quot;, layerName);</span>
+<span class="lineNum">    1808 </span>                :            :         }
+<span class="lineNum">    1809 </span>                :            : 
+<span class="lineNum">    1810 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if (bSwapAxis)</span>
+<span class="lineNum">    1811 </span>                :<span class="lineCov">          1 :           msAxisSwapShape(&amp;shape);</span>
+<span class="lineNum">    1812 </span>                :            : 
+<span class="lineNum">    1813 </span>                :            :         /* write the feature geometry and bounding box */
+<span class="lineNum">    1814 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(!(geometryList &amp;&amp; geometryList-&gt;numgeometries == 1 &amp;&amp;</span>
 <span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>]
-<span class="lineNum">    1807 </span>                :<span class="lineCov">          1 :             strcasecmp(geometryList-&gt;geometries[0].name, &quot;none&quot;) == 0)) {</span>
-<span class="lineNum">    1808 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if( !bGetPropertyValueRequest )</span>
-<span class="lineNum">    1809 </span>                :<span class="lineCov">          1 :             gmlWriteBounds(stream, outputformat, &amp;(shape.bounds), srs, &quot;        &quot;, &quot;gml&quot;);</span>
-<span class="lineNum">    1810 </span>                :<span class="lineCov">          1 :           gmlWriteGeometry(stream, geometryList, outputformat, &amp;(shape), srs,</span>
-<span class="lineNum">    1811 </span>                :            :                            namespace_prefix, &quot;        &quot;, pszFID, nSRSDimension);
-<span class="lineNum">    1812 </span>                :            :         }
-<span class="lineNum">    1813 </span>                :            : 
-<span class="lineNum">    1814 </span>                :            :         /* write any item/values */
-<span class="lineNum">    1815 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for(k=0; k&lt;itemList-&gt;numitems; k++) {</span>
-<span class="lineNum">    1816 </span>                :<span class="lineCov">          1 :           item = &amp;(itemList-&gt;items[k]);</span>
-<span class="lineNum">    1817 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :           if(msItemInGroups(item-&gt;name, groupList) == MS_FALSE)</span>
-<span class="lineNum">    1818 </span>                :<span class="lineCov">          1 :             msGMLWriteItem(stream, item, shape.values[k], namespace_prefix,</span>
-<span class="lineNum">    1819 </span>                :            :                            &quot;        &quot;, outputformat, pszFID);
+<span class="lineNum">    1815 </span>                :<span class="lineCov">          1 :             strcasecmp(geometryList-&gt;geometries[0].name, &quot;none&quot;) == 0)) {</span>
+<span class="lineNum">    1816 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if( !bGetPropertyValueRequest )</span>
+<span class="lineNum">    1817 </span>                :<span class="lineCov">          1 :             gmlWriteBounds(stream, outputformat, &amp;(shape.bounds), srs, &quot;        &quot;, &quot;gml&quot;);</span>
+<span class="lineNum">    1818 </span>                :<span class="lineCov">          1 :           gmlWriteGeometry(stream, geometryList, outputformat, &amp;(shape), srs,</span>
+<span class="lineNum">    1819 </span>                :            :                            namespace_prefix, &quot;        &quot;, pszFID, nSRSDimension);
 <span class="lineNum">    1820 </span>                :            :         }
 <span class="lineNum">    1821 </span>                :            : 
-<span class="lineNum">    1822 </span>                :            :         /* write any constants */
-<span class="lineNum">    1823 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for(k=0; k&lt;constantList-&gt;numconstants; k++) {</span>
-<span class="lineNum">    1824 </span>                :<span class="lineNoCov">          0 :           constant = &amp;(constantList-&gt;constants[k]);</span>
-<span class="lineNum">    1825 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(msItemInGroups(constant-&gt;name, groupList) == MS_FALSE)</span>
-<span class="lineNum">    1826 </span>                :<span class="lineNoCov">          0 :             msGMLWriteConstant(stream, constant, namespace_prefix, &quot;        &quot;);</span>
-<span class="lineNum">    1827 </span>                :            :         }
-<span class="lineNum">    1828 </span>                :            : 
-<span class="lineNum">    1829 </span>                :            :         /* write any groups */
-<span class="lineNum">    1830 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for(k=0; k&lt;groupList-&gt;numgroups; k++)</span>
-<span class="lineNum">    1831 </span>                :<span class="lineCov">          1 :           msGMLWriteGroup(stream, &amp;(groupList-&gt;groups[k]), &amp;shape, itemList,</span>
-<span class="lineNum">    1832 </span>                :            :                           constantList, namespace_prefix, &quot;        &quot;, outputformat, pszFID);
-<span class="lineNum">    1833 </span>                :            : 
-<span class="lineNum">    1834 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( !bGetPropertyValueRequest )</span>
-<span class="lineNum">    1835 </span>                :            :             /* end this feature */
-<span class="lineNum">    1836 </span>                :<span class="lineCov">          1 :             msIO_fprintf(stream, &quot;      &lt;/%s&gt;\n&quot;, layerName);</span>
-<span class="lineNum">    1837 </span>                :            : 
-<span class="lineNum">    1838 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( nWFSVersion == OWS_2_0_0 )</span>
-<span class="lineNum">    1839 </span>                :<span class="lineCov">          1 :           msIO_fprintf(stream, &quot;    &lt;/wfs:member&gt;\n&quot;);</span>
-<span class="lineNum">    1840 </span>                :            :         else
-<span class="lineNum">    1841 </span>                :<span class="lineCov">          1 :           msIO_fprintf(stream, &quot;    &lt;/gml:featureMember&gt;\n&quot;);</span>
-<span class="lineNum">    1842 </span>                :            : 
-<span class="lineNum">    1843 </span>                :            : 
-<span class="lineNum">    1844 </span>                :<span class="lineCov">          1 :         msFree(pszFID);</span>
-<span class="lineNum">    1845 </span>                :            :         pszFID = NULL;
-<span class="lineNum">    1846 </span>                :<span class="lineCov">          1 :         msFreeShape(&amp;shape); /* init too */</span>
-<span class="lineNum">    1847 </span>                :            :       }
-<span class="lineNum">    1848 </span>                :            : 
-<span class="lineNum">    1849 </span>                :<span class="lineCov">          1 :       msFree(srs);</span>
+<span class="lineNum">    1822 </span>                :            :         /* write any item/values */
+<span class="lineNum">    1823 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for(k=0; k&lt;itemList-&gt;numitems; k++) {</span>
+<span class="lineNum">    1824 </span>                :<span class="lineCov">          1 :           item = &amp;(itemList-&gt;items[k]);</span>
+<span class="lineNum">    1825 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :           if(msItemInGroups(item-&gt;name, groupList) == MS_FALSE)</span>
+<span class="lineNum">    1826 </span>                :<span class="lineCov">          1 :             msGMLWriteItem(stream, item, shape.values[k], namespace_prefix,</span>
+<span class="lineNum">    1827 </span>                :            :                            &quot;        &quot;, outputformat, pszFID);
+<span class="lineNum">    1828 </span>                :            :         }
+<span class="lineNum">    1829 </span>                :            : 
+<span class="lineNum">    1830 </span>                :            :         /* write any constants */
+<span class="lineNum">    1831 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for(k=0; k&lt;constantList-&gt;numconstants; k++) {</span>
+<span class="lineNum">    1832 </span>                :<span class="lineNoCov">          0 :           constant = &amp;(constantList-&gt;constants[k]);</span>
+<span class="lineNum">    1833 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(msItemInGroups(constant-&gt;name, groupList) == MS_FALSE)</span>
+<span class="lineNum">    1834 </span>                :<span class="lineNoCov">          0 :             msGMLWriteConstant(stream, constant, namespace_prefix, &quot;        &quot;);</span>
+<span class="lineNum">    1835 </span>                :            :         }
+<span class="lineNum">    1836 </span>                :            : 
+<span class="lineNum">    1837 </span>                :            :         /* write any groups */
+<span class="lineNum">    1838 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for(k=0; k&lt;groupList-&gt;numgroups; k++)</span>
+<span class="lineNum">    1839 </span>                :<span class="lineCov">          1 :           msGMLWriteGroup(stream, &amp;(groupList-&gt;groups[k]), &amp;shape, itemList,</span>
+<span class="lineNum">    1840 </span>                :            :                           constantList, namespace_prefix, &quot;        &quot;, outputformat, pszFID);
+<span class="lineNum">    1841 </span>                :            : 
+<span class="lineNum">    1842 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( !bGetPropertyValueRequest )</span>
+<span class="lineNum">    1843 </span>                :            :             /* end this feature */
+<span class="lineNum">    1844 </span>                :<span class="lineCov">          1 :             msIO_fprintf(stream, &quot;      &lt;/%s&gt;\n&quot;, layerName);</span>
+<span class="lineNum">    1845 </span>                :            : 
+<span class="lineNum">    1846 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( nWFSVersion == OWS_2_0_0 )</span>
+<span class="lineNum">    1847 </span>                :<span class="lineCov">          1 :           msIO_fprintf(stream, &quot;    &lt;/wfs:member&gt;\n&quot;);</span>
+<span class="lineNum">    1848 </span>                :            :         else
+<span class="lineNum">    1849 </span>                :<span class="lineCov">          1 :           msIO_fprintf(stream, &quot;    &lt;/gml:featureMember&gt;\n&quot;);</span>
 <span class="lineNum">    1850 </span>                :            : 
-<span class="lineNum">    1851 </span>                :            :       /* done with this layer, do a little clean-up */
-<span class="lineNum">    1852 </span>                :<span class="lineCov">          1 :       msFree(layerName);</span>
-<span class="lineNum">    1853 </span>                :            : 
-<span class="lineNum">    1854 </span>                :<span class="lineCov">          1 :       msGMLFreeGroups(groupList);</span>
-<span class="lineNum">    1855 </span>                :<span class="lineCov">          1 :       msGMLFreeConstants(constantList);</span>
-<span class="lineNum">    1856 </span>                :<span class="lineCov">          1 :       msGMLFreeItems(itemList);</span>
-<span class="lineNum">    1857 </span>                :<span class="lineCov">          1 :       msGMLFreeGeometries(geometryList);</span>
+<span class="lineNum">    1851 </span>                :            : 
+<span class="lineNum">    1852 </span>                :<span class="lineCov">          1 :         msFree(pszFID);</span>
+<span class="lineNum">    1853 </span>                :            :         pszFID = NULL;
+<span class="lineNum">    1854 </span>                :<span class="lineCov">          1 :         msFreeShape(&amp;shape); /* init too */</span>
+<span class="lineNum">    1855 </span>                :            :       }
+<span class="lineNum">    1856 </span>                :            : 
+<span class="lineNum">    1857 </span>                :<span class="lineCov">          1 :       msFree(srs);</span>
 <span class="lineNum">    1858 </span>                :            : 
-<span class="lineNum">    1859 </span>                :            :       /* msLayerClose(lp); */
-<span class="lineNum">    1860 </span>                :            :     }
+<span class="lineNum">    1859 </span>                :            :       /* done with this layer, do a little clean-up */
+<span class="lineNum">    1860 </span>                :<span class="lineCov">          1 :       msFree(layerName);</span>
 <span class="lineNum">    1861 </span>                :            : 
-<span class="lineNum">    1862 </span>                :            :   } /* next layer */
-<span class="lineNum">    1863 </span>                :            : 
-<span class="lineNum">    1864 </span>                :            :   return(MS_SUCCESS);
-<span class="lineNum">    1865 </span>                :            : 
-<span class="lineNum">    1866 </span>                :            : #else /* Stub for mapscript */
-<span class="lineNum">    1867 </span>                :            :   msSetError(MS_MISCERR, &quot;WFS server support not enabled&quot;, &quot;msGMLWriteWFSQuery()&quot;);
-<span class="lineNum">    1868 </span>                :            :   return MS_FAILURE;
-<span class="lineNum">    1869 </span>                :            : #endif /* USE_WFS_SVR */
-<span class="lineNum">    1870 </span>                :            : }
+<span class="lineNum">    1862 </span>                :<span class="lineCov">          1 :       msGMLFreeGroups(groupList);</span>
+<span class="lineNum">    1863 </span>                :<span class="lineCov">          1 :       msGMLFreeConstants(constantList);</span>
+<span class="lineNum">    1864 </span>                :<span class="lineCov">          1 :       msGMLFreeItems(itemList);</span>
+<span class="lineNum">    1865 </span>                :<span class="lineCov">          1 :       msGMLFreeGeometries(geometryList);</span>
+<span class="lineNum">    1866 </span>                :            : 
+<span class="lineNum">    1867 </span>                :            :       /* msLayerClose(lp); */
+<span class="lineNum">    1868 </span>                :            :     }
+<span class="lineNum">    1869 </span>                :            : 
+<span class="lineNum">    1870 </span>                :            :   } /* next layer */
 <span class="lineNum">    1871 </span>                :            : 
-<span class="lineNum">    1872 </span>                :            : 
-<span class="lineNum">    1873 </span>                :            : #ifdef USE_LIBXML2
-<span class="lineNum">    1874 </span>                :            : 
-<span class="lineNum">    1875 </span>                :            : /**
-<span class="lineNum">    1876 </span>                :            :  * msGML3BoundedBy()
-<span class="lineNum">    1877 </span>                :            :  *
-<span class="lineNum">    1878 </span>                :            :  * returns an object of BoundedBy as per GML 3
-<span class="lineNum">    1879 </span>                :            :  *
-<span class="lineNum">    1880 </span>                :            :  * @param xmlNsPtr psNs the namespace object
-<span class="lineNum">    1881 </span>                :            :  * @param minx minx
-<span class="lineNum">    1882 </span>                :            :  * @param miny miny
-<span class="lineNum">    1883 </span>                :            :  * @param maxx maxx
-<span class="lineNum">    1884 </span>                :            :  * @param mayy mayy
-<span class="lineNum">    1885 </span>                :            :  * @param psEpsg epsg code
-<span class="lineNum">    1886 </span>                :            :  * @param dimension number of dimensions
+<span class="lineNum">    1872 </span>                :            :   return(MS_SUCCESS);
+<span class="lineNum">    1873 </span>                :            : 
+<span class="lineNum">    1874 </span>                :            : #else /* Stub for mapscript */
+<span class="lineNum">    1875 </span>                :            :   msSetError(MS_MISCERR, &quot;WFS server support not enabled&quot;, &quot;msGMLWriteWFSQuery()&quot;);
+<span class="lineNum">    1876 </span>                :            :   return MS_FAILURE;
+<span class="lineNum">    1877 </span>                :            : #endif /* USE_WFS_SVR */
+<span class="lineNum">    1878 </span>                :            : }
+<span class="lineNum">    1879 </span>                :            : 
+<span class="lineNum">    1880 </span>                :            : 
+<span class="lineNum">    1881 </span>                :            : #ifdef USE_LIBXML2
+<span class="lineNum">    1882 </span>                :            : 
+<span class="lineNum">    1883 </span>                :            : /**
+<span class="lineNum">    1884 </span>                :            :  * msGML3BoundedBy()
+<span class="lineNum">    1885 </span>                :            :  *
+<span class="lineNum">    1886 </span>                :            :  * returns an object of BoundedBy as per GML 3
 <span class="lineNum">    1887 </span>                :            :  *
-<span class="lineNum">    1888 </span>                :            :  * @return psNode xmlNodePtr of XML construct
-<span class="lineNum">    1889 </span>                :            :  *
-<a name="1890"><span class="lineNum">    1890 </span>                :            :  */</a>
-<span class="lineNum">    1891 </span>                :            : 
-<span class="lineNum">    1892 </span>                :<span class="lineCov">          1 : xmlNodePtr msGML3BoundedBy(xmlNsPtr psNs, double minx, double miny, double maxx, double maxy, const char *psEpsg)</span>
-<span class="lineNum">    1893 </span>                :            : {
-<span class="lineNum">    1894 </span>                :            :   xmlNodePtr psNode = NULL, psSubNode = NULL;
-<span class="lineNum">    1895 </span>                :            :   char *pszTmp = NULL;
-<span class="lineNum">    1896 </span>                :            :   char *pszTmp2 = NULL;
-<span class="lineNum">    1897 </span>                :            :   char *pszEpsg = NULL;
-<span class="lineNum">    1898 </span>                :            :   size_t bufferSize = 0;
+<span class="lineNum">    1888 </span>                :            :  * @param xmlNsPtr psNs the namespace object
+<span class="lineNum">    1889 </span>                :            :  * @param minx minx
+<span class="lineNum">    1890 </span>                :            :  * @param miny miny
+<span class="lineNum">    1891 </span>                :            :  * @param maxx maxx
+<span class="lineNum">    1892 </span>                :            :  * @param mayy mayy
+<span class="lineNum">    1893 </span>                :            :  * @param psEpsg epsg code
+<span class="lineNum">    1894 </span>                :            :  * @param dimension number of dimensions
+<span class="lineNum">    1895 </span>                :            :  *
+<span class="lineNum">    1896 </span>                :            :  * @return psNode xmlNodePtr of XML construct
+<span class="lineNum">    1897 </span>                :            :  *
+<a name="1898"><span class="lineNum">    1898 </span>                :            :  */</a>
 <span class="lineNum">    1899 </span>                :            : 
-<span class="lineNum">    1900 </span>                :<span class="lineCov">          1 :   psNode = xmlNewNode(psNs, BAD_CAST &quot;boundedBy&quot;);</span>
-<span class="lineNum">    1901 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, NULL, BAD_CAST &quot;Envelope&quot;, NULL);</span>
-<span class="lineNum">    1902 </span>                :            : 
-<span class="lineNum">    1903 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (psEpsg) {</span>
-<span class="lineNum">    1904 </span>                :<span class="lineCov">          1 :     bufferSize = strlen(psEpsg)+1;</span>
-<span class="lineNum">    1905 </span>                :<span class="lineCov">          1 :     pszEpsg = (char*) msSmallMalloc(bufferSize);</span>
-<span class="lineNum">    1906 </span>                :            :     snprintf(pszEpsg, bufferSize, &quot;%s&quot;, psEpsg);
-<span class="lineNum">    1907 </span>                :<span class="lineCov">          1 :     msStringToLower(pszEpsg);</span>
-<span class="lineNum">    1908 </span>                :<span class="lineCov">          1 :     pszTmp = msStringConcatenate(pszTmp, &quot;urn:ogc:crs:&quot;);</span>
-<span class="lineNum">    1909 </span>                :<span class="lineCov">          1 :     pszTmp = msStringConcatenate(pszTmp, pszEpsg);</span>
-<span class="lineNum">    1910 </span>                :<span class="lineCov">          1 :     xmlNewProp(psSubNode, BAD_CAST &quot;srsName&quot;, BAD_CAST pszTmp);</span>
-<span class="lineNum">    1911 </span>                :<span class="lineCov">          1 :     free(pszEpsg);</span>
-<span class="lineNum">    1912 </span>                :<span class="lineCov">          1 :     free(pszTmp);</span>
-<span class="lineNum">    1913 </span>                :<span class="lineCov">          1 :     pszTmp = msIntToString(2);</span>
-<span class="lineNum">    1914 </span>                :<span class="lineCov">          1 :     xmlNewProp(psSubNode, BAD_CAST &quot;srsDimension&quot;, BAD_CAST pszTmp);</span>
-<span class="lineNum">    1915 </span>                :<span class="lineCov">          1 :     free(pszTmp);</span>
-<span class="lineNum">    1916 </span>                :            :   }
-<span class="lineNum">    1917 </span>                :            : 
-<span class="lineNum">    1918 </span>                :<span class="lineCov">          1 :   pszTmp = msDoubleToString(minx, MS_TRUE);</span>
-<span class="lineNum">    1919 </span>                :<span class="lineCov">          1 :   pszTmp = msStringConcatenate(pszTmp, &quot; &quot;);</span>
-<span class="lineNum">    1920 </span>                :<span class="lineCov">          1 :   pszTmp2 = msDoubleToString(miny, MS_TRUE);</span>
-<span class="lineNum">    1921 </span>                :<span class="lineCov">          1 :   pszTmp = msStringConcatenate(pszTmp, pszTmp2);</span>
-<span class="lineNum">    1922 </span>                :<span class="lineCov">          1 :   xmlNewChild(psSubNode, NULL, BAD_CAST &quot;lowerCorner&quot;, BAD_CAST pszTmp);</span>
-<span class="lineNum">    1923 </span>                :<span class="lineCov">          1 :   free(pszTmp);</span>
-<span class="lineNum">    1924 </span>                :<span class="lineCov">          1 :   free(pszTmp2);</span>
+<span class="lineNum">    1900 </span>                :<span class="lineCov">          1 : xmlNodePtr msGML3BoundedBy(xmlNsPtr psNs, double minx, double miny, double maxx, double maxy, const char *psEpsg)</span>
+<span class="lineNum">    1901 </span>                :            : {
+<span class="lineNum">    1902 </span>                :            :   xmlNodePtr psNode = NULL, psSubNode = NULL;
+<span class="lineNum">    1903 </span>                :            :   char *pszTmp = NULL;
+<span class="lineNum">    1904 </span>                :            :   char *pszTmp2 = NULL;
+<span class="lineNum">    1905 </span>                :            :   char *pszEpsg = NULL;
+<span class="lineNum">    1906 </span>                :            :   size_t bufferSize = 0;
+<span class="lineNum">    1907 </span>                :            : 
+<span class="lineNum">    1908 </span>                :<span class="lineCov">          1 :   psNode = xmlNewNode(psNs, BAD_CAST &quot;boundedBy&quot;);</span>
+<span class="lineNum">    1909 </span>                :<span class="lineCov">          1 :   psSubNode = xmlNewChild(psNode, NULL, BAD_CAST &quot;Envelope&quot;, NULL);</span>
+<span class="lineNum">    1910 </span>                :            : 
+<span class="lineNum">    1911 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (psEpsg) {</span>
+<span class="lineNum">    1912 </span>                :<span class="lineCov">          1 :     bufferSize = strlen(psEpsg)+1;</span>
+<span class="lineNum">    1913 </span>                :<span class="lineCov">          1 :     pszEpsg = (char*) msSmallMalloc(bufferSize);</span>
+<span class="lineNum">    1914 </span>                :            :     snprintf(pszEpsg, bufferSize, &quot;%s&quot;, psEpsg);
+<span class="lineNum">    1915 </span>                :<span class="lineCov">          1 :     msStringToLower(pszEpsg);</span>
+<span class="lineNum">    1916 </span>                :<span class="lineCov">          1 :     pszTmp = msStringConcatenate(pszTmp, &quot;urn:ogc:crs:&quot;);</span>
+<span class="lineNum">    1917 </span>                :<span class="lineCov">          1 :     pszTmp = msStringConcatenate(pszTmp, pszEpsg);</span>
+<span class="lineNum">    1918 </span>                :<span class="lineCov">          1 :     xmlNewProp(psSubNode, BAD_CAST &quot;srsName&quot;, BAD_CAST pszTmp);</span>
+<span class="lineNum">    1919 </span>                :<span class="lineCov">          1 :     free(pszEpsg);</span>
+<span class="lineNum">    1920 </span>                :<span class="lineCov">          1 :     free(pszTmp);</span>
+<span class="lineNum">    1921 </span>                :<span class="lineCov">          1 :     pszTmp = msIntToString(2);</span>
+<span class="lineNum">    1922 </span>                :<span class="lineCov">          1 :     xmlNewProp(psSubNode, BAD_CAST &quot;srsDimension&quot;, BAD_CAST pszTmp);</span>
+<span class="lineNum">    1923 </span>                :<span class="lineCov">          1 :     free(pszTmp);</span>
+<span class="lineNum">    1924 </span>                :            :   }
 <span class="lineNum">    1925 </span>                :            : 
-<span class="lineNum">    1926 </span>                :<span class="lineCov">          1 :   pszTmp = msDoubleToString(maxx, MS_TRUE);</span>
+<span class="lineNum">    1926 </span>                :<span class="lineCov">          1 :   pszTmp = msDoubleToString(minx, MS_TRUE);</span>
 <span class="lineNum">    1927 </span>                :<span class="lineCov">          1 :   pszTmp = msStringConcatenate(pszTmp, &quot; &quot;);</span>
-<span class="lineNum">    1928 </span>                :<span class="lineCov">          1 :   pszTmp2 = msDoubleToString(maxy,MS_TRUE);</span>
+<span class="lineNum">    1928 </span>                :<span class="lineCov">          1 :   pszTmp2 = msDoubleToString(miny, MS_TRUE);</span>
 <span class="lineNum">    1929 </span>                :<span class="lineCov">          1 :   pszTmp = msStringConcatenate(pszTmp, pszTmp2);</span>
-<span class="lineNum">    1930 </span>                :<span class="lineCov">          1 :   xmlNewChild(psSubNode, NULL, BAD_CAST &quot;upperCorner&quot;, BAD_CAST pszTmp);</span>
+<span class="lineNum">    1930 </span>                :<span class="lineCov">          1 :   xmlNewChild(psSubNode, NULL, BAD_CAST &quot;lowerCorner&quot;, BAD_CAST pszTmp);</span>
 <span class="lineNum">    1931 </span>                :<span class="lineCov">          1 :   free(pszTmp);</span>
 <span class="lineNum">    1932 </span>                :<span class="lineCov">          1 :   free(pszTmp2);</span>
-<span class="lineNum">    1933 </span>                :<span class="lineCov">          1 :   return psNode;</span>
-<span class="lineNum">    1934 </span>                :            : }
-<span class="lineNum">    1935 </span>                :            : 
-<span class="lineNum">    1936 </span>                :            : /**
-<span class="lineNum">    1937 </span>                :            :  *msGML3Point()
-<span class="lineNum">    1938 </span>                :            :  *
-<span class="lineNum">    1939 </span>                :            :  * returns an object of Point as per GML 3
-<span class="lineNum">    1940 </span>                :            :  *
-<span class="lineNum">    1941 </span>                :            :  * @param xmlNsPtr psNs the gml namespace object
-<span class="lineNum">    1942 </span>                :            :  * @param pszSrsName EPSG code of geometry
-<span class="lineNum">    1943 </span>                :            :  * @param id
-<span class="lineNum">    1944 </span>                :            :  * @param x x coordinate
-<span class="lineNum">    1945 </span>                :            :  * @param y y coordinate
-<span class="lineNum">    1946 </span>                :            :  * @param z z coordinate
-<span class="lineNum">    1947 </span>                :            :  *
-<span class="lineNum">    1948 </span>                :            :  * @return psNode xmlNodePtr of XML construct
-<span class="lineNum">    1949 </span>                :            :  *
-<a name="1950"><span class="lineNum">    1950 </span>                :            :  */</a>
-<span class="lineNum">    1951 </span>                :            : 
-<span class="lineNum">    1952 </span>                :<span class="lineCov">          1 : xmlNodePtr msGML3Point(xmlNsPtr psNs, const char *psSrsName, const char *id, double x, double y)</span>
-<span class="lineNum">    1953 </span>                :            : {
-<span class="lineNum">    1954 </span>                :            :   xmlNodePtr psNode = NULL;
-<span class="lineNum">    1955 </span>                :            :   char *pszTmp = NULL;
-<span class="lineNum">    1956 </span>                :            :   int dimension = 2;
-<span class="lineNum">    1957 </span>                :            :   char *pszSrsName = NULL;
-<span class="lineNum">    1958 </span>                :            :   char *pszTmp2 = NULL;
-<span class="lineNum">    1959 </span>                :            :   size_t bufferSize = 0;
-<span class="lineNum">    1960 </span>                :            : 
-<span class="lineNum">    1961 </span>                :<span class="lineCov">          1 :   psNode = xmlNewNode(psNs, BAD_CAST &quot;Point&quot;);</span>
-<span class="lineNum">    1962 </span>                :            : 
-<span class="lineNum">    1963 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (id) {</span>
-<span class="lineNum">    1964 </span>                :<span class="lineNoCov">          0 :     xmlNewNsProp(psNode, psNs, BAD_CAST &quot;id&quot;, BAD_CAST id);</span>
-<span class="lineNum">    1965 </span>                :            :   }
-<span class="lineNum">    1966 </span>                :            : 
-<span class="lineNum">    1967 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (psSrsName) {</span>
-<span class="lineNum">    1968 </span>                :<span class="lineCov">          1 :     bufferSize = strlen(psSrsName)+1;</span>
-<span class="lineNum">    1969 </span>                :<span class="lineCov">          1 :     pszSrsName = (char *) msSmallMalloc(bufferSize);</span>
-<span class="lineNum">    1970 </span>                :            :     snprintf(pszSrsName, bufferSize, &quot;%s&quot;, psSrsName);
-<span class="lineNum">    1971 </span>                :<span class="lineCov">          1 :     msStringToLower(pszSrsName);</span>
-<span class="lineNum">    1972 </span>                :<span class="lineCov">          1 :     pszTmp = msStringConcatenate(pszTmp, &quot;urn:ogc:crs:&quot;);</span>
-<span class="lineNum">    1973 </span>                :<span class="lineCov">          1 :     pszTmp = msStringConcatenate(pszTmp, pszSrsName);</span>
-<span class="lineNum">    1974 </span>                :<span class="lineCov">          1 :     xmlNewProp(psNode, BAD_CAST &quot;srsName&quot;, BAD_CAST pszTmp);</span>
-<span class="lineNum">    1975 </span>                :<span class="lineCov">          1 :     free(pszSrsName);</span>
-<span class="lineNum">    1976 </span>                :<span class="lineCov">          1 :     free(pszTmp);</span>
-<span class="lineNum">    1977 </span>                :<span class="lineCov">          1 :     pszTmp = msIntToString(dimension);</span>
-<span class="lineNum">    1978 </span>                :<span class="lineCov">          1 :     xmlNewProp(psNode, BAD_CAST &quot;srsDimension&quot;, BAD_CAST pszTmp);</span>
-<span class="lineNum">    1979 </span>                :<span class="lineCov">          1 :     free(pszTmp);</span>
-<span class="lineNum">    1980 </span>                :            :   }
-<span class="lineNum">    1981 </span>                :            : 
-<span class="lineNum">    1982 </span>                :<span class="lineCov">          1 :   pszTmp = msDoubleToString(x, MS_TRUE);</span>
-<span class="lineNum">    1983 </span>                :<span class="lineCov">          1 :   pszTmp = msStringConcatenate(pszTmp, &quot; &quot;);</span>
-<span class="lineNum">    1984 </span>                :<span class="lineCov">          1 :   pszTmp2 = msDoubleToString(y, MS_TRUE);</span>
-<span class="lineNum">    1985 </span>                :<span class="lineCov">          1 :   pszTmp = msStringConcatenate(pszTmp, pszTmp2);</span>
-<span class="lineNum">    1986 </span>                :<span class="lineCov">          1 :   xmlNewChild(psNode, NULL, BAD_CAST &quot;pos&quot;, BAD_CAST pszTmp);</span>
-<span class="lineNum">    1987 </span>                :            : 
-<span class="lineNum">    1988 </span>                :<span class="lineCov">          1 :   free(pszTmp);</span>
-<span class="lineNum">    1989 </span>                :<span class="lineCov">          1 :   free(pszTmp2);</span>
-<span class="lineNum">    1990 </span>                :<span class="lineCov">          1 :   return psNode;</span>
-<span class="lineNum">    1991 </span>                :            : }
-<span class="lineNum">    1992 </span>                :            : 
-<span class="lineNum">    1993 </span>                :            : /**
-<span class="lineNum">    1994 </span>                :            :  * msGML3TimePeriod()
-<span class="lineNum">    1995 </span>                :            :  *
-<span class="lineNum">    1996 </span>                :            :  * returns an object of TimePeriod as per GML 3
-<span class="lineNum">    1997 </span>                :            :  *
-<span class="lineNum">    1998 </span>                :            :  * @param xmlNsPtr psNs the gml namespace object
-<span class="lineNum">    1999 </span>                :            :  * @param pszStart start time
-<span class="lineNum">    2000 </span>                :            :  * @param pszEnd end time
-<span class="lineNum">    2001 </span>                :            :  *
-<span class="lineNum">    2002 </span>                :            :  * @return psNode xmlNodePtr of XML construct
+<span class="lineNum">    1933 </span>                :            : 
+<span class="lineNum">    1934 </span>                :<span class="lineCov">          1 :   pszTmp = msDoubleToString(maxx, MS_TRUE);</span>
+<span class="lineNum">    1935 </span>                :<span class="lineCov">          1 :   pszTmp = msStringConcatenate(pszTmp, &quot; &quot;);</span>
+<span class="lineNum">    1936 </span>                :<span class="lineCov">          1 :   pszTmp2 = msDoubleToString(maxy,MS_TRUE);</span>
+<span class="lineNum">    1937 </span>                :<span class="lineCov">          1 :   pszTmp = msStringConcatenate(pszTmp, pszTmp2);</span>
+<span class="lineNum">    1938 </span>                :<span class="lineCov">          1 :   xmlNewChild(psSubNode, NULL, BAD_CAST &quot;upperCorner&quot;, BAD_CAST pszTmp);</span>
+<span class="lineNum">    1939 </span>                :<span class="lineCov">          1 :   free(pszTmp);</span>
+<span class="lineNum">    1940 </span>                :<span class="lineCov">          1 :   free(pszTmp2);</span>
+<span class="lineNum">    1941 </span>                :<span class="lineCov">          1 :   return psNode;</span>
+<span class="lineNum">    1942 </span>                :            : }
+<span class="lineNum">    1943 </span>                :            : 
+<span class="lineNum">    1944 </span>                :            : /**
+<span class="lineNum">    1945 </span>                :            :  *msGML3Point()
+<span class="lineNum">    1946 </span>                :            :  *
+<span class="lineNum">    1947 </span>                :            :  * returns an object of Point as per GML 3
+<span class="lineNum">    1948 </span>                :            :  *
+<span class="lineNum">    1949 </span>                :            :  * @param xmlNsPtr psNs the gml namespace object
+<span class="lineNum">    1950 </span>                :            :  * @param pszSrsName EPSG code of geometry
+<span class="lineNum">    1951 </span>                :            :  * @param id
+<span class="lineNum">    1952 </span>                :            :  * @param x x coordinate
+<span class="lineNum">    1953 </span>                :            :  * @param y y coordinate
+<span class="lineNum">    1954 </span>                :            :  * @param z z coordinate
+<span class="lineNum">    1955 </span>                :            :  *
+<span class="lineNum">    1956 </span>                :            :  * @return psNode xmlNodePtr of XML construct
+<span class="lineNum">    1957 </span>                :            :  *
+<a name="1958"><span class="lineNum">    1958 </span>                :            :  */</a>
+<span class="lineNum">    1959 </span>                :            : 
+<span class="lineNum">    1960 </span>                :<span class="lineCov">          1 : xmlNodePtr msGML3Point(xmlNsPtr psNs, const char *psSrsName, const char *id, double x, double y)</span>
+<span class="lineNum">    1961 </span>                :            : {
+<span class="lineNum">    1962 </span>                :            :   xmlNodePtr psNode = NULL;
+<span class="lineNum">    1963 </span>                :            :   char *pszTmp = NULL;
+<span class="lineNum">    1964 </span>                :            :   int dimension = 2;
+<span class="lineNum">    1965 </span>                :            :   char *pszSrsName = NULL;
+<span class="lineNum">    1966 </span>                :            :   char *pszTmp2 = NULL;
+<span class="lineNum">    1967 </span>                :            :   size_t bufferSize = 0;
+<span class="lineNum">    1968 </span>                :            : 
+<span class="lineNum">    1969 </span>                :<span class="lineCov">          1 :   psNode = xmlNewNode(psNs, BAD_CAST &quot;Point&quot;);</span>
+<span class="lineNum">    1970 </span>                :            : 
+<span class="lineNum">    1971 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (id) {</span>
+<span class="lineNum">    1972 </span>                :<span class="lineNoCov">          0 :     xmlNewNsProp(psNode, psNs, BAD_CAST &quot;id&quot;, BAD_CAST id);</span>
+<span class="lineNum">    1973 </span>                :            :   }
+<span class="lineNum">    1974 </span>                :            : 
+<span class="lineNum">    1975 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (psSrsName) {</span>
+<span class="lineNum">    1976 </span>                :<span class="lineCov">          1 :     bufferSize = strlen(psSrsName)+1;</span>
+<span class="lineNum">    1977 </span>                :<span class="lineCov">          1 :     pszSrsName = (char *) msSmallMalloc(bufferSize);</span>
+<span class="lineNum">    1978 </span>                :            :     snprintf(pszSrsName, bufferSize, &quot;%s&quot;, psSrsName);
+<span class="lineNum">    1979 </span>                :<span class="lineCov">          1 :     msStringToLower(pszSrsName);</span>
+<span class="lineNum">    1980 </span>                :<span class="lineCov">          1 :     pszTmp = msStringConcatenate(pszTmp, &quot;urn:ogc:crs:&quot;);</span>
+<span class="lineNum">    1981 </span>                :<span class="lineCov">          1 :     pszTmp = msStringConcatenate(pszTmp, pszSrsName);</span>
+<span class="lineNum">    1982 </span>                :<span class="lineCov">          1 :     xmlNewProp(psNode, BAD_CAST &quot;srsName&quot;, BAD_CAST pszTmp);</span>
+<span class="lineNum">    1983 </span>                :<span class="lineCov">          1 :     free(pszSrsName);</span>
+<span class="lineNum">    1984 </span>                :<span class="lineCov">          1 :     free(pszTmp);</span>
+<span class="lineNum">    1985 </span>                :<span class="lineCov">          1 :     pszTmp = msIntToString(dimension);</span>
+<span class="lineNum">    1986 </span>                :<span class="lineCov">          1 :     xmlNewProp(psNode, BAD_CAST &quot;srsDimension&quot;, BAD_CAST pszTmp);</span>
+<span class="lineNum">    1987 </span>                :<span class="lineCov">          1 :     free(pszTmp);</span>
+<span class="lineNum">    1988 </span>                :            :   }
+<span class="lineNum">    1989 </span>                :            : 
+<span class="lineNum">    1990 </span>                :<span class="lineCov">          1 :   pszTmp = msDoubleToString(x, MS_TRUE);</span>
+<span class="lineNum">    1991 </span>                :<span class="lineCov">          1 :   pszTmp = msStringConcatenate(pszTmp, &quot; &quot;);</span>
+<span class="lineNum">    1992 </span>                :<span class="lineCov">          1 :   pszTmp2 = msDoubleToString(y, MS_TRUE);</span>
+<span class="lineNum">    1993 </span>                :<span class="lineCov">          1 :   pszTmp = msStringConcatenate(pszTmp, pszTmp2);</span>
+<span class="lineNum">    1994 </span>                :<span class="lineCov">          1 :   xmlNewChild(psNode, NULL, BAD_CAST &quot;pos&quot;, BAD_CAST pszTmp);</span>
+<span class="lineNum">    1995 </span>                :            : 
+<span class="lineNum">    1996 </span>                :<span class="lineCov">          1 :   free(pszTmp);</span>
+<span class="lineNum">    1997 </span>                :<span class="lineCov">          1 :   free(pszTmp2);</span>
+<span class="lineNum">    1998 </span>                :<span class="lineCov">          1 :   return psNode;</span>
+<span class="lineNum">    1999 </span>                :            : }
+<span class="lineNum">    2000 </span>                :            : 
+<span class="lineNum">    2001 </span>                :            : /**
+<span class="lineNum">    2002 </span>                :            :  * msGML3TimePeriod()
 <span class="lineNum">    2003 </span>                :            :  *
-<a name="2004"><span class="lineNum">    2004 </span>                :            :  */</a>
-<span class="lineNum">    2005 </span>                :            : 
-<span class="lineNum">    2006 </span>                :<span class="lineCov">          1 : xmlNodePtr msGML3TimePeriod(xmlNsPtr psNs, char *pszStart, char *pszEnd)</span>
-<span class="lineNum">    2007 </span>                :            : {
-<span class="lineNum">    2008 </span>                :            :   xmlNodePtr psNode=NULL;
-<span class="lineNum">    2009 </span>                :            : 
-<span class="lineNum">    2010 </span>                :<span class="lineCov">          1 :   psNode = xmlNewNode(psNs, BAD_CAST &quot;TimePeriod&quot;);</span>
-<span class="lineNum">    2011 </span>                :<span class="lineCov">          1 :   xmlNewChild(psNode, NULL, BAD_CAST &quot;beginPosition&quot;, BAD_CAST pszStart);</span>
-<span class="lineNum">    2012 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (pszEnd)</span>
-<span class="lineNum">    2013 </span>                :<span class="lineCov">          1 :     xmlNewChild(psNode, NULL, BAD_CAST &quot;endPosition&quot;, BAD_CAST pszEnd);</span>
-<span class="lineNum">    2014 </span>                :            :   else {
-<span class="lineNum">    2015 </span>                :<span class="lineNoCov">          0 :     xmlNewChild(psNode, NULL, BAD_CAST &quot;endPosition&quot;, NULL);</span>
-<span class="lineNum">    2016 </span>                :<span class="lineNoCov">          0 :     xmlNewProp(psNode, BAD_CAST &quot;indeterminatePosition&quot;, BAD_CAST &quot;now&quot;);</span>
-<span class="lineNum">    2017 </span>                :            :   }
-<span class="lineNum">    2018 </span>                :<span class="lineCov">          1 :   return psNode;</span>
-<span class="lineNum">    2019 </span>                :            : }
-<span class="lineNum">    2020 </span>                :            : 
-<span class="lineNum">    2021 </span>                :            : /**
-<span class="lineNum">    2022 </span>                :            :  * msGML3TimeInstant()
-<span class="lineNum">    2023 </span>                :            :  *
-<span class="lineNum">    2024 </span>                :            :  * returns an object of TimeInstant as per GML 3
-<span class="lineNum">    2025 </span>                :            :  *
-<span class="lineNum">    2026 </span>                :            :  * @param xmlNsPtr psNs the gml namespace object
-<span class="lineNum">    2027 </span>                :            :  * @param timeInstant time instant
-<span class="lineNum">    2028 </span>                :            :  *
-<span class="lineNum">    2029 </span>                :            :  * @return psNode xmlNodePtr of XML construct
-<span class="lineNum">    2030 </span>                :            :  *
-<a name="2031"><span class="lineNum">    2031 </span>                :            :  */</a>
-<span class="lineNum">    2032 </span>                :            : 
-<span class="lineNum">    2033 </span>                :<span class="lineCov">          1 : xmlNodePtr msGML3TimeInstant(xmlNsPtr psNs, char *pszTime)</span>
-<span class="lineNum">    2034 </span>                :            : {
-<span class="lineNum">    2035 </span>                :            :   xmlNodePtr psNode=NULL;
-<span class="lineNum">    2036 </span>                :            : 
-<span class="lineNum">    2037 </span>                :<span class="lineCov">          1 :   psNode = xmlNewNode(psNs, BAD_CAST &quot;TimeInstant&quot;);</span>
-<span class="lineNum">    2038 </span>                :<span class="lineCov">          1 :   xmlNewChild(psNode, NULL, BAD_CAST &quot;timePosition&quot;, BAD_CAST pszTime);</span>
-<span class="lineNum">    2039 </span>                :<span class="lineCov">          1 :   return psNode;</span>
-<span class="lineNum">    2040 </span>                :            : }
-<span class="lineNum">    2041 </span>                :            : 
-<span class="lineNum">    2042 </span>                :            : #endif /* USE_LIBXML2 */
-<span class="lineNum">    2043 </span>                :            : 
+<span class="lineNum">    2004 </span>                :            :  * returns an object of TimePeriod as per GML 3
+<span class="lineNum">    2005 </span>                :            :  *
+<span class="lineNum">    2006 </span>                :            :  * @param xmlNsPtr psNs the gml namespace object
+<span class="lineNum">    2007 </span>                :            :  * @param pszStart start time
+<span class="lineNum">    2008 </span>                :            :  * @param pszEnd end time
+<span class="lineNum">    2009 </span>                :            :  *
+<span class="lineNum">    2010 </span>                :            :  * @return psNode xmlNodePtr of XML construct
+<span class="lineNum">    2011 </span>                :            :  *
+<a name="2012"><span class="lineNum">    2012 </span>                :            :  */</a>
+<span class="lineNum">    2013 </span>                :            : 
+<span class="lineNum">    2014 </span>                :<span class="lineCov">          1 : xmlNodePtr msGML3TimePeriod(xmlNsPtr psNs, char *pszStart, char *pszEnd)</span>
+<span class="lineNum">    2015 </span>                :            : {
+<span class="lineNum">    2016 </span>                :            :   xmlNodePtr psNode=NULL;
+<span class="lineNum">    2017 </span>                :            : 
+<span class="lineNum">    2018 </span>                :<span class="lineCov">          1 :   psNode = xmlNewNode(psNs, BAD_CAST &quot;TimePeriod&quot;);</span>
+<span class="lineNum">    2019 </span>                :<span class="lineCov">          1 :   xmlNewChild(psNode, NULL, BAD_CAST &quot;beginPosition&quot;, BAD_CAST pszStart);</span>
+<span class="lineNum">    2020 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (pszEnd)</span>
+<span class="lineNum">    2021 </span>                :<span class="lineCov">          1 :     xmlNewChild(psNode, NULL, BAD_CAST &quot;endPosition&quot;, BAD_CAST pszEnd);</span>
+<span class="lineNum">    2022 </span>                :            :   else {
+<span class="lineNum">    2023 </span>                :<span class="lineNoCov">          0 :     xmlNewChild(psNode, NULL, BAD_CAST &quot;endPosition&quot;, NULL);</span>
+<span class="lineNum">    2024 </span>                :<span class="lineNoCov">          0 :     xmlNewProp(psNode, BAD_CAST &quot;indeterminatePosition&quot;, BAD_CAST &quot;now&quot;);</span>
+<span class="lineNum">    2025 </span>                :            :   }
+<span class="lineNum">    2026 </span>                :<span class="lineCov">          1 :   return psNode;</span>
+<span class="lineNum">    2027 </span>                :            : }
+<span class="lineNum">    2028 </span>                :            : 
+<span class="lineNum">    2029 </span>                :            : /**
+<span class="lineNum">    2030 </span>                :            :  * msGML3TimeInstant()
+<span class="lineNum">    2031 </span>                :            :  *
+<span class="lineNum">    2032 </span>                :            :  * returns an object of TimeInstant as per GML 3
+<span class="lineNum">    2033 </span>                :            :  *
+<span class="lineNum">    2034 </span>                :            :  * @param xmlNsPtr psNs the gml namespace object
+<span class="lineNum">    2035 </span>                :            :  * @param timeInstant time instant
+<span class="lineNum">    2036 </span>                :            :  *
+<span class="lineNum">    2037 </span>                :            :  * @return psNode xmlNodePtr of XML construct
+<span class="lineNum">    2038 </span>                :            :  *
+<a name="2039"><span class="lineNum">    2039 </span>                :            :  */</a>
+<span class="lineNum">    2040 </span>                :            : 
+<span class="lineNum">    2041 </span>                :<span class="lineCov">          1 : xmlNodePtr msGML3TimeInstant(xmlNsPtr psNs, char *pszTime)</span>
+<span class="lineNum">    2042 </span>                :            : {
+<span class="lineNum">    2043 </span>                :            :   xmlNodePtr psNode=NULL;
 <span class="lineNum">    2044 </span>                :            : 
-<span class="lineNum">    2045 </span>                :            : /************************************************************************/
-<span class="lineNum">    2046 </span>                :            : /*      The following functions are enabled in all cases, even if       */
-<span class="lineNum">    2047 </span>                :            : /*      WMS and WFS are not available.                                  */
-<a name="2048"><span class="lineNum">    2048 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">    2045 </span>                :<span class="lineCov">          1 :   psNode = xmlNewNode(psNs, BAD_CAST &quot;TimeInstant&quot;);</span>
+<span class="lineNum">    2046 </span>                :<span class="lineCov">          1 :   xmlNewChild(psNode, NULL, BAD_CAST &quot;timePosition&quot;, BAD_CAST pszTime);</span>
+<span class="lineNum">    2047 </span>                :<span class="lineCov">          1 :   return psNode;</span>
+<span class="lineNum">    2048 </span>                :            : }
 <span class="lineNum">    2049 </span>                :            : 
-<span class="lineNum">    2050 </span>                :<span class="lineCov">          1 : gmlItemListObj *msGMLGetItems(layerObj *layer, const char *metadata_namespaces)</span>
-<span class="lineNum">    2051 </span>                :            : {
-<span class="lineNum">    2052 </span>                :            :   int i,j;
-<span class="lineNum">    2053 </span>                :            : 
-<span class="lineNum">    2054 </span>                :            :   char **xmlitems=NULL;
-<span class="lineNum">    2055 </span>                :<span class="lineCov">          1 :   int numxmlitems=0;</span>
-<span class="lineNum">    2056 </span>                :            : 
-<span class="lineNum">    2057 </span>                :            :   char **incitems=NULL;
-<span class="lineNum">    2058 </span>                :<span class="lineCov">          1 :   int numincitems=0;</span>
-<span class="lineNum">    2059 </span>                :            : 
-<span class="lineNum">    2060 </span>                :            :   char **excitems=NULL;
-<span class="lineNum">    2061 </span>                :<span class="lineCov">          1 :   int numexcitems=0;</span>
-<span class="lineNum">    2062 </span>                :            : 
-<span class="lineNum">    2063 </span>                :            :   char **optionalitems=NULL;
-<span class="lineNum">    2064 </span>                :<span class="lineCov">          1 :   int numoptionalitems=0;</span>
-<span class="lineNum">    2065 </span>                :            : 
-<span class="lineNum">    2066 </span>                :            :   char **mandatoryitems=NULL;
-<span class="lineNum">    2067 </span>                :<span class="lineCov">          1 :   int nummandatoryitems=0;</span>
-<span class="lineNum">    2068 </span>                :            : 
-<span class="lineNum">    2069 </span>                :            :   char **defaultitems=NULL;
-<span class="lineNum">    2070 </span>                :<span class="lineCov">          1 :   int numdefaultitems=0;</span>
-<span class="lineNum">    2071 </span>                :            : 
-<span class="lineNum">    2072 </span>                :            :   const char *value=NULL;
-<span class="lineNum">    2073 </span>                :            :   char tag[64];
-<span class="lineNum">    2074 </span>                :            : 
-<span class="lineNum">    2075 </span>                :            :   gmlItemListObj *itemList=NULL;
-<span class="lineNum">    2076 </span>                :            :   gmlItemObj *item=NULL;
-<span class="lineNum">    2077 </span>                :            : 
-<span class="lineNum">    2078 </span>                :            :   /* get a list of items that might be included in output */
-<span class="lineNum">    2079 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;include_items&quot;)) != NULL)</span>
-<span class="lineNum">    2080 </span>                :<span class="lineCov">          1 :     incitems = msStringSplit(value, ',', &amp;numincitems);</span>
-<span class="lineNum">    2081 </span>                :            : 
-<span class="lineNum">    2082 </span>                :            :   /* get a list of items that should be excluded in output */
-<span class="lineNum">    2083 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;exclude_items&quot;)) != NULL)</span>
-<span class="lineNum">    2084 </span>                :<span class="lineCov">          1 :     excitems = msStringSplit(value, ',', &amp;numexcitems);</span>
+<span class="lineNum">    2050 </span>                :            : #endif /* USE_LIBXML2 */
+<span class="lineNum">    2051 </span>                :            : 
+<span class="lineNum">    2052 </span>                :            : 
+<span class="lineNum">    2053 </span>                :            : /************************************************************************/
+<span class="lineNum">    2054 </span>                :            : /*      The following functions are enabled in all cases, even if       */
+<span class="lineNum">    2055 </span>                :            : /*      WMS and WFS are not available.                                  */
+<a name="2056"><span class="lineNum">    2056 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">    2057 </span>                :            : 
+<span class="lineNum">    2058 </span>                :<span class="lineCov">          1 : gmlItemListObj *msGMLGetItems(layerObj *layer, const char *metadata_namespaces)</span>
+<span class="lineNum">    2059 </span>                :            : {
+<span class="lineNum">    2060 </span>                :            :   int i,j;
+<span class="lineNum">    2061 </span>                :            : 
+<span class="lineNum">    2062 </span>                :            :   char **xmlitems=NULL;
+<span class="lineNum">    2063 </span>                :<span class="lineCov">          1 :   int numxmlitems=0;</span>
+<span class="lineNum">    2064 </span>                :            : 
+<span class="lineNum">    2065 </span>                :            :   char **incitems=NULL;
+<span class="lineNum">    2066 </span>                :<span class="lineCov">          1 :   int numincitems=0;</span>
+<span class="lineNum">    2067 </span>                :            : 
+<span class="lineNum">    2068 </span>                :            :   char **excitems=NULL;
+<span class="lineNum">    2069 </span>                :<span class="lineCov">          1 :   int numexcitems=0;</span>
+<span class="lineNum">    2070 </span>                :            : 
+<span class="lineNum">    2071 </span>                :            :   char **optionalitems=NULL;
+<span class="lineNum">    2072 </span>                :<span class="lineCov">          1 :   int numoptionalitems=0;</span>
+<span class="lineNum">    2073 </span>                :            : 
+<span class="lineNum">    2074 </span>                :            :   char **mandatoryitems=NULL;
+<span class="lineNum">    2075 </span>                :<span class="lineCov">          1 :   int nummandatoryitems=0;</span>
+<span class="lineNum">    2076 </span>                :            : 
+<span class="lineNum">    2077 </span>                :            :   char **defaultitems=NULL;
+<span class="lineNum">    2078 </span>                :<span class="lineCov">          1 :   int numdefaultitems=0;</span>
+<span class="lineNum">    2079 </span>                :            : 
+<span class="lineNum">    2080 </span>                :            :   const char *value=NULL;
+<span class="lineNum">    2081 </span>                :            :   char tag[64];
+<span class="lineNum">    2082 </span>                :            : 
+<span class="lineNum">    2083 </span>                :            :   gmlItemListObj *itemList=NULL;
+<span class="lineNum">    2084 </span>                :            :   gmlItemObj *item=NULL;
 <span class="lineNum">    2085 </span>                :            : 
-<span class="lineNum">    2086 </span>                :            :   /* get a list of items that should not be XML encoded */
-<span class="lineNum">    2087 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;xml_items&quot;)) != NULL)</span>
-<span class="lineNum">    2088 </span>                :<span class="lineNoCov">          0 :     xmlitems = msStringSplit(value, ',', &amp;numxmlitems);</span>
+<span class="lineNum">    2086 </span>                :            :   /* get a list of items that might be included in output */
+<span class="lineNum">    2087 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;include_items&quot;)) != NULL)</span>
+<span class="lineNum">    2088 </span>                :<span class="lineCov">          1 :     incitems = msStringSplit(value, ',', &amp;numincitems);</span>
 <span class="lineNum">    2089 </span>                :            : 
-<span class="lineNum">    2090 </span>                :            :   /* get a list of items that should be indicated as optional in DescribeFeatureType */
-<span class="lineNum">    2091 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;optional_items&quot;)) != NULL)</span>
-<span class="lineNum">    2092 </span>                :<span class="lineCov">          1 :     optionalitems = msStringSplit(value, ',', &amp;numoptionalitems);</span>
+<span class="lineNum">    2090 </span>                :            :   /* get a list of items that should be excluded in output */
+<span class="lineNum">    2091 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;exclude_items&quot;)) != NULL)</span>
+<span class="lineNum">    2092 </span>                :<span class="lineCov">          1 :     excitems = msStringSplit(value, ',', &amp;numexcitems);</span>
 <span class="lineNum">    2093 </span>                :            : 
-<span class="lineNum">    2094 </span>                :            :   /* get a list of items that should be indicated as mandatory in DescribeFeatureType */
-<span class="lineNum">    2095 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;mandatory_items&quot;)) != NULL)</span>
-<span class="lineNum">    2096 </span>                :<span class="lineCov">          1 :     mandatoryitems = msStringSplit(value, ',', &amp;nummandatoryitems);</span>
+<span class="lineNum">    2094 </span>                :            :   /* get a list of items that should not be XML encoded */
+<span class="lineNum">    2095 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;xml_items&quot;)) != NULL)</span>
+<span class="lineNum">    2096 </span>                :<span class="lineNoCov">          0 :     xmlitems = msStringSplit(value, ',', &amp;numxmlitems);</span>
 <span class="lineNum">    2097 </span>                :            : 
-<span class="lineNum">    2098 </span>                :            :   /* get a list of items that should be presented by default in GetFeature */
-<span class="lineNum">    2099 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;default_items&quot;)) != NULL)</span>
-<span class="lineNum">    2100 </span>                :<span class="lineCov">          1 :     defaultitems = msStringSplit(value, ',', &amp;numdefaultitems);</span>
+<span class="lineNum">    2098 </span>                :            :   /* get a list of items that should be indicated as optional in DescribeFeatureType */
+<span class="lineNum">    2099 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;optional_items&quot;)) != NULL)</span>
+<span class="lineNum">    2100 </span>                :<span class="lineCov">          1 :     optionalitems = msStringSplit(value, ',', &amp;numoptionalitems);</span>
 <span class="lineNum">    2101 </span>                :            : 
-<span class="lineNum">    2102 </span>                :            :   /* allocate memory and iinitialize the item collection */
-<span class="lineNum">    2103 </span>                :<span class="lineCov">          1 :   itemList = (gmlItemListObj *) malloc(sizeof(gmlItemListObj));</span>
-<span class="lineNum">    2104 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(itemList == NULL) {</span>
-<span class="lineNum">    2105 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Error allocating a collection GML item structures.&quot;, &quot;msGMLGetItems()&quot;);</span>
-<span class="lineNum">    2106 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
-<span class="lineNum">    2107 </span>                :            :   }
-<span class="lineNum">    2108 </span>                :            : 
-<span class="lineNum">    2109 </span>                :<span class="lineCov">          1 :   itemList-&gt;numitems = layer-&gt;numitems;</span>
-<span class="lineNum">    2110 </span>                :<span class="lineCov">          1 :   itemList-&gt;items = (gmlItemObj *) malloc(sizeof(gmlItemObj)*itemList-&gt;numitems);</span>
-<span class="lineNum">    2111 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!itemList-&gt;items) {</span>
-<span class="lineNum">    2112 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Error allocating a collection GML item structures.&quot;, &quot;msGMLGetItems()&quot;);</span>
-<span class="lineNum">    2113 </span>                :<span class="lineNoCov">          0 :     free(itemList);</span>
+<span class="lineNum">    2102 </span>                :            :   /* get a list of items that should be indicated as mandatory in DescribeFeatureType */
+<span class="lineNum">    2103 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;mandatory_items&quot;)) != NULL)</span>
+<span class="lineNum">    2104 </span>                :<span class="lineCov">          1 :     mandatoryitems = msStringSplit(value, ',', &amp;nummandatoryitems);</span>
+<span class="lineNum">    2105 </span>                :            : 
+<span class="lineNum">    2106 </span>                :            :   /* get a list of items that should be presented by default in GetFeature */
+<span class="lineNum">    2107 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;default_items&quot;)) != NULL)</span>
+<span class="lineNum">    2108 </span>                :<span class="lineCov">          1 :     defaultitems = msStringSplit(value, ',', &amp;numdefaultitems);</span>
+<span class="lineNum">    2109 </span>                :            : 
+<span class="lineNum">    2110 </span>                :            :   /* allocate memory and iinitialize the item collection */
+<span class="lineNum">    2111 </span>                :<span class="lineCov">          1 :   itemList = (gmlItemListObj *) malloc(sizeof(gmlItemListObj));</span>
+<span class="lineNum">    2112 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(itemList == NULL) {</span>
+<span class="lineNum">    2113 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Error allocating a collection GML item structures.&quot;, &quot;msGMLGetItems()&quot;);</span>
 <span class="lineNum">    2114 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
 <span class="lineNum">    2115 </span>                :            :   }
 <span class="lineNum">    2116 </span>                :            : 
-<span class="lineNum">    2117 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;layer-&gt;numitems; i++) {</span>
-<span class="lineNum">    2118 </span>                :<span class="lineCov">          1 :     item = &amp;(itemList-&gt;items[i]);</span>
-<span class="lineNum">    2119 </span>                :            : 
-<span class="lineNum">    2120 </span>                :<span class="lineCov">          1 :     item-&gt;name = msStrdup(layer-&gt;items[i]);  /* initialize the item */</span>
-<span class="lineNum">    2121 </span>                :<span class="lineCov">          1 :     item-&gt;alias = NULL;</span>
-<span class="lineNum">    2122 </span>                :<span class="lineCov">          1 :     item-&gt;type = NULL;</span>
-<span class="lineNum">    2123 </span>                :<span class="lineCov">          1 :     item-&gt;template = NULL;</span>
-<span class="lineNum">    2124 </span>                :<span class="lineCov">          1 :     item-&gt;encode = MS_TRUE;</span>
-<span class="lineNum">    2125 </span>                :<span class="lineCov">          1 :     item-&gt;visible = MS_FALSE;</span>
-<span class="lineNum">    2126 </span>                :<span class="lineCov">          1 :     item-&gt;width = 0;</span>
-<span class="lineNum">    2127 </span>                :<span class="lineCov">          1 :     item-&gt;precision = 0;</span>
-<span class="lineNum">    2128 </span>                :<span class="lineCov">          1 :     item-&gt;outputByDefault = (numdefaultitems == 0);</span>
-<span class="lineNum">    2129 </span>                :<span class="lineCov">          1 :     item-&gt;minOccurs = 0;</span>
-<span class="lineNum">    2130 </span>                :            : 
-<span class="lineNum">    2131 </span>                :            :     /* check visibility, included items first... */
-<span class="lineNum">    2132 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(numincitems == 1 &amp;&amp; strcasecmp(&quot;all&quot;, incitems[0]) == 0) {</span>
-<span class="lineNum">    2133 </span>                :<span class="lineCov">          1 :       item-&gt;visible = MS_TRUE;</span>
-<span class="lineNum">    2134 </span>                :            :     } else {
-<span class="lineNum">    2135 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(j=0; j&lt;numincitems; j++) {</span>
-<span class="lineNum">    2136 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(strcasecmp(layer-&gt;items[i], incitems[j]) == 0)</span>
-<span class="lineNum">    2137 </span>                :<span class="lineCov">          1 :           item-&gt;visible = MS_TRUE;</span>
-<span class="lineNum">    2138 </span>                :            :       }
-<span class="lineNum">    2139 </span>                :            :     }
-<span class="lineNum">    2140 </span>                :            : 
-<span class="lineNum">    2141 </span>                :            :     /* ...and now excluded items */
-<span class="lineNum">    2142 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(j=0; j&lt;numexcitems; j++) {</span>
-<span class="lineNum">    2143 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(strcasecmp(layer-&gt;items[i], excitems[j]) == 0)</span>
-<span class="lineNum">    2144 </span>                :<span class="lineCov">          1 :         item-&gt;visible = MS_FALSE;</span>
-<span class="lineNum">    2145 </span>                :            :     }
-<span class="lineNum">    2146 </span>                :            : 
-<span class="lineNum">    2147 </span>                :            :     /* check encoding */
-<span class="lineNum">    2148 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(j=0; j&lt;numxmlitems; j++) {</span>
-<span class="lineNum">    2149 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(strcasecmp(layer-&gt;items[i], xmlitems[j]) == 0)</span>
-<span class="lineNum">    2150 </span>                :<span class="lineNoCov">          0 :         item-&gt;encode = MS_FALSE;</span>
-<span class="lineNum">    2151 </span>                :            :     }
-<span class="lineNum">    2152 </span>                :            : 
-<span class="lineNum">    2153 </span>                :            :     /* check optional */
-<span class="lineNum">    2154 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if(numoptionalitems == 1 &amp;&amp; strcasecmp(&quot;all&quot;, optionalitems[0]) == 0) {</span>
-<span class="lineNum">    2155 </span>                :<span class="lineCov">          1 :       item-&gt;minOccurs = 0;</span>
-<span class="lineNum">    2156 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     } else if( numoptionalitems &gt; 0) {</span>
-<span class="lineNum">    2157 </span>                :<span class="lineNoCov">          0 :       item-&gt;minOccurs = 1;</span>
-<span class="lineNum">    2158 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(j=0; j&lt;numoptionalitems; j++) {</span>
-<span class="lineNum">    2159 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(strcasecmp(layer-&gt;items[i], optionalitems[j]) == 0)</span>
-<span class="lineNum">    2160 </span>                :<span class="lineNoCov">          0 :           item-&gt;minOccurs = 0;</span>
-<span class="lineNum">    2161 </span>                :            :       }
-<span class="lineNum">    2162 </span>                :            :     }
-<span class="lineNum">    2163 </span>                :            : 
-<span class="lineNum">    2164 </span>                :            :     /* check mandatory */
-<span class="lineNum">    2165 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(nummandatoryitems == 1 &amp;&amp; strcasecmp(&quot;all&quot;, mandatoryitems[0]) == 0) {</span>
-<span class="lineNum">    2166 </span>                :<span class="lineCov">          1 :       item-&gt;minOccurs = 1;</span>
-<span class="lineNum">    2167 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     } else if( nummandatoryitems &gt; 0) {</span>
-<span class="lineNum">    2168 </span>                :<span class="lineCov">          1 :       item-&gt;minOccurs = 0;  </span>
-<span class="lineNum">    2169 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(j=0; j&lt;nummandatoryitems; j++) {</span>
-<span class="lineNum">    2170 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(strcasecmp(layer-&gt;items[i], mandatoryitems[j]) == 0)</span>
-<span class="lineNum">    2171 </span>                :<span class="lineCov">          1 :           item-&gt;minOccurs = 1;</span>
-<span class="lineNum">    2172 </span>                :            :       }
-<span class="lineNum">    2173 </span>                :            :     }
-<span class="lineNum">    2174 </span>                :            : 
-<span class="lineNum">    2175 </span>                :            :     /* check default */
-<span class="lineNum">    2176 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(j=0; j&lt;numdefaultitems; j++) {</span>
-<span class="lineNum">    2177 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(strcasecmp(layer-&gt;items[i], defaultitems[j]) == 0)</span>
-<span class="lineNum">    2178 </span>                :<span class="lineCov">          1 :         item-&gt;outputByDefault = 1;</span>
-<span class="lineNum">    2179 </span>                :            :     }
-<span class="lineNum">    2180 </span>                :            : 
-<span class="lineNum">    2181 </span>                :<span class="lineCov">          1 :     snprintf(tag, sizeof(tag), &quot;%s_alias&quot;, layer-&gt;items[i]);</span>
-<span class="lineNum">    2182 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, tag)) != NULL)</span>
-<span class="lineNum">    2183 </span>                :<span class="lineCov">          1 :       item-&gt;alias = msStrdup(value);</span>
-<span class="lineNum">    2184 </span>                :            : 
-<span class="lineNum">    2185 </span>                :<span class="lineCov">          1 :     snprintf(tag, sizeof(tag), &quot;%s_type&quot;, layer-&gt;items[i]);</span>
-<span class="lineNum">    2186 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, tag)) != NULL)</span>
-<span class="lineNum">    2187 </span>                :<span class="lineCov">          1 :       item-&gt;type = msStrdup(value);</span>
+<span class="lineNum">    2117 </span>                :<span class="lineCov">          1 :   itemList-&gt;numitems = layer-&gt;numitems;</span>
+<span class="lineNum">    2118 </span>                :<span class="lineCov">          1 :   itemList-&gt;items = (gmlItemObj *) malloc(sizeof(gmlItemObj)*itemList-&gt;numitems);</span>
+<span class="lineNum">    2119 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!itemList-&gt;items) {</span>
+<span class="lineNum">    2120 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Error allocating a collection GML item structures.&quot;, &quot;msGMLGetItems()&quot;);</span>
+<span class="lineNum">    2121 </span>                :<span class="lineNoCov">          0 :     free(itemList);</span>
+<span class="lineNum">    2122 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    2123 </span>                :            :   }
+<span class="lineNum">    2124 </span>                :            : 
+<span class="lineNum">    2125 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;layer-&gt;numitems; i++) {</span>
+<span class="lineNum">    2126 </span>                :<span class="lineCov">          1 :     item = &amp;(itemList-&gt;items[i]);</span>
+<span class="lineNum">    2127 </span>                :            : 
+<span class="lineNum">    2128 </span>                :<span class="lineCov">          1 :     item-&gt;name = msStrdup(layer-&gt;items[i]);  /* initialize the item */</span>
+<span class="lineNum">    2129 </span>                :<span class="lineCov">          1 :     item-&gt;alias = NULL;</span>
+<span class="lineNum">    2130 </span>                :<span class="lineCov">          1 :     item-&gt;type = NULL;</span>
+<span class="lineNum">    2131 </span>                :<span class="lineCov">          1 :     item-&gt;template = NULL;</span>
+<span class="lineNum">    2132 </span>                :<span class="lineCov">          1 :     item-&gt;encode = MS_TRUE;</span>
+<span class="lineNum">    2133 </span>                :<span class="lineCov">          1 :     item-&gt;visible = MS_FALSE;</span>
+<span class="lineNum">    2134 </span>                :<span class="lineCov">          1 :     item-&gt;width = 0;</span>
+<span class="lineNum">    2135 </span>                :<span class="lineCov">          1 :     item-&gt;precision = 0;</span>
+<span class="lineNum">    2136 </span>                :<span class="lineCov">          1 :     item-&gt;outputByDefault = (numdefaultitems == 0);</span>
+<span class="lineNum">    2137 </span>                :<span class="lineCov">          1 :     item-&gt;minOccurs = 0;</span>
+<span class="lineNum">    2138 </span>                :            : 
+<span class="lineNum">    2139 </span>                :            :     /* check visibility, included items first... */
+<span class="lineNum">    2140 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(numincitems == 1 &amp;&amp; strcasecmp(&quot;all&quot;, incitems[0]) == 0) {</span>
+<span class="lineNum">    2141 </span>                :<span class="lineCov">          1 :       item-&gt;visible = MS_TRUE;</span>
+<span class="lineNum">    2142 </span>                :            :     } else {
+<span class="lineNum">    2143 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(j=0; j&lt;numincitems; j++) {</span>
+<span class="lineNum">    2144 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(strcasecmp(layer-&gt;items[i], incitems[j]) == 0)</span>
+<span class="lineNum">    2145 </span>                :<span class="lineCov">          1 :           item-&gt;visible = MS_TRUE;</span>
+<span class="lineNum">    2146 </span>                :            :       }
+<span class="lineNum">    2147 </span>                :            :     }
+<span class="lineNum">    2148 </span>                :            : 
+<span class="lineNum">    2149 </span>                :            :     /* ...and now excluded items */
+<span class="lineNum">    2150 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(j=0; j&lt;numexcitems; j++) {</span>
+<span class="lineNum">    2151 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(strcasecmp(layer-&gt;items[i], excitems[j]) == 0)</span>
+<span class="lineNum">    2152 </span>                :<span class="lineCov">          1 :         item-&gt;visible = MS_FALSE;</span>
+<span class="lineNum">    2153 </span>                :            :     }
+<span class="lineNum">    2154 </span>                :            : 
+<span class="lineNum">    2155 </span>                :            :     /* check encoding */
+<span class="lineNum">    2156 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(j=0; j&lt;numxmlitems; j++) {</span>
+<span class="lineNum">    2157 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(strcasecmp(layer-&gt;items[i], xmlitems[j]) == 0)</span>
+<span class="lineNum">    2158 </span>                :<span class="lineNoCov">          0 :         item-&gt;encode = MS_FALSE;</span>
+<span class="lineNum">    2159 </span>                :            :     }
+<span class="lineNum">    2160 </span>                :            : 
+<span class="lineNum">    2161 </span>                :            :     /* check optional */
+<span class="lineNum">    2162 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if(numoptionalitems == 1 &amp;&amp; strcasecmp(&quot;all&quot;, optionalitems[0]) == 0) {</span>
+<span class="lineNum">    2163 </span>                :<span class="lineCov">          1 :       item-&gt;minOccurs = 0;</span>
+<span class="lineNum">    2164 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     } else if( numoptionalitems &gt; 0) {</span>
+<span class="lineNum">    2165 </span>                :<span class="lineNoCov">          0 :       item-&gt;minOccurs = 1;</span>
+<span class="lineNum">    2166 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(j=0; j&lt;numoptionalitems; j++) {</span>
+<span class="lineNum">    2167 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(strcasecmp(layer-&gt;items[i], optionalitems[j]) == 0)</span>
+<span class="lineNum">    2168 </span>                :<span class="lineNoCov">          0 :           item-&gt;minOccurs = 0;</span>
+<span class="lineNum">    2169 </span>                :            :       }
+<span class="lineNum">    2170 </span>                :            :     }
+<span class="lineNum">    2171 </span>                :            : 
+<span class="lineNum">    2172 </span>                :            :     /* check mandatory */
+<span class="lineNum">    2173 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(nummandatoryitems == 1 &amp;&amp; strcasecmp(&quot;all&quot;, mandatoryitems[0]) == 0) {</span>
+<span class="lineNum">    2174 </span>                :<span class="lineCov">          1 :       item-&gt;minOccurs = 1;</span>
+<span class="lineNum">    2175 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     } else if( nummandatoryitems &gt; 0) {</span>
+<span class="lineNum">    2176 </span>                :<span class="lineCov">          1 :       item-&gt;minOccurs = 0;  </span>
+<span class="lineNum">    2177 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(j=0; j&lt;nummandatoryitems; j++) {</span>
+<span class="lineNum">    2178 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(strcasecmp(layer-&gt;items[i], mandatoryitems[j]) == 0)</span>
+<span class="lineNum">    2179 </span>                :<span class="lineCov">          1 :           item-&gt;minOccurs = 1;</span>
+<span class="lineNum">    2180 </span>                :            :       }
+<span class="lineNum">    2181 </span>                :            :     }
+<span class="lineNum">    2182 </span>                :            : 
+<span class="lineNum">    2183 </span>                :            :     /* check default */
+<span class="lineNum">    2184 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(j=0; j&lt;numdefaultitems; j++) {</span>
+<span class="lineNum">    2185 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(strcasecmp(layer-&gt;items[i], defaultitems[j]) == 0)</span>
+<span class="lineNum">    2186 </span>                :<span class="lineCov">          1 :         item-&gt;outputByDefault = 1;</span>
+<span class="lineNum">    2187 </span>                :            :     }
 <span class="lineNum">    2188 </span>                :            : 
-<span class="lineNum">    2189 </span>                :<span class="lineCov">          1 :     snprintf(tag, sizeof(tag), &quot;%s_template&quot;, layer-&gt;items[i]);</span>
-<span class="lineNum">    2190 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, tag)) != NULL)</span>
-<span class="lineNum">    2191 </span>                :<span class="lineNoCov">          0 :       item-&gt;template = msStrdup(value);</span>
+<span class="lineNum">    2189 </span>                :<span class="lineCov">          1 :     snprintf(tag, sizeof(tag), &quot;%s_alias&quot;, layer-&gt;items[i]);</span>
+<span class="lineNum">    2190 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, tag)) != NULL)</span>
+<span class="lineNum">    2191 </span>                :<span class="lineCov">          1 :       item-&gt;alias = msStrdup(value);</span>
 <span class="lineNum">    2192 </span>                :            : 
-<span class="lineNum">    2193 </span>                :<span class="lineCov">          1 :     snprintf(tag, sizeof(tag), &quot;%s_width&quot;, layer-&gt;items[i]);</span>
+<span class="lineNum">    2193 </span>                :<span class="lineCov">          1 :     snprintf(tag, sizeof(tag), &quot;%s_type&quot;, layer-&gt;items[i]);</span>
 <span class="lineNum">    2194 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, tag)) != NULL)</span>
-<span class="lineNum">    2195 </span>                :<span class="lineCov">          1 :       item-&gt;width = atoi(value);</span>
+<span class="lineNum">    2195 </span>                :<span class="lineCov">          1 :       item-&gt;type = msStrdup(value);</span>
 <span class="lineNum">    2196 </span>                :            : 
-<span class="lineNum">    2197 </span>                :<span class="lineCov">          1 :     snprintf(tag, sizeof(tag), &quot;%s_precision&quot;, layer-&gt;items[i]);</span>
-<span class="lineNum">    2198 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, tag)) != NULL)</span>
-<span class="lineNum">    2199 </span>                :<span class="lineCov">          1 :       item-&gt;precision = atoi(value);</span>
-<span class="lineNum">    2200 </span>                :            :   }
-<span class="lineNum">    2201 </span>                :            : 
-<span class="lineNum">    2202 </span>                :<span class="lineCov">          1 :   msFreeCharArray(incitems, numincitems);</span>
-<span class="lineNum">    2203 </span>                :<span class="lineCov">          1 :   msFreeCharArray(excitems, numexcitems);</span>
-<span class="lineNum">    2204 </span>                :<span class="lineCov">          1 :   msFreeCharArray(xmlitems, numxmlitems);</span>
-<span class="lineNum">    2205 </span>                :<span class="lineCov">          1 :   msFreeCharArray(optionalitems, numoptionalitems);</span>
-<span class="lineNum">    2206 </span>                :<span class="lineCov">          1 :   msFreeCharArray(mandatoryitems, nummandatoryitems);</span>
-<span class="lineNum">    2207 </span>                :<span class="lineCov">          1 :   msFreeCharArray(defaultitems, numdefaultitems);</span>
-<span class="lineNum">    2208 </span>                :            : 
-<span class="lineNum">    2209 </span>                :<span class="lineCov">          1 :   return itemList;</span>
-<a name="2210"><span class="lineNum">    2210 </span>                :            : }</a>
-<span class="lineNum">    2211 </span>                :            : 
-<span class="lineNum">    2212 </span>                :<span class="lineCov">          1 : void msGMLFreeItems(gmlItemListObj *itemList)</span>
-<span class="lineNum">    2213 </span>                :            : {
-<span class="lineNum">    2214 </span>                :            :   int i;
-<span class="lineNum">    2215 </span>                :            : 
-<span class="lineNum">    2216 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!itemList) return;</span>
-<span class="lineNum">    2217 </span>                :            : 
-<span class="lineNum">    2218 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;itemList-&gt;numitems; i++) {</span>
-<span class="lineNum">    2219 </span>                :<span class="lineCov">          1 :     msFree(itemList-&gt;items[i].name);</span>
-<span class="lineNum">    2220 </span>                :<span class="lineCov">          1 :     msFree(itemList-&gt;items[i].alias);</span>
-<span class="lineNum">    2221 </span>                :<span class="lineCov">          1 :     msFree(itemList-&gt;items[i].type);</span>
-<span class="lineNum">    2222 </span>                :<span class="lineCov">          1 :     msFree(itemList-&gt;items[i].template);</span>
-<span class="lineNum">    2223 </span>                :            :   }
-<span class="lineNum">    2224 </span>                :            : 
-<span class="lineNum">    2225 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( itemList-&gt;items != NULL )</span>
-<span class="lineNum">    2226 </span>                :<span class="lineCov">          1 :     free(itemList-&gt;items);</span>
-<span class="lineNum">    2227 </span>                :            : 
-<span class="lineNum">    2228 </span>                :<span class="lineCov">          1 :   free(itemList);</span>
-<span class="lineNum">    2229 </span>                :            : }
-<span class="lineNum">    2230 </span>                :            : 
+<span class="lineNum">    2197 </span>                :<span class="lineCov">          1 :     snprintf(tag, sizeof(tag), &quot;%s_template&quot;, layer-&gt;items[i]);</span>
+<span class="lineNum">    2198 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, tag)) != NULL)</span>
+<span class="lineNum">    2199 </span>                :<span class="lineNoCov">          0 :       item-&gt;template = msStrdup(value);</span>
+<span class="lineNum">    2200 </span>                :            : 
+<span class="lineNum">    2201 </span>                :<span class="lineCov">          1 :     snprintf(tag, sizeof(tag), &quot;%s_width&quot;, layer-&gt;items[i]);</span>
+<span class="lineNum">    2202 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, tag)) != NULL)</span>
+<span class="lineNum">    2203 </span>                :<span class="lineCov">          1 :       item-&gt;width = atoi(value);</span>
+<span class="lineNum">    2204 </span>                :            : 
+<span class="lineNum">    2205 </span>                :<span class="lineCov">          1 :     snprintf(tag, sizeof(tag), &quot;%s_precision&quot;, layer-&gt;items[i]);</span>
+<span class="lineNum">    2206 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, tag)) != NULL)</span>
+<span class="lineNum">    2207 </span>                :<span class="lineCov">          1 :       item-&gt;precision = atoi(value);</span>
+<span class="lineNum">    2208 </span>                :            :   }
+<span class="lineNum">    2209 </span>                :            : 
+<span class="lineNum">    2210 </span>                :<span class="lineCov">          1 :   msFreeCharArray(incitems, numincitems);</span>
+<span class="lineNum">    2211 </span>                :<span class="lineCov">          1 :   msFreeCharArray(excitems, numexcitems);</span>
+<span class="lineNum">    2212 </span>                :<span class="lineCov">          1 :   msFreeCharArray(xmlitems, numxmlitems);</span>
+<span class="lineNum">    2213 </span>                :<span class="lineCov">          1 :   msFreeCharArray(optionalitems, numoptionalitems);</span>
+<span class="lineNum">    2214 </span>                :<span class="lineCov">          1 :   msFreeCharArray(mandatoryitems, nummandatoryitems);</span>
+<span class="lineNum">    2215 </span>                :<span class="lineCov">          1 :   msFreeCharArray(defaultitems, numdefaultitems);</span>
+<span class="lineNum">    2216 </span>                :            : 
+<span class="lineNum">    2217 </span>                :<span class="lineCov">          1 :   return itemList;</span>
+<a name="2218"><span class="lineNum">    2218 </span>                :            : }</a>
+<span class="lineNum">    2219 </span>                :            : 
+<span class="lineNum">    2220 </span>                :<span class="lineCov">          1 : void msGMLFreeItems(gmlItemListObj *itemList)</span>
+<span class="lineNum">    2221 </span>                :            : {
+<span class="lineNum">    2222 </span>                :            :   int i;
+<span class="lineNum">    2223 </span>                :            : 
+<span class="lineNum">    2224 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!itemList) return;</span>
+<span class="lineNum">    2225 </span>                :            : 
+<span class="lineNum">    2226 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;itemList-&gt;numitems; i++) {</span>
+<span class="lineNum">    2227 </span>                :<span class="lineCov">          1 :     msFree(itemList-&gt;items[i].name);</span>
+<span class="lineNum">    2228 </span>                :<span class="lineCov">          1 :     msFree(itemList-&gt;items[i].alias);</span>
+<span class="lineNum">    2229 </span>                :<span class="lineCov">          1 :     msFree(itemList-&gt;items[i].type);</span>
+<span class="lineNum">    2230 </span>                :<span class="lineCov">          1 :     msFree(itemList-&gt;items[i].template);</span>
+<span class="lineNum">    2231 </span>                :            :   }
+<span class="lineNum">    2232 </span>                :            : 
+<span class="lineNum">    2233 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( itemList-&gt;items != NULL )</span>
+<span class="lineNum">    2234 </span>                :<span class="lineCov">          1 :     free(itemList-&gt;items);</span>
+<span class="lineNum">    2235 </span>                :            : 
+<span class="lineNum">    2236 </span>                :<span class="lineCov">          1 :   free(itemList);</span>
+<span class="lineNum">    2237 </span>                :            : }
+<span class="lineNum">    2238 </span>                :            : 
 </pre>
       </td>
     </tr>
