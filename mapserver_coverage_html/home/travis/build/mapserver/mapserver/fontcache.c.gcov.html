@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">126</td>
-            <td class="headerCovTableEntry">143</td>
-            <td class="headerCovTableEntryMed">88.1 %</td>
+            <td class="headerCovTableEntry">130</td>
+            <td class="headerCovTableEntry">147</td>
+            <td class="headerCovTableEntryMed">88.4 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -398,38 +398,44 @@
 <span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken X times"> + </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
 <span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchCov" title="Branch 9 was taken X times"> + </span>][<span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>]
 <span class="lineNum">     275 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!oc) {</span>
-<span class="lineNum">     276 </span>                :            :     FT_Error error;
-<span class="lineNum">     277 </span>                :<span class="lineCov">          1 :     oc = msSmallMalloc(sizeof(outline_element));</span>
-<span class="lineNum">     278 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(MS_NINT(glyph-&gt;key.size * 96.0/72.0) != face-&gt;face-&gt;size-&gt;metrics.x_ppem) {</span>
-<span class="lineNum">     279 </span>                :<span class="lineCov">          1 :       FT_Set_Pixel_Sizes(face-&gt;face,0,MS_NINT(glyph-&gt;key.size * 96/72.0));</span>
-<span class="lineNum">     280 </span>                :            :     }
-<span class="lineNum">     281 </span>                :<span class="lineCov">          1 :     error = FT_Load_Glyph(face-&gt;face,glyph-&gt;key.codepoint,FT_LOAD_DEFAULT/*|FT_LOAD_IGNORE_TRANSFORM*/|FT_LOAD_NO_HINTING|FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH);</span>
-<span class="lineNum">     282 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(error) {</span>
-<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;unable to load glyph %ud for font \&quot;%s\&quot;&quot;, &quot;msGetGlyphByIndex()&quot;,glyph-&gt;key.codepoint, face-&gt;font);</span>
-<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :       return NULL;</span>
-<span class="lineNum">     285 </span>                :            :     }
-<span class="lineNum">     286 </span>                :<span class="lineCov">          1 :     error = FT_Outline_New(cache-&gt;library, face-&gt;face-&gt;glyph-&gt;outline.n_points,</span>
-<span class="lineNum">     287 </span>                :<span class="lineCov">          1 :         face-&gt;face-&gt;glyph-&gt;outline.n_contours, &amp;oc-&gt;outline);</span>
-<span class="lineNum">     288 </span>                :<span class="lineCov">          1 :     FT_Outline_Copy(&amp;face-&gt;face-&gt;glyph-&gt;outline, &amp;oc-&gt;outline);</span>
-<span class="lineNum">     289 </span>                :<span class="lineCov">          1 :     oc-&gt;key = key;</span>
-<span class="lineNum">     290 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     UT_HASH_ADD(hh,face-&gt;outline_cache,key,sizeof(outline_element_key), oc);</span>
+<span class="lineNum">     276 </span>                :            :     FT_Matrix matrix;
+<span class="lineNum">     277 </span>                :            :     FT_Vector pen;
+<span class="lineNum">     278 </span>                :            :     FT_Error error;
+<span class="lineNum">     279 </span>                :<span class="lineCov">          1 :     oc = msSmallMalloc(sizeof(outline_element));</span>
+<span class="lineNum">     280 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(MS_NINT(glyph-&gt;key.size * 96.0/72.0) != face-&gt;face-&gt;size-&gt;metrics.x_ppem) {</span>
+<span class="lineNum">     281 </span>                :<span class="lineCov">          1 :       FT_Set_Pixel_Sizes(face-&gt;face,0,MS_NINT(glyph-&gt;key.size * 96/72.0));</span>
+<span class="lineNum">     282 </span>                :            :     }
+<span class="lineNum">     283 </span>                :<span class="lineCov">          1 :     matrix.xx = matrix.yy = 0x10000L;</span>
+<span class="lineNum">     284 </span>                :<span class="lineCov">          1 :     matrix.xy = matrix.yx = 0x00000L;</span>
+<span class="lineNum">     285 </span>                :<span class="lineCov">          1 :     pen.x = pen.y = 0;</span>
+<span class="lineNum">     286 </span>                :<span class="lineCov">          1 :     FT_Set_Transform(face-&gt;face, &amp;matrix, &amp;pen);</span>
+<span class="lineNum">     287 </span>                :<span class="lineCov">          1 :     error = FT_Load_Glyph(face-&gt;face,glyph-&gt;key.codepoint,FT_LOAD_DEFAULT/*|FT_LOAD_IGNORE_TRANSFORM*/|FT_LOAD_NO_HINTING|FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH);</span>
+<span class="lineNum">     288 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(error) {</span>
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;unable to load glyph %ud for font \&quot;%s\&quot;&quot;, &quot;msGetGlyphByIndex()&quot;,glyph-&gt;key.codepoint, face-&gt;font);</span>
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">     291 </span>                :            :     }
+<span class="lineNum">     292 </span>                :<span class="lineCov">          1 :     error = FT_Outline_New(cache-&gt;library, face-&gt;face-&gt;glyph-&gt;outline.n_points,</span>
+<span class="lineNum">     293 </span>                :<span class="lineCov">          1 :         face-&gt;face-&gt;glyph-&gt;outline.n_contours, &amp;oc-&gt;outline);</span>
+<span class="lineNum">     294 </span>                :<span class="lineCov">          1 :     FT_Outline_Copy(&amp;face-&gt;face-&gt;glyph-&gt;outline, &amp;oc-&gt;outline);</span>
+<span class="lineNum">     295 </span>                :<span class="lineCov">          1 :     oc-&gt;key = key;</span>
+<span class="lineNum">     296 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     UT_HASH_ADD(hh,face-&gt;outline_cache,key,sizeof(outline_element_key), oc);</span>
 <span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken X times"> + </span>][<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchCov" title="Branch 9 was taken X times"> + </span>]
 <span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 10 was not taken"> - </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
 <span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
 <span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>]
 <span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>][<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
 <span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 27 was not executed"> # </span><span class="branchNoExec" title="Branch 28 was not executed"> # </span>][<span class="branchNoExec" title="Branch 29 was not executed"> # </span><span class="branchNoExec" title="Branch 30 was not executed"> # </span>]
-<span class="lineNum">     291 </span>                :            :   }
-<span class="lineNum">     292 </span>                :<span class="lineCov">          1 :   return oc;</span>
-<a name="293"><span class="lineNum">     293 </span>                :            : }</a>
-<span class="lineNum">     294 </span>                :            : 
-<span class="lineNum">     295 </span>                :<span class="lineCov">          1 : int msIsGlyphASpace(glyphObj *glyph) {</span>
-<span class="lineNum">     296 </span>                :            :   /* space or tab, for now */
-<span class="lineNum">     297 </span>                :            :   unsigned int space,tab;
-<span class="lineNum">     298 </span>                :<span class="lineCov">          1 :   space = msGetGlyphIndex(glyph-&gt;face,0x20);</span>
-<span class="lineNum">     299 </span>                :<span class="lineCov">          1 :   tab = msGetGlyphIndex(glyph-&gt;face,0x9);</span>
-<span class="lineNum">     300 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   return glyph-&gt;glyph-&gt;key.codepoint == space || glyph-&gt;glyph-&gt;key.codepoint == tab;</span>
-<span class="lineNum">     301 </span>                :            : }
+<span class="lineNum">     297 </span>                :            :   }
+<span class="lineNum">     298 </span>                :<span class="lineCov">          1 :   return oc;</span>
+<a name="299"><span class="lineNum">     299 </span>                :            : }</a>
+<span class="lineNum">     300 </span>                :            : 
+<span class="lineNum">     301 </span>                :<span class="lineCov">          1 : int msIsGlyphASpace(glyphObj *glyph) {</span>
+<span class="lineNum">     302 </span>                :            :   /* space or tab, for now */
+<span class="lineNum">     303 </span>                :            :   unsigned int space,tab;
+<span class="lineNum">     304 </span>                :<span class="lineCov">          1 :   space = msGetGlyphIndex(glyph-&gt;face,0x20);</span>
+<span class="lineNum">     305 </span>                :<span class="lineCov">          1 :   tab = msGetGlyphIndex(glyph-&gt;face,0x9);</span>
+<span class="lineNum">     306 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   return glyph-&gt;glyph-&gt;key.codepoint == space || glyph-&gt;glyph-&gt;key.codepoint == tab;</span>
+<span class="lineNum">     307 </span>                :            : }
 </pre>
       </td>
     </tr>

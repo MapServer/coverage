@@ -576,311 +576,317 @@
 <span class="lineNum">     504 </span>                :            :     /* Conversion to UTF-8 encoding */
 <span class="lineNum">     505 </span>                :<span class="lineCov">          1 :     *stringptr = '\0';</span>
 <span class="lineNum">     506 </span>                :            :     char * utf8;
-<span class="lineNum">     507 </span>                :<span class="lineCov">          1 :     utf8 = msConvertWideStringToUTF8 (string, &quot;UCS-4LE&quot;);</span>
-<span class="lineNum">     508 </span>                :<span class="lineCov">          1 :     msIO_fprintf(fp,&quot;%s&quot;, utf8);</span>
-<span class="lineNum">     509 </span>                :<span class="lineCov">          1 :     msFree(utf8);</span>
-<span class="lineNum">     510 </span>                :<span class="lineCov">          1 :     msFree(string);</span>
-<span class="lineNum">     511 </span>                :<span class="lineCov">          1 :     msIO_fprintf(fp,&quot;\&quot;&quot;);</span>
-<span class="lineNum">     512 </span>                :            :   }
-<span class="lineNum">     513 </span>                :            : 
-<span class="lineNum">     514 </span>                :<span class="lineCov">          1 :   msIO_fprintf(fp,&quot;],\&quot;keys\&quot;:[\&quot;\&quot;&quot;);</span>
-<span class="lineNum">     515 </span>                :            : 
-<span class="lineNum">     516 </span>                :            :   /* Print the specified key */
-<span class="lineNum">     517 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0;i&lt;renderer-&gt;data-&gt;counter;i++) {</span>
-<span class="lineNum">     518 </span>                :<span class="lineCov">          1 :       msIO_fprintf(fp,&quot;,&quot;);</span>
+<span class="lineNum">     507 </span>                :            : #if defined(_WIN32) &amp;&amp; !defined(__CYGWIN__)
+<span class="lineNum">     508 </span>                :            :   const char* encoding = &quot;UCS-2LE&quot;;
+<span class="lineNum">     509 </span>                :            : #else
+<span class="lineNum">     510 </span>                :            :   const char* encoding = &quot;UCS-4LE&quot;;
+<span class="lineNum">     511 </span>                :            : #endif
+<span class="lineNum">     512 </span>                :            : 
+<span class="lineNum">     513 </span>                :<span class="lineCov">          1 :     utf8 = msConvertWideStringToUTF8(string, encoding);</span>
+<span class="lineNum">     514 </span>                :<span class="lineCov">          1 :     msIO_fprintf(fp,&quot;%s&quot;, utf8);</span>
+<span class="lineNum">     515 </span>                :<span class="lineCov">          1 :     msFree(utf8);</span>
+<span class="lineNum">     516 </span>                :<span class="lineCov">          1 :     msFree(string);</span>
+<span class="lineNum">     517 </span>                :<span class="lineCov">          1 :     msIO_fprintf(fp,&quot;\&quot;&quot;);</span>
+<span class="lineNum">     518 </span>                :            :   }
 <span class="lineNum">     519 </span>                :            : 
-<span class="lineNum">     520 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(renderer-&gt;useutfitem)</span>
-<span class="lineNum">     521 </span>                :            :     {
-<span class="lineNum">     522 </span>                :<span class="lineCov">          1 :       pszEscaped = msEscapeJSonString(renderer-&gt;data-&gt;table[i].itemvalue);</span>
-<span class="lineNum">     523 </span>                :<span class="lineCov">          1 :       msIO_fprintf(fp,&quot;\&quot;%s\&quot;&quot;, pszEscaped);</span>
-<span class="lineNum">     524 </span>                :<span class="lineCov">          1 :       msFree(pszEscaped);</span>
-<span class="lineNum">     525 </span>                :            :     }
-<span class="lineNum">     526 </span>                :            :     /* If no UTFITEM specified use the serial ID as the key */
-<span class="lineNum">     527 </span>                :            :     else
-<span class="lineNum">     528 </span>                :<span class="lineCov">          1 :       msIO_fprintf(fp,&quot;\&quot;%i\&quot;&quot;, renderer-&gt;data-&gt;table[i].serialid);</span>
-<span class="lineNum">     529 </span>                :            :   }
-<span class="lineNum">     530 </span>                :            : 
-<span class="lineNum">     531 </span>                :<span class="lineCov">          1 :   msIO_fprintf(fp,&quot;],\&quot;data\&quot;:{&quot;);</span>
-<span class="lineNum">     532 </span>                :            : 
-<span class="lineNum">     533 </span>                :            :   /* Print the data */
-<span class="lineNum">     534 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(renderer-&gt;useutfdata) {</span>
-<span class="lineNum">     535 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i=0;i&lt;renderer-&gt;data-&gt;counter;i++) {</span>
-<span class="lineNum">     536 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(i!=0)</span>
-<span class="lineNum">     537 </span>                :<span class="lineCov">          1 :         msIO_fprintf(fp,&quot;,&quot;);</span>
+<span class="lineNum">     520 </span>                :<span class="lineCov">          1 :   msIO_fprintf(fp,&quot;],\&quot;keys\&quot;:[\&quot;\&quot;&quot;);</span>
+<span class="lineNum">     521 </span>                :            : 
+<span class="lineNum">     522 </span>                :            :   /* Print the specified key */
+<span class="lineNum">     523 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0;i&lt;renderer-&gt;data-&gt;counter;i++) {</span>
+<span class="lineNum">     524 </span>                :<span class="lineCov">          1 :       msIO_fprintf(fp,&quot;,&quot;);</span>
+<span class="lineNum">     525 </span>                :            : 
+<span class="lineNum">     526 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(renderer-&gt;useutfitem)</span>
+<span class="lineNum">     527 </span>                :            :     {
+<span class="lineNum">     528 </span>                :<span class="lineCov">          1 :       pszEscaped = msEscapeJSonString(renderer-&gt;data-&gt;table[i].itemvalue);</span>
+<span class="lineNum">     529 </span>                :<span class="lineCov">          1 :       msIO_fprintf(fp,&quot;\&quot;%s\&quot;&quot;, pszEscaped);</span>
+<span class="lineNum">     530 </span>                :<span class="lineCov">          1 :       msFree(pszEscaped);</span>
+<span class="lineNum">     531 </span>                :            :     }
+<span class="lineNum">     532 </span>                :            :     /* If no UTFITEM specified use the serial ID as the key */
+<span class="lineNum">     533 </span>                :            :     else
+<span class="lineNum">     534 </span>                :<span class="lineCov">          1 :       msIO_fprintf(fp,&quot;\&quot;%i\&quot;&quot;, renderer-&gt;data-&gt;table[i].serialid);</span>
+<span class="lineNum">     535 </span>                :            :   }
+<span class="lineNum">     536 </span>                :            : 
+<span class="lineNum">     537 </span>                :<span class="lineCov">          1 :   msIO_fprintf(fp,&quot;],\&quot;data\&quot;:{&quot;);</span>
 <span class="lineNum">     538 </span>                :            : 
-<span class="lineNum">     539 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(renderer-&gt;useutfitem)</span>
-<span class="lineNum">     540 </span>                :            :       {
-<span class="lineNum">     541 </span>                :<span class="lineCov">          1 :         pszEscaped = msEscapeJSonString(renderer-&gt;data-&gt;table[i].itemvalue);</span>
-<span class="lineNum">     542 </span>                :<span class="lineCov">          1 :         msIO_fprintf(fp,&quot;\&quot;%s\&quot;:&quot;, pszEscaped);</span>
-<span class="lineNum">     543 </span>                :<span class="lineCov">          1 :         msFree(pszEscaped);</span>
-<span class="lineNum">     544 </span>                :            :       }
-<span class="lineNum">     545 </span>                :            :       /* If no UTFITEM specified use the serial ID as the key */
-<span class="lineNum">     546 </span>                :            :       else
-<span class="lineNum">     547 </span>                :<span class="lineNoCov">          0 :         msIO_fprintf(fp,&quot;\&quot;%i\&quot;:&quot;, renderer-&gt;data-&gt;table[i].serialid);</span>
-<span class="lineNum">     548 </span>                :            : 
-<span class="lineNum">     549 </span>                :<span class="lineCov">          1 :       msIO_fprintf(fp,&quot;%s&quot;, renderer-&gt;data-&gt;table[i].datavalues);</span>
-<span class="lineNum">     550 </span>                :            :     }
-<span class="lineNum">     551 </span>                :            :   }
-<span class="lineNum">     552 </span>                :<span class="lineCov">          1 :   msIO_fprintf(fp,&quot;}}&quot;);</span>
-<span class="lineNum">     553 </span>                :            : 
-<span class="lineNum">     554 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     555 </span>                :            : }
-<span class="lineNum">     556 </span>                :            : 
-<span class="lineNum">     557 </span>                :            : /*
-<a name="558"><span class="lineNum">     558 </span>                :            :  * Starts a layer for UTFGrid renderer.</a>
-<span class="lineNum">     559 </span>                :            :  */
-<span class="lineNum">     560 </span>                :<span class="lineCov">          1 : int utfgridStartLayer(imageObj *img, mapObj *map, layerObj *layer)</span>
-<span class="lineNum">     561 </span>                :            : {
-<span class="lineNum">     562 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
-<span class="lineNum">     563 </span>                :            : 
-<span class="lineNum">     564 </span>                :            :   /* Look if the layer uses the UTFGrid output format */
-<span class="lineNum">     565 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(layer-&gt;utfdata.string!=0) {</span>
-<span class="lineNum">     566 </span>                :<span class="lineCov">          1 :     r-&gt;useutfdata = 1;</span>
-<span class="lineNum">     567 </span>                :            :   }
-<span class="lineNum">     568 </span>                :            : 
-<span class="lineNum">     569 </span>                :            :     /* layerwatch is set to 1 on first layer treated. Doesn't allow multiple layers. */
-<span class="lineNum">     570 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(!r-&gt;layerwatch) {</span>
-<span class="lineNum">     571 </span>                :<span class="lineCov">          1 :       r-&gt;layerwatch++;</span>
-<span class="lineNum">     572 </span>                :            : 
-<span class="lineNum">     573 </span>                :<span class="lineCov">          1 :       r-&gt;renderlayer = 1;</span>
-<span class="lineNum">     574 </span>                :<span class="lineCov">          1 :       r-&gt;utflayer = layer;</span>
-<span class="lineNum">     575 </span>                :<span class="lineCov">          1 :       layer-&gt;refcount++;</span>
-<span class="lineNum">     576 </span>                :            : 
-<span class="lineNum">     577 </span>                :            :       /* Verify if renderer needs to use UTFITEM */
-<span class="lineNum">     578 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(r-&gt;utflayer-&gt;utfitem)</span>
-<span class="lineNum">     579 </span>                :<span class="lineCov">          1 :         r-&gt;useutfitem = 1;</span>
-<span class="lineNum">     580 </span>                :            :     }
-<span class="lineNum">     581 </span>                :            :     /* If multiple layers, send error */
-<span class="lineNum">     582 </span>                :            :     else {
-<span class="lineNum">     583 </span>                :<span class="lineNoCov">          0 :       r-&gt;layerwatch++;</span>
-<span class="lineNum">     584 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;MapServer does not support multiple UTFGrid layers rendering simultaneously.&quot;, &quot;utfgridStartLayer()&quot;);</span>
-<span class="lineNum">     585 </span>                :<span class="lineCov">          1 :       return MS_FAILURE;</span>
+<span class="lineNum">     539 </span>                :            :   /* Print the data */
+<span class="lineNum">     540 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(renderer-&gt;useutfdata) {</span>
+<span class="lineNum">     541 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i=0;i&lt;renderer-&gt;data-&gt;counter;i++) {</span>
+<span class="lineNum">     542 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(i!=0)</span>
+<span class="lineNum">     543 </span>                :<span class="lineCov">          1 :         msIO_fprintf(fp,&quot;,&quot;);</span>
+<span class="lineNum">     544 </span>                :            : 
+<span class="lineNum">     545 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(renderer-&gt;useutfitem)</span>
+<span class="lineNum">     546 </span>                :            :       {
+<span class="lineNum">     547 </span>                :<span class="lineCov">          1 :         pszEscaped = msEscapeJSonString(renderer-&gt;data-&gt;table[i].itemvalue);</span>
+<span class="lineNum">     548 </span>                :<span class="lineCov">          1 :         msIO_fprintf(fp,&quot;\&quot;%s\&quot;:&quot;, pszEscaped);</span>
+<span class="lineNum">     549 </span>                :<span class="lineCov">          1 :         msFree(pszEscaped);</span>
+<span class="lineNum">     550 </span>                :            :       }
+<span class="lineNum">     551 </span>                :            :       /* If no UTFITEM specified use the serial ID as the key */
+<span class="lineNum">     552 </span>                :            :       else
+<span class="lineNum">     553 </span>                :<span class="lineNoCov">          0 :         msIO_fprintf(fp,&quot;\&quot;%i\&quot;:&quot;, renderer-&gt;data-&gt;table[i].serialid);</span>
+<span class="lineNum">     554 </span>                :            : 
+<span class="lineNum">     555 </span>                :<span class="lineCov">          1 :       msIO_fprintf(fp,&quot;%s&quot;, renderer-&gt;data-&gt;table[i].datavalues);</span>
+<span class="lineNum">     556 </span>                :            :     }
+<span class="lineNum">     557 </span>                :            :   }
+<span class="lineNum">     558 </span>                :<span class="lineCov">          1 :   msIO_fprintf(fp,&quot;}}&quot;);</span>
+<span class="lineNum">     559 </span>                :            : 
+<span class="lineNum">     560 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     561 </span>                :            : }
+<span class="lineNum">     562 </span>                :            : 
+<span class="lineNum">     563 </span>                :            : /*
+<a name="564"><span class="lineNum">     564 </span>                :            :  * Starts a layer for UTFGrid renderer.</a>
+<span class="lineNum">     565 </span>                :            :  */
+<span class="lineNum">     566 </span>                :<span class="lineCov">          1 : int utfgridStartLayer(imageObj *img, mapObj *map, layerObj *layer)</span>
+<span class="lineNum">     567 </span>                :            : {
+<span class="lineNum">     568 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
+<span class="lineNum">     569 </span>                :            : 
+<span class="lineNum">     570 </span>                :            :   /* Look if the layer uses the UTFGrid output format */
+<span class="lineNum">     571 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(layer-&gt;utfdata.string!=0) {</span>
+<span class="lineNum">     572 </span>                :<span class="lineCov">          1 :     r-&gt;useutfdata = 1;</span>
+<span class="lineNum">     573 </span>                :            :   }
+<span class="lineNum">     574 </span>                :            : 
+<span class="lineNum">     575 </span>                :            :     /* layerwatch is set to 1 on first layer treated. Doesn't allow multiple layers. */
+<span class="lineNum">     576 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(!r-&gt;layerwatch) {</span>
+<span class="lineNum">     577 </span>                :<span class="lineCov">          1 :       r-&gt;layerwatch++;</span>
+<span class="lineNum">     578 </span>                :            : 
+<span class="lineNum">     579 </span>                :<span class="lineCov">          1 :       r-&gt;renderlayer = 1;</span>
+<span class="lineNum">     580 </span>                :<span class="lineCov">          1 :       r-&gt;utflayer = layer;</span>
+<span class="lineNum">     581 </span>                :<span class="lineCov">          1 :       layer-&gt;refcount++;</span>
+<span class="lineNum">     582 </span>                :            : 
+<span class="lineNum">     583 </span>                :            :       /* Verify if renderer needs to use UTFITEM */
+<span class="lineNum">     584 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(r-&gt;utflayer-&gt;utfitem)</span>
+<span class="lineNum">     585 </span>                :<span class="lineCov">          1 :         r-&gt;useutfitem = 1;</span>
 <span class="lineNum">     586 </span>                :            :     }
-<span class="lineNum">     587 </span>                :            : 
-<span class="lineNum">     588 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">     589 </span>                :            : }
-<span class="lineNum">     590 </span>                :            : 
-<span class="lineNum">     591 </span>                :            : /*
-<a name="592"><span class="lineNum">     592 </span>                :            :  * Tell renderer the layer is done.</a>
-<span class="lineNum">     593 </span>                :            :  */
-<span class="lineNum">     594 </span>                :<span class="lineCov">          1 : int utfgridEndLayer(imageObj *img, mapObj *map, layerObj *layer)</span>
-<span class="lineNum">     595 </span>                :            : {
-<span class="lineNum">     596 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
-<span class="lineNum">     597 </span>                :            : 
-<span class="lineNum">     598 </span>                :            :   /* Look if the layer was rendered, if it was then turn off rendering. */
-<span class="lineNum">     599 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(r-&gt;renderlayer) {</span>
-<span class="lineNum">     600 </span>                :<span class="lineCov">          1 :     r-&gt;utflayer = NULL;</span>
-<span class="lineNum">     601 </span>                :<span class="lineCov">          1 :     layer-&gt;refcount--;</span>
-<span class="lineNum">     602 </span>                :<span class="lineCov">          1 :     r-&gt;renderlayer = 0;</span>
-<span class="lineNum">     603 </span>                :            :   }
-<span class="lineNum">     604 </span>                :            : 
-<span class="lineNum">     605 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     606 </span>                :            : }
-<span class="lineNum">     607 </span>                :            : 
-<span class="lineNum">     608 </span>                :            : /*
-<a name="609"><span class="lineNum">     609 </span>                :            :  * Do the table operations on the shapes. Allow multiple types of data to be rendered.</a>
-<span class="lineNum">     610 </span>                :            :  */
-<span class="lineNum">     611 </span>                :<span class="lineCov">          1 : int utfgridStartShape(imageObj *img, shapeObj *shape)</span>
-<span class="lineNum">     612 </span>                :            : {
-<span class="lineNum">     613 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
-<span class="lineNum">     614 </span>                :            : 
-<span class="lineNum">     615 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!r-&gt;renderlayer)</span>
-<span class="lineNum">     616 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     617 </span>                :            : 
-<span class="lineNum">     618 </span>                :            :   /* Table operations */
-<span class="lineNum">     619 </span>                :<span class="lineCov">          1 :   r-&gt;utfvalue = addToTable(r, shape);</span>
+<span class="lineNum">     587 </span>                :            :     /* If multiple layers, send error */
+<span class="lineNum">     588 </span>                :            :     else {
+<span class="lineNum">     589 </span>                :<span class="lineNoCov">          0 :       r-&gt;layerwatch++;</span>
+<span class="lineNum">     590 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;MapServer does not support multiple UTFGrid layers rendering simultaneously.&quot;, &quot;utfgridStartLayer()&quot;);</span>
+<span class="lineNum">     591 </span>                :<span class="lineCov">          1 :       return MS_FAILURE;</span>
+<span class="lineNum">     592 </span>                :            :     }
+<span class="lineNum">     593 </span>                :            : 
+<span class="lineNum">     594 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">     595 </span>                :            : }
+<span class="lineNum">     596 </span>                :            : 
+<span class="lineNum">     597 </span>                :            : /*
+<a name="598"><span class="lineNum">     598 </span>                :            :  * Tell renderer the layer is done.</a>
+<span class="lineNum">     599 </span>                :            :  */
+<span class="lineNum">     600 </span>                :<span class="lineCov">          1 : int utfgridEndLayer(imageObj *img, mapObj *map, layerObj *layer)</span>
+<span class="lineNum">     601 </span>                :            : {
+<span class="lineNum">     602 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
+<span class="lineNum">     603 </span>                :            : 
+<span class="lineNum">     604 </span>                :            :   /* Look if the layer was rendered, if it was then turn off rendering. */
+<span class="lineNum">     605 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(r-&gt;renderlayer) {</span>
+<span class="lineNum">     606 </span>                :<span class="lineCov">          1 :     r-&gt;utflayer = NULL;</span>
+<span class="lineNum">     607 </span>                :<span class="lineCov">          1 :     layer-&gt;refcount--;</span>
+<span class="lineNum">     608 </span>                :<span class="lineCov">          1 :     r-&gt;renderlayer = 0;</span>
+<span class="lineNum">     609 </span>                :            :   }
+<span class="lineNum">     610 </span>                :            : 
+<span class="lineNum">     611 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     612 </span>                :            : }
+<span class="lineNum">     613 </span>                :            : 
+<span class="lineNum">     614 </span>                :            : /*
+<a name="615"><span class="lineNum">     615 </span>                :            :  * Do the table operations on the shapes. Allow multiple types of data to be rendered.</a>
+<span class="lineNum">     616 </span>                :            :  */
+<span class="lineNum">     617 </span>                :<span class="lineCov">          1 : int utfgridStartShape(imageObj *img, shapeObj *shape)</span>
+<span class="lineNum">     618 </span>                :            : {
+<span class="lineNum">     619 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
 <span class="lineNum">     620 </span>                :            : 
-<span class="lineNum">     621 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     622 </span>                :            : }
+<span class="lineNum">     621 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(!r-&gt;renderlayer)</span>
+<span class="lineNum">     622 </span>                :            :     return MS_FAILURE;
 <span class="lineNum">     623 </span>                :            : 
-<span class="lineNum">     624 </span>                :            : /*
-<a name="625"><span class="lineNum">     625 </span>                :            :  * Tells the renderer that the shape's rendering is done.</a>
-<span class="lineNum">     626 </span>                :            :  */
-<span class="lineNum">     627 </span>                :<span class="lineCov">          1 : int utfgridEndShape(imageObj *img, shapeObj *shape)</span>
-<span class="lineNum">     628 </span>                :            : {
-<span class="lineNum">     629 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
-<span class="lineNum">     630 </span>                :            : 
-<span class="lineNum">     631 </span>                :<span class="lineCov">          1 :   r-&gt;utfvalue = 0;</span>
-<span class="lineNum">     632 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     633 </span>                :            : }
-<span class="lineNum">     634 </span>                :            : 
-<span class="lineNum">     635 </span>                :            : /*
-<span class="lineNum">     636 </span>                :            :  * Function that renders polygons into UTFGrid.
-<span class="lineNum">     637 </span>                :            :  */
-<span class="lineNum">     638 </span>                :<span class="lineCov">          1 : int utfgridRenderPolygon(imageObj *img, shapeObj *polygonshape, colorObj *color)</span>
-<span class="lineNum">     639 </span>                :            : {
-<span class="lineNum">     640 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
-<span class="lineNum">     641 </span>                :            : 
-<span class="lineNum">     642 </span>                :            :   /* utfvalue is set to 0 if the shape isn't in the table. */
-<span class="lineNum">     643 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(r-&gt;utfvalue == 0) {</span>
-<span class="lineNum">     644 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     645 </span>                :            :   }
-<span class="lineNum">     646 </span>                :            : 
-<span class="lineNum">     647 </span>                :            :   /* Render the polygon */
-<span class="lineNum">     648 </span>                :<span class="lineCov">          1 :   polygon_adaptor_utf polygons(polygonshape, r-&gt;utfresolution);</span>
-<span class="lineNum">     649 </span>                :<span class="lineCov">          1 :   utfgridRenderPath(img, polygons);</span>
-<span class="lineNum">     650 </span>                :            : 
-<span class="lineNum">     651 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">     652 </span>                :            : }
-<span class="lineNum">     653 </span>                :            : 
-<span class="lineNum">     654 </span>                :            : /*
-<span class="lineNum">     655 </span>                :            :  * Function that renders lines into UTFGrid. Starts by looking if the line is a polygon
-<span class="lineNum">     656 </span>                :            :  * outline, draw it if it's not.
-<span class="lineNum">     657 </span>                :            :  */
-<span class="lineNum">     658 </span>                :<span class="lineCov">          1 : int utfgridRenderLine(imageObj *img, shapeObj *lineshape, strokeStyleObj *linestyle)</span>
-<span class="lineNum">     659 </span>                :            : {
-<span class="lineNum">     660 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
-<span class="lineNum">     661 </span>                :            : 
-<span class="lineNum">     662 </span>                :            :   /* utfvalue is set to 0 if the shape isn't in the table. */
-<span class="lineNum">     663 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(r-&gt;utfvalue == 0) {</span>
-<span class="lineNum">     664 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     665 </span>                :            :   }
-<span class="lineNum">     666 </span>                :            : 
-<span class="lineNum">     667 </span>                :            :   /* Render the line */
-<span class="lineNum">     668 </span>                :<span class="lineCov">          1 :   line_adaptor_utf lines(lineshape, r-&gt;utfresolution);</span>
-<span class="lineNum">     669 </span>                :            : 
-<span class="lineNum">     670 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!r-&gt;stroke) {</span>
-<span class="lineNum">     671 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     r-&gt;stroke = new mapserver::conv_stroke&lt;line_adaptor_utf&gt;(lines);</span>
-<span class="lineNum">     672 </span>                :            :   } else {
-<span class="lineNum">     673 </span>                :<span class="lineCov">          1 :     r-&gt;stroke-&gt;attach(lines);</span>
-<span class="lineNum">     674 </span>                :            :   }
-<span class="lineNum">     675 </span>                :<span class="lineCov">          1 :   r-&gt;stroke-&gt;width(linestyle-&gt;width/r-&gt;utfresolution);</span>
-<span class="lineNum">     676 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   utfgridRenderPath(img, *r-&gt;stroke);</span>
-<span class="lineNum">     677 </span>                :            : 
-<span class="lineNum">     678 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">     679 </span>                :            : }
-<span class="lineNum">     680 </span>                :            : 
-<span class="lineNum">     681 </span>                :            : /*
-<a name="682"><span class="lineNum">     682 </span>                :            :  * Function that render vector type symbols into UTFGrid.</a>
-<span class="lineNum">     683 </span>                :            :  */
-<span class="lineNum">     684 </span>                :<span class="lineCov">          1 : int utfgridRenderVectorSymbol(imageObj *img, double x, double y, symbolObj *symbol, symbolStyleObj * style)</span>
-<span class="lineNum">     685 </span>                :            : {
-<span class="lineNum">     686 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
-<span class="lineNum">     687 </span>                :<span class="lineCov">          1 :   double ox = symbol-&gt;sizex * 0.5;</span>
-<span class="lineNum">     688 </span>                :<span class="lineCov">          1 :   double oy = symbol-&gt;sizey * 0.5;</span>
-<span class="lineNum">     689 </span>                :            : 
-<span class="lineNum">     690 </span>                :            :   /* utfvalue is set to 0 if the shape isn't in the table. */
-<span class="lineNum">     691 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(r-&gt;utfvalue == 0) {</span>
-<span class="lineNum">     692 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     693 </span>                :            :   }
-<span class="lineNum">     694 </span>                :            : 
-<span class="lineNum">     695 </span>                :            :   /* Pathing the symbol */
-<span class="lineNum">     696 </span>                :<span class="lineCov">          1 :   mapserver::path_storage path = imageVectorSymbol(symbol);</span>
-<span class="lineNum">     697 </span>                :            : 
-<span class="lineNum">     698 </span>                :            :   /* Transformation to the right size/scale. */
-<span class="lineNum">     699 </span>                :            :   mapserver::trans_affine mtx;
-<span class="lineNum">     700 </span>                :<span class="lineCov">          1 :   mtx *= mapserver::trans_affine_translation(-ox,-oy);</span>
-<span class="lineNum">     701 </span>                :<span class="lineCov">          1 :   mtx *= mapserver::trans_affine_scaling(style-&gt;scale/r-&gt;utfresolution);</span>
-<span class="lineNum">     702 </span>                :<span class="lineCov">          1 :   mtx *= mapserver::trans_affine_rotation(-style-&gt;rotation);</span>
-<span class="lineNum">     703 </span>                :<span class="lineCov">          1 :   mtx *= mapserver::trans_affine_translation(x/r-&gt;utfresolution, y/r-&gt;utfresolution);</span>
-<span class="lineNum">     704 </span>                :<span class="lineCov">          1 :   path.transform(mtx);</span>
-<span class="lineNum">     705 </span>                :            : 
-<span class="lineNum">     706 </span>                :            :   /* Rendering the symbol. */
-<span class="lineNum">     707 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   utfgridRenderPath(img, path);</span>
-<span class="lineNum">     708 </span>                :            : 
-<span class="lineNum">     709 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     710 </span>                :            : }
+<span class="lineNum">     624 </span>                :            :   /* Table operations */
+<span class="lineNum">     625 </span>                :<span class="lineCov">          1 :   r-&gt;utfvalue = addToTable(r, shape);</span>
+<span class="lineNum">     626 </span>                :            : 
+<span class="lineNum">     627 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     628 </span>                :            : }
+<span class="lineNum">     629 </span>                :            : 
+<span class="lineNum">     630 </span>                :            : /*
+<a name="631"><span class="lineNum">     631 </span>                :            :  * Tells the renderer that the shape's rendering is done.</a>
+<span class="lineNum">     632 </span>                :            :  */
+<span class="lineNum">     633 </span>                :<span class="lineCov">          1 : int utfgridEndShape(imageObj *img, shapeObj *shape)</span>
+<span class="lineNum">     634 </span>                :            : {
+<span class="lineNum">     635 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
+<span class="lineNum">     636 </span>                :            : 
+<span class="lineNum">     637 </span>                :<span class="lineCov">          1 :   r-&gt;utfvalue = 0;</span>
+<span class="lineNum">     638 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     639 </span>                :            : }
+<span class="lineNum">     640 </span>                :            : 
+<span class="lineNum">     641 </span>                :            : /*
+<span class="lineNum">     642 </span>                :            :  * Function that renders polygons into UTFGrid.
+<span class="lineNum">     643 </span>                :            :  */
+<span class="lineNum">     644 </span>                :<span class="lineCov">          1 : int utfgridRenderPolygon(imageObj *img, shapeObj *polygonshape, colorObj *color)</span>
+<span class="lineNum">     645 </span>                :            : {
+<span class="lineNum">     646 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
+<span class="lineNum">     647 </span>                :            : 
+<span class="lineNum">     648 </span>                :            :   /* utfvalue is set to 0 if the shape isn't in the table. */
+<span class="lineNum">     649 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(r-&gt;utfvalue == 0) {</span>
+<span class="lineNum">     650 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     651 </span>                :            :   }
+<span class="lineNum">     652 </span>                :            : 
+<span class="lineNum">     653 </span>                :            :   /* Render the polygon */
+<span class="lineNum">     654 </span>                :<span class="lineCov">          1 :   polygon_adaptor_utf polygons(polygonshape, r-&gt;utfresolution);</span>
+<span class="lineNum">     655 </span>                :<span class="lineCov">          1 :   utfgridRenderPath(img, polygons);</span>
+<span class="lineNum">     656 </span>                :            : 
+<span class="lineNum">     657 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">     658 </span>                :            : }
+<span class="lineNum">     659 </span>                :            : 
+<span class="lineNum">     660 </span>                :            : /*
+<span class="lineNum">     661 </span>                :            :  * Function that renders lines into UTFGrid. Starts by looking if the line is a polygon
+<span class="lineNum">     662 </span>                :            :  * outline, draw it if it's not.
+<span class="lineNum">     663 </span>                :            :  */
+<span class="lineNum">     664 </span>                :<span class="lineCov">          1 : int utfgridRenderLine(imageObj *img, shapeObj *lineshape, strokeStyleObj *linestyle)</span>
+<span class="lineNum">     665 </span>                :            : {
+<span class="lineNum">     666 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
+<span class="lineNum">     667 </span>                :            : 
+<span class="lineNum">     668 </span>                :            :   /* utfvalue is set to 0 if the shape isn't in the table. */
+<span class="lineNum">     669 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(r-&gt;utfvalue == 0) {</span>
+<span class="lineNum">     670 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     671 </span>                :            :   }
+<span class="lineNum">     672 </span>                :            : 
+<span class="lineNum">     673 </span>                :            :   /* Render the line */
+<span class="lineNum">     674 </span>                :<span class="lineCov">          1 :   line_adaptor_utf lines(lineshape, r-&gt;utfresolution);</span>
+<span class="lineNum">     675 </span>                :            : 
+<span class="lineNum">     676 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!r-&gt;stroke) {</span>
+<span class="lineNum">     677 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     r-&gt;stroke = new mapserver::conv_stroke&lt;line_adaptor_utf&gt;(lines);</span>
+<span class="lineNum">     678 </span>                :            :   } else {
+<span class="lineNum">     679 </span>                :<span class="lineCov">          1 :     r-&gt;stroke-&gt;attach(lines);</span>
+<span class="lineNum">     680 </span>                :            :   }
+<span class="lineNum">     681 </span>                :<span class="lineCov">          1 :   r-&gt;stroke-&gt;width(linestyle-&gt;width/r-&gt;utfresolution);</span>
+<span class="lineNum">     682 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   utfgridRenderPath(img, *r-&gt;stroke);</span>
+<span class="lineNum">     683 </span>                :            : 
+<span class="lineNum">     684 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">     685 </span>                :            : }
+<span class="lineNum">     686 </span>                :            : 
+<span class="lineNum">     687 </span>                :            : /*
+<a name="688"><span class="lineNum">     688 </span>                :            :  * Function that render vector type symbols into UTFGrid.</a>
+<span class="lineNum">     689 </span>                :            :  */
+<span class="lineNum">     690 </span>                :<span class="lineCov">          1 : int utfgridRenderVectorSymbol(imageObj *img, double x, double y, symbolObj *symbol, symbolStyleObj * style)</span>
+<span class="lineNum">     691 </span>                :            : {
+<span class="lineNum">     692 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
+<span class="lineNum">     693 </span>                :<span class="lineCov">          1 :   double ox = symbol-&gt;sizex * 0.5;</span>
+<span class="lineNum">     694 </span>                :<span class="lineCov">          1 :   double oy = symbol-&gt;sizey * 0.5;</span>
+<span class="lineNum">     695 </span>                :            : 
+<span class="lineNum">     696 </span>                :            :   /* utfvalue is set to 0 if the shape isn't in the table. */
+<span class="lineNum">     697 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(r-&gt;utfvalue == 0) {</span>
+<span class="lineNum">     698 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     699 </span>                :            :   }
+<span class="lineNum">     700 </span>                :            : 
+<span class="lineNum">     701 </span>                :            :   /* Pathing the symbol */
+<span class="lineNum">     702 </span>                :<span class="lineCov">          1 :   mapserver::path_storage path = imageVectorSymbol(symbol);</span>
+<span class="lineNum">     703 </span>                :            : 
+<span class="lineNum">     704 </span>                :            :   /* Transformation to the right size/scale. */
+<span class="lineNum">     705 </span>                :            :   mapserver::trans_affine mtx;
+<span class="lineNum">     706 </span>                :<span class="lineCov">          1 :   mtx *= mapserver::trans_affine_translation(-ox,-oy);</span>
+<span class="lineNum">     707 </span>                :<span class="lineCov">          1 :   mtx *= mapserver::trans_affine_scaling(style-&gt;scale/r-&gt;utfresolution);</span>
+<span class="lineNum">     708 </span>                :<span class="lineCov">          1 :   mtx *= mapserver::trans_affine_rotation(-style-&gt;rotation);</span>
+<span class="lineNum">     709 </span>                :<span class="lineCov">          1 :   mtx *= mapserver::trans_affine_translation(x/r-&gt;utfresolution, y/r-&gt;utfresolution);</span>
+<span class="lineNum">     710 </span>                :<span class="lineCov">          1 :   path.transform(mtx);</span>
 <span class="lineNum">     711 </span>                :            : 
-<span class="lineNum">     712 </span>                :            : /*
-<a name="713"><span class="lineNum">     713 </span>                :            :  * Function that renders Pixmap type symbols into UTFGrid.</a>
-<span class="lineNum">     714 </span>                :            :  */
-<span class="lineNum">     715 </span>                :<span class="lineCov">          1 : int utfgridRenderPixmapSymbol(imageObj *img, double x, double y, symbolObj *symbol, symbolStyleObj * style)</span>
-<span class="lineNum">     716 </span>                :            : {
-<span class="lineNum">     717 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
-<span class="lineNum">     718 </span>                :<span class="lineCov">          1 :   rasterBufferObj *pixmap = symbol-&gt;pixmap_buffer;</span>
-<span class="lineNum">     719 </span>                :            : 
-<span class="lineNum">     720 </span>                :            :   /* utfvalue is set to 0 if the shape isn't in the table. */
-<span class="lineNum">     721 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(r-&gt;utfvalue == 0) {</span>
-<span class="lineNum">     722 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     723 </span>                :            :   }
-<span class="lineNum">     724 </span>                :            : 
-<span class="lineNum">     725 </span>                :            :   /* Pathing the symbol BBox */
-<span class="lineNum">     726 </span>                :            :   mapserver::path_storage pixmap_bbox;
-<span class="lineNum">     727 </span>                :            :   double w, h;
-<span class="lineNum">     728 </span>                :<span class="lineCov">          1 :   w = pixmap-&gt;width*style-&gt;scale/(2.0);</span>
-<span class="lineNum">     729 </span>                :<span class="lineCov">          1 :   h= pixmap-&gt;height*style-&gt;scale/(2.0);</span>
-<span class="lineNum">     730 </span>                :<span class="lineCov">          1 :   pixmap_bbox.move_to((x-w)/r-&gt;utfresolution,(y-h)/r-&gt;utfresolution);</span>
-<span class="lineNum">     731 </span>                :<span class="lineCov">          1 :   pixmap_bbox.line_to((x+w)/r-&gt;utfresolution,(y-h)/r-&gt;utfresolution);</span>
-<span class="lineNum">     732 </span>                :<span class="lineCov">          1 :   pixmap_bbox.line_to((x+w)/r-&gt;utfresolution,(y+h)/r-&gt;utfresolution);</span>
-<span class="lineNum">     733 </span>                :<span class="lineCov">          1 :   pixmap_bbox.line_to((x-w)/r-&gt;utfresolution,(y+h)/r-&gt;utfresolution);</span>
-<span class="lineNum">     734 </span>                :            : 
-<span class="lineNum">     735 </span>                :            :   /* Rendering the symbol */
-<span class="lineNum">     736 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   utfgridRenderPath(img, pixmap_bbox);</span>
-<span class="lineNum">     737 </span>                :            : 
-<span class="lineNum">     738 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     739 </span>                :            : }
+<span class="lineNum">     712 </span>                :            :   /* Rendering the symbol. */
+<span class="lineNum">     713 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   utfgridRenderPath(img, path);</span>
+<span class="lineNum">     714 </span>                :            : 
+<span class="lineNum">     715 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     716 </span>                :            : }
+<span class="lineNum">     717 </span>                :            : 
+<span class="lineNum">     718 </span>                :            : /*
+<a name="719"><span class="lineNum">     719 </span>                :            :  * Function that renders Pixmap type symbols into UTFGrid.</a>
+<span class="lineNum">     720 </span>                :            :  */
+<span class="lineNum">     721 </span>                :<span class="lineCov">          1 : int utfgridRenderPixmapSymbol(imageObj *img, double x, double y, symbolObj *symbol, symbolStyleObj * style)</span>
+<span class="lineNum">     722 </span>                :            : {
+<span class="lineNum">     723 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
+<span class="lineNum">     724 </span>                :<span class="lineCov">          1 :   rasterBufferObj *pixmap = symbol-&gt;pixmap_buffer;</span>
+<span class="lineNum">     725 </span>                :            : 
+<span class="lineNum">     726 </span>                :            :   /* utfvalue is set to 0 if the shape isn't in the table. */
+<span class="lineNum">     727 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(r-&gt;utfvalue == 0) {</span>
+<span class="lineNum">     728 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     729 </span>                :            :   }
+<span class="lineNum">     730 </span>                :            : 
+<span class="lineNum">     731 </span>                :            :   /* Pathing the symbol BBox */
+<span class="lineNum">     732 </span>                :            :   mapserver::path_storage pixmap_bbox;
+<span class="lineNum">     733 </span>                :            :   double w, h;
+<span class="lineNum">     734 </span>                :<span class="lineCov">          1 :   w = pixmap-&gt;width*style-&gt;scale/(2.0);</span>
+<span class="lineNum">     735 </span>                :<span class="lineCov">          1 :   h= pixmap-&gt;height*style-&gt;scale/(2.0);</span>
+<span class="lineNum">     736 </span>                :<span class="lineCov">          1 :   pixmap_bbox.move_to((x-w)/r-&gt;utfresolution,(y-h)/r-&gt;utfresolution);</span>
+<span class="lineNum">     737 </span>                :<span class="lineCov">          1 :   pixmap_bbox.line_to((x+w)/r-&gt;utfresolution,(y-h)/r-&gt;utfresolution);</span>
+<span class="lineNum">     738 </span>                :<span class="lineCov">          1 :   pixmap_bbox.line_to((x+w)/r-&gt;utfresolution,(y+h)/r-&gt;utfresolution);</span>
+<span class="lineNum">     739 </span>                :<span class="lineCov">          1 :   pixmap_bbox.line_to((x-w)/r-&gt;utfresolution,(y+h)/r-&gt;utfresolution);</span>
 <span class="lineNum">     740 </span>                :            : 
-<span class="lineNum">     741 </span>                :            : /*
-<a name="742"><span class="lineNum">     742 </span>                :            :  * Function that render ellipse type symbols into UTFGrid.</a>
-<span class="lineNum">     743 </span>                :            :  */
-<span class="lineNum">     744 </span>                :<span class="lineCov">          1 : int utfgridRenderEllipseSymbol(imageObj *img, double x, double y, symbolObj *symbol, symbolStyleObj * style)</span>
-<span class="lineNum">     745 </span>                :            : {
-<span class="lineNum">     746 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
-<span class="lineNum">     747 </span>                :            : 
-<span class="lineNum">     748 </span>                :            :   /* utfvalue is set to 0 if the shape isn't in the table. */
-<span class="lineNum">     749 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(r-&gt;utfvalue == 0) {</span>
-<span class="lineNum">     750 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">     751 </span>                :            :   }
-<span class="lineNum">     752 </span>                :            : 
-<span class="lineNum">     753 </span>                :            :   /* Pathing the symbol. */
-<span class="lineNum">     754 </span>                :            :   mapserver::path_storage path;
-<span class="lineNum">     755 </span>                :<span class="lineCov">          1 :   mapserver::ellipse ellipse(x/r-&gt;utfresolution,y/r-&gt;utfresolution,symbol-&gt;sizex*style-&gt;scale/2/r-&gt;utfresolution,symbol-&gt;sizey*style-&gt;scale/2/r-&gt;utfresolution);</span>
-<span class="lineNum">     756 </span>                :            :   path.concat_path(ellipse);
-<span class="lineNum">     757 </span>                :            : 
-<span class="lineNum">     758 </span>                :            :   /* Rotation if necessary. */
-<span class="lineNum">     759 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( style-&gt;rotation != 0) {</span>
-<span class="lineNum">     760 </span>                :            :     mapserver::trans_affine mtx;
-<span class="lineNum">     761 </span>                :<span class="lineNoCov">          0 :     mtx *= mapserver::trans_affine_translation(-x/r-&gt;utfresolution,-y/r-&gt;utfresolution);</span>
-<span class="lineNum">     762 </span>                :<span class="lineNoCov">          0 :     mtx *= mapserver::trans_affine_rotation(-style-&gt;rotation);</span>
-<span class="lineNum">     763 </span>                :<span class="lineNoCov">          0 :     mtx *= mapserver::trans_affine_translation(x/r-&gt;utfresolution,y/r-&gt;utfresolution);</span>
-<span class="lineNum">     764 </span>                :<span class="lineNoCov">          0 :     path.transform(mtx);</span>
-<span class="lineNum">     765 </span>                :            :   }
-<span class="lineNum">     766 </span>                :            : 
-<span class="lineNum">     767 </span>                :            :   /* Rendering the symbol. */
-<span class="lineNum">     768 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   utfgridRenderPath(img, path);</span>
-<span class="lineNum">     769 </span>                :            : 
-<span class="lineNum">     770 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<a name="771"><span class="lineNum">     771 </span>                :            : }</a>
+<span class="lineNum">     741 </span>                :            :   /* Rendering the symbol */
+<span class="lineNum">     742 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   utfgridRenderPath(img, pixmap_bbox);</span>
+<span class="lineNum">     743 </span>                :            : 
+<span class="lineNum">     744 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     745 </span>                :            : }
+<span class="lineNum">     746 </span>                :            : 
+<span class="lineNum">     747 </span>                :            : /*
+<a name="748"><span class="lineNum">     748 </span>                :            :  * Function that render ellipse type symbols into UTFGrid.</a>
+<span class="lineNum">     749 </span>                :            :  */
+<span class="lineNum">     750 </span>                :<span class="lineCov">          1 : int utfgridRenderEllipseSymbol(imageObj *img, double x, double y, symbolObj *symbol, symbolStyleObj * style)</span>
+<span class="lineNum">     751 </span>                :            : {
+<span class="lineNum">     752 </span>                :<span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
+<span class="lineNum">     753 </span>                :            : 
+<span class="lineNum">     754 </span>                :            :   /* utfvalue is set to 0 if the shape isn't in the table. */
+<span class="lineNum">     755 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(r-&gt;utfvalue == 0) {</span>
+<span class="lineNum">     756 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">     757 </span>                :            :   }
+<span class="lineNum">     758 </span>                :            : 
+<span class="lineNum">     759 </span>                :            :   /* Pathing the symbol. */
+<span class="lineNum">     760 </span>                :            :   mapserver::path_storage path;
+<span class="lineNum">     761 </span>                :<span class="lineCov">          1 :   mapserver::ellipse ellipse(x/r-&gt;utfresolution,y/r-&gt;utfresolution,symbol-&gt;sizex*style-&gt;scale/2/r-&gt;utfresolution,symbol-&gt;sizey*style-&gt;scale/2/r-&gt;utfresolution);</span>
+<span class="lineNum">     762 </span>                :            :   path.concat_path(ellipse);
+<span class="lineNum">     763 </span>                :            : 
+<span class="lineNum">     764 </span>                :            :   /* Rotation if necessary. */
+<span class="lineNum">     765 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( style-&gt;rotation != 0) {</span>
+<span class="lineNum">     766 </span>                :            :     mapserver::trans_affine mtx;
+<span class="lineNum">     767 </span>                :<span class="lineNoCov">          0 :     mtx *= mapserver::trans_affine_translation(-x/r-&gt;utfresolution,-y/r-&gt;utfresolution);</span>
+<span class="lineNum">     768 </span>                :<span class="lineNoCov">          0 :     mtx *= mapserver::trans_affine_rotation(-style-&gt;rotation);</span>
+<span class="lineNum">     769 </span>                :<span class="lineNoCov">          0 :     mtx *= mapserver::trans_affine_translation(x/r-&gt;utfresolution,y/r-&gt;utfresolution);</span>
+<span class="lineNum">     770 </span>                :<span class="lineNoCov">          0 :     path.transform(mtx);</span>
+<span class="lineNum">     771 </span>                :            :   }
 <span class="lineNum">     772 </span>                :            : 
-<span class="lineNum">     773 </span>                :<span class="lineCov">          1 : int utfgridRenderGlyphs(imageObj *img, textPathObj *tp, colorObj *c, colorObj *oc, int ow) {</span>
-<span class="lineNum">     774 </span>                :<span class="lineCov">          1 :    return MS_SUCCESS;</span>
-<a name="775"><span class="lineNum">     775 </span>                :            : }</a>
-<span class="lineNum">     776 </span>                :            : 
-<span class="lineNum">     777 </span>                :<span class="lineCov">          1 : int utfgridFreeSymbol(symbolObj * symbol)</span>
-<span class="lineNum">     778 </span>                :            : {
-<span class="lineNum">     779 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     780 </span>                :            : }
-<span class="lineNum">     781 </span>                :            : 
-<span class="lineNum">     782 </span>                :            : /*
-<a name="783"><span class="lineNum">     783 </span>                :            :  * Add the necessary functions for UTFGrid to the renderer VTable.</a>
-<span class="lineNum">     784 </span>                :            :  */
-<span class="lineNum">     785 </span>                :<span class="lineCov">          1 : int msPopulateRendererVTableUTFGrid( rendererVTableObj *renderer )</span>
-<span class="lineNum">     786 </span>                :            : {
-<span class="lineNum">     787 </span>                :<span class="lineCov">          1 :   renderer-&gt;default_transform_mode = MS_TRANSFORM_SIMPLIFY;</span>
-<span class="lineNum">     788 </span>                :            : 
-<span class="lineNum">     789 </span>                :<span class="lineCov">          1 :   renderer-&gt;createImage = &amp;utfgridCreateImage;</span>
-<span class="lineNum">     790 </span>                :<span class="lineCov">          1 :   renderer-&gt;freeImage = &amp;utfgridFreeImage;</span>
-<span class="lineNum">     791 </span>                :<span class="lineCov">          1 :   renderer-&gt;saveImage = &amp;utfgridSaveImage;</span>
-<span class="lineNum">     792 </span>                :            : 
-<span class="lineNum">     793 </span>                :<span class="lineCov">          1 :   renderer-&gt;startLayer = &amp;utfgridStartLayer;</span>
-<span class="lineNum">     794 </span>                :<span class="lineCov">          1 :   renderer-&gt;endLayer = &amp;utfgridEndLayer;</span>
-<span class="lineNum">     795 </span>                :            : 
-<span class="lineNum">     796 </span>                :<span class="lineCov">          1 :   renderer-&gt;startShape = &amp;utfgridStartShape;</span>
-<span class="lineNum">     797 </span>                :<span class="lineCov">          1 :   renderer-&gt;endShape = &amp;utfgridEndShape;</span>
+<span class="lineNum">     773 </span>                :            :   /* Rendering the symbol. */
+<span class="lineNum">     774 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   utfgridRenderPath(img, path);</span>
+<span class="lineNum">     775 </span>                :            : 
+<span class="lineNum">     776 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<a name="777"><span class="lineNum">     777 </span>                :            : }</a>
+<span class="lineNum">     778 </span>                :            : 
+<span class="lineNum">     779 </span>                :<span class="lineCov">          1 : int utfgridRenderGlyphs(imageObj *img, textPathObj *tp, colorObj *c, colorObj *oc, int ow) {</span>
+<span class="lineNum">     780 </span>                :<span class="lineCov">          1 :    return MS_SUCCESS;</span>
+<a name="781"><span class="lineNum">     781 </span>                :            : }</a>
+<span class="lineNum">     782 </span>                :            : 
+<span class="lineNum">     783 </span>                :<span class="lineCov">          1 : int utfgridFreeSymbol(symbolObj * symbol)</span>
+<span class="lineNum">     784 </span>                :            : {
+<span class="lineNum">     785 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     786 </span>                :            : }
+<span class="lineNum">     787 </span>                :            : 
+<span class="lineNum">     788 </span>                :            : /*
+<a name="789"><span class="lineNum">     789 </span>                :            :  * Add the necessary functions for UTFGrid to the renderer VTable.</a>
+<span class="lineNum">     790 </span>                :            :  */
+<span class="lineNum">     791 </span>                :<span class="lineCov">          1 : int msPopulateRendererVTableUTFGrid( rendererVTableObj *renderer )</span>
+<span class="lineNum">     792 </span>                :            : {
+<span class="lineNum">     793 </span>                :<span class="lineCov">          1 :   renderer-&gt;default_transform_mode = MS_TRANSFORM_SIMPLIFY;</span>
+<span class="lineNum">     794 </span>                :            : 
+<span class="lineNum">     795 </span>                :<span class="lineCov">          1 :   renderer-&gt;createImage = &amp;utfgridCreateImage;</span>
+<span class="lineNum">     796 </span>                :<span class="lineCov">          1 :   renderer-&gt;freeImage = &amp;utfgridFreeImage;</span>
+<span class="lineNum">     797 </span>                :<span class="lineCov">          1 :   renderer-&gt;saveImage = &amp;utfgridSaveImage;</span>
 <span class="lineNum">     798 </span>                :            : 
-<span class="lineNum">     799 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPolygon = &amp;utfgridRenderPolygon;</span>
-<span class="lineNum">     800 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderGlyphs = &amp;utfgridRenderGlyphs;</span>
-<span class="lineNum">     801 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderLine = &amp;utfgridRenderLine;</span>
-<span class="lineNum">     802 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderVectorSymbol = &amp;utfgridRenderVectorSymbol;</span>
-<span class="lineNum">     803 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPixmapSymbol = &amp;utfgridRenderPixmapSymbol;</span>
-<span class="lineNum">     804 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderEllipseSymbol = &amp;utfgridRenderEllipseSymbol;</span>
-<span class="lineNum">     805 </span>                :            : 
-<span class="lineNum">     806 </span>                :<span class="lineCov">          1 :   renderer-&gt;freeSymbol = &amp;utfgridFreeSymbol;</span>
-<span class="lineNum">     807 </span>                :            : 
-<span class="lineNum">     808 </span>                :<span class="lineCov">          1 :   renderer-&gt;loadImageFromFile = msLoadMSRasterBufferFromFile;</span>
-<a name="809"><span class="lineNum">     809 </span>                :            : </a>
-<span class="lineNum">     810 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     811 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     799 </span>                :<span class="lineCov">          1 :   renderer-&gt;startLayer = &amp;utfgridStartLayer;</span>
+<span class="lineNum">     800 </span>                :<span class="lineCov">          1 :   renderer-&gt;endLayer = &amp;utfgridEndLayer;</span>
+<span class="lineNum">     801 </span>                :            : 
+<span class="lineNum">     802 </span>                :<span class="lineCov">          1 :   renderer-&gt;startShape = &amp;utfgridStartShape;</span>
+<span class="lineNum">     803 </span>                :<span class="lineCov">          1 :   renderer-&gt;endShape = &amp;utfgridEndShape;</span>
+<span class="lineNum">     804 </span>                :            : 
+<span class="lineNum">     805 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPolygon = &amp;utfgridRenderPolygon;</span>
+<span class="lineNum">     806 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderGlyphs = &amp;utfgridRenderGlyphs;</span>
+<span class="lineNum">     807 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderLine = &amp;utfgridRenderLine;</span>
+<span class="lineNum">     808 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderVectorSymbol = &amp;utfgridRenderVectorSymbol;</span>
+<span class="lineNum">     809 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderPixmapSymbol = &amp;utfgridRenderPixmapSymbol;</span>
+<span class="lineNum">     810 </span>                :<span class="lineCov">          1 :   renderer-&gt;renderEllipseSymbol = &amp;utfgridRenderEllipseSymbol;</span>
+<span class="lineNum">     811 </span>                :            : 
+<span class="lineNum">     812 </span>                :<span class="lineCov">          1 :   renderer-&gt;freeSymbol = &amp;utfgridFreeSymbol;</span>
+<span class="lineNum">     813 </span>                :            : 
+<span class="lineNum">     814 </span>                :<span class="lineCov">          1 :   renderer-&gt;loadImageFromFile = msLoadMSRasterBufferFromFile;</span>
+<a name="815"><span class="lineNum">     815 </span>                :            : </a>
+<span class="lineNum">     816 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     817 </span>                :<span class="lineCov">          1 : }</span>
 </pre>
       </td>
     </tr>
