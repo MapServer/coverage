@@ -31,27 +31,27 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">182</td>
-            <td class="headerCovTableEntry">301</td>
-            <td class="headerCovTableEntryLo">60.5 %</td>
+            <td class="headerCovTableEntry">218</td>
+            <td class="headerCovTableEntry">349</td>
+            <td class="headerCovTableEntryLo">62.5 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
             <td class="headerValue">XXXX-XX-XX</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">24</td>
-            <td class="headerCovTableEntry">30</td>
-            <td class="headerCovTableEntryMed">80.0 %</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntryMed">80.6 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">59</td>
-            <td class="headerCovTableEntry">162</td>
-            <td class="headerCovTableEntryLo">36.4 %</td>
+            <td class="headerCovTableEntry">79</td>
+            <td class="headerCovTableEntry">194</td>
+            <td class="headerCovTableEntryLo">40.7 %</td>
           </tr>
           <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -254,7 +254,7 @@
 <span class="lineNum">     183 </span>                :            : 
 <span class="lineNum">     184 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( fp == stdin || fp == NULL || strcmp((const char *)fp,&quot;stdin&quot;) == 0 )</span>
 <span class="lineNum">     185 </span>                :<span class="lineCov">          1 :     return &amp;(group-&gt;stdin_context);</span>
-<span class="lineNum">     186 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if( fp == stdout || strcmp((const char *)fp,&quot;stdout&quot;) == 0 )</span>
+<span class="lineNum">     186 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if( fp == stdout || strcmp((const char *)fp,&quot;stdout&quot;) == 0 )</span>
 <span class="lineNum">     187 </span>                :<span class="lineCov">          1 :     return &amp;(group-&gt;stdout_context);</span>
 <span class="lineNum">     188 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if( fp == stderr || strcmp((const char *)fp,&quot;stderr&quot;) == 0 )</span>
 <span class="lineNum">     189 </span>                :<span class="lineCov">          1 :     return &amp;(group-&gt;stderr_context);</span>
@@ -829,224 +829,344 @@
 <span class="lineNum">     758 </span>                :<span class="lineNoCov">          0 : }</span>
 <span class="lineNum">     759 </span>                :            : 
 <span class="lineNum">     760 </span>                :            : /************************************************************************/
-<span class="lineNum">     761 </span>                :            : /*                 msIO_stripStdoutBufferContentType()                  */
+<span class="lineNum">     761 </span>                :            : /*              msIO_getAndStripStdoutBufferMimeHeaders()               */
 <span class="lineNum">     762 </span>                :            : /*                                                                      */
-<span class="lineNum">     763 </span>                :            : /*      Strip off Content-Type header from buffer, and return to        */
-<span class="lineNum">     764 </span>                :            : /*      caller.  Returned string is the callers responsibility to       */
-<span class="lineNum">     765 </span>                :            : /*      call msFree() on to deallocate.  This function will return      */
-<span class="lineNum">     766 </span>                :            : /*      NULL if there is no Content-Type header.                        */
-<a name="767"><span class="lineNum">     767 </span>                :            : /************************************************************************/</a>
-<span class="lineNum">     768 </span>                :            : 
-<span class="lineNum">     769 </span>                :<span class="lineNoCov">          0 : char *msIO_stripStdoutBufferContentType()</span>
-<span class="lineNum">     770 </span>                :            : 
-<span class="lineNum">     771 </span>                :            : {
-<span class="lineNum">     772 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     773 </span>                :            :   /*      Find stdout buffer.                                             */
-<span class="lineNum">     774 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     775 </span>                :<span class="lineNoCov">          0 :   msIOContext *ctx = msIO_getHandler( (FILE *) &quot;stdout&quot; );</span>
-<span class="lineNum">     776 </span>                :            :   msIOBuffer  *buf;
-<span class="lineNum">     777 </span>                :            :   char *content_type = NULL;
-<span class="lineNum">     778 </span>                :            :   int end_of_ct, start_of_data;
-<span class="lineNum">     779 </span>                :            : 
-<span class="lineNum">     780 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( ctx == NULL || ctx-&gt;write_channel == MS_FALSE</span>
-<span class="lineNum">     781 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       || strcmp(ctx-&gt;label,&quot;buffer&quot;) != 0 ) {</span>
-<span class="lineNum">     782 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Can't identify msIO buffer.&quot;,</span>
-<span class="lineNum">     783 </span>                :            :                 &quot;msIO_stripStdoutBufferContentType&quot; );
-<span class="lineNum">     784 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
-<span class="lineNum">     785 </span>                :            :   }
-<span class="lineNum">     786 </span>                :            : 
-<span class="lineNum">     787 </span>                :<span class="lineNoCov">          0 :   buf = (msIOBuffer *) ctx-&gt;cbData;</span>
-<span class="lineNum">     788 </span>                :            : 
-<span class="lineNum">     789 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     790 </span>                :            :   /*      Return NULL if we don't have a Content-Type header.             */
-<span class="lineNum">     791 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     792 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( buf-&gt;data_offset &lt; 14</span>
-<span class="lineNum">     793 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       || strncasecmp((const char*) buf-&gt;data,&quot;Content-Type: &quot;,14) != 0 )</span>
-<span class="lineNum">     794 </span>                :            :     return NULL;
-<span class="lineNum">     795 </span>                :            : 
-<span class="lineNum">     796 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     797 </span>                :            :   /*      Find newline marker at end of content type argument.            */
-<span class="lineNum">     798 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     799 </span>                :            :   end_of_ct = 13;
-<span class="lineNum">     800 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   while( end_of_ct+1 &lt; buf-&gt;data_offset</span>
-<span class="lineNum">     801 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &amp;&amp; buf-&gt;data[end_of_ct+1] != '\r' )</span>
-<span class="lineNum">     802 </span>                :<span class="lineNoCov">          0 :     end_of_ct++;</span>
-<span class="lineNum">     803 </span>                :            : 
-<span class="lineNum">     804 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( end_of_ct+1 == buf-&gt;data_offset ) {</span>
-<span class="lineNum">     805 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Corrupt Content-Type header.&quot;,</span>
-<span class="lineNum">     806 </span>                :            :                 &quot;msIO_stripStdoutBufferContentType&quot; );
-<span class="lineNum">     807 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
-<span class="lineNum">     808 </span>                :            :   }
-<span class="lineNum">     809 </span>                :            : 
-<span class="lineNum">     810 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     811 </span>                :            :   /*      Continue on to the start of data ...                            */
-<span class="lineNum">     812 </span>                :            :   /*      Go to next line and skip if empty.                              */
-<span class="lineNum">     813 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     814 </span>                :<span class="lineNoCov">          0 :   start_of_data = end_of_ct+3;</span>
-<span class="lineNum">     815 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( start_of_data  &lt; buf-&gt;data_offset</span>
-<span class="lineNum">     816 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       &amp;&amp; buf-&gt;data[start_of_data] == '\r' )</span>
-<span class="lineNum">     817 </span>                :<span class="lineNoCov">          0 :     start_of_data +=2;</span>
-<span class="lineNum">     818 </span>                :            :   
-<span class="lineNum">     819 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( start_of_data == buf-&gt;data_offset ) {</span>
-<span class="lineNum">     820 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Corrupt Content-Type header.&quot;,</span>
-<span class="lineNum">     821 </span>                :            :                 &quot;msIO_stripStdoutBufferContentType&quot; );
-<span class="lineNum">     822 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
-<span class="lineNum">     823 </span>                :            :   }
-<span class="lineNum">     824 </span>                :            : 
-<span class="lineNum">     825 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     826 </span>                :            :   /*      Copy out content type. Note we go against the coding guidelines */
-<span class="lineNum">     827 </span>                :            :   /*      here and use strncpy() instead of strlcpy() as the source       */
-<span class="lineNum">     828 </span>                :            :   /*      buffer may not be NULL terminated - strlcpy() requires NULL     */
-<span class="lineNum">     829 </span>                :            :   /*      terminated sources (see issue #4672).                           */
-<span class="lineNum">     830 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     831 </span>                :<span class="lineNoCov">          0 :   content_type = (char *) malloc(end_of_ct-14+2);</span>
-<span class="lineNum">     832 </span>                :<span class="lineNoCov">          0 :   strncpy( content_type, (const char *) buf-&gt;data + 14, end_of_ct - 14 + 2);</span>
-<span class="lineNum">     833 </span>                :<span class="lineNoCov">          0 :   content_type[end_of_ct-14+1] = '\0';</span>
+<a name="763"><span class="lineNum">     763 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     764 </span>                :            : 
+<span class="lineNum">     765 </span>                :<span class="lineCov">          1 : hashTableObj* msIO_getAndStripStdoutBufferMimeHeaders()</span>
+<span class="lineNum">     766 </span>                :            : {
+<span class="lineNum">     767 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     768 </span>                :            :   /*      Find stdout buffer.                                             */
+<span class="lineNum">     769 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     770 </span>                :<span class="lineCov">          1 :   msIOContext *ctx = msIO_getHandler( (FILE *) &quot;stdout&quot; );</span>
+<span class="lineNum">     771 </span>                :            :   msIOBuffer  *buf;
+<span class="lineNum">     772 </span>                :            :   int start_of_mime_header, current_pos;
+<span class="lineNum">     773 </span>                :            :   hashTableObj* hashTable;
+<span class="lineNum">     774 </span>                :            : 
+<span class="lineNum">     775 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if( ctx == NULL || ctx-&gt;write_channel == MS_FALSE</span>
+<span class="lineNum">     776 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       || strcmp(ctx-&gt;label,&quot;buffer&quot;) != 0 ) {</span>
+<span class="lineNum">     777 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Can't identify msIO buffer.&quot;,</span>
+<span class="lineNum">     778 </span>                :            :                 &quot;msIO_getAndStripStdoutBufferMimeHeaders&quot; );
+<span class="lineNum">     779 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">     780 </span>                :            :   }
+<span class="lineNum">     781 </span>                :            : 
+<span class="lineNum">     782 </span>                :<span class="lineCov">          1 :   buf = (msIOBuffer *) ctx-&gt;cbData;</span>
+<span class="lineNum">     783 </span>                :            : 
+<span class="lineNum">     784 </span>                :<span class="lineCov">          1 :   hashTable = msCreateHashTable();</span>
+<span class="lineNum">     785 </span>                :            : 
+<span class="lineNum">     786 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     787 </span>                :            :   /*      Loop over all headers.                                          */
+<span class="lineNum">     788 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     789 </span>                :            :   current_pos = 0;
+<span class="lineNum">     790 </span>                :            :   while( TRUE ) {
+<span class="lineNum">     791 </span>                :            :     int pos_of_column = -1;
+<span class="lineNum">     792 </span>                :            :     char* key, *value;
+<span class="lineNum">     793 </span>                :            : 
+<span class="lineNum">     794 </span>                :            :     start_of_mime_header = current_pos;
+<span class="lineNum">     795 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     while( current_pos &lt; buf-&gt;data_offset )</span>
+<span class="lineNum">     796 </span>                :            :     {
+<span class="lineNum">     797 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( buf-&gt;data[current_pos] == '\r' )</span>
+<span class="lineNum">     798 </span>                :            :         {
+<span class="lineNum">     799 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :             if( current_pos + 1 == buf-&gt;data_offset ||</span>
+<span class="lineNum">     800 </span>                :<span class="lineCov">          1 :                 buf-&gt;data[current_pos + 1] != '\n' )</span>
+<span class="lineNum">     801 </span>                :            :             {
+<span class="lineNum">     802 </span>                :            :                 pos_of_column = -1;
+<span class="lineNum">     803 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     804 </span>                :            :             }
+<span class="lineNum">     805 </span>                :            :             break;
+<span class="lineNum">     806 </span>                :            :         }
+<span class="lineNum">     807 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( buf-&gt;data[current_pos] == ':' )</span>
+<span class="lineNum">     808 </span>                :            :         {
+<span class="lineNum">     809 </span>                :            :             pos_of_column = current_pos;
+<span class="lineNum">     810 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :             if( current_pos + 1 == buf-&gt;data_offset ||</span>
+<span class="lineNum">     811 </span>                :<span class="lineCov">          1 :                 buf-&gt;data[current_pos + 1] != ' ' )</span>
+<span class="lineNum">     812 </span>                :            :             {
+<span class="lineNum">     813 </span>                :            :                 pos_of_column = -1;
+<span class="lineNum">     814 </span>                :            :                 break;
+<span class="lineNum">     815 </span>                :            :             }
+<span class="lineNum">     816 </span>                :            :         }
+<span class="lineNum">     817 </span>                :<span class="lineCov">          1 :         current_pos++;</span>
+<span class="lineNum">     818 </span>                :            :     }
+<span class="lineNum">     819 </span>                :            : 
+<span class="lineNum">     820 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( pos_of_column &lt; 0 || current_pos == buf-&gt;data_offset ) {</span>
+<span class="lineNum">     821 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR, &quot;Corrupt mime headers.&quot;,</span>
+<span class="lineNum">     822 </span>                :            :                   &quot;msIO_getAndStripStdoutBufferMimeHeaders&quot; );
+<span class="lineNum">     823 </span>                :<span class="lineNoCov">          0 :       msFreeHashTable(hashTable);</span>
+<span class="lineNum">     824 </span>                :<span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">     825 </span>                :            :     }
+<span class="lineNum">     826 </span>                :            : 
+<span class="lineNum">     827 </span>                :<span class="lineCov">          1 :     key = (char*) malloc( pos_of_column - start_of_mime_header + 1 );</span>
+<span class="lineNum">     828 </span>                :<span class="lineCov">          1 :     memcpy( key, buf-&gt;data+start_of_mime_header, pos_of_column - start_of_mime_header);</span>
+<span class="lineNum">     829 </span>                :<span class="lineCov">          1 :     key[pos_of_column - start_of_mime_header] = '\0';</span>
+<span class="lineNum">     830 </span>                :            : 
+<span class="lineNum">     831 </span>                :<span class="lineCov">          1 :     value = (char*) malloc( current_pos - (pos_of_column+2) + 1 );</span>
+<span class="lineNum">     832 </span>                :<span class="lineCov">          1 :     memcpy( value, buf-&gt;data+pos_of_column+2, current_pos - (pos_of_column+2));</span>
+<span class="lineNum">     833 </span>                :<span class="lineCov">          1 :     value[current_pos - (pos_of_column+2)] = '\0';</span>
 <span class="lineNum">     834 </span>                :            : 
-<span class="lineNum">     835 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     836 </span>                :            :   /*      Move data to front of buffer, and reset length.                 */
-<span class="lineNum">     837 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     838 </span>                :<span class="lineNoCov">          0 :   memmove( buf-&gt;data, buf-&gt;data+start_of_data,</span>
-<span class="lineNum">     839 </span>                :<span class="lineNoCov">          0 :            buf-&gt;data_offset - start_of_data );</span>
-<span class="lineNum">     840 </span>                :<span class="lineNoCov">          0 :   buf-&gt;data[buf-&gt;data_offset - start_of_data] = '\0';</span>
-<span class="lineNum">     841 </span>                :<span class="lineNoCov">          0 :   buf-&gt;data_offset -= start_of_data;</span>
-<span class="lineNum">     842 </span>                :            : 
-<span class="lineNum">     843 </span>                :<span class="lineNoCov">          0 :   return content_type;</span>
-<span class="lineNum">     844 </span>                :            : }
-<span class="lineNum">     845 </span>                :            : 
-<span class="lineNum">     846 </span>                :            : /************************************************************************/
-<span class="lineNum">     847 </span>                :            : /*                 msIO_stripStdoutBufferContentHeaders()               */
-<span class="lineNum">     848 </span>                :            : /*                                                                      */
-<span class="lineNum">     849 </span>                :            : /*      Strip off Content-* headers from buffer.                        */
-<a name="850"><span class="lineNum">     850 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     835 </span>                :<span class="lineCov">          1 :     msInsertHashTable( hashTable, key, value );</span>
+<span class="lineNum">     836 </span>                :            : 
+<span class="lineNum">     837 </span>                :<span class="lineCov">          1 :     msFree( key );</span>
+<span class="lineNum">     838 </span>                :<span class="lineCov">          1 :     msFree( value );</span>
+<span class="lineNum">     839 </span>                :            : 
+<span class="lineNum">     840 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     841 </span>                :            :     /*      Go to next line.                                                */
+<span class="lineNum">     842 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     843 </span>                :<span class="lineCov">          1 :     current_pos += 2;</span>
+<span class="lineNum">     844 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( current_pos == buf-&gt;data_offset )</span>
+<span class="lineNum">     845 </span>                :            :     {
+<span class="lineNum">     846 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR, &quot;Corrupt mime headers.&quot;,</span>
+<span class="lineNum">     847 </span>                :            :                   &quot;msIO_getAndStripStdoutBufferMimeHeaders&quot; );
+<span class="lineNum">     848 </span>                :<span class="lineNoCov">          0 :       msFreeHashTable(hashTable);</span>
+<span class="lineNum">     849 </span>                :<span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">     850 </span>                :            :     }
 <span class="lineNum">     851 </span>                :            : 
-<span class="lineNum">     852 </span>                :<span class="lineNoCov">          0 : void msIO_stripStdoutBufferContentHeaders()</span>
-<span class="lineNum">     853 </span>                :            : {
-<span class="lineNum">     854 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     855 </span>                :            :   /*      Find stdout buffer.                                             */
-<span class="lineNum">     856 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     857 </span>                :<span class="lineNoCov">          0 :   msIOContext *ctx = msIO_getHandler( (FILE *) &quot;stdout&quot; );</span>
-<span class="lineNum">     858 </span>                :            :   msIOBuffer  *buf;
-<span class="lineNum">     859 </span>                :            :   int start_of_data;
-<span class="lineNum">     860 </span>                :            : 
-<span class="lineNum">     861 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( ctx == NULL || ctx-&gt;write_channel == MS_FALSE</span>
-<span class="lineNum">     862 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       || strcmp(ctx-&gt;label,&quot;buffer&quot;) != 0 ) {</span>
-<span class="lineNum">     863 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Can't identify msIO buffer.&quot;,</span>
-<span class="lineNum">     864 </span>                :            :                 &quot;msIO_stripStdoutBufferContentHeaders&quot; );
-<span class="lineNum">     865 </span>                :<span class="lineNoCov">          0 :     return;</span>
-<span class="lineNum">     866 </span>                :            :   }
-<span class="lineNum">     867 </span>                :            : 
-<span class="lineNum">     868 </span>                :<span class="lineNoCov">          0 :   buf = (msIOBuffer *) ctx-&gt;cbData;</span>
-<span class="lineNum">     869 </span>                :            : 
-<span class="lineNum">     870 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     871 </span>                :            :   /*      Exit if we don't have any content-* header.                     */
-<span class="lineNum">     872 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     873 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( buf-&gt;data_offset &lt; 8</span>
-<span class="lineNum">     874 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       || strncasecmp((const char*) buf-&gt;data,&quot;Content-&quot;,8) != 0 )</span>
-<span class="lineNum">     875 </span>                :            :     return;
+<span class="lineNum">     852 </span>                :            :     /* If next line is a '\r', this is the end of mime headers. */
+<span class="lineNum">     853 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( buf-&gt;data[current_pos] == '\r' )</span>
+<span class="lineNum">     854 </span>                :            :     {
+<span class="lineNum">     855 </span>                :<span class="lineCov">          1 :         current_pos ++;</span>
+<span class="lineNum">     856 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if( current_pos == buf-&gt;data_offset ||</span>
+<span class="lineNum">     857 </span>                :<span class="lineCov">          1 :             buf-&gt;data[current_pos] != '\n' )</span>
+<span class="lineNum">     858 </span>                :            :         {
+<span class="lineNum">     859 </span>                :<span class="lineNoCov">          0 :             msSetError( MS_MISCERR, &quot;Corrupt mime headers.&quot;,</span>
+<span class="lineNum">     860 </span>                :            :                         &quot;msIO_getAndStripStdoutBufferMimeHeaders&quot; );
+<span class="lineNum">     861 </span>                :<span class="lineNoCov">          0 :             msFreeHashTable(hashTable);</span>
+<span class="lineNum">     862 </span>                :<span class="lineNoCov">          0 :             return NULL;</span>
+<span class="lineNum">     863 </span>                :            :         }
+<span class="lineNum">     864 </span>                :<span class="lineCov">          1 :         current_pos ++;</span>
+<span class="lineNum">     865 </span>                :            :         break;
+<span class="lineNum">     866 </span>                :            :     }
+<span class="lineNum">     867 </span>                :            :   }
+<span class="lineNum">     868 </span>                :            : 
+<span class="lineNum">     869 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     870 </span>                :            :   /*      Move data to front of buffer, and reset length.                 */
+<span class="lineNum">     871 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     872 </span>                :<span class="lineCov">          1 :   memmove( buf-&gt;data, buf-&gt;data+current_pos,</span>
+<span class="lineNum">     873 </span>                :<span class="lineCov">          1 :            buf-&gt;data_offset - current_pos );</span>
+<span class="lineNum">     874 </span>                :<span class="lineCov">          1 :   buf-&gt;data[buf-&gt;data_offset - current_pos] = '\0';</span>
+<span class="lineNum">     875 </span>                :<span class="lineCov">          1 :   buf-&gt;data_offset -= current_pos;</span>
 <span class="lineNum">     876 </span>                :            : 
-<span class="lineNum">     877 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     878 </span>                :            :   /*      Loop over all content-* headers.                                */
-<span class="lineNum">     879 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     880 </span>                :            :   start_of_data = 0;
-<span class="lineNum">     881 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   while( buf-&gt;data_offset &gt; start_of_data</span>
-<span class="lineNum">     882 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &amp;&amp; strncasecmp((const char*) buf-&gt;data+start_of_data,&quot;Content-&quot;,8) == 0 ) {</span>
-<span class="lineNum">     883 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     884 </span>                :            :     /*      Find newline marker at end of content-* header argument.        */
-<span class="lineNum">     885 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     886 </span>                :<span class="lineNoCov">          0 :     start_of_data +=7;</span>
-<span class="lineNum">     887 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     while( start_of_data+1 &lt; buf-&gt;data_offset</span>
-<span class="lineNum">     888 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :            &amp;&amp; buf-&gt;data[start_of_data+1] != '\r' )</span>
-<span class="lineNum">     889 </span>                :<span class="lineNoCov">          0 :       start_of_data++;</span>
+<span class="lineNum">     877 </span>                :<span class="lineCov">          1 :   return hashTable;</span>
+<span class="lineNum">     878 </span>                :            : }
+<span class="lineNum">     879 </span>                :            : 
+<span class="lineNum">     880 </span>                :            : /************************************************************************/
+<span class="lineNum">     881 </span>                :            : /*                 msIO_stripStdoutBufferContentType()                  */
+<span class="lineNum">     882 </span>                :            : /*                                                                      */
+<span class="lineNum">     883 </span>                :            : /*      Strip off Content-Type header from buffer, and return to        */
+<span class="lineNum">     884 </span>                :            : /*      caller.  Returned string is the callers responsibility to       */
+<span class="lineNum">     885 </span>                :            : /*      call msFree() on to deallocate.  This function will return      */
+<span class="lineNum">     886 </span>                :            : /*      NULL if there is no Content-Type header.                        */
+<a name="887"><span class="lineNum">     887 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     888 </span>                :            : 
+<span class="lineNum">     889 </span>                :<span class="lineNoCov">          0 : char *msIO_stripStdoutBufferContentType()</span>
 <span class="lineNum">     890 </span>                :            : 
-<span class="lineNum">     891 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if( start_of_data+1 == buf-&gt;data_offset ) {</span>
-<span class="lineNum">     892 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR, &quot;Corrupt Content-* header.&quot;,</span>
-<span class="lineNum">     893 </span>                :            :                   &quot;msIO_stripStdoutBufferContentHeaders&quot; );
-<span class="lineNum">     894 </span>                :<span class="lineNoCov">          0 :       return;</span>
-<span class="lineNum">     895 </span>                :            :     }
-<span class="lineNum">     896 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     897 </span>                :            :     /*      Go to next line.                                                */
-<span class="lineNum">     898 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     899 </span>                :<span class="lineNoCov">          0 :     start_of_data +=3;</span>
-<span class="lineNum">     900 </span>                :            :   }
-<span class="lineNum">     901 </span>                :            : 
-<span class="lineNum">     902 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     903 </span>                :            :   /*      Continue on to the start of data ...                            */
-<span class="lineNum">     904 </span>                :            :   /*      Skip next line if empty.                                        */
-<span class="lineNum">     905 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     906 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( start_of_data  &lt; buf-&gt;data_offset</span>
-<span class="lineNum">     907 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       &amp;&amp; buf-&gt;data[start_of_data] == '\r' )</span>
-<span class="lineNum">     908 </span>                :<span class="lineNoCov">          0 :     start_of_data +=2;</span>
-<span class="lineNum">     909 </span>                :            : 
-<span class="lineNum">     910 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( start_of_data == buf-&gt;data_offset ) {</span>
-<span class="lineNum">     911 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Corrupt Content-* header.&quot;,</span>
-<span class="lineNum">     912 </span>                :            :                 &quot;msIO_stripStdoutBufferContentHeaders&quot; );
-<span class="lineNum">     913 </span>                :<span class="lineNoCov">          0 :     return;</span>
-<span class="lineNum">     914 </span>                :            :   }
+<span class="lineNum">     891 </span>                :            : {
+<span class="lineNum">     892 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     893 </span>                :            :   /*      Find stdout buffer.                                             */
+<span class="lineNum">     894 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     895 </span>                :<span class="lineNoCov">          0 :   msIOContext *ctx = msIO_getHandler( (FILE *) &quot;stdout&quot; );</span>
+<span class="lineNum">     896 </span>                :            :   msIOBuffer  *buf;
+<span class="lineNum">     897 </span>                :            :   char *content_type = NULL;
+<span class="lineNum">     898 </span>                :            :   int end_of_ct, start_of_data;
+<span class="lineNum">     899 </span>                :            : 
+<span class="lineNum">     900 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( ctx == NULL || ctx-&gt;write_channel == MS_FALSE</span>
+<span class="lineNum">     901 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       || strcmp(ctx-&gt;label,&quot;buffer&quot;) != 0 ) {</span>
+<span class="lineNum">     902 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Can't identify msIO buffer.&quot;,</span>
+<span class="lineNum">     903 </span>                :            :                 &quot;msIO_stripStdoutBufferContentType&quot; );
+<span class="lineNum">     904 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">     905 </span>                :            :   }
+<span class="lineNum">     906 </span>                :            : 
+<span class="lineNum">     907 </span>                :<span class="lineNoCov">          0 :   buf = (msIOBuffer *) ctx-&gt;cbData;</span>
+<span class="lineNum">     908 </span>                :            : 
+<span class="lineNum">     909 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     910 </span>                :            :   /*      Return NULL if we don't have a Content-Type header.             */
+<span class="lineNum">     911 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     912 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( buf-&gt;data_offset &lt; 14</span>
+<span class="lineNum">     913 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       || strncasecmp((const char*) buf-&gt;data,&quot;Content-Type: &quot;,14) != 0 )</span>
+<span class="lineNum">     914 </span>                :            :     return NULL;
 <span class="lineNum">     915 </span>                :            : 
 <span class="lineNum">     916 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     917 </span>                :            :   /*      Move data to front of buffer, and reset length.                 */
+<span class="lineNum">     917 </span>                :            :   /*      Find newline marker at end of content type argument.            */
 <span class="lineNum">     918 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     919 </span>                :<span class="lineNoCov">          0 :   memmove( buf-&gt;data, buf-&gt;data+start_of_data,</span>
-<span class="lineNum">     920 </span>                :<span class="lineNoCov">          0 :            buf-&gt;data_offset - start_of_data );</span>
-<span class="lineNum">     921 </span>                :<span class="lineNoCov">          0 :   buf-&gt;data[buf-&gt;data_offset - start_of_data] = '\0';</span>
-<span class="lineNum">     922 </span>                :<span class="lineNoCov">          0 :   buf-&gt;data_offset -= start_of_data;</span>
+<span class="lineNum">     919 </span>                :            :   end_of_ct = 13;
+<span class="lineNum">     920 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   while( end_of_ct+1 &lt; buf-&gt;data_offset</span>
+<span class="lineNum">     921 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &amp;&amp; buf-&gt;data[end_of_ct+1] != '\r' )</span>
+<span class="lineNum">     922 </span>                :<span class="lineNoCov">          0 :     end_of_ct++;</span>
 <span class="lineNum">     923 </span>                :            : 
-<span class="lineNum">     924 </span>                :<span class="lineNoCov">          0 :   return;</span>
-<span class="lineNum">     925 </span>                :            : }
-<span class="lineNum">     926 </span>                :            : 
-<span class="lineNum">     927 </span>                :            : /************************************************************************/
-<span class="lineNum">     928 </span>                :            : /*                          msIO_bufferWrite()                          */
-<a name="929"><span class="lineNum">     929 </span>                :            : /************************************************************************/</a>
-<span class="lineNum">     930 </span>                :            : 
-<span class="lineNum">     931 </span>                :<span class="lineCov">          1 : int msIO_bufferWrite( void *cbData, void *data, int byteCount )</span>
-<span class="lineNum">     932 </span>                :            : 
-<span class="lineNum">     933 </span>                :            : {
-<span class="lineNum">     934 </span>                :            :   msIOBuffer *buf = (msIOBuffer *) cbData;
-<span class="lineNum">     935 </span>                :            : 
-<span class="lineNum">     936 </span>                :            :   /*
-<span class="lineNum">     937 </span>                :            :   ** Grow buffer if needed (reserve one extra byte to put nul character)
-<span class="lineNum">     938 </span>                :            :   */
-<span class="lineNum">     939 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( buf-&gt;data_offset + byteCount &gt;= buf-&gt;data_len ) {</span>
-<span class="lineNum">     940 </span>                :<span class="lineCov">          1 :     buf-&gt;data_len = buf-&gt;data_len * 2 + byteCount + 100;</span>
-<span class="lineNum">     941 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( buf-&gt;data == NULL )</span>
-<span class="lineNum">     942 </span>                :<span class="lineCov">          1 :       buf-&gt;data = (unsigned char *) malloc(buf-&gt;data_len);</span>
-<span class="lineNum">     943 </span>                :            :     else
-<span class="lineNum">     944 </span>                :<span class="lineCov">          1 :       buf-&gt;data = (unsigned char *) realloc(buf-&gt;data, buf-&gt;data_len);</span>
-<span class="lineNum">     945 </span>                :            : 
-<span class="lineNum">     946 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( buf-&gt;data == NULL ) {</span>
-<span class="lineNum">     947 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MEMERR,</span>
-<span class="lineNum">     948 </span>                :            :                   &quot;Failed to allocate %d bytes for capture buffer.&quot;,
-<span class="lineNum">     949 </span>                :            :                   &quot;msIO_bufferWrite()&quot;, buf-&gt;data_len );
-<span class="lineNum">     950 </span>                :<span class="lineNoCov">          0 :       buf-&gt;data_len = 0;</span>
-<span class="lineNum">     951 </span>                :<span class="lineNoCov">          0 :       return 0;</span>
-<span class="lineNum">     952 </span>                :            :     }
-<span class="lineNum">     953 </span>                :            :   }
+<span class="lineNum">     924 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( end_of_ct+1 == buf-&gt;data_offset ) {</span>
+<span class="lineNum">     925 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Corrupt Content-Type header.&quot;,</span>
+<span class="lineNum">     926 </span>                :            :                 &quot;msIO_stripStdoutBufferContentType&quot; );
+<span class="lineNum">     927 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">     928 </span>                :            :   }
+<span class="lineNum">     929 </span>                :            : 
+<span class="lineNum">     930 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     931 </span>                :            :   /*      Continue on to the start of data ...                            */
+<span class="lineNum">     932 </span>                :            :   /*      Go to next line and skip if empty.                              */
+<span class="lineNum">     933 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     934 </span>                :<span class="lineNoCov">          0 :   start_of_data = end_of_ct+3;</span>
+<span class="lineNum">     935 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( start_of_data  &lt; buf-&gt;data_offset</span>
+<span class="lineNum">     936 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       &amp;&amp; buf-&gt;data[start_of_data] == '\r' )</span>
+<span class="lineNum">     937 </span>                :<span class="lineNoCov">          0 :     start_of_data +=2;</span>
+<span class="lineNum">     938 </span>                :            :   
+<span class="lineNum">     939 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( start_of_data == buf-&gt;data_offset ) {</span>
+<span class="lineNum">     940 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Corrupt Content-Type header.&quot;,</span>
+<span class="lineNum">     941 </span>                :            :                 &quot;msIO_stripStdoutBufferContentType&quot; );
+<span class="lineNum">     942 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">     943 </span>                :            :   }
+<span class="lineNum">     944 </span>                :            : 
+<span class="lineNum">     945 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     946 </span>                :            :   /*      Copy out content type. Note we go against the coding guidelines */
+<span class="lineNum">     947 </span>                :            :   /*      here and use strncpy() instead of strlcpy() as the source       */
+<span class="lineNum">     948 </span>                :            :   /*      buffer may not be NULL terminated - strlcpy() requires NULL     */
+<span class="lineNum">     949 </span>                :            :   /*      terminated sources (see issue #4672).                           */
+<span class="lineNum">     950 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     951 </span>                :<span class="lineNoCov">          0 :   content_type = (char *) malloc(end_of_ct-14+2);</span>
+<span class="lineNum">     952 </span>                :<span class="lineNoCov">          0 :   strncpy( content_type, (const char *) buf-&gt;data + 14, end_of_ct - 14 + 2);</span>
+<span class="lineNum">     953 </span>                :<span class="lineNoCov">          0 :   content_type[end_of_ct-14+1] = '\0';</span>
 <span class="lineNum">     954 </span>                :            : 
-<span class="lineNum">     955 </span>                :            :   /*
-<span class="lineNum">     956 </span>                :            :   ** Copy result into buffer.
-<span class="lineNum">     957 </span>                :            :   */
-<span class="lineNum">     958 </span>                :            : 
-<span class="lineNum">     959 </span>                :<span class="lineCov">          1 :   memcpy( buf-&gt;data + buf-&gt;data_offset, data, byteCount );</span>
-<span class="lineNum">     960 </span>                :<span class="lineCov">          1 :   buf-&gt;data_offset += byteCount;</span>
-<span class="lineNum">     961 </span>                :<span class="lineCov">          1 :   buf-&gt;data[buf-&gt;data_offset] = '\0';</span>
+<span class="lineNum">     955 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     956 </span>                :            :   /*      Move data to front of buffer, and reset length.                 */
+<span class="lineNum">     957 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     958 </span>                :<span class="lineNoCov">          0 :   memmove( buf-&gt;data, buf-&gt;data+start_of_data,</span>
+<span class="lineNum">     959 </span>                :<span class="lineNoCov">          0 :            buf-&gt;data_offset - start_of_data );</span>
+<span class="lineNum">     960 </span>                :<span class="lineNoCov">          0 :   buf-&gt;data[buf-&gt;data_offset - start_of_data] = '\0';</span>
+<span class="lineNum">     961 </span>                :<span class="lineNoCov">          0 :   buf-&gt;data_offset -= start_of_data;</span>
 <span class="lineNum">     962 </span>                :            : 
-<span class="lineNum">     963 </span>                :<span class="lineCov">          1 :   return byteCount;</span>
+<span class="lineNum">     963 </span>                :<span class="lineNoCov">          0 :   return content_type;</span>
 <span class="lineNum">     964 </span>                :            : }
 <span class="lineNum">     965 </span>                :            : 
 <span class="lineNum">     966 </span>                :            : /************************************************************************/
-<span class="lineNum">     967 </span>                :            : /*                          msIO_bufferRead()                           */
-<a name="968"><span class="lineNum">     968 </span>                :            : /************************************************************************/</a>
-<span class="lineNum">     969 </span>                :            : 
-<span class="lineNum">     970 </span>                :<span class="lineNoCov">          0 : int msIO_bufferRead( void *cbData, void *data, int byteCount )</span>
+<span class="lineNum">     967 </span>                :            : /*                 msIO_stripStdoutBufferContentHeaders()               */
+<span class="lineNum">     968 </span>                :            : /*                                                                      */
+<span class="lineNum">     969 </span>                :            : /*      Strip off Content-* headers from buffer.                        */
+<a name="970"><span class="lineNum">     970 </span>                :            : /************************************************************************/</a>
 <span class="lineNum">     971 </span>                :            : 
-<span class="lineNum">     972 </span>                :            : {
-<span class="lineNum">     973 </span>                :            :   /*    msIOBuffer *buf = (msIOBuffer *) cbData; */
-<span class="lineNum">     974 </span>                :            : 
-<span class="lineNum">     975 </span>                :            :   /* not implemented yet. */
-<span class="lineNum">     976 </span>                :            : 
-<span class="lineNum">     977 </span>                :<span class="lineNoCov">          0 :   return 0;</span>
-<span class="lineNum">     978 </span>                :            : }
+<span class="lineNum">     972 </span>                :<span class="lineNoCov">          0 : void msIO_stripStdoutBufferContentHeaders()</span>
+<span class="lineNum">     973 </span>                :            : {
+<span class="lineNum">     974 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     975 </span>                :            :   /*      Find stdout buffer.                                             */
+<span class="lineNum">     976 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     977 </span>                :<span class="lineNoCov">          0 :   msIOContext *ctx = msIO_getHandler( (FILE *) &quot;stdout&quot; );</span>
+<span class="lineNum">     978 </span>                :            :   msIOBuffer  *buf;
+<span class="lineNum">     979 </span>                :            :   int start_of_data;
+<span class="lineNum">     980 </span>                :            : 
+<span class="lineNum">     981 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( ctx == NULL || ctx-&gt;write_channel == MS_FALSE</span>
+<span class="lineNum">     982 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       || strcmp(ctx-&gt;label,&quot;buffer&quot;) != 0 ) {</span>
+<span class="lineNum">     983 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Can't identify msIO buffer.&quot;,</span>
+<span class="lineNum">     984 </span>                :            :                 &quot;msIO_stripStdoutBufferContentHeaders&quot; );
+<span class="lineNum">     985 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     986 </span>                :            :   }
+<span class="lineNum">     987 </span>                :            : 
+<span class="lineNum">     988 </span>                :<span class="lineNoCov">          0 :   buf = (msIOBuffer *) ctx-&gt;cbData;</span>
+<span class="lineNum">     989 </span>                :            : 
+<span class="lineNum">     990 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     991 </span>                :            :   /*      Exit if we don't have any content-* header.                     */
+<span class="lineNum">     992 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     993 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( buf-&gt;data_offset &lt; 8</span>
+<span class="lineNum">     994 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       || strncasecmp((const char*) buf-&gt;data,&quot;Content-&quot;,8) != 0 )</span>
+<span class="lineNum">     995 </span>                :            :     return;
+<span class="lineNum">     996 </span>                :            : 
+<span class="lineNum">     997 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     998 </span>                :            :   /*      Loop over all content-* headers.                                */
+<span class="lineNum">     999 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1000 </span>                :            :   start_of_data = 0;
+<span class="lineNum">    1001 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   while( buf-&gt;data_offset &gt; start_of_data</span>
+<span class="lineNum">    1002 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &amp;&amp; strncasecmp((const char*) buf-&gt;data+start_of_data,&quot;Content-&quot;,8) == 0 ) {</span>
+<span class="lineNum">    1003 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1004 </span>                :            :     /*      Find newline marker at end of content-* header argument.        */
+<span class="lineNum">    1005 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1006 </span>                :<span class="lineNoCov">          0 :     start_of_data +=7;</span>
+<span class="lineNum">    1007 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     while( start_of_data+1 &lt; buf-&gt;data_offset</span>
+<span class="lineNum">    1008 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :            &amp;&amp; buf-&gt;data[start_of_data+1] != '\r' )</span>
+<span class="lineNum">    1009 </span>                :<span class="lineNoCov">          0 :       start_of_data++;</span>
+<span class="lineNum">    1010 </span>                :            : 
+<span class="lineNum">    1011 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if( start_of_data+1 == buf-&gt;data_offset ) {</span>
+<span class="lineNum">    1012 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR, &quot;Corrupt Content-* header.&quot;,</span>
+<span class="lineNum">    1013 </span>                :            :                   &quot;msIO_stripStdoutBufferContentHeaders&quot; );
+<span class="lineNum">    1014 </span>                :<span class="lineNoCov">          0 :       return;</span>
+<span class="lineNum">    1015 </span>                :            :     }
+<span class="lineNum">    1016 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1017 </span>                :            :     /*      Go to next line.                                                */
+<span class="lineNum">    1018 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1019 </span>                :<span class="lineNoCov">          0 :     start_of_data +=3;</span>
+<span class="lineNum">    1020 </span>                :            :   }
+<span class="lineNum">    1021 </span>                :            : 
+<span class="lineNum">    1022 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1023 </span>                :            :   /*      Continue on to the start of data ...                            */
+<span class="lineNum">    1024 </span>                :            :   /*      Skip next line if empty.                                        */
+<span class="lineNum">    1025 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1026 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( start_of_data  &lt; buf-&gt;data_offset</span>
+<span class="lineNum">    1027 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       &amp;&amp; buf-&gt;data[start_of_data] == '\r' )</span>
+<span class="lineNum">    1028 </span>                :<span class="lineNoCov">          0 :     start_of_data +=2;</span>
+<span class="lineNum">    1029 </span>                :            : 
+<span class="lineNum">    1030 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( start_of_data == buf-&gt;data_offset ) {</span>
+<span class="lineNum">    1031 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Corrupt Content-* header.&quot;,</span>
+<span class="lineNum">    1032 </span>                :            :                 &quot;msIO_stripStdoutBufferContentHeaders&quot; );
+<span class="lineNum">    1033 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">    1034 </span>                :            :   }
+<span class="lineNum">    1035 </span>                :            : 
+<span class="lineNum">    1036 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1037 </span>                :            :   /*      Move data to front of buffer, and reset length.                 */
+<span class="lineNum">    1038 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1039 </span>                :<span class="lineNoCov">          0 :   memmove( buf-&gt;data, buf-&gt;data+start_of_data,</span>
+<span class="lineNum">    1040 </span>                :<span class="lineNoCov">          0 :            buf-&gt;data_offset - start_of_data );</span>
+<span class="lineNum">    1041 </span>                :<span class="lineNoCov">          0 :   buf-&gt;data[buf-&gt;data_offset - start_of_data] = '\0';</span>
+<span class="lineNum">    1042 </span>                :<span class="lineNoCov">          0 :   buf-&gt;data_offset -= start_of_data;</span>
+<span class="lineNum">    1043 </span>                :            : 
+<span class="lineNum">    1044 </span>                :<span class="lineNoCov">          0 :   return;</span>
+<span class="lineNum">    1045 </span>                :            : }
+<span class="lineNum">    1046 </span>                :            : 
+<span class="lineNum">    1047 </span>                :            : /************************************************************************/
+<span class="lineNum">    1048 </span>                :            : /*                          msIO_bufferWrite()                          */
+<a name="1049"><span class="lineNum">    1049 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">    1050 </span>                :            : 
+<span class="lineNum">    1051 </span>                :<span class="lineCov">          1 : int msIO_bufferWrite( void *cbData, void *data, int byteCount )</span>
+<span class="lineNum">    1052 </span>                :            : 
+<span class="lineNum">    1053 </span>                :            : {
+<span class="lineNum">    1054 </span>                :            :   msIOBuffer *buf = (msIOBuffer *) cbData;
+<span class="lineNum">    1055 </span>                :            : 
+<span class="lineNum">    1056 </span>                :            :   /*
+<span class="lineNum">    1057 </span>                :            :   ** Grow buffer if needed (reserve one extra byte to put nul character)
+<span class="lineNum">    1058 </span>                :            :   */
+<span class="lineNum">    1059 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( buf-&gt;data_offset + byteCount &gt;= buf-&gt;data_len ) {</span>
+<span class="lineNum">    1060 </span>                :<span class="lineCov">          1 :     buf-&gt;data_len = buf-&gt;data_len * 2 + byteCount + 100;</span>
+<span class="lineNum">    1061 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( buf-&gt;data == NULL )</span>
+<span class="lineNum">    1062 </span>                :<span class="lineCov">          1 :       buf-&gt;data = (unsigned char *) malloc(buf-&gt;data_len);</span>
+<span class="lineNum">    1063 </span>                :            :     else
+<span class="lineNum">    1064 </span>                :<span class="lineCov">          1 :       buf-&gt;data = (unsigned char *) realloc(buf-&gt;data, buf-&gt;data_len);</span>
+<span class="lineNum">    1065 </span>                :            : 
+<span class="lineNum">    1066 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( buf-&gt;data == NULL ) {</span>
+<span class="lineNum">    1067 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MEMERR,</span>
+<span class="lineNum">    1068 </span>                :            :                   &quot;Failed to allocate %d bytes for capture buffer.&quot;,
+<span class="lineNum">    1069 </span>                :            :                   &quot;msIO_bufferWrite()&quot;, buf-&gt;data_len );
+<span class="lineNum">    1070 </span>                :<span class="lineNoCov">          0 :       buf-&gt;data_len = 0;</span>
+<span class="lineNum">    1071 </span>                :<span class="lineNoCov">          0 :       return 0;</span>
+<span class="lineNum">    1072 </span>                :            :     }
+<span class="lineNum">    1073 </span>                :            :   }
+<span class="lineNum">    1074 </span>                :            : 
+<span class="lineNum">    1075 </span>                :            :   /*
+<span class="lineNum">    1076 </span>                :            :   ** Copy result into buffer.
+<span class="lineNum">    1077 </span>                :            :   */
+<span class="lineNum">    1078 </span>                :            : 
+<span class="lineNum">    1079 </span>                :<span class="lineCov">          1 :   memcpy( buf-&gt;data + buf-&gt;data_offset, data, byteCount );</span>
+<span class="lineNum">    1080 </span>                :<span class="lineCov">          1 :   buf-&gt;data_offset += byteCount;</span>
+<span class="lineNum">    1081 </span>                :<span class="lineCov">          1 :   buf-&gt;data[buf-&gt;data_offset] = '\0';</span>
+<span class="lineNum">    1082 </span>                :            : 
+<span class="lineNum">    1083 </span>                :<span class="lineCov">          1 :   return byteCount;</span>
+<span class="lineNum">    1084 </span>                :            : }
+<span class="lineNum">    1085 </span>                :            : 
+<span class="lineNum">    1086 </span>                :            : /************************************************************************/
+<span class="lineNum">    1087 </span>                :            : /*                          msIO_bufferRead()                           */
+<a name="1088"><span class="lineNum">    1088 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">    1089 </span>                :            : 
+<span class="lineNum">    1090 </span>                :<span class="lineNoCov">          0 : int msIO_bufferRead( void *cbData, void *data, int byteCount )</span>
+<span class="lineNum">    1091 </span>                :            : 
+<span class="lineNum">    1092 </span>                :            : {
+<span class="lineNum">    1093 </span>                :            :   /*    msIOBuffer *buf = (msIOBuffer *) cbData; */
+<span class="lineNum">    1094 </span>                :            : 
+<span class="lineNum">    1095 </span>                :            :   /* not implemented yet. */
+<span class="lineNum">    1096 </span>                :            : 
+<span class="lineNum">    1097 </span>                :<span class="lineNoCov">          0 :   return 0;</span>
+<span class="lineNum">    1098 </span>                :            : }
 </pre>
       </td>
     </tr>
