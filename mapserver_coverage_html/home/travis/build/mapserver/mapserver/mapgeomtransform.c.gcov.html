@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">116</td>
-            <td class="headerCovTableEntry">142</td>
-            <td class="headerCovTableEntryMed">81.7 %</td>
+            <td class="headerCovTableEntry">117</td>
+            <td class="headerCovTableEntry">144</td>
+            <td class="headerCovTableEntryMed">81.2 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -49,9 +49,9 @@
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">65</td>
-            <td class="headerCovTableEntry">103</td>
-            <td class="headerCovTableEntryLo">63.1 %</td>
+            <td class="headerCovTableEntry">66</td>
+            <td class="headerCovTableEntry">105</td>
+            <td class="headerCovTableEntryLo">62.9 %</td>
           </tr>
           <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -124,267 +124,269 @@
 <span class="lineNum">      53 </span>                :<span class="lineCov">          1 :     s-&gt;_geomtransform.type = MS_GEOMTRANSFORM_LABELPOINT;</span>
 <span class="lineNum">      54 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   } else if(!strncasecmp(&quot;labelpoly&quot;,transform,9)) {</span>
 <span class="lineNum">      55 </span>                :<span class="lineCov">          1 :     s-&gt;_geomtransform.type = MS_GEOMTRANSFORM_LABELPOLY;</span>
-<span class="lineNum">      56 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   } else if(!strncasecmp(&quot;centroid&quot;,transform,8)) {</span>
-<span class="lineNum">      57 </span>                :<span class="lineCov">          1 :     s-&gt;_geomtransform.type = MS_GEOMTRANSFORM_CENTROID;</span>
-<span class="lineNum">      58 </span>                :            :   } else {
-<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :     s-&gt;_geomtransform.type = MS_GEOMTRANSFORM_NONE;</span>
-<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR,&quot;unknown transform expression&quot;,&quot;msStyleSetGeomTransform()&quot;);</span>
-<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :     msFree(s-&gt;_geomtransform.string);</span>
-<span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 :     s-&gt;_geomtransform.string = NULL;</span>
-<span class="lineNum">      63 </span>                :            :   }
-<span class="lineNum">      64 </span>                :            : }
-<span class="lineNum">      65 </span>                :            : 
-<span class="lineNum">      66 </span>                :            : 
-<span class="lineNum">      67 </span>                :            : /*
-<span class="lineNum">      68 </span>                :            :  * return a copy of the geometry transform expression
-<a name="69"><span class="lineNum">      69 </span>                :            :  * returned char* must be freed by the caller</a>
-<span class="lineNum">      70 </span>                :            :  */
-<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 : char *msStyleGetGeomTransform(styleObj *s)</span>
-<span class="lineNum">      72 </span>                :            : {
-<span class="lineNum">      73 </span>                :<span class="lineNoCov">          0 :   return msStrdup(s-&gt;_geomtransform.string);</span>
-<span class="lineNum">      74 </span>                :            : }
-<a name="75"><span class="lineNum">      75 </span>                :            : </a>
-<span class="lineNum">      76 </span>                :            : 
-<span class="lineNum">      77 </span>                :<span class="lineCov">          1 : double calcOrientation(pointObj *p1, pointObj *p2)</span>
-<span class="lineNum">      78 </span>                :            : {
-<span class="lineNum">      79 </span>                :            :   double theta;
-<span class="lineNum">      80 </span>                :<span class="lineCov">          1 :   theta = atan2(p2-&gt;x - p1-&gt;x,p2-&gt;y - p1-&gt;y);</span>
-<span class="lineNum">      81 </span>                :<span class="lineCov">          1 :   return MS_RAD_TO_DEG*(theta-MS_PI2);</span>
-<a name="82"><span class="lineNum">      82 </span>                :            : }</a>
-<span class="lineNum">      83 </span>                :            : 
-<span class="lineNum">      84 </span>                :<span class="lineCov">          1 : double calcMidAngle(pointObj *p1, pointObj *p2, pointObj *p3)</span>
-<span class="lineNum">      85 </span>                :            : {
-<span class="lineNum">      86 </span>                :            :   pointObj p1n;
-<span class="lineNum">      87 </span>                :            :   double dx12, dy12, dx23, dy23, l12, l23;
-<span class="lineNum">      88 </span>                :            : 
-<span class="lineNum">      89 </span>                :            :   /* We treat both segments as vector 1-2 and vector 2-3 and 
-<span class="lineNum">      90 </span>                :            :    * compute their dx,dy and length 
-<span class="lineNum">      91 </span>                :            :    */
-<span class="lineNum">      92 </span>                :<span class="lineCov">          1 :   dx12 = p2-&gt;x - p1-&gt;x;</span>
-<span class="lineNum">      93 </span>                :<span class="lineCov">          1 :   dy12 = p2-&gt;y - p1-&gt;y;</span>
-<span class="lineNum">      94 </span>                :<span class="lineCov">          1 :   l12 = sqrt(dx12*dx12 + dy12*dy12);</span>
-<span class="lineNum">      95 </span>                :<span class="lineCov">          1 :   dx23 = p3-&gt;x - p2-&gt;x;</span>
-<span class="lineNum">      96 </span>                :<span class="lineCov">          1 :   dy23 = p3-&gt;y - p2-&gt;y;</span>
-<span class="lineNum">      97 </span>                :<span class="lineCov">          1 :   l23 = sqrt(dx23*dx23 + dy23*dy23);</span>
-<span class="lineNum">      98 </span>                :            : 
-<span class="lineNum">      99 </span>                :            :   /* Normalize length of vector 1-2 to same as length of vector 2-3 */
-<span class="lineNum">     100 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (l12 &gt; 0.0)</span>
-<span class="lineNum">     101 </span>                :            :   {
-<span class="lineNum">     102 </span>                :<span class="lineCov">          1 :     p1n.x = p2-&gt;x - dx12*(l23/l12);</span>
-<span class="lineNum">     103 </span>                :<span class="lineCov">          1 :     p1n.y = p2-&gt;y - dy12*(l23/l12);</span>
-<span class="lineNum">     104 </span>                :            :   }
-<span class="lineNum">     105 </span>                :            :   else
-<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :     p1n = *p2;  /* segment 1-2 is 0-length, use segment 2-3 for orientation */</span>
-<span class="lineNum">     107 </span>                :            : 
-<span class="lineNum">     108 </span>                :            :   /* Return the orientation defined by the sum of the normalized vectors */
-<span class="lineNum">     109 </span>                :<span class="lineCov">          1 :   return calcOrientation(&amp;p1n, p3);</span>
-<span class="lineNum">     110 </span>                :            : }
-<span class="lineNum">     111 </span>                :            : 
-<span class="lineNum">     112 </span>                :            : /*
-<span class="lineNum">     113 </span>                :            :  * RFC48 implementation:
-<span class="lineNum">     114 </span>                :            :  *  - transform the original shapeobj
-<a name="115"><span class="lineNum">     115 </span>                :            :  *  - use the styleObj to render the transformed shapeobj</a>
-<span class="lineNum">     116 </span>                :            :  */
-<span class="lineNum">     117 </span>                :<span class="lineCov">          1 : int msDrawTransformedShape(mapObj *map, imageObj *image, shapeObj *shape, styleObj *style, double scalefactor)</span>
-<span class="lineNum">     118 </span>                :            : {
-<span class="lineNum">     119 </span>                :<span class="lineCov">          1 :   int type = style-&gt;_geomtransform.type;</span>
-<span class="lineNum">     120 </span>                :            :   int i,j,status = MS_SUCCESS;
-<span class="lineNum">     121 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span> :<span class="lineCov">          1 :   switch(type) {</span>
+<span class="lineNum">      56 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   } else if(!strncasecmp(&quot;labelcenter&quot;,transform,11)) {</span>
+<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 :     s-&gt;_geomtransform.type = MS_GEOMTRANSFORM_LABELCENTER;</span>
+<span class="lineNum">      58 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   } else if(!strncasecmp(&quot;centroid&quot;,transform,8)) {</span>
+<span class="lineNum">      59 </span>                :<span class="lineCov">          1 :     s-&gt;_geomtransform.type = MS_GEOMTRANSFORM_CENTROID;</span>
+<span class="lineNum">      60 </span>                :            :   } else {
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :     s-&gt;_geomtransform.type = MS_GEOMTRANSFORM_NONE;</span>
+<span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR,&quot;unknown transform expression&quot;,&quot;msStyleSetGeomTransform()&quot;);</span>
+<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :     msFree(s-&gt;_geomtransform.string);</span>
+<span class="lineNum">      64 </span>                :<span class="lineNoCov">          0 :     s-&gt;_geomtransform.string = NULL;</span>
+<span class="lineNum">      65 </span>                :            :   }
+<span class="lineNum">      66 </span>                :            : }
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :            : /*
+<span class="lineNum">      70 </span>                :            :  * return a copy of the geometry transform expression
+<a name="71"><span class="lineNum">      71 </span>                :            :  * returned char* must be freed by the caller</a>
+<span class="lineNum">      72 </span>                :            :  */
+<span class="lineNum">      73 </span>                :<span class="lineNoCov">          0 : char *msStyleGetGeomTransform(styleObj *s)</span>
+<span class="lineNum">      74 </span>                :            : {
+<span class="lineNum">      75 </span>                :<span class="lineNoCov">          0 :   return msStrdup(s-&gt;_geomtransform.string);</span>
+<span class="lineNum">      76 </span>                :            : }
+<a name="77"><span class="lineNum">      77 </span>                :            : </a>
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :<span class="lineCov">          1 : double calcOrientation(pointObj *p1, pointObj *p2)</span>
+<span class="lineNum">      80 </span>                :            : {
+<span class="lineNum">      81 </span>                :            :   double theta;
+<span class="lineNum">      82 </span>                :<span class="lineCov">          1 :   theta = atan2(p2-&gt;x - p1-&gt;x,p2-&gt;y - p1-&gt;y);</span>
+<span class="lineNum">      83 </span>                :<span class="lineCov">          1 :   return MS_RAD_TO_DEG*(theta-MS_PI2);</span>
+<a name="84"><span class="lineNum">      84 </span>                :            : }</a>
+<span class="lineNum">      85 </span>                :            : 
+<span class="lineNum">      86 </span>                :<span class="lineCov">          1 : double calcMidAngle(pointObj *p1, pointObj *p2, pointObj *p3)</span>
+<span class="lineNum">      87 </span>                :            : {
+<span class="lineNum">      88 </span>                :            :   pointObj p1n;
+<span class="lineNum">      89 </span>                :            :   double dx12, dy12, dx23, dy23, l12, l23;
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>                :            :   /* We treat both segments as vector 1-2 and vector 2-3 and 
+<span class="lineNum">      92 </span>                :            :    * compute their dx,dy and length 
+<span class="lineNum">      93 </span>                :            :    */
+<span class="lineNum">      94 </span>                :<span class="lineCov">          1 :   dx12 = p2-&gt;x - p1-&gt;x;</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">          1 :   dy12 = p2-&gt;y - p1-&gt;y;</span>
+<span class="lineNum">      96 </span>                :<span class="lineCov">          1 :   l12 = sqrt(dx12*dx12 + dy12*dy12);</span>
+<span class="lineNum">      97 </span>                :<span class="lineCov">          1 :   dx23 = p3-&gt;x - p2-&gt;x;</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">          1 :   dy23 = p3-&gt;y - p2-&gt;y;</span>
+<span class="lineNum">      99 </span>                :<span class="lineCov">          1 :   l23 = sqrt(dx23*dx23 + dy23*dy23);</span>
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>                :            :   /* Normalize length of vector 1-2 to same as length of vector 2-3 */
+<span class="lineNum">     102 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (l12 &gt; 0.0)</span>
+<span class="lineNum">     103 </span>                :            :   {
+<span class="lineNum">     104 </span>                :<span class="lineCov">          1 :     p1n.x = p2-&gt;x - dx12*(l23/l12);</span>
+<span class="lineNum">     105 </span>                :<span class="lineCov">          1 :     p1n.y = p2-&gt;y - dy12*(l23/l12);</span>
+<span class="lineNum">     106 </span>                :            :   }
+<span class="lineNum">     107 </span>                :            :   else
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :     p1n = *p2;  /* segment 1-2 is 0-length, use segment 2-3 for orientation */</span>
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :            :   /* Return the orientation defined by the sum of the normalized vectors */
+<span class="lineNum">     111 </span>                :<span class="lineCov">          1 :   return calcOrientation(&amp;p1n, p3);</span>
+<span class="lineNum">     112 </span>                :            : }
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>                :            : /*
+<span class="lineNum">     115 </span>                :            :  * RFC48 implementation:
+<span class="lineNum">     116 </span>                :            :  *  - transform the original shapeobj
+<a name="117"><span class="lineNum">     117 </span>                :            :  *  - use the styleObj to render the transformed shapeobj</a>
+<span class="lineNum">     118 </span>                :            :  */
+<span class="lineNum">     119 </span>                :<span class="lineCov">          1 : int msDrawTransformedShape(mapObj *map, imageObj *image, shapeObj *shape, styleObj *style, double scalefactor)</span>
+<span class="lineNum">     120 </span>                :            : {
+<span class="lineNum">     121 </span>                :<span class="lineCov">          1 :   int type = style-&gt;_geomtransform.type;</span>
+<span class="lineNum">     122 </span>                :            :   int i,j,status = MS_SUCCESS;
+<span class="lineNum">     123 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span> :<span class="lineCov">          1 :   switch(type) {</span>
 <span class="lineNum">         </span>   <span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]
-<span class="lineNum">     122 </span>                :            :     case MS_GEOMTRANSFORM_END: /*render point on last vertex only*/
-<span class="lineNum">     123 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(j=0; j&lt;shape-&gt;numlines; j++) {</span>
-<span class="lineNum">     124 </span>                :<span class="lineCov">          1 :         lineObj *line = &amp;(shape-&gt;line[j]);</span>
-<span class="lineNum">     125 </span>                :<span class="lineCov">          1 :         pointObj *p = &amp;(line-&gt;point[line-&gt;numpoints-1]);</span>
-<span class="lineNum">     126 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(p-&gt;x&lt;0||p-&gt;x&gt;image-&gt;width||p-&gt;y&lt;0||p-&gt;y&gt;image-&gt;height)</span>
+<span class="lineNum">     124 </span>                :            :     case MS_GEOMTRANSFORM_END: /*render point on last vertex only*/
+<span class="lineNum">     125 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(j=0; j&lt;shape-&gt;numlines; j++) {</span>
+<span class="lineNum">     126 </span>                :<span class="lineCov">          1 :         lineObj *line = &amp;(shape-&gt;line[j]);</span>
+<span class="lineNum">     127 </span>                :<span class="lineCov">          1 :         pointObj *p = &amp;(line-&gt;point[line-&gt;numpoints-1]);</span>
+<span class="lineNum">     128 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(p-&gt;x&lt;0||p-&gt;x&gt;image-&gt;width||p-&gt;y&lt;0||p-&gt;y&gt;image-&gt;height)</span>
 <span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
-<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :           continue;</span>
-<span class="lineNum">     128 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(style-&gt;autoangle==MS_TRUE &amp;&amp; line-&gt;numpoints&gt;1) {</span>
-<span class="lineNum">     129 </span>                :<span class="lineCov">          1 :           style-&gt;angle = calcOrientation(&amp;(line-&gt;point[line-&gt;numpoints-2]),p);</span>
-<span class="lineNum">     130 </span>                :            :         }
-<span class="lineNum">     131 </span>                :<span class="lineCov">          1 :         status = msDrawMarkerSymbol(map,image,p,style,scalefactor);</span>
-<span class="lineNum">     132 </span>                :            :       }
-<span class="lineNum">     133 </span>                :            :       break;
-<span class="lineNum">     134 </span>                :            :     case MS_GEOMTRANSFORM_START: /*render point on first vertex only*/
-<span class="lineNum">     135 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(j=0; j&lt;shape-&gt;numlines; j++) {</span>
-<span class="lineNum">     136 </span>                :<span class="lineCov">          1 :         lineObj *line = &amp;(shape-&gt;line[j]);</span>
-<span class="lineNum">     137 </span>                :<span class="lineCov">          1 :         pointObj *p = &amp;(line-&gt;point[0]);</span>
-<span class="lineNum">     138 </span>                :            :         /*skip if outside image*/
-<span class="lineNum">     139 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(p-&gt;x&lt;0||p-&gt;x&gt;image-&gt;width||p-&gt;y&lt;0||p-&gt;y&gt;image-&gt;height)</span>
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :           continue;</span>
+<span class="lineNum">     130 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(style-&gt;autoangle==MS_TRUE &amp;&amp; line-&gt;numpoints&gt;1) {</span>
+<span class="lineNum">     131 </span>                :<span class="lineCov">          1 :           style-&gt;angle = calcOrientation(&amp;(line-&gt;point[line-&gt;numpoints-2]),p);</span>
+<span class="lineNum">     132 </span>                :            :         }
+<span class="lineNum">     133 </span>                :<span class="lineCov">          1 :         status = msDrawMarkerSymbol(map,image,p,style,scalefactor);</span>
+<span class="lineNum">     134 </span>                :            :       }
+<span class="lineNum">     135 </span>                :            :       break;
+<span class="lineNum">     136 </span>                :            :     case MS_GEOMTRANSFORM_START: /*render point on first vertex only*/
+<span class="lineNum">     137 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(j=0; j&lt;shape-&gt;numlines; j++) {</span>
+<span class="lineNum">     138 </span>                :<span class="lineCov">          1 :         lineObj *line = &amp;(shape-&gt;line[j]);</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">          1 :         pointObj *p = &amp;(line-&gt;point[0]);</span>
+<span class="lineNum">     140 </span>                :            :         /*skip if outside image*/
+<span class="lineNum">     141 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(p-&gt;x&lt;0||p-&gt;x&gt;image-&gt;width||p-&gt;y&lt;0||p-&gt;y&gt;image-&gt;height)</span>
 <span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
-<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :           continue;</span>
-<span class="lineNum">     141 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(style-&gt;autoangle==MS_TRUE &amp;&amp; line-&gt;numpoints&gt;1) {</span>
-<span class="lineNum">     142 </span>                :<span class="lineCov">          1 :           style-&gt;angle = calcOrientation(p,&amp;(line-&gt;point[1]));</span>
-<span class="lineNum">     143 </span>                :            :         }
-<span class="lineNum">     144 </span>                :<span class="lineCov">          1 :         status = msDrawMarkerSymbol(map,image,p,style,scalefactor);</span>
-<span class="lineNum">     145 </span>                :            :       }
-<span class="lineNum">     146 </span>                :            :       break;
-<span class="lineNum">     147 </span>                :            :     case MS_GEOMTRANSFORM_VERTICES:
-<span class="lineNum">     148 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(j=0; j&lt;shape-&gt;numlines; j++) {</span>
-<span class="lineNum">     149 </span>                :<span class="lineCov">          1 :         lineObj *line = &amp;(shape-&gt;line[j]);</span>
-<span class="lineNum">     150 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for(i=1; i&lt;line-&gt;numpoints-1; i++) {</span>
-<span class="lineNum">     151 </span>                :<span class="lineCov">          1 :           pointObj *p = &amp;(line-&gt;point[i]);</span>
-<span class="lineNum">     152 </span>                :            :           /*skip points outside image*/
-<span class="lineNum">     153 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :           if(p-&gt;x&lt;0||p-&gt;x&gt;image-&gt;width||p-&gt;y&lt;0||p-&gt;y&gt;image-&gt;height)</span>
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :           continue;</span>
+<span class="lineNum">     143 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if(style-&gt;autoangle==MS_TRUE &amp;&amp; line-&gt;numpoints&gt;1) {</span>
+<span class="lineNum">     144 </span>                :<span class="lineCov">          1 :           style-&gt;angle = calcOrientation(p,&amp;(line-&gt;point[1]));</span>
+<span class="lineNum">     145 </span>                :            :         }
+<span class="lineNum">     146 </span>                :<span class="lineCov">          1 :         status = msDrawMarkerSymbol(map,image,p,style,scalefactor);</span>
+<span class="lineNum">     147 </span>                :            :       }
+<span class="lineNum">     148 </span>                :            :       break;
+<span class="lineNum">     149 </span>                :            :     case MS_GEOMTRANSFORM_VERTICES:
+<span class="lineNum">     150 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(j=0; j&lt;shape-&gt;numlines; j++) {</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">          1 :         lineObj *line = &amp;(shape-&gt;line[j]);</span>
+<span class="lineNum">     152 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for(i=1; i&lt;line-&gt;numpoints-1; i++) {</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">          1 :           pointObj *p = &amp;(line-&gt;point[i]);</span>
+<span class="lineNum">     154 </span>                :            :           /*skip points outside image*/
+<span class="lineNum">     155 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :           if(p-&gt;x&lt;0||p-&gt;x&gt;image-&gt;width||p-&gt;y&lt;0||p-&gt;y&gt;image-&gt;height)</span>
 <span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
-<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :             continue;</span>
-<span class="lineNum">     155 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           if(style-&gt;autoangle==MS_TRUE) {</span>
-<span class="lineNum">     156 </span>                :<span class="lineCov">          1 :             style-&gt;angle = calcMidAngle(&amp;(line-&gt;point[i-1]),&amp;(line-&gt;point[i]),&amp;(line-&gt;point[i+1]));</span>
-<span class="lineNum">     157 </span>                :            :           }
-<span class="lineNum">     158 </span>                :<span class="lineCov">          1 :           status = msDrawMarkerSymbol(map,image,p,style,scalefactor);</span>
-<span class="lineNum">     159 </span>                :            :         }
-<span class="lineNum">     160 </span>                :            :       }
-<span class="lineNum">     161 </span>                :            :       break;
-<span class="lineNum">     162 </span>                :            :     case MS_GEOMTRANSFORM_BBOX: {
-<span class="lineNum">     163 </span>                :            :       shapeObj bbox;
-<span class="lineNum">     164 </span>                :            :       lineObj bbox_line;
-<span class="lineNum">     165 </span>                :            :       pointObj bbox_points[5];
-<span class="lineNum">     166 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       int padding = MS_MAX(style-&gt;width,style-&gt;size)+3; /* so clipped shape does not extent into image */</span>
-<span class="lineNum">     167 </span>                :            : 
-<span class="lineNum">     168 </span>                :            :       /*create a shapeObj representing the bounding box (clipped by the image size)*/
-<span class="lineNum">     169 </span>                :<span class="lineCov">          1 :       bbox.numlines = 1;</span>
-<span class="lineNum">     170 </span>                :<span class="lineCov">          1 :       bbox.line = &amp;bbox_line;</span>
-<span class="lineNum">     171 </span>                :<span class="lineCov">          1 :       bbox.line-&gt;numpoints = 5;</span>
-<span class="lineNum">     172 </span>                :<span class="lineCov">          1 :       bbox.line-&gt;point = bbox_points;</span>
-<span class="lineNum">     173 </span>                :            : 
-<span class="lineNum">     174 </span>                :<span class="lineCov">          1 :       msComputeBounds(shape);</span>
-<span class="lineNum">     175 </span>                :<span class="lineCov">          1 :       bbox_points[0].x=bbox_points[4].x=bbox_points[1].x =</span>
-<span class="lineNum">     176 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                                           (shape-&gt;bounds.minx &lt; -padding) ? -padding : shape-&gt;bounds.minx;</span>
-<span class="lineNum">     177 </span>                :<span class="lineCov">          1 :       bbox_points[2].x=bbox_points[3].x =</span>
-<span class="lineNum">     178 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                          (shape-&gt;bounds.maxx &gt; image-&gt;width+padding) ? image-&gt;width+padding : shape-&gt;bounds.maxx;</span>
-<span class="lineNum">     179 </span>                :<span class="lineCov">          1 :       bbox_points[0].y=bbox_points[4].y=bbox_points[3].y =</span>
-<span class="lineNum">     180 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                                           (shape-&gt;bounds.miny &lt; -padding) ? -padding : shape-&gt;bounds.miny;</span>
-<span class="lineNum">     181 </span>                :<span class="lineCov">          1 :       bbox_points[1].y=bbox_points[2].y =</span>
-<span class="lineNum">     182 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                          (shape-&gt;bounds.maxy &gt; image-&gt;height+padding) ? image-&gt;height+padding : shape-&gt;bounds.maxy;</span>
-<span class="lineNum">     183 </span>                :<span class="lineCov">          1 :       status = msDrawShadeSymbol(map, image, &amp;bbox, style, scalefactor);</span>
-<span class="lineNum">     184 </span>                :            :     }
-<span class="lineNum">     185 </span>                :<span class="lineCov">          1 :     break;</span>
-<span class="lineNum">     186 </span>                :            :     case MS_GEOMTRANSFORM_CENTROID: {
-<span class="lineNum">     187 </span>                :            :       double unused; /*used by centroid function*/
-<span class="lineNum">     188 </span>                :            :       pointObj centroid;
-<span class="lineNum">     189 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       if(MS_SUCCESS == msGetPolygonCentroid(shape,&amp;centroid,&amp;unused,&amp;unused)) {</span>
-<span class="lineNum">     190 </span>                :<span class="lineCov">          1 :         status = msDrawMarkerSymbol(map,image,&amp;centroid,style,scalefactor);</span>
-<span class="lineNum">     191 </span>                :            :       }
-<span class="lineNum">     192 </span>                :            :     }
-<span class="lineNum">     193 </span>                :            :     break;
-<span class="lineNum">     194 </span>                :            :     case MS_GEOMTRANSFORM_EXPRESSION: {
-<span class="lineNum">     195 </span>                :            :       int status;
-<span class="lineNum">     196 </span>                :            :       shapeObj *tmpshp;
-<span class="lineNum">     197 </span>                :            :       parseObj p;
-<span class="lineNum">     198 </span>                :            : 
-<span class="lineNum">     199 </span>                :<span class="lineCov">          1 :       p.shape = shape; /* set a few parser globals (hence the lock) */</span>
-<span class="lineNum">     200 </span>                :<span class="lineCov">          1 :       p.expr = &amp;(style-&gt;_geomtransform);</span>
-<span class="lineNum">     201 </span>                :            : 
-<span class="lineNum">     202 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(p.expr-&gt;tokens == NULL) { /* this could happen if drawing originates from legend code (#5193) */</span>
-<span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 :         status = msTokenizeExpression(p.expr, NULL, NULL);</span>
-<span class="lineNum">     204 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(status != MS_SUCCESS) {</span>
-<span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 :           msSetError(MS_MISCERR, &quot;Unable to tokenize expression.&quot;, &quot;msDrawTransformedShape()&quot;);</span>
-<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :           return MS_FAILURE;</span>
-<span class="lineNum">     207 </span>                :            :         }
-<span class="lineNum">     208 </span>                :            :       }
-<span class="lineNum">     209 </span>                :            : 
-<span class="lineNum">     210 </span>                :<span class="lineCov">          1 :       p.expr-&gt;curtoken = p.expr-&gt;tokens; /* reset */</span>
-<span class="lineNum">     211 </span>                :<span class="lineCov">          1 :       p.type = MS_PARSE_TYPE_SHAPE;</span>
-<span class="lineNum">     212 </span>                :            : 
-<span class="lineNum">     213 </span>                :<span class="lineCov">          1 :       status = yyparse(&amp;p);</span>
-<span class="lineNum">     214 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (status != 0) {</span>
-<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_PARSEERR, &quot;Failed to process shape expression: %s&quot;, &quot;msDrawTransformedShape&quot;, style-&gt;_geomtransform.string);</span>
-<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
-<span class="lineNum">     217 </span>                :            :       }
-<span class="lineNum">     218 </span>                :<span class="lineCov">          1 :       tmpshp = p.result.shpval;</span>
-<span class="lineNum">     219 </span>                :            : 
-<span class="lineNum">     220 </span>     [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       switch (tmpshp-&gt;type) {</span>
-<span class="lineNum">     221 </span>                :            :         case MS_SHAPE_POINT:
-<span class="lineNum">     222 </span>                :            :         case MS_SHAPE_POLYGON:        
-<span class="lineNum">     223 </span>                :<span class="lineCov">          1 :           status = msDrawShadeSymbol(map, image, tmpshp, style, scalefactor);</span>
-<span class="lineNum">     224 </span>                :<span class="lineCov">          1 :           break;</span>
-<span class="lineNum">     225 </span>                :            :         case MS_SHAPE_LINE:
-<span class="lineNum">     226 </span>                :<span class="lineCov">          1 :           status = msDrawLineSymbol(map, image, tmpshp, style, scalefactor);</span>
-<span class="lineNum">     227 </span>                :<span class="lineCov">          1 :           break;</span>
-<span class="lineNum">     228 </span>                :            :       }
-<span class="lineNum">     229 </span>                :            : 
-<span class="lineNum">     230 </span>                :<span class="lineCov">          1 :       msFreeShape(tmpshp);</span>
-<span class="lineNum">     231 </span>                :<span class="lineCov">          1 :       msFree(tmpshp);</span>
-<span class="lineNum">     232 </span>                :            :     }
-<span class="lineNum">     233 </span>                :<span class="lineCov">          1 :     break;</span>
-<span class="lineNum">     234 </span>                :            :     case MS_GEOMTRANSFORM_LABELPOINT:
-<span class="lineNum">     235 </span>                :            :     case MS_GEOMTRANSFORM_LABELPOLY:
-<span class="lineNum">     236 </span>                :            :       break;
-<span class="lineNum">     237 </span>                :            :     default:
-<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;unknown geomtransform&quot;, &quot;msDrawTransformedShape()&quot;);</span>
-<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">     240 </span>                :            :   }
-<span class="lineNum">     241 </span>                :<span class="lineCov">          1 :   return status;</span>
-<span class="lineNum">     242 </span>                :            : }
-<span class="lineNum">     243 </span>                :            : 
-<span class="lineNum">     244 </span>                :            : /*
-<span class="lineNum">     245 </span>                :            :  * RFC89 implementation:
-<a name="246"><span class="lineNum">     246 </span>                :            :  *  - transform directly the shapeobj</a>
-<span class="lineNum">     247 </span>                :            :  */
-<span class="lineNum">     248 </span>                :<span class="lineCov">          1 : int msGeomTransformShape(mapObj *map, layerObj *layer, shapeObj *shape)</span>
-<span class="lineNum">     249 </span>                :            : {
-<span class="lineNum">     250 </span>                :            :   int i;
-<span class="lineNum">     251 </span>                :<span class="lineCov">          1 :   expressionObj *e =  &amp;layer-&gt;_geomtransform;  </span>
-<span class="lineNum">     252 </span>                :            : 
-<span class="lineNum">     253 </span>                :            : #ifdef USE_V8_MAPSCRIPT
-<span class="lineNum">     254 </span>                :            :   if (!map-&gt;v8context) {
-<span class="lineNum">     255 </span>                :            :     msV8CreateContext(map);
-<span class="lineNum">     256 </span>                :            :     if (!map-&gt;v8context)
-<span class="lineNum">     257 </span>                :            :     {
-<span class="lineNum">     258 </span>                :            :       msSetError(MS_V8ERR, &quot;Unable to create v8 context.&quot;, &quot;msGeomTransformShape()&quot;);
-<span class="lineNum">     259 </span>                :            :       return MS_FAILURE;
-<span class="lineNum">     260 </span>                :            :     }
-<span class="lineNum">     261 </span>                :            :   }
-<span class="lineNum">     262 </span>                :            : 
-<span class="lineNum">     263 </span>                :            :   msV8ContextSetLayer(map, layer);
-<span class="lineNum">     264 </span>                :            : #endif
-<span class="lineNum">     265 </span>                :            :  
-<span class="lineNum">     266 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   switch(e-&gt;type) {</span>
-<span class="lineNum">     267 </span>                :            :     case MS_GEOMTRANSFORM_EXPRESSION: {
-<span class="lineNum">     268 </span>                :            :       int status;
-<span class="lineNum">     269 </span>                :            :       shapeObj *tmpshp;
-<span class="lineNum">     270 </span>                :            :       parseObj p;
-<span class="lineNum">     271 </span>                :            : 
-<span class="lineNum">     272 </span>                :<span class="lineCov">          1 :       p.shape = shape; /* set a few parser globals (hence the lock) */</span>
-<span class="lineNum">     273 </span>                :<span class="lineCov">          1 :       p.expr = e;</span>
-<span class="lineNum">     274 </span>                :<span class="lineCov">          1 :       p.expr-&gt;curtoken = p.expr-&gt;tokens; /* reset */</span>
-<span class="lineNum">     275 </span>                :<span class="lineCov">          1 :       p.type = MS_PARSE_TYPE_SHAPE;</span>
-<span class="lineNum">     276 </span>                :<span class="lineCov">          1 :       p.dblval = map-&gt;cellsize * (msInchesPerUnit(map-&gt;units,0)/msInchesPerUnit(layer-&gt;units,0));</span>
-<span class="lineNum">     277 </span>                :<span class="lineCov">          1 :       p.dblval2 = 0;</span>
-<span class="lineNum">     278 </span>                :            :       /* data_cellsize is only set with contour layer */
-<span class="lineNum">     279 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (layer-&gt;connectiontype == MS_CONTOUR)</span>
-<span class="lineNum">     280 </span>                :            :       {
-<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :         char *value = msLookupHashTable(&amp;layer-&gt;metadata, &quot;__data_cellsize__&quot;);</span>
-<span class="lineNum">     282 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (value)</span>
-<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 :           p.dblval2 = atof(value);</span>
-<span class="lineNum">     284 </span>                :            :       }
-<span class="lineNum">     285 </span>                :            :           
-<span class="lineNum">     286 </span>                :<span class="lineCov">          1 :       status = yyparse(&amp;p);</span>
-<span class="lineNum">     287 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (status != 0) {</span>
-<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_PARSEERR, &quot;Failed to process shape expression: %s&quot;, &quot;msGeomTransformShape()&quot;, e-&gt;string);</span>
-<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
-<span class="lineNum">     290 </span>                :            :       }
-<span class="lineNum">     291 </span>                :            :       
-<span class="lineNum">     292 </span>                :<span class="lineCov">          1 :       tmpshp = p.result.shpval;</span>
-<span class="lineNum">     293 </span>                :            : 
-<span class="lineNum">     294 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for (i= 0; i &lt; shape-&gt;numlines; i++)</span>
-<span class="lineNum">     295 </span>                :<span class="lineCov">          1 :         free(shape-&gt;line[i].point);</span>
-<span class="lineNum">     296 </span>                :<span class="lineCov">          1 :       shape-&gt;numlines = 0;</span>
-<span class="lineNum">     297 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if (shape-&gt;line) free(shape-&gt;line);</span>
-<span class="lineNum">     298 </span>                :            :       
-<span class="lineNum">     299 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(i=0; i&lt;tmpshp-&gt;numlines; i++)</span>
-<span class="lineNum">     300 </span>                :<span class="lineCov">          1 :         msAddLine(shape, &amp;(tmpshp-&gt;line[i])); /* copy each line */</span>
-<span class="lineNum">     301 </span>                :            : 
-<span class="lineNum">     302 </span>                :<span class="lineCov">          1 :       msFreeShape(tmpshp);</span>
-<span class="lineNum">     303 </span>                :<span class="lineCov">          1 :       msFree(tmpshp);</span>
-<span class="lineNum">     304 </span>                :            :     }
-<span class="lineNum">     305 </span>                :            :     break;
-<span class="lineNum">     306 </span>                :            :     default:
-<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;unknown geomtransform&quot;, &quot;msGeomTransformShape()&quot;);</span>
-<span class="lineNum">     308 </span>                :<span class="lineCov">          1 :       return MS_FAILURE;</span>
-<span class="lineNum">     309 </span>                :            :   }
-<span class="lineNum">     310 </span>                :            :   
-<span class="lineNum">     311 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     312 </span>                :            : }
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :             continue;</span>
+<span class="lineNum">     157 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           if(style-&gt;autoangle==MS_TRUE) {</span>
+<span class="lineNum">     158 </span>                :<span class="lineCov">          1 :             style-&gt;angle = calcMidAngle(&amp;(line-&gt;point[i-1]),&amp;(line-&gt;point[i]),&amp;(line-&gt;point[i+1]));</span>
+<span class="lineNum">     159 </span>                :            :           }
+<span class="lineNum">     160 </span>                :<span class="lineCov">          1 :           status = msDrawMarkerSymbol(map,image,p,style,scalefactor);</span>
+<span class="lineNum">     161 </span>                :            :         }
+<span class="lineNum">     162 </span>                :            :       }
+<span class="lineNum">     163 </span>                :            :       break;
+<span class="lineNum">     164 </span>                :            :     case MS_GEOMTRANSFORM_BBOX: {
+<span class="lineNum">     165 </span>                :            :       shapeObj bbox;
+<span class="lineNum">     166 </span>                :            :       lineObj bbox_line;
+<span class="lineNum">     167 </span>                :            :       pointObj bbox_points[5];
+<span class="lineNum">     168 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       int padding = MS_MAX(style-&gt;width,style-&gt;size)+3; /* so clipped shape does not extent into image */</span>
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :            :       /*create a shapeObj representing the bounding box (clipped by the image size)*/
+<span class="lineNum">     171 </span>                :<span class="lineCov">          1 :       bbox.numlines = 1;</span>
+<span class="lineNum">     172 </span>                :<span class="lineCov">          1 :       bbox.line = &amp;bbox_line;</span>
+<span class="lineNum">     173 </span>                :<span class="lineCov">          1 :       bbox.line-&gt;numpoints = 5;</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">          1 :       bbox.line-&gt;point = bbox_points;</span>
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :<span class="lineCov">          1 :       msComputeBounds(shape);</span>
+<span class="lineNum">     177 </span>                :<span class="lineCov">          1 :       bbox_points[0].x=bbox_points[4].x=bbox_points[1].x =</span>
+<span class="lineNum">     178 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                                           (shape-&gt;bounds.minx &lt; -padding) ? -padding : shape-&gt;bounds.minx;</span>
+<span class="lineNum">     179 </span>                :<span class="lineCov">          1 :       bbox_points[2].x=bbox_points[3].x =</span>
+<span class="lineNum">     180 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                          (shape-&gt;bounds.maxx &gt; image-&gt;width+padding) ? image-&gt;width+padding : shape-&gt;bounds.maxx;</span>
+<span class="lineNum">     181 </span>                :<span class="lineCov">          1 :       bbox_points[0].y=bbox_points[4].y=bbox_points[3].y =</span>
+<span class="lineNum">     182 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                                           (shape-&gt;bounds.miny &lt; -padding) ? -padding : shape-&gt;bounds.miny;</span>
+<span class="lineNum">     183 </span>                :<span class="lineCov">          1 :       bbox_points[1].y=bbox_points[2].y =</span>
+<span class="lineNum">     184 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :                          (shape-&gt;bounds.maxy &gt; image-&gt;height+padding) ? image-&gt;height+padding : shape-&gt;bounds.maxy;</span>
+<span class="lineNum">     185 </span>                :<span class="lineCov">          1 :       status = msDrawShadeSymbol(map, image, &amp;bbox, style, scalefactor);</span>
+<span class="lineNum">     186 </span>                :            :     }
+<span class="lineNum">     187 </span>                :<span class="lineCov">          1 :     break;</span>
+<span class="lineNum">     188 </span>                :            :     case MS_GEOMTRANSFORM_CENTROID: {
+<span class="lineNum">     189 </span>                :            :       double unused; /*used by centroid function*/
+<span class="lineNum">     190 </span>                :            :       pointObj centroid;
+<span class="lineNum">     191 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       if(MS_SUCCESS == msGetPolygonCentroid(shape,&amp;centroid,&amp;unused,&amp;unused)) {</span>
+<span class="lineNum">     192 </span>                :<span class="lineCov">          1 :         status = msDrawMarkerSymbol(map,image,&amp;centroid,style,scalefactor);</span>
+<span class="lineNum">     193 </span>                :            :       }
+<span class="lineNum">     194 </span>                :            :     }
+<span class="lineNum">     195 </span>                :            :     break;
+<span class="lineNum">     196 </span>                :            :     case MS_GEOMTRANSFORM_EXPRESSION: {
+<span class="lineNum">     197 </span>                :            :       int status;
+<span class="lineNum">     198 </span>                :            :       shapeObj *tmpshp;
+<span class="lineNum">     199 </span>                :            :       parseObj p;
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>                :<span class="lineCov">          1 :       p.shape = shape; /* set a few parser globals (hence the lock) */</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">          1 :       p.expr = &amp;(style-&gt;_geomtransform);</span>
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(p.expr-&gt;tokens == NULL) { /* this could happen if drawing originates from legend code (#5193) */</span>
+<span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 :         status = msTokenizeExpression(p.expr, NULL, NULL);</span>
+<span class="lineNum">     206 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(status != MS_SUCCESS) {</span>
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :           msSetError(MS_MISCERR, &quot;Unable to tokenize expression.&quot;, &quot;msDrawTransformedShape()&quot;);</span>
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :           return MS_FAILURE;</span>
+<span class="lineNum">     209 </span>                :            :         }
+<span class="lineNum">     210 </span>                :            :       }
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>                :<span class="lineCov">          1 :       p.expr-&gt;curtoken = p.expr-&gt;tokens; /* reset */</span>
+<span class="lineNum">     213 </span>                :<span class="lineCov">          1 :       p.type = MS_PARSE_TYPE_SHAPE;</span>
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :<span class="lineCov">          1 :       status = yyparse(&amp;p);</span>
+<span class="lineNum">     216 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (status != 0) {</span>
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_PARSEERR, &quot;Failed to process shape expression: %s&quot;, &quot;msDrawTransformedShape&quot;, style-&gt;_geomtransform.string);</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">     219 </span>                :            :       }
+<span class="lineNum">     220 </span>                :<span class="lineCov">          1 :       tmpshp = p.result.shpval;</span>
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>     [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       switch (tmpshp-&gt;type) {</span>
+<span class="lineNum">     223 </span>                :            :         case MS_SHAPE_POINT:
+<span class="lineNum">     224 </span>                :            :         case MS_SHAPE_POLYGON:        
+<span class="lineNum">     225 </span>                :<span class="lineCov">          1 :           status = msDrawShadeSymbol(map, image, tmpshp, style, scalefactor);</span>
+<span class="lineNum">     226 </span>                :<span class="lineCov">          1 :           break;</span>
+<span class="lineNum">     227 </span>                :            :         case MS_SHAPE_LINE:
+<span class="lineNum">     228 </span>                :<span class="lineCov">          1 :           status = msDrawLineSymbol(map, image, tmpshp, style, scalefactor);</span>
+<span class="lineNum">     229 </span>                :<span class="lineCov">          1 :           break;</span>
+<span class="lineNum">     230 </span>                :            :       }
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>                :<span class="lineCov">          1 :       msFreeShape(tmpshp);</span>
+<span class="lineNum">     233 </span>                :<span class="lineCov">          1 :       msFree(tmpshp);</span>
+<span class="lineNum">     234 </span>                :            :     }
+<span class="lineNum">     235 </span>                :<span class="lineCov">          1 :     break;</span>
+<span class="lineNum">     236 </span>                :            :     case MS_GEOMTRANSFORM_LABELPOINT:
+<span class="lineNum">     237 </span>                :            :     case MS_GEOMTRANSFORM_LABELPOLY:
+<span class="lineNum">     238 </span>                :            :       break;
+<span class="lineNum">     239 </span>                :            :     default:
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;unknown geomtransform&quot;, &quot;msDrawTransformedShape()&quot;);</span>
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     242 </span>                :            :   }
+<span class="lineNum">     243 </span>                :<span class="lineCov">          1 :   return status;</span>
+<span class="lineNum">     244 </span>                :            : }
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>                :            : /*
+<span class="lineNum">     247 </span>                :            :  * RFC89 implementation:
+<a name="248"><span class="lineNum">     248 </span>                :            :  *  - transform directly the shapeobj</a>
+<span class="lineNum">     249 </span>                :            :  */
+<span class="lineNum">     250 </span>                :<span class="lineCov">          1 : int msGeomTransformShape(mapObj *map, layerObj *layer, shapeObj *shape)</span>
+<span class="lineNum">     251 </span>                :            : {
+<span class="lineNum">     252 </span>                :            :   int i;
+<span class="lineNum">     253 </span>                :<span class="lineCov">          1 :   expressionObj *e =  &amp;layer-&gt;_geomtransform;  </span>
+<span class="lineNum">     254 </span>                :            : 
+<span class="lineNum">     255 </span>                :            : #ifdef USE_V8_MAPSCRIPT
+<span class="lineNum">     256 </span>                :            :   if (!map-&gt;v8context) {
+<span class="lineNum">     257 </span>                :            :     msV8CreateContext(map);
+<span class="lineNum">     258 </span>                :            :     if (!map-&gt;v8context)
+<span class="lineNum">     259 </span>                :            :     {
+<span class="lineNum">     260 </span>                :            :       msSetError(MS_V8ERR, &quot;Unable to create v8 context.&quot;, &quot;msGeomTransformShape()&quot;);
+<span class="lineNum">     261 </span>                :            :       return MS_FAILURE;
+<span class="lineNum">     262 </span>                :            :     }
+<span class="lineNum">     263 </span>                :            :   }
+<span class="lineNum">     264 </span>                :            : 
+<span class="lineNum">     265 </span>                :            :   msV8ContextSetLayer(map, layer);
+<span class="lineNum">     266 </span>                :            : #endif
+<span class="lineNum">     267 </span>                :            :  
+<span class="lineNum">     268 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   switch(e-&gt;type) {</span>
+<span class="lineNum">     269 </span>                :            :     case MS_GEOMTRANSFORM_EXPRESSION: {
+<span class="lineNum">     270 </span>                :            :       int status;
+<span class="lineNum">     271 </span>                :            :       shapeObj *tmpshp;
+<span class="lineNum">     272 </span>                :            :       parseObj p;
+<span class="lineNum">     273 </span>                :            : 
+<span class="lineNum">     274 </span>                :<span class="lineCov">          1 :       p.shape = shape; /* set a few parser globals (hence the lock) */</span>
+<span class="lineNum">     275 </span>                :<span class="lineCov">          1 :       p.expr = e;</span>
+<span class="lineNum">     276 </span>                :<span class="lineCov">          1 :       p.expr-&gt;curtoken = p.expr-&gt;tokens; /* reset */</span>
+<span class="lineNum">     277 </span>                :<span class="lineCov">          1 :       p.type = MS_PARSE_TYPE_SHAPE;</span>
+<span class="lineNum">     278 </span>                :<span class="lineCov">          1 :       p.dblval = map-&gt;cellsize * (msInchesPerUnit(map-&gt;units,0)/msInchesPerUnit(layer-&gt;units,0));</span>
+<span class="lineNum">     279 </span>                :<span class="lineCov">          1 :       p.dblval2 = 0;</span>
+<span class="lineNum">     280 </span>                :            :       /* data_cellsize is only set with contour layer */
+<span class="lineNum">     281 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (layer-&gt;connectiontype == MS_CONTOUR)</span>
+<span class="lineNum">     282 </span>                :            :       {
+<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 :         char *value = msLookupHashTable(&amp;layer-&gt;metadata, &quot;__data_cellsize__&quot;);</span>
+<span class="lineNum">     284 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (value)</span>
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :           p.dblval2 = atof(value);</span>
+<span class="lineNum">     286 </span>                :            :       }
+<span class="lineNum">     287 </span>                :            :           
+<span class="lineNum">     288 </span>                :<span class="lineCov">          1 :       status = yyparse(&amp;p);</span>
+<span class="lineNum">     289 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (status != 0) {</span>
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_PARSEERR, &quot;Failed to process shape expression: %s&quot;, &quot;msGeomTransformShape()&quot;, e-&gt;string);</span>
+<span class="lineNum">     291 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">     292 </span>                :            :       }
+<span class="lineNum">     293 </span>                :            :       
+<span class="lineNum">     294 </span>                :<span class="lineCov">          1 :       tmpshp = p.result.shpval;</span>
+<span class="lineNum">     295 </span>                :            : 
+<span class="lineNum">     296 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for (i= 0; i &lt; shape-&gt;numlines; i++)</span>
+<span class="lineNum">     297 </span>                :<span class="lineCov">          1 :         free(shape-&gt;line[i].point);</span>
+<span class="lineNum">     298 </span>                :<span class="lineCov">          1 :       shape-&gt;numlines = 0;</span>
+<span class="lineNum">     299 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if (shape-&gt;line) free(shape-&gt;line);</span>
+<span class="lineNum">     300 </span>                :            :       
+<span class="lineNum">     301 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(i=0; i&lt;tmpshp-&gt;numlines; i++)</span>
+<span class="lineNum">     302 </span>                :<span class="lineCov">          1 :         msAddLine(shape, &amp;(tmpshp-&gt;line[i])); /* copy each line */</span>
+<span class="lineNum">     303 </span>                :            : 
+<span class="lineNum">     304 </span>                :<span class="lineCov">          1 :       msFreeShape(tmpshp);</span>
+<span class="lineNum">     305 </span>                :<span class="lineCov">          1 :       msFree(tmpshp);</span>
+<span class="lineNum">     306 </span>                :            :     }
+<span class="lineNum">     307 </span>                :            :     break;
+<span class="lineNum">     308 </span>                :            :     default:
+<span class="lineNum">     309 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;unknown geomtransform&quot;, &quot;msGeomTransformShape()&quot;);</span>
+<span class="lineNum">     310 </span>                :<span class="lineCov">          1 :       return MS_FAILURE;</span>
+<span class="lineNum">     311 </span>                :            :   }
+<span class="lineNum">     312 </span>                :            :   
+<span class="lineNum">     313 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     314 </span>                :            : }
 </pre>
       </td>
     </tr>
