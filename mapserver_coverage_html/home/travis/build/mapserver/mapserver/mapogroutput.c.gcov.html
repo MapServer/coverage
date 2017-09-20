@@ -31,8 +31,8 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">386</td>
-            <td class="headerCovTableEntry">510</td>
+            <td class="headerCovTableEntry">387</td>
+            <td class="headerCovTableEntry">511</td>
             <td class="headerCovTableEntryMed">75.7 %</td>
           </tr>
           <tr>
@@ -49,9 +49,9 @@
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">282</td>
-            <td class="headerCovTableEntry">502</td>
-            <td class="headerCovTableEntryLo">56.2 %</td>
+            <td class="headerCovTableEntry">285</td>
+            <td class="headerCovTableEntry">506</td>
+            <td class="headerCovTableEntryLo">56.3 %</td>
           </tr>
           <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -843,619 +843,628 @@
 <span class="lineNum">     767 </span>                :            :   /*      Create a subdirectory to handle this request.                   */
 <span class="lineNum">     768 </span>                :            :   /* -------------------------------------------------------------------- */
 <span class="lineNum">     769 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( !EQUAL(storage,&quot;stream&quot;) ) {</span>
-<span class="lineNum">     770 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (strlen(base_dir) &gt; 0)</span>
-<span class="lineNum">     771 </span>                :<span class="lineCov">          1 :       request_dir = msTmpFile(map, NULL, base_dir, &quot;&quot; );</span>
-<span class="lineNum">     772 </span>                :            :     else
-<span class="lineNum">     773 </span>                :<span class="lineCov">          1 :       request_dir = msTmpFile(map, NULL, NULL, &quot;&quot; );</span>
-<span class="lineNum">     774 </span>                :            : 
-<span class="lineNum">     775 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( request_dir[strlen(request_dir)-1] == '.' )</span>
-<span class="lineNum">     776 </span>                :<span class="lineCov">          1 :       request_dir[strlen(request_dir)-1] = '\0';</span>
-<span class="lineNum">     777 </span>                :            : 
-<span class="lineNum">     778 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( VSIMkdir( request_dir, 0777 ) != 0 ) {</span>
-<span class="lineNum">     779 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
-<span class="lineNum">     780 </span>                :            :                   &quot;Attempt to create directory '%s' failed.&quot;,
-<span class="lineNum">     781 </span>                :            :                   &quot;msOGRWriteFromQuery()&quot;,
-<span class="lineNum">     782 </span>                :            :                   request_dir );
-<span class="lineNum">     783 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">     784 </span>                :            :     }
-<span class="lineNum">     785 </span>                :            :   }
-<span class="lineNum">     786 </span>                :            :   /*  else handled later */
-<span class="lineNum">     787 </span>                :            : 
-<span class="lineNum">     788 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     789 </span>                :            :   /*      Setup the full datasource name.                                 */
-<span class="lineNum">     790 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     791 </span>                :            : #if !defined(CPL_ZIP_API_OFFERED)
-<span class="lineNum">     792 </span>                :            :   form = msGetOutputFormatOption( format, &quot;FORM&quot;, &quot;multipart&quot; );
-<span class="lineNum">     793 </span>                :            : #else
-<span class="lineNum">     794 </span>                :<span class="lineCov">          1 :   form = msGetOutputFormatOption( format, &quot;FORM&quot;, &quot;zip&quot; );</span>
-<span class="lineNum">     795 </span>                :            : #endif
+<span class="lineNum">     770 </span>                :            :     const char* dir_to_create;
+<span class="lineNum">     771 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (strlen(base_dir) &gt; 0)</span>
+<span class="lineNum">     772 </span>                :<span class="lineCov">          1 :       request_dir = msTmpFile(map, NULL, base_dir, &quot;&quot; );</span>
+<span class="lineNum">     773 </span>                :            :     else
+<span class="lineNum">     774 </span>                :<span class="lineCov">          1 :       request_dir = msTmpFile(map, NULL, NULL, &quot;&quot; );</span>
+<span class="lineNum">     775 </span>                :            : 
+<span class="lineNum">     776 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( request_dir[strlen(request_dir)-1] == '.' )</span>
+<span class="lineNum">     777 </span>                :<span class="lineCov">          1 :       request_dir[strlen(request_dir)-1] = '\0';</span>
+<span class="lineNum">     778 </span>                :            : 
+<span class="lineNum">     779 </span>                :            :     dir_to_create = request_dir;
+<span class="lineNum">     780 </span>                :            :     /* Workaround issue in GDAL versions released at this time :
+<span class="lineNum">     781 </span>                :            :      * GDAL issue fixed per https://trac.osgeo.org/gdal/ticket/6991 */
+<span class="lineNum">     782 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( EQUAL(storage,&quot;memory&quot;) &amp;&amp; EQUAL(format-&gt;driver+4, &quot;ESRI Shapefile&quot;) )</span>
+<span class="lineNum">     783 </span>                :            :     {
+<span class="lineNum">     784 </span>                :            :         dir_to_create = base_dir;
+<span class="lineNum">     785 </span>                :            :     }
+<span class="lineNum">     786 </span>                :            : 
+<span class="lineNum">     787 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( VSIMkdir( dir_to_create, 0777 ) != 0 ) {</span>
+<span class="lineNum">     788 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
+<span class="lineNum">     789 </span>                :            :                   &quot;Attempt to create directory '%s' failed.&quot;,
+<span class="lineNum">     790 </span>                :            :                   &quot;msOGRWriteFromQuery()&quot;,
+<span class="lineNum">     791 </span>                :            :                   dir_to_create );
+<span class="lineNum">     792 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     793 </span>                :            :     }
+<span class="lineNum">     794 </span>                :            :   }
+<span class="lineNum">     795 </span>                :            :   /*  else handled later */
 <span class="lineNum">     796 </span>                :            : 
-<span class="lineNum">     797 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( EQUAL(form,&quot;zip&quot;) )</span>
-<span class="lineNum">     798 </span>                :<span class="lineCov">          1 :     fo_filename = msGetOutputFormatOption( format, &quot;FILENAME&quot;, &quot;result.zip&quot; );</span>
-<span class="lineNum">     799 </span>                :            :   else
-<span class="lineNum">     800 </span>                :<span class="lineCov">          1 :     fo_filename = msGetOutputFormatOption( format, &quot;FILENAME&quot;, &quot;result.dat&quot; );</span>
-<span class="lineNum">     801 </span>                :            : 
-<span class="lineNum">     802 </span>                :            :   /* Validate that the filename does not contain any directory */
-<span class="lineNum">     803 </span>                :            :   /* information, which might lead to removal of unwanted files. (#4086) */
-<span class="lineNum">     804 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if( strchr(fo_filename, '/') != NULL || strchr(fo_filename, ':') != NULL ||</span>
+<span class="lineNum">     797 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     798 </span>                :            :   /*      Setup the full datasource name.                                 */
+<span class="lineNum">     799 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     800 </span>                :            : #if !defined(CPL_ZIP_API_OFFERED)
+<span class="lineNum">     801 </span>                :            :   form = msGetOutputFormatOption( format, &quot;FORM&quot;, &quot;multipart&quot; );
+<span class="lineNum">     802 </span>                :            : #else
+<span class="lineNum">     803 </span>                :<span class="lineCov">          1 :   form = msGetOutputFormatOption( format, &quot;FORM&quot;, &quot;zip&quot; );</span>
+<span class="lineNum">     804 </span>                :            : #endif
+<span class="lineNum">     805 </span>                :            : 
+<span class="lineNum">     806 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( EQUAL(form,&quot;zip&quot;) )</span>
+<span class="lineNum">     807 </span>                :<span class="lineCov">          1 :     fo_filename = msGetOutputFormatOption( format, &quot;FILENAME&quot;, &quot;result.zip&quot; );</span>
+<span class="lineNum">     808 </span>                :            :   else
+<span class="lineNum">     809 </span>                :<span class="lineCov">          1 :     fo_filename = msGetOutputFormatOption( format, &quot;FILENAME&quot;, &quot;result.dat&quot; );</span>
+<span class="lineNum">     810 </span>                :            : 
+<span class="lineNum">     811 </span>                :            :   /* Validate that the filename does not contain any directory */
+<span class="lineNum">     812 </span>                :            :   /* information, which might lead to removal of unwanted files. (#4086) */
+<span class="lineNum">     813 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if( strchr(fo_filename, '/') != NULL || strchr(fo_filename, ':') != NULL ||</span>
 <span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>]
-<span class="lineNum">     805 </span>                :<span class="lineCov">          1 :         strchr(fo_filename, '\\') != NULL ) {</span>
-<span class="lineNum">     806 </span>                :<span class="lineCov">          1 :     msSetError( MS_MISCERR,</span>
-<span class="lineNum">     807 </span>                :            :            &quot;Invalid value for FILENAME option. &quot;
-<span class="lineNum">     808 </span>                :            :            &quot;It must not contain any directory information.&quot;,
-<span class="lineNum">     809 </span>                :            :            &quot;msOGRWriteFromQuery()&quot; );
-<span class="lineNum">     810 </span>                :<span class="lineCov">          1 :     return MS_FAILURE;</span>
-<span class="lineNum">     811 </span>                :            :   }
-<span class="lineNum">     812 </span>                :            : 
-<span class="lineNum">     813 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( !EQUAL(storage,&quot;stream&quot;) )</span>
-<span class="lineNum">     814 </span>                :            :   {
-<span class="lineNum">     815 </span>                :<span class="lineCov">          1 :     msBuildPath( datasource_name, request_dir, fo_filename );</span>
-<span class="lineNum">     816 </span>                :            : 
-<span class="lineNum">     817 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( EQUAL(form,&quot;zip&quot;) )</span>
-<span class="lineNum">     818 </span>                :            :     {
-<span class="lineNum">     819 </span>                :            :       /* if generating a zip file, remove the zip extension for the internal */
-<span class="lineNum">     820 </span>                :            :       /* filename */
-<span class="lineNum">     821 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       if( EQUAL(CPLGetExtension(datasource_name), &quot;zip&quot;) ) {</span>
-<span class="lineNum">     822 </span>                :<span class="lineCov">          1 :         *strrchr(datasource_name, '.') = '\0';</span>
-<span class="lineNum">     823 </span>                :            :       }
-<span class="lineNum">     824 </span>                :            : 
-<span class="lineNum">     825 </span>                :            :       /* and add .dat extension if user didn't provide another extension */
-<span class="lineNum">     826 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( EQUAL(CPLGetExtension(datasource_name), &quot;&quot;) ) {</span>
-<span class="lineNum">     827 </span>                :            :         strcat(datasource_name, &quot;.dat&quot;);
-<span class="lineNum">     828 </span>                :            :       }
-<span class="lineNum">     829 </span>                :            :     }
-<span class="lineNum">     830 </span>                :            : 
-<span class="lineNum">     831 </span>                :            :     /* Shapefile and MapInfo driver only properly work with multiple layers */
-<span class="lineNum">     832 </span>                :            :     /* if the output dataset name is a directory */
-<span class="lineNum">     833 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( EQUAL(format-&gt;driver+4, &quot;ESRI Shapefile&quot;) ||</span>
-<span class="lineNum">     834 </span>                :<span class="lineCov">          1 :         EQUAL(format-&gt;driver+4, &quot;MapInfo File&quot;) )</span>
-<span class="lineNum">     835 </span>                :            :     {
-<span class="lineNum">     836 </span>                :            :         bDataSourceNameIsRequestDir = TRUE;
-<span class="lineNum">     837 </span>                :<span class="lineCov">          1 :         strcpy(datasource_name, request_dir);</span>
+<span class="lineNum">     814 </span>                :<span class="lineCov">          1 :         strchr(fo_filename, '\\') != NULL ) {</span>
+<span class="lineNum">     815 </span>                :<span class="lineCov">          1 :     msSetError( MS_MISCERR,</span>
+<span class="lineNum">     816 </span>                :            :            &quot;Invalid value for FILENAME option. &quot;
+<span class="lineNum">     817 </span>                :            :            &quot;It must not contain any directory information.&quot;,
+<span class="lineNum">     818 </span>                :            :            &quot;msOGRWriteFromQuery()&quot; );
+<span class="lineNum">     819 </span>                :<span class="lineCov">          1 :     return MS_FAILURE;</span>
+<span class="lineNum">     820 </span>                :            :   }
+<span class="lineNum">     821 </span>                :            : 
+<span class="lineNum">     822 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( !EQUAL(storage,&quot;stream&quot;) )</span>
+<span class="lineNum">     823 </span>                :            :   {
+<span class="lineNum">     824 </span>                :<span class="lineCov">          1 :     msBuildPath( datasource_name, request_dir, fo_filename );</span>
+<span class="lineNum">     825 </span>                :            : 
+<span class="lineNum">     826 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( EQUAL(form,&quot;zip&quot;) )</span>
+<span class="lineNum">     827 </span>                :            :     {
+<span class="lineNum">     828 </span>                :            :       /* if generating a zip file, remove the zip extension for the internal */
+<span class="lineNum">     829 </span>                :            :       /* filename */
+<span class="lineNum">     830 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       if( EQUAL(CPLGetExtension(datasource_name), &quot;zip&quot;) ) {</span>
+<span class="lineNum">     831 </span>                :<span class="lineCov">          1 :         *strrchr(datasource_name, '.') = '\0';</span>
+<span class="lineNum">     832 </span>                :            :       }
+<span class="lineNum">     833 </span>                :            : 
+<span class="lineNum">     834 </span>                :            :       /* and add .dat extension if user didn't provide another extension */
+<span class="lineNum">     835 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( EQUAL(CPLGetExtension(datasource_name), &quot;&quot;) ) {</span>
+<span class="lineNum">     836 </span>                :            :         strcat(datasource_name, &quot;.dat&quot;);
+<span class="lineNum">     837 </span>                :            :       }
 <span class="lineNum">     838 </span>                :            :     }
-<span class="lineNum">     839 </span>                :            :   }
-<span class="lineNum">     840 </span>                :            :   else
-<span class="lineNum">     841 </span>                :            :     strcpy( datasource_name, &quot;/vsistdout/&quot; );
-<span class="lineNum">     842 </span>                :            : 
-<span class="lineNum">     843 </span>                :<span class="lineCov">          1 :   msFree( request_dir );</span>
-<span class="lineNum">     844 </span>                :            :   request_dir = NULL;
-<span class="lineNum">     845 </span>                :            : 
-<span class="lineNum">     846 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     847 </span>                :            :   /*      Emit content type headers for stream output now.                */
-<span class="lineNum">     848 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     849 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( EQUAL(storage,&quot;stream&quot;) ) {</span>
-<span class="lineNum">     850 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if( sendheaders &amp;&amp; format-&gt;mimetype ) {</span>
-<span class="lineNum">     851 </span>                :<span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Type&quot;,&quot;%s&quot;,format-&gt;mimetype);</span>
-<span class="lineNum">     852 </span>                :<span class="lineCov">          1 :       msIO_sendHeaders();</span>
-<span class="lineNum">     853 </span>                :            :     } else
-<span class="lineNum">     854 </span>                :<span class="lineNoCov">          0 :       msIO_fprintf( stdout, &quot;%c&quot;, 10 );</span>
-<span class="lineNum">     855 </span>                :            :   }
-<span class="lineNum">     856 </span>                :            : 
-<span class="lineNum">     857 </span>                :            :   /* ==================================================================== */
-<span class="lineNum">     858 </span>                :            :   /*      Create the datasource.                                          */
-<span class="lineNum">     859 </span>                :            :   /* ==================================================================== */
-<span class="lineNum">     860 </span>                :<span class="lineCov">          1 :   hDS = OGR_Dr_CreateDataSource( hDriver,  datasource_name, ds_options );</span>
-<span class="lineNum">     861 </span>                :<span class="lineCov">          1 :   CSLDestroy( ds_options );</span>
-<span class="lineNum">     862 </span>                :            : 
-<span class="lineNum">     863 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( hDS == NULL ) {</span>
-<span class="lineNum">     864 </span>                :<span class="lineNoCov">          0 :     msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">     865 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR,</span>
-<span class="lineNum">     866 </span>                :            :                 &quot;OGR CreateDataSource failed for '%s' with driver '%s'.&quot;,
-<span class="lineNum">     867 </span>                :            :                 &quot;msOGRWriteFromQuery()&quot;,
-<span class="lineNum">     868 </span>                :            :                 datasource_name,
-<span class="lineNum">     869 </span>                :<span class="lineNoCov">          0 :                 format-&gt;driver+4 );</span>
-<span class="lineNum">     870 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     871 </span>                :            :   }
-<span class="lineNum">     872 </span>                :            : 
-<span class="lineNum">     873 </span>                :            :   /* ==================================================================== */
-<span class="lineNum">     874 </span>                :            :   /*      Process each layer with a resultset.                            */
-<span class="lineNum">     875 </span>                :            :   /* ==================================================================== */
-<span class="lineNum">     876 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for( iLayer = 0; iLayer &lt; map-&gt;numlayers; iLayer++ ) {</span>
-<span class="lineNum">     877 </span>                :            :     int status;
-<span class="lineNum">     878 </span>                :<span class="lineCov">          1 :     layerObj *layer = GET_LAYER(map, iLayer);</span>
-<span class="lineNum">     879 </span>                :            :     shapeObj resultshape;
-<span class="lineNum">     880 </span>                :            :     OGRLayerH hOGRLayer;
-<span class="lineNum">     881 </span>                :            :     OGRwkbGeometryType eGeomType;
-<span class="lineNum">     882 </span>                :            :     OGRSpatialReferenceH srs = NULL;
-<span class="lineNum">     883 </span>                :            :     gmlItemListObj *item_list = NULL;
-<span class="lineNum">     884 </span>                :            :     const char *value;
-<span class="lineNum">     885 </span>                :            :     char *pszWKT;
-<span class="lineNum">     886 </span>                :            :     int  nFirstOGRFieldIndex = -1;
-<span class="lineNum">     887 </span>                :            :     const char *pszFeatureid = NULL;
-<span class="lineNum">     888 </span>                :            : 
-<span class="lineNum">     889 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( !layer-&gt;resultcache )</span>
-<span class="lineNum">     890 </span>                :<span class="lineCov">          1 :       continue;</span>
-<span class="lineNum">     891 </span>                :            : 
-<span class="lineNum">     892 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     893 </span>                :            :     /*      Will we need to reproject?                                      */
-<span class="lineNum">     894 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     895 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(layer-&gt;transform == MS_TRUE)</span>
-<span class="lineNum">     896 </span>                :<span class="lineCov">          1 :         layer-&gt;project = msProjectionsDiffer(&amp;(layer-&gt;projection),</span>
-<span class="lineNum">     897 </span>                :<span class="lineCov">          1 :                                &amp;(layer-&gt;map-&gt;projection));</span>
-<span class="lineNum">     898 </span>                :            : 
-<span class="lineNum">     899 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     900 </span>                :            :     /*      Establish the geometry type to use for the created layer.       */
-<span class="lineNum">     901 </span>                :            :     /*      First we consult the wfs_geomtype field and fallback to         */
-<span class="lineNum">     902 </span>                :            :     /*      deriving something from the type of the mapserver layer.        */
+<span class="lineNum">     839 </span>                :            : 
+<span class="lineNum">     840 </span>                :            :     /* Shapefile and MapInfo driver only properly work with multiple layers */
+<span class="lineNum">     841 </span>                :            :     /* if the output dataset name is a directory */
+<span class="lineNum">     842 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( EQUAL(format-&gt;driver+4, &quot;ESRI Shapefile&quot;) ||</span>
+<span class="lineNum">     843 </span>                :<span class="lineCov">          1 :         EQUAL(format-&gt;driver+4, &quot;MapInfo File&quot;) )</span>
+<span class="lineNum">     844 </span>                :            :     {
+<span class="lineNum">     845 </span>                :            :         bDataSourceNameIsRequestDir = TRUE;
+<span class="lineNum">     846 </span>                :<span class="lineCov">          1 :         strcpy(datasource_name, request_dir);</span>
+<span class="lineNum">     847 </span>                :            :     }
+<span class="lineNum">     848 </span>                :            :   }
+<span class="lineNum">     849 </span>                :            :   else
+<span class="lineNum">     850 </span>                :            :     strcpy( datasource_name, &quot;/vsistdout/&quot; );
+<span class="lineNum">     851 </span>                :            : 
+<span class="lineNum">     852 </span>                :<span class="lineCov">          1 :   msFree( request_dir );</span>
+<span class="lineNum">     853 </span>                :            :   request_dir = NULL;
+<span class="lineNum">     854 </span>                :            : 
+<span class="lineNum">     855 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     856 </span>                :            :   /*      Emit content type headers for stream output now.                */
+<span class="lineNum">     857 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     858 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( EQUAL(storage,&quot;stream&quot;) ) {</span>
+<span class="lineNum">     859 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if( sendheaders &amp;&amp; format-&gt;mimetype ) {</span>
+<span class="lineNum">     860 </span>                :<span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Type&quot;,&quot;%s&quot;,format-&gt;mimetype);</span>
+<span class="lineNum">     861 </span>                :<span class="lineCov">          1 :       msIO_sendHeaders();</span>
+<span class="lineNum">     862 </span>                :            :     } else
+<span class="lineNum">     863 </span>                :<span class="lineNoCov">          0 :       msIO_fprintf( stdout, &quot;%c&quot;, 10 );</span>
+<span class="lineNum">     864 </span>                :            :   }
+<span class="lineNum">     865 </span>                :            : 
+<span class="lineNum">     866 </span>                :            :   /* ==================================================================== */
+<span class="lineNum">     867 </span>                :            :   /*      Create the datasource.                                          */
+<span class="lineNum">     868 </span>                :            :   /* ==================================================================== */
+<span class="lineNum">     869 </span>                :<span class="lineCov">          1 :   hDS = OGR_Dr_CreateDataSource( hDriver,  datasource_name, ds_options );</span>
+<span class="lineNum">     870 </span>                :<span class="lineCov">          1 :   CSLDestroy( ds_options );</span>
+<span class="lineNum">     871 </span>                :            : 
+<span class="lineNum">     872 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( hDS == NULL ) {</span>
+<span class="lineNum">     873 </span>                :<span class="lineNoCov">          0 :     msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">     874 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR,</span>
+<span class="lineNum">     875 </span>                :            :                 &quot;OGR CreateDataSource failed for '%s' with driver '%s'.&quot;,
+<span class="lineNum">     876 </span>                :            :                 &quot;msOGRWriteFromQuery()&quot;,
+<span class="lineNum">     877 </span>                :            :                 datasource_name,
+<span class="lineNum">     878 </span>                :<span class="lineNoCov">          0 :                 format-&gt;driver+4 );</span>
+<span class="lineNum">     879 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     880 </span>                :            :   }
+<span class="lineNum">     881 </span>                :            : 
+<span class="lineNum">     882 </span>                :            :   /* ==================================================================== */
+<span class="lineNum">     883 </span>                :            :   /*      Process each layer with a resultset.                            */
+<span class="lineNum">     884 </span>                :            :   /* ==================================================================== */
+<span class="lineNum">     885 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for( iLayer = 0; iLayer &lt; map-&gt;numlayers; iLayer++ ) {</span>
+<span class="lineNum">     886 </span>                :            :     int status;
+<span class="lineNum">     887 </span>                :<span class="lineCov">          1 :     layerObj *layer = GET_LAYER(map, iLayer);</span>
+<span class="lineNum">     888 </span>                :            :     shapeObj resultshape;
+<span class="lineNum">     889 </span>                :            :     OGRLayerH hOGRLayer;
+<span class="lineNum">     890 </span>                :            :     OGRwkbGeometryType eGeomType;
+<span class="lineNum">     891 </span>                :            :     OGRSpatialReferenceH srs = NULL;
+<span class="lineNum">     892 </span>                :            :     gmlItemListObj *item_list = NULL;
+<span class="lineNum">     893 </span>                :            :     const char *value;
+<span class="lineNum">     894 </span>                :            :     char *pszWKT;
+<span class="lineNum">     895 </span>                :            :     int  nFirstOGRFieldIndex = -1;
+<span class="lineNum">     896 </span>                :            :     const char *pszFeatureid = NULL;
+<span class="lineNum">     897 </span>                :            : 
+<span class="lineNum">     898 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( !layer-&gt;resultcache )</span>
+<span class="lineNum">     899 </span>                :<span class="lineCov">          1 :       continue;</span>
+<span class="lineNum">     900 </span>                :            : 
+<span class="lineNum">     901 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     902 </span>                :            :     /*      Will we need to reproject?                                      */
 <span class="lineNum">     903 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     904 </span>                :<span class="lineCov">          1 :     value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), &quot;FOG&quot;, &quot;geomtype&quot;);</span>
-<span class="lineNum">     905 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( value == NULL ) {</span>
-<span class="lineNum">     906 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( layer-&gt;type == MS_LAYER_POINT )</span>
-<span class="lineNum">     907 </span>                :            :         value = &quot;Point&quot;;
-<span class="lineNum">     908 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       else if( layer-&gt;type == MS_LAYER_LINE )</span>
-<span class="lineNum">     909 </span>                :            :         value = &quot;LineString&quot;;
-<span class="lineNum">     910 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       else if( layer-&gt;type == MS_LAYER_POLYGON )</span>
-<span class="lineNum">     911 </span>                :            :         value = &quot;Polygon&quot;;
-<span class="lineNum">     912 </span>                :            :       else
-<span class="lineNum">     913 </span>                :            :         value = &quot;Geometry&quot;;
-<span class="lineNum">     914 </span>                :            :     }
-<span class="lineNum">     915 </span>                :            : 
-<span class="lineNum">     916 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(bUseFeatureId)</span>
-<span class="lineNum">     917 </span>                :<span class="lineCov">          1 :       pszFeatureid = msOWSLookupMetadata(&amp;(layer-&gt;metadata), &quot;FOG&quot;, &quot;featureid&quot;);</span>
-<span class="lineNum">     918 </span>                :            : 
-<span class="lineNum">     919 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( strcasecmp(value,&quot;Point&quot;) == 0 )</span>
-<span class="lineNum">     920 </span>                :            :       eGeomType = wkbPoint;
-<span class="lineNum">     921 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;LineString&quot;) == 0 )</span>
-<span class="lineNum">     922 </span>                :            :       eGeomType = wkbLineString;
-<span class="lineNum">     923 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;Polygon&quot;) == 0 )</span>
-<span class="lineNum">     924 </span>                :            :       eGeomType = wkbPolygon;
-<span class="lineNum">     925 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;MultiPoint&quot;) == 0 )</span>
-<span class="lineNum">     926 </span>                :            :       eGeomType = wkbMultiPoint;
-<span class="lineNum">     927 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;MultiLineString&quot;) == 0 )</span>
-<span class="lineNum">     928 </span>                :            :       eGeomType = wkbMultiLineString;
-<span class="lineNum">     929 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;MultiPolygon&quot;) == 0 )</span>
-<span class="lineNum">     930 </span>                :            :       eGeomType = wkbMultiPolygon;
-<span class="lineNum">     931 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;GeometryCollection&quot;) == 0 )</span>
-<span class="lineNum">     932 </span>                :            :       eGeomType = wkbGeometryCollection;
-<span class="lineNum">     933 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;Point25D&quot;) == 0 )</span>
-<span class="lineNum">     934 </span>                :            :       eGeomType = wkbPoint25D;
-<span class="lineNum">     935 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;LineString25D&quot;) == 0 )</span>
-<span class="lineNum">     936 </span>                :            :       eGeomType = wkbLineString25D;
-<span class="lineNum">     937 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;Polygon25D&quot;) == 0 )</span>
-<span class="lineNum">     938 </span>                :            :       eGeomType = wkbPolygon25D;
-<span class="lineNum">     939 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;MultiPoint25D&quot;) == 0 )</span>
-<span class="lineNum">     940 </span>                :            :       eGeomType = wkbMultiPoint25D;
-<span class="lineNum">     941 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;MultiLineString25D&quot;) == 0 )</span>
-<span class="lineNum">     942 </span>                :            :       eGeomType = wkbMultiLineString25D;
-<span class="lineNum">     943 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;MultiPolygon25D&quot;) == 0 )</span>
-<span class="lineNum">     944 </span>                :            :       eGeomType = wkbMultiPolygon25D;
-<span class="lineNum">     945 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;GeometryCollection25D&quot;) == 0 )</span>
-<span class="lineNum">     946 </span>                :            :       eGeomType = wkbGeometryCollection25D;
-<span class="lineNum">     947 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;Unknown&quot;) == 0</span>
-<span class="lineNum">     948 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :              || strcasecmp(value,&quot;Geometry&quot;) == 0 )</span>
-<span class="lineNum">     949 </span>                :            :       eGeomType = wkbUnknown;
-<span class="lineNum">     950 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     else if( strcasecmp(value,&quot;None&quot;) == 0 )</span>
-<span class="lineNum">     951 </span>                :            :       eGeomType = wkbNone;
-<span class="lineNum">     952 </span>                :            :     else
-<span class="lineNum">     953 </span>                :            :       eGeomType = wkbUnknown;
-<span class="lineNum">     954 </span>                :            : 
-<span class="lineNum">     955 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     956 </span>                :            :     /*      Create a spatial reference.                                     */
-<span class="lineNum">     957 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     958 </span>                :<span class="lineCov">          1 :     pszWKT = msProjectionObj2OGCWKT( &amp;(map-&gt;projection) );</span>
-<span class="lineNum">     959 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( pszWKT != NULL ) {</span>
-<span class="lineNum">     960 </span>                :<span class="lineCov">          1 :       srs = OSRNewSpatialReference( pszWKT );</span>
-<span class="lineNum">     961 </span>                :<span class="lineCov">          1 :       msFree( pszWKT );</span>
-<span class="lineNum">     962 </span>                :            :     }
+<span class="lineNum">     904 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(layer-&gt;transform == MS_TRUE)</span>
+<span class="lineNum">     905 </span>                :<span class="lineCov">          1 :         layer-&gt;project = msProjectionsDiffer(&amp;(layer-&gt;projection),</span>
+<span class="lineNum">     906 </span>                :<span class="lineCov">          1 :                                &amp;(layer-&gt;map-&gt;projection));</span>
+<span class="lineNum">     907 </span>                :            : 
+<span class="lineNum">     908 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     909 </span>                :            :     /*      Establish the geometry type to use for the created layer.       */
+<span class="lineNum">     910 </span>                :            :     /*      First we consult the wfs_geomtype field and fallback to         */
+<span class="lineNum">     911 </span>                :            :     /*      deriving something from the type of the mapserver layer.        */
+<span class="lineNum">     912 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     913 </span>                :<span class="lineCov">          1 :     value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), &quot;FOG&quot;, &quot;geomtype&quot;);</span>
+<span class="lineNum">     914 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( value == NULL ) {</span>
+<span class="lineNum">     915 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( layer-&gt;type == MS_LAYER_POINT )</span>
+<span class="lineNum">     916 </span>                :            :         value = &quot;Point&quot;;
+<span class="lineNum">     917 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       else if( layer-&gt;type == MS_LAYER_LINE )</span>
+<span class="lineNum">     918 </span>                :            :         value = &quot;LineString&quot;;
+<span class="lineNum">     919 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       else if( layer-&gt;type == MS_LAYER_POLYGON )</span>
+<span class="lineNum">     920 </span>                :            :         value = &quot;Polygon&quot;;
+<span class="lineNum">     921 </span>                :            :       else
+<span class="lineNum">     922 </span>                :            :         value = &quot;Geometry&quot;;
+<span class="lineNum">     923 </span>                :            :     }
+<span class="lineNum">     924 </span>                :            : 
+<span class="lineNum">     925 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(bUseFeatureId)</span>
+<span class="lineNum">     926 </span>                :<span class="lineCov">          1 :       pszFeatureid = msOWSLookupMetadata(&amp;(layer-&gt;metadata), &quot;FOG&quot;, &quot;featureid&quot;);</span>
+<span class="lineNum">     927 </span>                :            : 
+<span class="lineNum">     928 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( strcasecmp(value,&quot;Point&quot;) == 0 )</span>
+<span class="lineNum">     929 </span>                :            :       eGeomType = wkbPoint;
+<span class="lineNum">     930 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;LineString&quot;) == 0 )</span>
+<span class="lineNum">     931 </span>                :            :       eGeomType = wkbLineString;
+<span class="lineNum">     932 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;Polygon&quot;) == 0 )</span>
+<span class="lineNum">     933 </span>                :            :       eGeomType = wkbPolygon;
+<span class="lineNum">     934 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;MultiPoint&quot;) == 0 )</span>
+<span class="lineNum">     935 </span>                :            :       eGeomType = wkbMultiPoint;
+<span class="lineNum">     936 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;MultiLineString&quot;) == 0 )</span>
+<span class="lineNum">     937 </span>                :            :       eGeomType = wkbMultiLineString;
+<span class="lineNum">     938 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;MultiPolygon&quot;) == 0 )</span>
+<span class="lineNum">     939 </span>                :            :       eGeomType = wkbMultiPolygon;
+<span class="lineNum">     940 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;GeometryCollection&quot;) == 0 )</span>
+<span class="lineNum">     941 </span>                :            :       eGeomType = wkbGeometryCollection;
+<span class="lineNum">     942 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;Point25D&quot;) == 0 )</span>
+<span class="lineNum">     943 </span>                :            :       eGeomType = wkbPoint25D;
+<span class="lineNum">     944 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;LineString25D&quot;) == 0 )</span>
+<span class="lineNum">     945 </span>                :            :       eGeomType = wkbLineString25D;
+<span class="lineNum">     946 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;Polygon25D&quot;) == 0 )</span>
+<span class="lineNum">     947 </span>                :            :       eGeomType = wkbPolygon25D;
+<span class="lineNum">     948 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;MultiPoint25D&quot;) == 0 )</span>
+<span class="lineNum">     949 </span>                :            :       eGeomType = wkbMultiPoint25D;
+<span class="lineNum">     950 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;MultiLineString25D&quot;) == 0 )</span>
+<span class="lineNum">     951 </span>                :            :       eGeomType = wkbMultiLineString25D;
+<span class="lineNum">     952 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;MultiPolygon25D&quot;) == 0 )</span>
+<span class="lineNum">     953 </span>                :            :       eGeomType = wkbMultiPolygon25D;
+<span class="lineNum">     954 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;GeometryCollection25D&quot;) == 0 )</span>
+<span class="lineNum">     955 </span>                :            :       eGeomType = wkbGeometryCollection25D;
+<span class="lineNum">     956 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     else if( strcasecmp(value,&quot;Unknown&quot;) == 0</span>
+<span class="lineNum">     957 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :              || strcasecmp(value,&quot;Geometry&quot;) == 0 )</span>
+<span class="lineNum">     958 </span>                :            :       eGeomType = wkbUnknown;
+<span class="lineNum">     959 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     else if( strcasecmp(value,&quot;None&quot;) == 0 )</span>
+<span class="lineNum">     960 </span>                :            :       eGeomType = wkbNone;
+<span class="lineNum">     961 </span>                :            :     else
+<span class="lineNum">     962 </span>                :            :       eGeomType = wkbUnknown;
 <span class="lineNum">     963 </span>                :            : 
 <span class="lineNum">     964 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     965 </span>                :            :     /*      Create the corresponding OGR Layer.                             */
+<span class="lineNum">     965 </span>                :            :     /*      Create a spatial reference.                                     */
 <span class="lineNum">     966 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     967 </span>                :<span class="lineCov">          1 :     hOGRLayer = OGR_DS_CreateLayer( hDS, layer-&gt;name, srs, eGeomType,</span>
-<span class="lineNum">     968 </span>                :            :                                     layer_options );
-<span class="lineNum">     969 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( hOGRLayer == NULL ) {</span>
-<span class="lineNum">     970 </span>                :<span class="lineNoCov">          0 :       OGR_DS_Destroy( hDS );</span>
-<span class="lineNum">     971 </span>                :<span class="lineNoCov">          0 :       msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">     972 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
-<span class="lineNum">     973 </span>                :            :                   &quot;OGR OGR_DS_CreateLayer failed for layer '%s' with driver '%s'.&quot;,
-<span class="lineNum">     974 </span>                :            :                   &quot;msOGRWriteFromQuery()&quot;,
-<span class="lineNum">     975 </span>                :            :                   layer-&gt;name,
-<span class="lineNum">     976 </span>                :<span class="lineNoCov">          0 :                   format-&gt;driver+4 );</span>
-<span class="lineNum">     977 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">     978 </span>                :            :     }
-<span class="lineNum">     979 </span>                :            : 
-<span class="lineNum">     980 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( srs != NULL )</span>
-<span class="lineNum">     981 </span>                :<span class="lineCov">          1 :       OSRRelease( srs );</span>
-<span class="lineNum">     982 </span>                :            : 
-<span class="lineNum">     983 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     984 </span>                :            :     /*      Create appropriate attributes on this layer.                    */
-<span class="lineNum">     985 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     986 </span>                :<span class="lineCov">          1 :     item_list = msGMLGetItems( layer, &quot;G&quot; );</span>
-<span class="lineNum">     987 </span>                :            :     assert( item_list-&gt;numitems == layer-&gt;numitems );
+<span class="lineNum">     967 </span>                :<span class="lineCov">          1 :     pszWKT = msProjectionObj2OGCWKT( &amp;(map-&gt;projection) );</span>
+<span class="lineNum">     968 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( pszWKT != NULL ) {</span>
+<span class="lineNum">     969 </span>                :<span class="lineCov">          1 :       srs = OSRNewSpatialReference( pszWKT );</span>
+<span class="lineNum">     970 </span>                :<span class="lineCov">          1 :       msFree( pszWKT );</span>
+<span class="lineNum">     971 </span>                :            :     }
+<span class="lineNum">     972 </span>                :            : 
+<span class="lineNum">     973 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     974 </span>                :            :     /*      Create the corresponding OGR Layer.                             */
+<span class="lineNum">     975 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     976 </span>                :<span class="lineCov">          1 :     hOGRLayer = OGR_DS_CreateLayer( hDS, layer-&gt;name, srs, eGeomType,</span>
+<span class="lineNum">     977 </span>                :            :                                     layer_options );
+<span class="lineNum">     978 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( hOGRLayer == NULL ) {</span>
+<span class="lineNum">     979 </span>                :<span class="lineNoCov">          0 :       OGR_DS_Destroy( hDS );</span>
+<span class="lineNum">     980 </span>                :<span class="lineNoCov">          0 :       msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">     981 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
+<span class="lineNum">     982 </span>                :            :                   &quot;OGR OGR_DS_CreateLayer failed for layer '%s' with driver '%s'.&quot;,
+<span class="lineNum">     983 </span>                :            :                   &quot;msOGRWriteFromQuery()&quot;,
+<span class="lineNum">     984 </span>                :            :                   layer-&gt;name,
+<span class="lineNum">     985 </span>                :<span class="lineNoCov">          0 :                   format-&gt;driver+4 );</span>
+<span class="lineNum">     986 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     987 </span>                :            :     }
 <span class="lineNum">     988 </span>                :            : 
-<span class="lineNum">     989 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = 0; i &lt; layer-&gt;numitems; i++ ) {</span>
-<span class="lineNum">     990 </span>                :            :       OGRFieldDefnH hFldDefn;
-<span class="lineNum">     991 </span>                :            :       OGRErr eErr;
-<span class="lineNum">     992 </span>                :            :       const char *name;
-<span class="lineNum">     993 </span>                :<span class="lineCov">          1 :       gmlItemObj *item = item_list-&gt;items + i;</span>
-<span class="lineNum">     994 </span>                :            :       OGRFieldType eType;
-<span class="lineNum">     995 </span>                :            : 
-<span class="lineNum">     996 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( !item-&gt;visible )</span>
-<span class="lineNum">     997 </span>                :<span class="lineCov">          1 :         continue;</span>
-<span class="lineNum">     998 </span>                :            : 
-<span class="lineNum">     999 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( item-&gt;alias )</span>
-<span class="lineNum">    1000 </span>                :<span class="lineCov">          1 :         name = item-&gt;alias;</span>
-<span class="lineNum">    1001 </span>                :            :       else
-<span class="lineNum">    1002 </span>                :<span class="lineCov">          1 :         name = item-&gt;name;</span>
-<span class="lineNum">    1003 </span>                :            : 
-<span class="lineNum">    1004 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( item-&gt;type == NULL )</span>
-<span class="lineNum">    1005 </span>                :            :         eType = OFTString;
-<span class="lineNum">    1006 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       else if( EQUAL(item-&gt;type,&quot;Integer&quot;) )</span>
-<span class="lineNum">    1007 </span>                :            :         eType = OFTInteger;
-<span class="lineNum">    1008 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       else if( EQUAL(item-&gt;type,&quot;Long&quot;) )</span>
-<span class="lineNum">    1009 </span>                :            : #if GDAL_VERSION_MAJOR &gt;= 2
-<span class="lineNum">    1010 </span>                :            :         eType = OFTInteger64;
-<span class="lineNum">    1011 </span>                :            : #else
-<span class="lineNum">    1012 </span>                :            :         eType = OFTReal;
-<span class="lineNum">    1013 </span>                :            : #endif
-<span class="lineNum">    1014 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       else if( EQUAL(item-&gt;type,&quot;Real&quot;) )</span>
-<span class="lineNum">    1015 </span>                :            :         eType = OFTReal;
-<span class="lineNum">    1016 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       else if( EQUAL(item-&gt;type,&quot;Character&quot;) )</span>
-<span class="lineNum">    1017 </span>                :            :         eType = OFTString;
-<span class="lineNum">    1018 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       else if( EQUAL(item-&gt;type,&quot;Date&quot;) )</span>
-<span class="lineNum">    1019 </span>                :            :         eType = OFTDateTime;
-<span class="lineNum">    1020 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       else if( EQUAL(item-&gt;type,&quot;Boolean&quot;) )</span>
-<span class="lineNum">    1021 </span>                :            :         eType = OFTInteger;
-<span class="lineNum">    1022 </span>                :            :       else
-<span class="lineNum">    1023 </span>                :            :         eType = OFTString;
-<span class="lineNum">    1024 </span>                :            : 
-<span class="lineNum">    1025 </span>                :<span class="lineCov">          1 :       hFldDefn = OGR_Fld_Create( name, eType );</span>
-<span class="lineNum">    1026 </span>                :            : 
-<span class="lineNum">    1027 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( item-&gt;width != 0 )</span>
-<span class="lineNum">    1028 </span>                :<span class="lineCov">          1 :         OGR_Fld_SetWidth( hFldDefn, item-&gt;width );</span>
-<span class="lineNum">    1029 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( item-&gt;precision != 0 )</span>
-<span class="lineNum">    1030 </span>                :<span class="lineCov">          1 :         OGR_Fld_SetPrecision( hFldDefn, item-&gt;precision );</span>
-<span class="lineNum">    1031 </span>                :            : 
-<span class="lineNum">    1032 </span>                :<span class="lineCov">          1 :       eErr = OGR_L_CreateField( hOGRLayer, hFldDefn, TRUE );</span>
-<span class="lineNum">    1033 </span>                :<span class="lineCov">          1 :       OGR_Fld_Destroy( hFldDefn );</span>
-<span class="lineNum">    1034 </span>                :            : 
-<span class="lineNum">    1035 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( eErr != OGRERR_NONE ) {</span>
-<span class="lineNum">    1036 </span>                :<span class="lineNoCov">          0 :         msSetError( MS_OGRERR,</span>
-<span class="lineNum">    1037 </span>                :            :                     &quot;Failed to create field '%s' in output feature schema:\n%s&quot;,
-<span class="lineNum">    1038 </span>                :            :                     &quot;msOGRWriteFromQuery()&quot;,
-<span class="lineNum">    1039 </span>                :<span class="lineNoCov">          0 :                     layer-&gt;items[i],</span>
-<span class="lineNum">    1040 </span>                :            :                     CPLGetLastErrorMsg() );
-<span class="lineNum">    1041 </span>                :            : 
-<span class="lineNum">    1042 </span>                :<span class="lineNoCov">          0 :         OGR_DS_Destroy( hDS );</span>
-<span class="lineNum">    1043 </span>                :<span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1044 </span>                :<span class="lineNoCov">          0 :         msGMLFreeItems(item_list);</span>
-<span class="lineNum">    1045 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
-<span class="lineNum">    1046 </span>                :            :       }
-<span class="lineNum">    1047 </span>                :            : 
-<span class="lineNum">    1048 </span>                :            :       /* The index of the first field we create is not necessarily 0 */
-<span class="lineNum">    1049 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( nFirstOGRFieldIndex &lt; 0 )</span>
-<span class="lineNum">    1050 </span>                :<span class="lineCov">          1 :           nFirstOGRFieldIndex = OGR_FD_GetFieldCount(</span>
-<span class="lineNum">    1051 </span>                :            :                                         OGR_L_GetLayerDefn( hOGRLayer ) ) - 1;
-<span class="lineNum">    1052 </span>                :            :     }
-<span class="lineNum">    1053 </span>                :            : 
-<span class="lineNum">    1054 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">    1055 </span>                :            :     /*      Setup joins if needed.  This is likely untested.                */
-<span class="lineNum">    1056 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">    1057 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(layer-&gt;numjoins &gt; 0) {</span>
-<span class="lineNum">    1058 </span>                :            :       int j;
-<span class="lineNum">    1059 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(j=0; j&lt;layer-&gt;numjoins; j++) {</span>
-<span class="lineNum">    1060 </span>                :<span class="lineNoCov">          0 :         status = msJoinConnect(layer, &amp;(layer-&gt;joins[j]));</span>
-<span class="lineNum">    1061 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(status != MS_SUCCESS) {</span>
-<span class="lineNum">    1062 </span>                :<span class="lineNoCov">          0 :           OGR_DS_Destroy( hDS );</span>
-<span class="lineNum">    1063 </span>                :<span class="lineNoCov">          0 :           msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1064 </span>                :<span class="lineNoCov">          0 :           msGMLFreeItems(item_list);</span>
-<span class="lineNum">    1065 </span>                :<span class="lineNoCov">          0 :           return status;</span>
-<span class="lineNum">    1066 </span>                :            :         }
-<span class="lineNum">    1067 </span>                :            :       }
-<span class="lineNum">    1068 </span>                :            :     }
-<span class="lineNum">    1069 </span>                :            : 
-<span class="lineNum">    1070 </span>                :<span class="lineCov">          1 :     msInitShape( &amp;resultshape );</span>
-<span class="lineNum">    1071 </span>                :            : 
-<span class="lineNum">    1072 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">    1073 </span>                :            :     /*      Loop over all the shapes in the resultcache.                    */
-<span class="lineNum">    1074 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">    1075 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i=0; i &lt; layer-&gt;resultcache-&gt;numresults; i++) {</span>
-<span class="lineNum">    1076 </span>                :            : 
-<span class="lineNum">    1077 </span>                :<span class="lineCov">          1 :       msFreeShape(&amp;resultshape); /* init too */</span>
+<span class="lineNum">     989 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( srs != NULL )</span>
+<span class="lineNum">     990 </span>                :<span class="lineCov">          1 :       OSRRelease( srs );</span>
+<span class="lineNum">     991 </span>                :            : 
+<span class="lineNum">     992 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     993 </span>                :            :     /*      Create appropriate attributes on this layer.                    */
+<span class="lineNum">     994 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     995 </span>                :<span class="lineCov">          1 :     item_list = msGMLGetItems( layer, &quot;G&quot; );</span>
+<span class="lineNum">     996 </span>                :            :     assert( item_list-&gt;numitems == layer-&gt;numitems );
+<span class="lineNum">     997 </span>                :            : 
+<span class="lineNum">     998 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = 0; i &lt; layer-&gt;numitems; i++ ) {</span>
+<span class="lineNum">     999 </span>                :            :       OGRFieldDefnH hFldDefn;
+<span class="lineNum">    1000 </span>                :            :       OGRErr eErr;
+<span class="lineNum">    1001 </span>                :            :       const char *name;
+<span class="lineNum">    1002 </span>                :<span class="lineCov">          1 :       gmlItemObj *item = item_list-&gt;items + i;</span>
+<span class="lineNum">    1003 </span>                :            :       OGRFieldType eType;
+<span class="lineNum">    1004 </span>                :            : 
+<span class="lineNum">    1005 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( !item-&gt;visible )</span>
+<span class="lineNum">    1006 </span>                :<span class="lineCov">          1 :         continue;</span>
+<span class="lineNum">    1007 </span>                :            : 
+<span class="lineNum">    1008 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( item-&gt;alias )</span>
+<span class="lineNum">    1009 </span>                :<span class="lineCov">          1 :         name = item-&gt;alias;</span>
+<span class="lineNum">    1010 </span>                :            :       else
+<span class="lineNum">    1011 </span>                :<span class="lineCov">          1 :         name = item-&gt;name;</span>
+<span class="lineNum">    1012 </span>                :            : 
+<span class="lineNum">    1013 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( item-&gt;type == NULL )</span>
+<span class="lineNum">    1014 </span>                :            :         eType = OFTString;
+<span class="lineNum">    1015 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       else if( EQUAL(item-&gt;type,&quot;Integer&quot;) )</span>
+<span class="lineNum">    1016 </span>                :            :         eType = OFTInteger;
+<span class="lineNum">    1017 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       else if( EQUAL(item-&gt;type,&quot;Long&quot;) )</span>
+<span class="lineNum">    1018 </span>                :            : #if GDAL_VERSION_MAJOR &gt;= 2
+<span class="lineNum">    1019 </span>                :            :         eType = OFTInteger64;
+<span class="lineNum">    1020 </span>                :            : #else
+<span class="lineNum">    1021 </span>                :            :         eType = OFTReal;
+<span class="lineNum">    1022 </span>                :            : #endif
+<span class="lineNum">    1023 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       else if( EQUAL(item-&gt;type,&quot;Real&quot;) )</span>
+<span class="lineNum">    1024 </span>                :            :         eType = OFTReal;
+<span class="lineNum">    1025 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       else if( EQUAL(item-&gt;type,&quot;Character&quot;) )</span>
+<span class="lineNum">    1026 </span>                :            :         eType = OFTString;
+<span class="lineNum">    1027 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       else if( EQUAL(item-&gt;type,&quot;Date&quot;) )</span>
+<span class="lineNum">    1028 </span>                :            :         eType = OFTDateTime;
+<span class="lineNum">    1029 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       else if( EQUAL(item-&gt;type,&quot;Boolean&quot;) )</span>
+<span class="lineNum">    1030 </span>                :            :         eType = OFTInteger;
+<span class="lineNum">    1031 </span>                :            :       else
+<span class="lineNum">    1032 </span>                :            :         eType = OFTString;
+<span class="lineNum">    1033 </span>                :            : 
+<span class="lineNum">    1034 </span>                :<span class="lineCov">          1 :       hFldDefn = OGR_Fld_Create( name, eType );</span>
+<span class="lineNum">    1035 </span>                :            : 
+<span class="lineNum">    1036 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( item-&gt;width != 0 )</span>
+<span class="lineNum">    1037 </span>                :<span class="lineCov">          1 :         OGR_Fld_SetWidth( hFldDefn, item-&gt;width );</span>
+<span class="lineNum">    1038 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( item-&gt;precision != 0 )</span>
+<span class="lineNum">    1039 </span>                :<span class="lineCov">          1 :         OGR_Fld_SetPrecision( hFldDefn, item-&gt;precision );</span>
+<span class="lineNum">    1040 </span>                :            : 
+<span class="lineNum">    1041 </span>                :<span class="lineCov">          1 :       eErr = OGR_L_CreateField( hOGRLayer, hFldDefn, TRUE );</span>
+<span class="lineNum">    1042 </span>                :<span class="lineCov">          1 :       OGR_Fld_Destroy( hFldDefn );</span>
+<span class="lineNum">    1043 </span>                :            : 
+<span class="lineNum">    1044 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( eErr != OGRERR_NONE ) {</span>
+<span class="lineNum">    1045 </span>                :<span class="lineNoCov">          0 :         msSetError( MS_OGRERR,</span>
+<span class="lineNum">    1046 </span>                :            :                     &quot;Failed to create field '%s' in output feature schema:\n%s&quot;,
+<span class="lineNum">    1047 </span>                :            :                     &quot;msOGRWriteFromQuery()&quot;,
+<span class="lineNum">    1048 </span>                :<span class="lineNoCov">          0 :                     layer-&gt;items[i],</span>
+<span class="lineNum">    1049 </span>                :            :                     CPLGetLastErrorMsg() );
+<span class="lineNum">    1050 </span>                :            : 
+<span class="lineNum">    1051 </span>                :<span class="lineNoCov">          0 :         OGR_DS_Destroy( hDS );</span>
+<span class="lineNum">    1052 </span>                :<span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1053 </span>                :<span class="lineNoCov">          0 :         msGMLFreeItems(item_list);</span>
+<span class="lineNum">    1054 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">    1055 </span>                :            :       }
+<span class="lineNum">    1056 </span>                :            : 
+<span class="lineNum">    1057 </span>                :            :       /* The index of the first field we create is not necessarily 0 */
+<span class="lineNum">    1058 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( nFirstOGRFieldIndex &lt; 0 )</span>
+<span class="lineNum">    1059 </span>                :<span class="lineCov">          1 :           nFirstOGRFieldIndex = OGR_FD_GetFieldCount(</span>
+<span class="lineNum">    1060 </span>                :            :                                         OGR_L_GetLayerDefn( hOGRLayer ) ) - 1;
+<span class="lineNum">    1061 </span>                :            :     }
+<span class="lineNum">    1062 </span>                :            : 
+<span class="lineNum">    1063 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1064 </span>                :            :     /*      Setup joins if needed.  This is likely untested.                */
+<span class="lineNum">    1065 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1066 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(layer-&gt;numjoins &gt; 0) {</span>
+<span class="lineNum">    1067 </span>                :            :       int j;
+<span class="lineNum">    1068 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(j=0; j&lt;layer-&gt;numjoins; j++) {</span>
+<span class="lineNum">    1069 </span>                :<span class="lineNoCov">          0 :         status = msJoinConnect(layer, &amp;(layer-&gt;joins[j]));</span>
+<span class="lineNum">    1070 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(status != MS_SUCCESS) {</span>
+<span class="lineNum">    1071 </span>                :<span class="lineNoCov">          0 :           OGR_DS_Destroy( hDS );</span>
+<span class="lineNum">    1072 </span>                :<span class="lineNoCov">          0 :           msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1073 </span>                :<span class="lineNoCov">          0 :           msGMLFreeItems(item_list);</span>
+<span class="lineNum">    1074 </span>                :<span class="lineNoCov">          0 :           return status;</span>
+<span class="lineNum">    1075 </span>                :            :         }
+<span class="lineNum">    1076 </span>                :            :       }
+<span class="lineNum">    1077 </span>                :            :     }
 <span class="lineNum">    1078 </span>                :            : 
-<span class="lineNum">    1079 </span>                :            :       /*
-<span class="lineNum">    1080 </span>                :            :       ** Read the shape.
-<span class="lineNum">    1081 </span>                :            :       */
-<span class="lineNum">    1082 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( layer-&gt;resultcache-&gt;results[i].shape )</span>
-<span class="lineNum">    1083 </span>                :            :       {
-<span class="lineNum">    1084 </span>                :            :           /* msDebug(&quot;Using cached shape %ld\n&quot;, layer-&gt;resultcache-&gt;results[i].shapeindex); */
-<span class="lineNum">    1085 </span>                :<span class="lineNoCov">          0 :           msCopyShape(layer-&gt;resultcache-&gt;results[i].shape, &amp;resultshape);</span>
-<span class="lineNum">    1086 </span>                :            :       }
-<span class="lineNum">    1087 </span>                :            :       else
-<span class="lineNum">    1088 </span>                :            :       {
-<span class="lineNum">    1089 </span>                :<span class="lineCov">          1 :         status = msLayerGetShape(layer, &amp;resultshape, &amp;(layer-&gt;resultcache-&gt;results[i]));</span>
-<span class="lineNum">    1090 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(status != MS_SUCCESS) {</span>
-<span class="lineNum">    1091 </span>                :<span class="lineNoCov">          0 :             OGR_DS_Destroy( hDS );</span>
-<span class="lineNum">    1092 </span>                :<span class="lineNoCov">          0 :             msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1093 </span>                :<span class="lineNoCov">          0 :             msGMLFreeItems(item_list);</span>
-<span class="lineNum">    1094 </span>                :<span class="lineNoCov">          0 :             msFreeShape(&amp;resultshape);</span>
-<span class="lineNum">    1095 </span>                :<span class="lineNoCov">          0 :             return status;</span>
-<span class="lineNum">    1096 </span>                :            :         }
-<span class="lineNum">    1097 </span>                :            :       }
-<span class="lineNum">    1098 </span>                :            : 
-<span class="lineNum">    1099 </span>                :            :       /*
-<span class="lineNum">    1100 </span>                :            :       ** Perform classification, and some annotation related magic.
-<span class="lineNum">    1101 </span>                :            :       */
-<span class="lineNum">    1102 </span>                :<span class="lineCov">          1 :       resultshape.classindex =</span>
-<span class="lineNum">    1103 </span>                :<span class="lineCov">          1 :         msShapeGetClass(layer, map, &amp;resultshape, NULL, -1);</span>
-<span class="lineNum">    1104 </span>                :            : 
-<span class="lineNum">    1105 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( resultshape.classindex &gt;= 0</span>
-<span class="lineNum">    1106 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           &amp;&amp; (layer-&gt;class[resultshape.classindex]-&gt;text.string</span>
-<span class="lineNum">    1107 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :               || layer-&gt;labelitem)</span>
-<span class="lineNum">    1108 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &amp;&amp; layer-&gt;class[resultshape.classindex]-&gt;numlabels &gt; 0</span>
-<span class="lineNum">    1109 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &amp;&amp; layer-&gt;class[resultshape.classindex]-&gt;labels[0]-&gt;size != -1 ) {</span>
-<span class="lineNum">    1110 </span>                :<span class="lineNoCov">          0 :         resultshape.text = msShapeGetLabelAnnotation(layer,&amp;resultshape,layer-&gt;class[resultshape.classindex]-&gt;labels[0]);</span>
-<span class="lineNum">    1111 </span>                :            :       }
-<span class="lineNum">    1112 </span>                :            : 
-<span class="lineNum">    1113 </span>                :            :       /*
-<span class="lineNum">    1114 </span>                :            :       ** prepare any necessary JOINs here (one-to-one only)
-<span class="lineNum">    1115 </span>                :            :       */
-<span class="lineNum">    1116 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( layer-&gt;numjoins &gt; 0) {</span>
-<span class="lineNum">    1117 </span>                :            :         int j;
-<span class="lineNum">    1118 </span>                :            : 
-<span class="lineNum">    1119 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for(j=0; j &lt; layer-&gt;numjoins; j++) {</span>
-<span class="lineNum">    1120 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(layer-&gt;joins[j].type == MS_JOIN_ONE_TO_ONE) {</span>
-<span class="lineNum">    1121 </span>                :<span class="lineNoCov">          0 :             msJoinPrepare(&amp;(layer-&gt;joins[j]), &amp;resultshape);</span>
-<span class="lineNum">    1122 </span>                :<span class="lineNoCov">          0 :             msJoinNext(&amp;(layer-&gt;joins[j])); /* fetch the first row */</span>
-<span class="lineNum">    1123 </span>                :            :           }
-<span class="lineNum">    1124 </span>                :            :         }
-<span class="lineNum">    1125 </span>                :            :       }
-<span class="lineNum">    1126 </span>                :            : 
-<span class="lineNum">    1127 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( layer-&gt;project ) {</span>
-<span class="lineNum">    1128 </span>                :<span class="lineNoCov">          0 :         status =</span>
-<span class="lineNum">    1129 </span>                :<span class="lineNoCov">          0 :           msProjectShape(&amp;layer-&gt;projection, &amp;layer-&gt;map-&gt;projection,</span>
-<span class="lineNum">    1130 </span>                :            :                          &amp;resultshape);
-<span class="lineNum">    1131 </span>                :            :       }
-<span class="lineNum">    1132 </span>                :            : 
-<span class="lineNum">    1133 </span>                :            :       /*
-<span class="lineNum">    1134 </span>                :            :       ** Write out the feature to OGR.
-<span class="lineNum">    1135 </span>                :            :       */
-<span class="lineNum">    1136 </span>                :            : 
-<span class="lineNum">    1137 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( status == MS_SUCCESS )</span>
-<span class="lineNum">    1138 </span>                :<span class="lineCov">          1 :         status = msOGRWriteShape( layer, hOGRLayer, &amp;resultshape,</span>
-<span class="lineNum">    1139 </span>                :            :                                   item_list, nFirstOGRFieldIndex, pszFeatureid );
-<span class="lineNum">    1140 </span>                :            : 
-<span class="lineNum">    1141 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(status != MS_SUCCESS) {</span>
-<span class="lineNum">    1142 </span>                :<span class="lineNoCov">          0 :         OGR_DS_Destroy( hDS );</span>
-<span class="lineNum">    1143 </span>                :<span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1144 </span>                :<span class="lineNoCov">          0 :         msGMLFreeItems(item_list);</span>
-<span class="lineNum">    1145 </span>                :<span class="lineNoCov">          0 :         msFreeShape(&amp;resultshape);</span>
-<span class="lineNum">    1146 </span>                :<span class="lineNoCov">          0 :         return status;</span>
-<span class="lineNum">    1147 </span>                :            :       }
-<span class="lineNum">    1148 </span>                :            :     }
+<span class="lineNum">    1079 </span>                :<span class="lineCov">          1 :     msInitShape( &amp;resultshape );</span>
+<span class="lineNum">    1080 </span>                :            : 
+<span class="lineNum">    1081 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1082 </span>                :            :     /*      Loop over all the shapes in the resultcache.                    */
+<span class="lineNum">    1083 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1084 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i=0; i &lt; layer-&gt;resultcache-&gt;numresults; i++) {</span>
+<span class="lineNum">    1085 </span>                :            : 
+<span class="lineNum">    1086 </span>                :<span class="lineCov">          1 :       msFreeShape(&amp;resultshape); /* init too */</span>
+<span class="lineNum">    1087 </span>                :            : 
+<span class="lineNum">    1088 </span>                :            :       /*
+<span class="lineNum">    1089 </span>                :            :       ** Read the shape.
+<span class="lineNum">    1090 </span>                :            :       */
+<span class="lineNum">    1091 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( layer-&gt;resultcache-&gt;results[i].shape )</span>
+<span class="lineNum">    1092 </span>                :            :       {
+<span class="lineNum">    1093 </span>                :            :           /* msDebug(&quot;Using cached shape %ld\n&quot;, layer-&gt;resultcache-&gt;results[i].shapeindex); */
+<span class="lineNum">    1094 </span>                :<span class="lineNoCov">          0 :           msCopyShape(layer-&gt;resultcache-&gt;results[i].shape, &amp;resultshape);</span>
+<span class="lineNum">    1095 </span>                :            :       }
+<span class="lineNum">    1096 </span>                :            :       else
+<span class="lineNum">    1097 </span>                :            :       {
+<span class="lineNum">    1098 </span>                :<span class="lineCov">          1 :         status = msLayerGetShape(layer, &amp;resultshape, &amp;(layer-&gt;resultcache-&gt;results[i]));</span>
+<span class="lineNum">    1099 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(status != MS_SUCCESS) {</span>
+<span class="lineNum">    1100 </span>                :<span class="lineNoCov">          0 :             OGR_DS_Destroy( hDS );</span>
+<span class="lineNum">    1101 </span>                :<span class="lineNoCov">          0 :             msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1102 </span>                :<span class="lineNoCov">          0 :             msGMLFreeItems(item_list);</span>
+<span class="lineNum">    1103 </span>                :<span class="lineNoCov">          0 :             msFreeShape(&amp;resultshape);</span>
+<span class="lineNum">    1104 </span>                :<span class="lineNoCov">          0 :             return status;</span>
+<span class="lineNum">    1105 </span>                :            :         }
+<span class="lineNum">    1106 </span>                :            :       }
+<span class="lineNum">    1107 </span>                :            : 
+<span class="lineNum">    1108 </span>                :            :       /*
+<span class="lineNum">    1109 </span>                :            :       ** Perform classification, and some annotation related magic.
+<span class="lineNum">    1110 </span>                :            :       */
+<span class="lineNum">    1111 </span>                :<span class="lineCov">          1 :       resultshape.classindex =</span>
+<span class="lineNum">    1112 </span>                :<span class="lineCov">          1 :         msShapeGetClass(layer, map, &amp;resultshape, NULL, -1);</span>
+<span class="lineNum">    1113 </span>                :            : 
+<span class="lineNum">    1114 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( resultshape.classindex &gt;= 0</span>
+<span class="lineNum">    1115 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :           &amp;&amp; (layer-&gt;class[resultshape.classindex]-&gt;text.string</span>
+<span class="lineNum">    1116 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :               || layer-&gt;labelitem)</span>
+<span class="lineNum">    1117 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &amp;&amp; layer-&gt;class[resultshape.classindex]-&gt;numlabels &gt; 0</span>
+<span class="lineNum">    1118 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &amp;&amp; layer-&gt;class[resultshape.classindex]-&gt;labels[0]-&gt;size != -1 ) {</span>
+<span class="lineNum">    1119 </span>                :<span class="lineNoCov">          0 :         resultshape.text = msShapeGetLabelAnnotation(layer,&amp;resultshape,layer-&gt;class[resultshape.classindex]-&gt;labels[0]);</span>
+<span class="lineNum">    1120 </span>                :            :       }
+<span class="lineNum">    1121 </span>                :            : 
+<span class="lineNum">    1122 </span>                :            :       /*
+<span class="lineNum">    1123 </span>                :            :       ** prepare any necessary JOINs here (one-to-one only)
+<span class="lineNum">    1124 </span>                :            :       */
+<span class="lineNum">    1125 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( layer-&gt;numjoins &gt; 0) {</span>
+<span class="lineNum">    1126 </span>                :            :         int j;
+<span class="lineNum">    1127 </span>                :            : 
+<span class="lineNum">    1128 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for(j=0; j &lt; layer-&gt;numjoins; j++) {</span>
+<span class="lineNum">    1129 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(layer-&gt;joins[j].type == MS_JOIN_ONE_TO_ONE) {</span>
+<span class="lineNum">    1130 </span>                :<span class="lineNoCov">          0 :             msJoinPrepare(&amp;(layer-&gt;joins[j]), &amp;resultshape);</span>
+<span class="lineNum">    1131 </span>                :<span class="lineNoCov">          0 :             msJoinNext(&amp;(layer-&gt;joins[j])); /* fetch the first row */</span>
+<span class="lineNum">    1132 </span>                :            :           }
+<span class="lineNum">    1133 </span>                :            :         }
+<span class="lineNum">    1134 </span>                :            :       }
+<span class="lineNum">    1135 </span>                :            : 
+<span class="lineNum">    1136 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( layer-&gt;project ) {</span>
+<span class="lineNum">    1137 </span>                :<span class="lineNoCov">          0 :         status =</span>
+<span class="lineNum">    1138 </span>                :<span class="lineNoCov">          0 :           msProjectShape(&amp;layer-&gt;projection, &amp;layer-&gt;map-&gt;projection,</span>
+<span class="lineNum">    1139 </span>                :            :                          &amp;resultshape);
+<span class="lineNum">    1140 </span>                :            :       }
+<span class="lineNum">    1141 </span>                :            : 
+<span class="lineNum">    1142 </span>                :            :       /*
+<span class="lineNum">    1143 </span>                :            :       ** Write out the feature to OGR.
+<span class="lineNum">    1144 </span>                :            :       */
+<span class="lineNum">    1145 </span>                :            : 
+<span class="lineNum">    1146 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( status == MS_SUCCESS )</span>
+<span class="lineNum">    1147 </span>                :<span class="lineCov">          1 :         status = msOGRWriteShape( layer, hOGRLayer, &amp;resultshape,</span>
+<span class="lineNum">    1148 </span>                :            :                                   item_list, nFirstOGRFieldIndex, pszFeatureid );
 <span class="lineNum">    1149 </span>                :            : 
-<span class="lineNum">    1150 </span>                :<span class="lineCov">          1 :     msGMLFreeItems(item_list);</span>
-<span class="lineNum">    1151 </span>                :<span class="lineCov">          1 :     msFreeShape(&amp;resultshape); /* init too */</span>
-<span class="lineNum">    1152 </span>                :            :   }
-<span class="lineNum">    1153 </span>                :            : 
-<span class="lineNum">    1154 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1155 </span>                :            :   /*      Close the datasource.                                           */
-<span class="lineNum">    1156 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1157 </span>                :<span class="lineCov">          1 :   OGR_DS_Destroy( hDS );</span>
+<span class="lineNum">    1150 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(status != MS_SUCCESS) {</span>
+<span class="lineNum">    1151 </span>                :<span class="lineNoCov">          0 :         OGR_DS_Destroy( hDS );</span>
+<span class="lineNum">    1152 </span>                :<span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1153 </span>                :<span class="lineNoCov">          0 :         msGMLFreeItems(item_list);</span>
+<span class="lineNum">    1154 </span>                :<span class="lineNoCov">          0 :         msFreeShape(&amp;resultshape);</span>
+<span class="lineNum">    1155 </span>                :<span class="lineNoCov">          0 :         return status;</span>
+<span class="lineNum">    1156 </span>                :            :       }
+<span class="lineNum">    1157 </span>                :            :     }
 <span class="lineNum">    1158 </span>                :            : 
-<span class="lineNum">    1159 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1160 </span>                :            :   /*      Get list of resulting files.                                    */
-<span class="lineNum">    1161 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1159 </span>                :<span class="lineCov">          1 :     msGMLFreeItems(item_list);</span>
+<span class="lineNum">    1160 </span>                :<span class="lineCov">          1 :     msFreeShape(&amp;resultshape); /* init too */</span>
+<span class="lineNum">    1161 </span>                :            :   }
 <span class="lineNum">    1162 </span>                :            : 
-<span class="lineNum">    1163 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( EQUAL(form,&quot;simple&quot;) ) {</span>
-<span class="lineNum">    1164 </span>                :<span class="lineCov">          1 :     file_list = CSLAddString( NULL, datasource_name );</span>
-<span class="lineNum">    1165 </span>                :            :   } else {
-<span class="lineNum">    1166 </span>                :            :     char datasource_path[MS_MAXPATHLEN];
+<span class="lineNum">    1163 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1164 </span>                :            :   /*      Close the datasource.                                           */
+<span class="lineNum">    1165 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1166 </span>                :<span class="lineCov">          1 :   OGR_DS_Destroy( hDS );</span>
 <span class="lineNum">    1167 </span>                :            : 
-<span class="lineNum">    1168 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( bDataSourceNameIsRequestDir )</span>
-<span class="lineNum">    1169 </span>                :<span class="lineCov">          1 :         file_list = msOGRRecursiveFileList( datasource_name );</span>
-<span class="lineNum">    1170 </span>                :            :     else
-<span class="lineNum">    1171 </span>                :            :     {
-<span class="lineNum">    1172 </span>                :<span class="lineCov">          1 :         strncpy( datasource_path, CPLGetPath( datasource_name ), MS_MAXPATHLEN-1 );</span>
-<span class="lineNum">    1173 </span>                :<span class="lineCov">          1 :         file_list = msOGRRecursiveFileList( datasource_path );</span>
-<span class="lineNum">    1174 </span>                :            :     }
-<span class="lineNum">    1175 </span>                :            :   }
+<span class="lineNum">    1168 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1169 </span>                :            :   /*      Get list of resulting files.                                    */
+<span class="lineNum">    1170 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1171 </span>                :            : 
+<span class="lineNum">    1172 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( EQUAL(form,&quot;simple&quot;) ) {</span>
+<span class="lineNum">    1173 </span>                :<span class="lineCov">          1 :     file_list = CSLAddString( NULL, datasource_name );</span>
+<span class="lineNum">    1174 </span>                :            :   } else {
+<span class="lineNum">    1175 </span>                :            :     char datasource_path[MS_MAXPATHLEN];
 <span class="lineNum">    1176 </span>                :            : 
-<span class="lineNum">    1177 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1178 </span>                :            :   /*      If our &quot;storage&quot; is stream then the output has already been     */
-<span class="lineNum">    1179 </span>                :            :   /*      sent back to the client and we don't need to copy it now.       */
-<span class="lineNum">    1180 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1181 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( EQUAL(storage,&quot;stream&quot;) ) {</span>
-<span class="lineNum">    1182 </span>                :            :     /* already done */
-<span class="lineNum">    1183 </span>                :            :   }
-<span class="lineNum">    1184 </span>                :            : 
-<span class="lineNum">    1185 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1186 </span>                :            :   /*      Handle case of simple file written to stdout.                   */
-<span class="lineNum">    1187 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1188 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if( EQUAL(form,&quot;simple&quot;) ) {</span>
-<span class="lineNum">    1189 </span>                :            :     char buffer[1024];
-<span class="lineNum">    1190 </span>                :            :     int  bytes_read;
-<span class="lineNum">    1191 </span>                :            :     FILE *fp;
-<span class="lineNum">    1192 </span>                :            :     const char *jsonp;
+<span class="lineNum">    1177 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( bDataSourceNameIsRequestDir )</span>
+<span class="lineNum">    1178 </span>                :<span class="lineCov">          1 :         file_list = msOGRRecursiveFileList( datasource_name );</span>
+<span class="lineNum">    1179 </span>                :            :     else
+<span class="lineNum">    1180 </span>                :            :     {
+<span class="lineNum">    1181 </span>                :<span class="lineCov">          1 :         strncpy( datasource_path, CPLGetPath( datasource_name ), MS_MAXPATHLEN-1 );</span>
+<span class="lineNum">    1182 </span>                :<span class="lineCov">          1 :         file_list = msOGRRecursiveFileList( datasource_path );</span>
+<span class="lineNum">    1183 </span>                :            :     }
+<span class="lineNum">    1184 </span>                :            :   }
+<span class="lineNum">    1185 </span>                :            : 
+<span class="lineNum">    1186 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1187 </span>                :            :   /*      If our &quot;storage&quot; is stream then the output has already been     */
+<span class="lineNum">    1188 </span>                :            :   /*      sent back to the client and we don't need to copy it now.       */
+<span class="lineNum">    1189 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1190 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( EQUAL(storage,&quot;stream&quot;) ) {</span>
+<span class="lineNum">    1191 </span>                :            :     /* already done */
+<span class="lineNum">    1192 </span>                :            :   }
 <span class="lineNum">    1193 </span>                :            : 
-<span class="lineNum">    1194 </span>                :<span class="lineCov">          1 :     jsonp = msGetOutputFormatOption( format, &quot;JSONP&quot;, NULL );</span>
-<span class="lineNum">    1195 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( sendheaders ) {</span>
-<span class="lineNum">    1196 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( !jsonp )</span>
-<span class="lineNum">    1197 </span>                :<span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Disposition&quot;,&quot;attachment; filename=%s&quot;,</span>
-<span class="lineNum">    1198 </span>                :            :                      CPLGetFilename( file_list[0] ) );
-<span class="lineNum">    1199 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( format-&gt;mimetype )</span>
-<span class="lineNum">    1200 </span>                :<span class="lineCov">          1 :         msIO_setHeader(&quot;Content-Type&quot;,&quot;%s&quot;,format-&gt;mimetype);</span>
-<span class="lineNum">    1201 </span>                :<span class="lineCov">          1 :       msIO_sendHeaders();</span>
-<span class="lineNum">    1202 </span>                :            :     } else
-<span class="lineNum">    1203 </span>                :<span class="lineNoCov">          0 :       msIO_fprintf( stdout, &quot;%c&quot;, 10 );</span>
-<span class="lineNum">    1204 </span>                :            : 
-<span class="lineNum">    1205 </span>                :<span class="lineCov">          1 :     fp = VSIFOpenL( file_list[0], &quot;r&quot; );</span>
-<span class="lineNum">    1206 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( fp == NULL ) {</span>
-<span class="lineNum">    1207 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
-<span class="lineNum">    1208 </span>                :            :                   &quot;Failed to open result file '%s'.&quot;,
-<span class="lineNum">    1209 </span>                :            :                   &quot;msOGRWriteFromQuery()&quot;,
-<span class="lineNum">    1210 </span>                :            :                   file_list[0] );
-<span class="lineNum">    1211 </span>                :<span class="lineNoCov">          0 :       msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1212 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">    1213 </span>                :            :     }
-<span class="lineNum">    1214 </span>                :            : 
-<span class="lineNum">    1215 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( jsonp != NULL ) msIO_fprintf( stdout, &quot;%s(&quot;, jsonp );</span>
-<span class="lineNum">    1216 </span>                :            : 
-<span class="lineNum">    1217 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 )</span>
-<span class="lineNum">    1218 </span>                :<span class="lineCov">          1 :       msIO_fwrite( buffer, 1, bytes_read, stdout );</span>
-<span class="lineNum">    1219 </span>                :<span class="lineCov">          1 :     VSIFCloseL( fp );</span>
-<span class="lineNum">    1220 </span>                :            : 
-<span class="lineNum">    1221 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (jsonp != NULL) msIO_fprintf( stdout, &quot;);\n&quot; );</span>
-<span class="lineNum">    1222 </span>                :            :   }
+<span class="lineNum">    1194 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1195 </span>                :            :   /*      Handle case of simple file written to stdout.                   */
+<span class="lineNum">    1196 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1197 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if( EQUAL(form,&quot;simple&quot;) ) {</span>
+<span class="lineNum">    1198 </span>                :            :     char buffer[1024];
+<span class="lineNum">    1199 </span>                :            :     int  bytes_read;
+<span class="lineNum">    1200 </span>                :            :     FILE *fp;
+<span class="lineNum">    1201 </span>                :            :     const char *jsonp;
+<span class="lineNum">    1202 </span>                :            : 
+<span class="lineNum">    1203 </span>                :<span class="lineCov">          1 :     jsonp = msGetOutputFormatOption( format, &quot;JSONP&quot;, NULL );</span>
+<span class="lineNum">    1204 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( sendheaders ) {</span>
+<span class="lineNum">    1205 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( !jsonp )</span>
+<span class="lineNum">    1206 </span>                :<span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Disposition&quot;,&quot;attachment; filename=%s&quot;,</span>
+<span class="lineNum">    1207 </span>                :            :                      CPLGetFilename( file_list[0] ) );
+<span class="lineNum">    1208 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( format-&gt;mimetype )</span>
+<span class="lineNum">    1209 </span>                :<span class="lineCov">          1 :         msIO_setHeader(&quot;Content-Type&quot;,&quot;%s&quot;,format-&gt;mimetype);</span>
+<span class="lineNum">    1210 </span>                :<span class="lineCov">          1 :       msIO_sendHeaders();</span>
+<span class="lineNum">    1211 </span>                :            :     } else
+<span class="lineNum">    1212 </span>                :<span class="lineNoCov">          0 :       msIO_fprintf( stdout, &quot;%c&quot;, 10 );</span>
+<span class="lineNum">    1213 </span>                :            : 
+<span class="lineNum">    1214 </span>                :<span class="lineCov">          1 :     fp = VSIFOpenL( file_list[0], &quot;r&quot; );</span>
+<span class="lineNum">    1215 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( fp == NULL ) {</span>
+<span class="lineNum">    1216 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1217 </span>                :            :                   &quot;Failed to open result file '%s'.&quot;,
+<span class="lineNum">    1218 </span>                :            :                   &quot;msOGRWriteFromQuery()&quot;,
+<span class="lineNum">    1219 </span>                :            :                   file_list[0] );
+<span class="lineNum">    1220 </span>                :<span class="lineNoCov">          0 :       msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1221 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    1222 </span>                :            :     }
 <span class="lineNum">    1223 </span>                :            : 
-<span class="lineNum">    1224 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1225 </span>                :            :   /*      Handle the case of a multi-part result.                         */
-<span class="lineNum">    1226 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1227 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if( EQUAL(form,&quot;multipart&quot;) ) {</span>
-<span class="lineNum">    1228 </span>                :            :     char **papszAdditionalFiles;
-<span class="lineNum">    1229 </span>                :            :     static const char *boundary = &quot;xxOGRBoundaryxx&quot;;
-<span class="lineNum">    1230 </span>                :<span class="lineCov">          1 :     msIO_setHeader(&quot;Content-Type&quot;,&quot;multipart/mixed; boundary=%s&quot;,boundary);</span>
-<span class="lineNum">    1231 </span>                :<span class="lineCov">          1 :     msIO_sendHeaders();</span>
-<span class="lineNum">    1232 </span>                :<span class="lineCov">          1 :     msIO_fprintf(stdout,&quot;--%s\r\n&quot;,boundary );</span>
-<span class="lineNum">    1233 </span>                :            : 
-<span class="lineNum">    1234 </span>                :<span class="lineCov">          1 :     papszAdditionalFiles = msOGROutputGetAdditonalFiles(map);</span>
-<span class="lineNum">    1235 </span>                :<span class="lineCov">          1 :     file_list = msCSLConcatenate(file_list, papszAdditionalFiles);</span>
-<span class="lineNum">    1236 </span>                :<span class="lineCov">          1 :     CSLDestroy(papszAdditionalFiles);</span>
-<span class="lineNum">    1237 </span>                :            : 
-<span class="lineNum">    1238 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = 0; file_list != NULL &amp;&amp; file_list[i] != NULL; i++ ) {</span>
-<span class="lineNum">    1239 </span>                :            :       FILE *fp;
-<span class="lineNum">    1240 </span>                :            :       int bytes_read;
-<span class="lineNum">    1241 </span>                :            :       char buffer[1024];
+<span class="lineNum">    1224 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( jsonp != NULL ) msIO_fprintf( stdout, &quot;%s(&quot;, jsonp );</span>
+<span class="lineNum">    1225 </span>                :            : 
+<span class="lineNum">    1226 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 )</span>
+<span class="lineNum">    1227 </span>                :<span class="lineCov">          1 :       msIO_fwrite( buffer, 1, bytes_read, stdout );</span>
+<span class="lineNum">    1228 </span>                :<span class="lineCov">          1 :     VSIFCloseL( fp );</span>
+<span class="lineNum">    1229 </span>                :            : 
+<span class="lineNum">    1230 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (jsonp != NULL) msIO_fprintf( stdout, &quot;);\n&quot; );</span>
+<span class="lineNum">    1231 </span>                :            :   }
+<span class="lineNum">    1232 </span>                :            : 
+<span class="lineNum">    1233 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1234 </span>                :            :   /*      Handle the case of a multi-part result.                         */
+<span class="lineNum">    1235 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1236 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   else if( EQUAL(form,&quot;multipart&quot;) ) {</span>
+<span class="lineNum">    1237 </span>                :            :     char **papszAdditionalFiles;
+<span class="lineNum">    1238 </span>                :            :     static const char *boundary = &quot;xxOGRBoundaryxx&quot;;
+<span class="lineNum">    1239 </span>                :<span class="lineCov">          1 :     msIO_setHeader(&quot;Content-Type&quot;,&quot;multipart/mixed; boundary=%s&quot;,boundary);</span>
+<span class="lineNum">    1240 </span>                :<span class="lineCov">          1 :     msIO_sendHeaders();</span>
+<span class="lineNum">    1241 </span>                :<span class="lineCov">          1 :     msIO_fprintf(stdout,&quot;--%s\r\n&quot;,boundary );</span>
 <span class="lineNum">    1242 </span>                :            : 
-<span class="lineNum">    1243 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( sendheaders )</span>
-<span class="lineNum">    1244 </span>                :<span class="lineCov">          1 :         msIO_fprintf( stdout,</span>
-<span class="lineNum">    1245 </span>                :            :                       &quot;Content-Disposition: attachment; filename=%s\r\n&quot;
-<span class="lineNum">    1246 </span>                :            :                       &quot;Content-Type: application/binary\r\n&quot;
-<span class="lineNum">    1247 </span>                :            :                       &quot;Content-Transfer-Encoding: binary\r\n\r\n&quot;,
-<span class="lineNum">    1248 </span>                :<span class="lineCov">          1 :                       CPLGetFilename( file_list[i] ));</span>
-<span class="lineNum">    1249 </span>                :            : 
-<span class="lineNum">    1250 </span>                :            : 
-<span class="lineNum">    1251 </span>                :<span class="lineCov">          1 :       fp = VSIFOpenL( file_list[i], &quot;r&quot; );</span>
-<span class="lineNum">    1252 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( fp == NULL ) {</span>
-<span class="lineNum">    1253 </span>                :<span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
-<span class="lineNum">    1254 </span>                :            :                     &quot;Failed to open result file '%s'.&quot;,
-<span class="lineNum">    1255 </span>                :            :                     &quot;msOGRWriteFromQuery()&quot;,
-<span class="lineNum">    1256 </span>                :            :                     file_list[0] );
-<span class="lineNum">    1257 </span>                :<span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1258 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
-<span class="lineNum">    1259 </span>                :            :       }
-<span class="lineNum">    1260 </span>                :            : 
-<span class="lineNum">    1261 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 )</span>
-<span class="lineNum">    1262 </span>                :<span class="lineCov">          1 :         msIO_fwrite( buffer, 1, bytes_read, stdout );</span>
-<span class="lineNum">    1263 </span>                :<span class="lineCov">          1 :       VSIFCloseL( fp );</span>
-<span class="lineNum">    1264 </span>                :            : 
-<span class="lineNum">    1265 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (file_list[i+1] == NULL)</span>
-<span class="lineNum">    1266 </span>                :<span class="lineCov">          1 :         msIO_fprintf( stdout, &quot;\r\n--%s--\r\n&quot;, boundary );</span>
-<span class="lineNum">    1267 </span>                :            :       else
-<span class="lineNum">    1268 </span>                :<span class="lineCov">          1 :         msIO_fprintf( stdout, &quot;\r\n--%s\r\n&quot;, boundary );</span>
-<span class="lineNum">    1269 </span>                :            :     }
-<span class="lineNum">    1270 </span>                :            :   }
-<span class="lineNum">    1271 </span>                :            : 
-<span class="lineNum">    1272 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1273 </span>                :            :   /*      Handle the case of a zip file result.                           */
-<span class="lineNum">    1274 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1275 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   else if( EQUAL(form,&quot;zip&quot;) ) {</span>
-<span class="lineNum">    1276 </span>                :            : #if !defined(CPL_ZIP_API_OFFERED)
-<span class="lineNum">    1277 </span>                :            :     msSetError( MS_MISCERR, &quot;FORM=zip selected, but CPL ZIP support unavailable, perhaps you need to upgrade to GDAL/OGR 1.8?&quot;,
-<span class="lineNum">    1278 </span>                :            :                 &quot;msOGRWriteFromQuery()&quot;);
-<span class="lineNum">    1279 </span>                :            :     msOGRCleanupDS( datasource_name );
-<span class="lineNum">    1280 </span>                :            :     return MS_FAILURE;
-<span class="lineNum">    1281 </span>                :            : #else
-<span class="lineNum">    1282 </span>                :            :     FILE *fp;
-<span class="lineNum">    1283 </span>                :<span class="lineCov">          1 :     char *zip_filename = msTmpFile(map, NULL, &quot;/vsimem/ogrzip/&quot;, &quot;zip&quot; );</span>
-<span class="lineNum">    1284 </span>                :            :     void *hZip;
-<span class="lineNum">    1285 </span>                :            :     int bytes_read;
-<span class="lineNum">    1286 </span>                :            :     char buffer[1024];
-<span class="lineNum">    1287 </span>                :            :     char **papszAdditionalFiles;
-<span class="lineNum">    1288 </span>                :            : 
-<span class="lineNum">    1289 </span>                :<span class="lineCov">          1 :     hZip = CPLCreateZip( zip_filename, NULL );</span>
-<span class="lineNum">    1290 </span>                :            : 
-<span class="lineNum">    1291 </span>                :<span class="lineCov">          1 :     papszAdditionalFiles = msOGROutputGetAdditonalFiles(map);</span>
-<span class="lineNum">    1292 </span>                :<span class="lineCov">          1 :     file_list = msCSLConcatenate(file_list, papszAdditionalFiles);</span>
-<span class="lineNum">    1293 </span>                :<span class="lineCov">          1 :     CSLDestroy(papszAdditionalFiles);</span>
-<span class="lineNum">    1294 </span>                :            : 
-<span class="lineNum">    1295 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = 0; file_list != NULL &amp;&amp; file_list[i] != NULL; i++ ) {</span>
-<span class="lineNum">    1296 </span>                :            : 
-<span class="lineNum">    1297 </span>                :<span class="lineCov">          1 :       CPLCreateFileInZip( hZip, CPLGetFilename(file_list[i]), NULL );</span>
-<span class="lineNum">    1298 </span>                :            : 
-<span class="lineNum">    1299 </span>                :<span class="lineCov">          1 :       fp = VSIFOpenL( file_list[i], &quot;r&quot; );</span>
-<span class="lineNum">    1300 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( fp == NULL ) {</span>
-<span class="lineNum">    1301 </span>                :<span class="lineNoCov">          0 :         CPLCloseZip( hZip );</span>
-<span class="lineNum">    1302 </span>                :<span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
-<span class="lineNum">    1303 </span>                :            :                     &quot;Failed to open result file '%s'.&quot;,
-<span class="lineNum">    1304 </span>                :            :                     &quot;msOGRWriteFromQuery()&quot;,
-<span class="lineNum">    1305 </span>                :            :                     file_list[0] );
-<span class="lineNum">    1306 </span>                :<span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1307 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
-<span class="lineNum">    1308 </span>                :            :       }
-<span class="lineNum">    1309 </span>                :            : 
-<span class="lineNum">    1310 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 ) {</span>
-<span class="lineNum">    1311 </span>                :<span class="lineCov">          1 :         CPLWriteFileInZip( hZip, buffer, bytes_read );</span>
-<span class="lineNum">    1312 </span>                :            :       }
-<span class="lineNum">    1313 </span>                :<span class="lineCov">          1 :       VSIFCloseL( fp );</span>
-<span class="lineNum">    1314 </span>                :            : 
-<span class="lineNum">    1315 </span>                :<span class="lineCov">          1 :       CPLCloseFileInZip( hZip );</span>
-<span class="lineNum">    1316 </span>                :            :     }
-<span class="lineNum">    1317 </span>                :<span class="lineCov">          1 :     CPLCloseZip( hZip );</span>
+<span class="lineNum">    1243 </span>                :<span class="lineCov">          1 :     papszAdditionalFiles = msOGROutputGetAdditonalFiles(map);</span>
+<span class="lineNum">    1244 </span>                :<span class="lineCov">          1 :     file_list = msCSLConcatenate(file_list, papszAdditionalFiles);</span>
+<span class="lineNum">    1245 </span>                :<span class="lineCov">          1 :     CSLDestroy(papszAdditionalFiles);</span>
+<span class="lineNum">    1246 </span>                :            : 
+<span class="lineNum">    1247 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = 0; file_list != NULL &amp;&amp; file_list[i] != NULL; i++ ) {</span>
+<span class="lineNum">    1248 </span>                :            :       FILE *fp;
+<span class="lineNum">    1249 </span>                :            :       int bytes_read;
+<span class="lineNum">    1250 </span>                :            :       char buffer[1024];
+<span class="lineNum">    1251 </span>                :            : 
+<span class="lineNum">    1252 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( sendheaders )</span>
+<span class="lineNum">    1253 </span>                :<span class="lineCov">          1 :         msIO_fprintf( stdout,</span>
+<span class="lineNum">    1254 </span>                :            :                       &quot;Content-Disposition: attachment; filename=%s\r\n&quot;
+<span class="lineNum">    1255 </span>                :            :                       &quot;Content-Type: application/binary\r\n&quot;
+<span class="lineNum">    1256 </span>                :            :                       &quot;Content-Transfer-Encoding: binary\r\n\r\n&quot;,
+<span class="lineNum">    1257 </span>                :<span class="lineCov">          1 :                       CPLGetFilename( file_list[i] ));</span>
+<span class="lineNum">    1258 </span>                :            : 
+<span class="lineNum">    1259 </span>                :            : 
+<span class="lineNum">    1260 </span>                :<span class="lineCov">          1 :       fp = VSIFOpenL( file_list[i], &quot;r&quot; );</span>
+<span class="lineNum">    1261 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( fp == NULL ) {</span>
+<span class="lineNum">    1262 </span>                :<span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1263 </span>                :            :                     &quot;Failed to open result file '%s'.&quot;,
+<span class="lineNum">    1264 </span>                :            :                     &quot;msOGRWriteFromQuery()&quot;,
+<span class="lineNum">    1265 </span>                :            :                     file_list[0] );
+<span class="lineNum">    1266 </span>                :<span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1267 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">    1268 </span>                :            :       }
+<span class="lineNum">    1269 </span>                :            : 
+<span class="lineNum">    1270 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 )</span>
+<span class="lineNum">    1271 </span>                :<span class="lineCov">          1 :         msIO_fwrite( buffer, 1, bytes_read, stdout );</span>
+<span class="lineNum">    1272 </span>                :<span class="lineCov">          1 :       VSIFCloseL( fp );</span>
+<span class="lineNum">    1273 </span>                :            : 
+<span class="lineNum">    1274 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (file_list[i+1] == NULL)</span>
+<span class="lineNum">    1275 </span>                :<span class="lineCov">          1 :         msIO_fprintf( stdout, &quot;\r\n--%s--\r\n&quot;, boundary );</span>
+<span class="lineNum">    1276 </span>                :            :       else
+<span class="lineNum">    1277 </span>                :<span class="lineCov">          1 :         msIO_fprintf( stdout, &quot;\r\n--%s\r\n&quot;, boundary );</span>
+<span class="lineNum">    1278 </span>                :            :     }
+<span class="lineNum">    1279 </span>                :            :   }
+<span class="lineNum">    1280 </span>                :            : 
+<span class="lineNum">    1281 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1282 </span>                :            :   /*      Handle the case of a zip file result.                           */
+<span class="lineNum">    1283 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1284 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   else if( EQUAL(form,&quot;zip&quot;) ) {</span>
+<span class="lineNum">    1285 </span>                :            : #if !defined(CPL_ZIP_API_OFFERED)
+<span class="lineNum">    1286 </span>                :            :     msSetError( MS_MISCERR, &quot;FORM=zip selected, but CPL ZIP support unavailable, perhaps you need to upgrade to GDAL/OGR 1.8?&quot;,
+<span class="lineNum">    1287 </span>                :            :                 &quot;msOGRWriteFromQuery()&quot;);
+<span class="lineNum">    1288 </span>                :            :     msOGRCleanupDS( datasource_name );
+<span class="lineNum">    1289 </span>                :            :     return MS_FAILURE;
+<span class="lineNum">    1290 </span>                :            : #else
+<span class="lineNum">    1291 </span>                :            :     FILE *fp;
+<span class="lineNum">    1292 </span>                :<span class="lineCov">          1 :     char *zip_filename = msTmpFile(map, NULL, &quot;/vsimem/ogrzip/&quot;, &quot;zip&quot; );</span>
+<span class="lineNum">    1293 </span>                :            :     void *hZip;
+<span class="lineNum">    1294 </span>                :            :     int bytes_read;
+<span class="lineNum">    1295 </span>                :            :     char buffer[1024];
+<span class="lineNum">    1296 </span>                :            :     char **papszAdditionalFiles;
+<span class="lineNum">    1297 </span>                :            : 
+<span class="lineNum">    1298 </span>                :<span class="lineCov">          1 :     hZip = CPLCreateZip( zip_filename, NULL );</span>
+<span class="lineNum">    1299 </span>                :            : 
+<span class="lineNum">    1300 </span>                :<span class="lineCov">          1 :     papszAdditionalFiles = msOGROutputGetAdditonalFiles(map);</span>
+<span class="lineNum">    1301 </span>                :<span class="lineCov">          1 :     file_list = msCSLConcatenate(file_list, papszAdditionalFiles);</span>
+<span class="lineNum">    1302 </span>                :<span class="lineCov">          1 :     CSLDestroy(papszAdditionalFiles);</span>
+<span class="lineNum">    1303 </span>                :            : 
+<span class="lineNum">    1304 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = 0; file_list != NULL &amp;&amp; file_list[i] != NULL; i++ ) {</span>
+<span class="lineNum">    1305 </span>                :            : 
+<span class="lineNum">    1306 </span>                :<span class="lineCov">          1 :       CPLCreateFileInZip( hZip, CPLGetFilename(file_list[i]), NULL );</span>
+<span class="lineNum">    1307 </span>                :            : 
+<span class="lineNum">    1308 </span>                :<span class="lineCov">          1 :       fp = VSIFOpenL( file_list[i], &quot;r&quot; );</span>
+<span class="lineNum">    1309 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( fp == NULL ) {</span>
+<span class="lineNum">    1310 </span>                :<span class="lineNoCov">          0 :         CPLCloseZip( hZip );</span>
+<span class="lineNum">    1311 </span>                :<span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1312 </span>                :            :                     &quot;Failed to open result file '%s'.&quot;,
+<span class="lineNum">    1313 </span>                :            :                     &quot;msOGRWriteFromQuery()&quot;,
+<span class="lineNum">    1314 </span>                :            :                     file_list[0] );
+<span class="lineNum">    1315 </span>                :<span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1316 </span>                :<span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">    1317 </span>                :            :       }
 <span class="lineNum">    1318 </span>                :            : 
-<span class="lineNum">    1319 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( sendheaders ) {</span>
-<span class="lineNum">    1320 </span>                :            :       const char* zip_filename = fo_filename;
-<span class="lineNum">    1321 </span>                :            :       /* Make sure the filename is ended by .zip */
-<span class="lineNum">    1322 </span>  [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineCov">          1 :       if( !EQUAL(CPLGetExtension(zip_filename), &quot;zip&quot;) &amp;&amp;</span>
-<span class="lineNum">    1323 </span>                :<span class="lineNoCov">          0 :           !EQUAL(CPLGetExtension(zip_filename), &quot;kmz&quot;) )</span>
-<span class="lineNum">    1324 </span>                :<span class="lineNoCov">          0 :           zip_filename = CPLFormFilename(NULL, fo_filename, &quot;zip&quot;);</span>
-<span class="lineNum">    1325 </span>                :<span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Disposition&quot;,&quot;attachment; filename=%s&quot;,zip_filename);</span>
-<span class="lineNum">    1326 </span>                :<span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Type&quot;,&quot;application/zip&quot;);</span>
-<span class="lineNum">    1327 </span>                :<span class="lineCov">          1 :       msIO_sendHeaders();</span>
-<span class="lineNum">    1328 </span>                :            :     }
-<span class="lineNum">    1329 </span>                :            : 
-<span class="lineNum">    1330 </span>                :<span class="lineCov">          1 :     fp = VSIFOpenL( zip_filename, &quot;r&quot; );</span>
-<span class="lineNum">    1331 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( fp == NULL ) {</span>
-<span class="lineNum">    1332 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
-<span class="lineNum">    1333 </span>                :            :                   &quot;Failed to open zip file '%s'.&quot;,
-<span class="lineNum">    1334 </span>                :            :                   &quot;msOGRWriteFromQuery()&quot;,
-<span class="lineNum">    1335 </span>                :            :                   file_list[0] );
-<span class="lineNum">    1336 </span>                :<span class="lineNoCov">          0 :       msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1337 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">    1338 </span>                :            :     }
-<span class="lineNum">    1339 </span>                :            : 
-<span class="lineNum">    1340 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 )</span>
-<span class="lineNum">    1341 </span>                :<span class="lineCov">          1 :       msIO_fwrite( buffer, 1, bytes_read, stdout );</span>
-<span class="lineNum">    1342 </span>                :<span class="lineCov">          1 :     VSIFCloseL( fp );</span>
-<span class="lineNum">    1343 </span>                :            : 
-<span class="lineNum">    1344 </span>                :<span class="lineCov">          1 :     msFree( zip_filename );</span>
-<span class="lineNum">    1345 </span>                :            : #endif /* defined(CPL_ZIP_API_OFFERED) */
-<span class="lineNum">    1346 </span>                :            :   }
-<span class="lineNum">    1347 </span>                :            : 
-<span class="lineNum">    1348 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1349 </span>                :            :   /*      Handle illegal form value.                                      */
-<span class="lineNum">    1350 </span>                :            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1351 </span>                :            :   else {
-<span class="lineNum">    1352 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Unsupported FORM=%s value.&quot;,</span>
-<span class="lineNum">    1353 </span>                :            :                 &quot;msOGRWriteFromQuery()&quot;, form );
-<span class="lineNum">    1354 </span>                :<span class="lineNoCov">          0 :     msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1355 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1356 </span>                :            :   }
-<span class="lineNum">    1357 </span>                :            : 
-<span class="lineNum">    1358 </span>                :<span class="lineCov">          1 :   msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1359 </span>                :            : 
-<span class="lineNum">    1360 </span>                :<span class="lineCov">          1 :   CSLDestroy( layer_options );</span>
-<span class="lineNum">    1361 </span>                :<span class="lineCov">          1 :   CSLDestroy( file_list );</span>
-<span class="lineNum">    1362 </span>                :            : 
-<span class="lineNum">    1363 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1364 </span>                :            : #endif /* def USE_OGR */
-<span class="lineNum">    1365 </span>                :            : }
+<span class="lineNum">    1319 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 ) {</span>
+<span class="lineNum">    1320 </span>                :<span class="lineCov">          1 :         CPLWriteFileInZip( hZip, buffer, bytes_read );</span>
+<span class="lineNum">    1321 </span>                :            :       }
+<span class="lineNum">    1322 </span>                :<span class="lineCov">          1 :       VSIFCloseL( fp );</span>
+<span class="lineNum">    1323 </span>                :            : 
+<span class="lineNum">    1324 </span>                :<span class="lineCov">          1 :       CPLCloseFileInZip( hZip );</span>
+<span class="lineNum">    1325 </span>                :            :     }
+<span class="lineNum">    1326 </span>                :<span class="lineCov">          1 :     CPLCloseZip( hZip );</span>
+<span class="lineNum">    1327 </span>                :            : 
+<span class="lineNum">    1328 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( sendheaders ) {</span>
+<span class="lineNum">    1329 </span>                :            :       const char* zip_filename = fo_filename;
+<span class="lineNum">    1330 </span>                :            :       /* Make sure the filename is ended by .zip */
+<span class="lineNum">    1331 </span>  [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineCov">          1 :       if( !EQUAL(CPLGetExtension(zip_filename), &quot;zip&quot;) &amp;&amp;</span>
+<span class="lineNum">    1332 </span>                :<span class="lineNoCov">          0 :           !EQUAL(CPLGetExtension(zip_filename), &quot;kmz&quot;) )</span>
+<span class="lineNum">    1333 </span>                :<span class="lineNoCov">          0 :           zip_filename = CPLFormFilename(NULL, fo_filename, &quot;zip&quot;);</span>
+<span class="lineNum">    1334 </span>                :<span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Disposition&quot;,&quot;attachment; filename=%s&quot;,zip_filename);</span>
+<span class="lineNum">    1335 </span>                :<span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Type&quot;,&quot;application/zip&quot;);</span>
+<span class="lineNum">    1336 </span>                :<span class="lineCov">          1 :       msIO_sendHeaders();</span>
+<span class="lineNum">    1337 </span>                :            :     }
+<span class="lineNum">    1338 </span>                :            : 
+<span class="lineNum">    1339 </span>                :<span class="lineCov">          1 :     fp = VSIFOpenL( zip_filename, &quot;r&quot; );</span>
+<span class="lineNum">    1340 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if( fp == NULL ) {</span>
+<span class="lineNum">    1341 </span>                :<span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1342 </span>                :            :                   &quot;Failed to open zip file '%s'.&quot;,
+<span class="lineNum">    1343 </span>                :            :                   &quot;msOGRWriteFromQuery()&quot;,
+<span class="lineNum">    1344 </span>                :            :                   file_list[0] );
+<span class="lineNum">    1345 </span>                :<span class="lineNoCov">          0 :       msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1346 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    1347 </span>                :            :     }
+<span class="lineNum">    1348 </span>                :            : 
+<span class="lineNum">    1349 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 )</span>
+<span class="lineNum">    1350 </span>                :<span class="lineCov">          1 :       msIO_fwrite( buffer, 1, bytes_read, stdout );</span>
+<span class="lineNum">    1351 </span>                :<span class="lineCov">          1 :     VSIFCloseL( fp );</span>
+<span class="lineNum">    1352 </span>                :            : 
+<span class="lineNum">    1353 </span>                :<span class="lineCov">          1 :     msFree( zip_filename );</span>
+<span class="lineNum">    1354 </span>                :            : #endif /* defined(CPL_ZIP_API_OFFERED) */
+<span class="lineNum">    1355 </span>                :            :   }
+<span class="lineNum">    1356 </span>                :            : 
+<span class="lineNum">    1357 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1358 </span>                :            :   /*      Handle illegal form value.                                      */
+<span class="lineNum">    1359 </span>                :            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1360 </span>                :            :   else {
+<span class="lineNum">    1361 </span>                :<span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Unsupported FORM=%s value.&quot;,</span>
+<span class="lineNum">    1362 </span>                :            :                 &quot;msOGRWriteFromQuery()&quot;, form );
+<span class="lineNum">    1363 </span>                :<span class="lineNoCov">          0 :     msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1364 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1365 </span>                :            :   }
 <span class="lineNum">    1366 </span>                :            : 
-<span class="lineNum">    1367 </span>                :            : /************************************************************************/
-<span class="lineNum">    1368 </span>                :            : /*                     msPopulateRenderVTableOGR()                      */
-<a name="1369"><span class="lineNum">    1369 </span>                :            : /************************************************************************/</a>
-<span class="lineNum">    1370 </span>                :            : 
-<span class="lineNum">    1371 </span>                :<span class="lineNoCov">          0 : int msPopulateRendererVTableOGR( rendererVTableObj *renderer )</span>
-<span class="lineNum">    1372 </span>                :            : {
-<span class="lineNum">    1373 </span>                :            : #ifdef USE_OGR
-<span class="lineNum">    1374 </span>                :            :   /* we aren't really a normal renderer so we leave everything default */
-<span class="lineNum">    1375 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1376 </span>                :            : #else
-<span class="lineNum">    1377 </span>                :            :   msSetError(MS_OGRERR, &quot;OGR Driver requested but is not built in&quot;,
-<span class="lineNum">    1378 </span>                :            :              &quot;msPopulateRendererVTableOGR()&quot;);
-<span class="lineNum">    1379 </span>                :            :   return MS_FAILURE;
-<span class="lineNum">    1380 </span>                :            : #endif
-<span class="lineNum">    1381 </span>                :            : }
+<span class="lineNum">    1367 </span>                :<span class="lineCov">          1 :   msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1368 </span>                :            : 
+<span class="lineNum">    1369 </span>                :<span class="lineCov">          1 :   CSLDestroy( layer_options );</span>
+<span class="lineNum">    1370 </span>                :<span class="lineCov">          1 :   CSLDestroy( file_list );</span>
+<span class="lineNum">    1371 </span>                :            : 
+<span class="lineNum">    1372 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1373 </span>                :            : #endif /* def USE_OGR */
+<span class="lineNum">    1374 </span>                :            : }
+<span class="lineNum">    1375 </span>                :            : 
+<span class="lineNum">    1376 </span>                :            : /************************************************************************/
+<span class="lineNum">    1377 </span>                :            : /*                     msPopulateRenderVTableOGR()                      */
+<a name="1378"><span class="lineNum">    1378 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">    1379 </span>                :            : 
+<span class="lineNum">    1380 </span>                :<span class="lineNoCov">          0 : int msPopulateRendererVTableOGR( rendererVTableObj *renderer )</span>
+<span class="lineNum">    1381 </span>                :            : {
+<span class="lineNum">    1382 </span>                :            : #ifdef USE_OGR
+<span class="lineNum">    1383 </span>                :            :   /* we aren't really a normal renderer so we leave everything default */
+<span class="lineNum">    1384 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1385 </span>                :            : #else
+<span class="lineNum">    1386 </span>                :            :   msSetError(MS_OGRERR, &quot;OGR Driver requested but is not built in&quot;,
+<span class="lineNum">    1387 </span>                :            :              &quot;msPopulateRendererVTableOGR()&quot;);
+<span class="lineNum">    1388 </span>                :            :   return MS_FAILURE;
+<span class="lineNum">    1389 </span>                :            : #endif
+<span class="lineNum">    1390 </span>                :            : }
 </pre>
       </td>
     </tr>

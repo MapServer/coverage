@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">725</td>
-            <td class="headerCovTableEntry">1012</td>
-            <td class="headerCovTableEntryLo">71.6 %</td>
+            <td class="headerCovTableEntry">726</td>
+            <td class="headerCovTableEntry">1019</td>
+            <td class="headerCovTableEntryLo">71.2 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -49,9 +49,9 @@
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">484</td>
-            <td class="headerCovTableEntry">798</td>
-            <td class="headerCovTableEntryLo">60.7 %</td>
+            <td class="headerCovTableEntry">486</td>
+            <td class="headerCovTableEntry">804</td>
+            <td class="headerCovTableEntryLo">60.4 %</td>
           </tr>
           <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -1757,7 +1757,8 @@
 <span class="lineNum">    1665 </span>                :<span class="lineCov">          1 : int msLayerSupportsSorting(layerObj *layer)</span>
 <span class="lineNum">    1666 </span>                :            : {
 <span class="lineNum">    1667 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer &amp;&amp; (</span>
-<span class="lineNum">    1668 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :          (layer-&gt;connectiontype == MS_OGR) || (layer-&gt;connectiontype == MS_POSTGIS) || (layer-&gt;connectiontype == MS_ORACLESPATIAL)</span>
+<span class="lineNum">    1668 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     (layer-&gt;connectiontype == MS_OGR) || (layer-&gt;connectiontype == MS_POSTGIS) || (layer-&gt;connectiontype == MS_ORACLESPATIAL) || ((layer-&gt;connectiontype == MS_PLUGIN) &amp;&amp; (strstr(layer-&gt;plugin_library,&quot;msplugin_oracle&quot;) != NULL))</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
 <span class="lineNum">    1669 </span>                :            :                )
 <span class="lineNum">    1670 </span>                :            :      )
 <span class="lineNum">    1671 </span>                :            :     return MS_TRUE;
@@ -1798,566 +1799,577 @@
 <span class="lineNum">    1706 </span>                :            :     int i;
 <span class="lineNum">    1707 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i=0;i&lt;layer-&gt;sortBy.nProperties;i++) {</span>
 <span class="lineNum">    1708 </span>                :<span class="lineCov">          1 :       char* escaped = msLayerEscapePropertyName(layer, layer-&gt;sortBy.properties[i].item);</span>
-<span class="lineNum">    1709 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( i &gt; 0 )</span>
-<span class="lineNum">    1710 </span>                :<span class="lineNoCov">          0 :         strOrderBy = msStringConcatenate(strOrderBy, &quot;, &quot;);</span>
-<span class="lineNum">    1711 </span>                :<span class="lineCov">          1 :       strOrderBy = msStringConcatenate(strOrderBy, escaped);</span>
-<span class="lineNum">    1712 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( layer-&gt;sortBy.properties[i].sortOrder == SORT_DESC )</span>
-<span class="lineNum">    1713 </span>                :<span class="lineCov">          1 :         strOrderBy = msStringConcatenate(strOrderBy, &quot; DESC&quot;);</span>
-<span class="lineNum">    1714 </span>                :<span class="lineCov">          1 :       msFree(escaped);</span>
-<span class="lineNum">    1715 </span>                :            :     }
-<span class="lineNum">    1716 </span>                :            :   }
-<span class="lineNum">    1717 </span>                :<span class="lineCov">          1 :   return strOrderBy;</span>
-<span class="lineNum">    1718 </span>                :            : }
-<a name="1719"><span class="lineNum">    1719 </span>                :            : </a>
-<span class="lineNum">    1720 </span>                :            : int
-<span class="lineNum">    1721 </span>                :<span class="lineCov">          1 : msLayerApplyPlainFilterToLayer(FilterEncodingNode *psNode, mapObj *map, int iLayerIndex)</span>
-<span class="lineNum">    1722 </span>                :            : {
-<span class="lineNum">    1723 </span>                :            : #ifdef USE_OGR
-<span class="lineNum">    1724 </span>                :<span class="lineCov">          1 :   return FLTLayerApplyPlainFilterToLayer(psNode, map, iLayerIndex);</span>
-<span class="lineNum">    1725 </span>                :            : #else
-<span class="lineNum">    1726 </span>                :            :   return MS_FAILURE;
-<span class="lineNum">    1727 </span>                :            : #endif
-<a name="1728"><span class="lineNum">    1728 </span>                :            : }</a>
-<span class="lineNum">    1729 </span>                :            : 
-<span class="lineNum">    1730 </span>                :<span class="lineCov">          1 : int msLayerGetPaging(layerObj *layer)</span>
-<span class="lineNum">    1731 </span>                :            : {
-<span class="lineNum">    1732 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if ( ! layer-&gt;vtable) {</span>
-<span class="lineNum">    1733 </span>                :<span class="lineCov">          1 :     int rv =  msInitializeVirtualTable(layer);</span>
-<span class="lineNum">    1734 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (rv != MS_SUCCESS) {</span>
-<span class="lineNum">    1735 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Unable to initialize virtual table&quot;, &quot;msLayerGetPaging()&quot;);</span>
-<span class="lineNum">    1736 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">    1737 </span>                :            :     }
-<span class="lineNum">    1738 </span>                :            :   }
-<span class="lineNum">    1739 </span>                :<span class="lineCov">          1 :   return layer-&gt;vtable-&gt;LayerGetPaging(layer);</span>
-<a name="1740"><span class="lineNum">    1740 </span>                :            : }</a>
-<span class="lineNum">    1741 </span>                :            : 
-<span class="lineNum">    1742 </span>                :<span class="lineCov">          1 : void msLayerEnablePaging(layerObj *layer, int value)</span>
-<span class="lineNum">    1743 </span>                :            : {
-<span class="lineNum">    1744 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if ( ! layer-&gt;vtable) {</span>
-<span class="lineNum">    1745 </span>                :<span class="lineNoCov">          0 :     int rv =  msInitializeVirtualTable(layer);</span>
-<span class="lineNum">    1746 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (rv != MS_SUCCESS) {</span>
-<span class="lineNum">    1747 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Unable to initialize virtual table&quot;, &quot;msLayerEnablePaging()&quot;);</span>
-<span class="lineNum">    1748 </span>                :<span class="lineNoCov">          0 :       return;</span>
-<span class="lineNum">    1749 </span>                :            :     }
-<span class="lineNum">    1750 </span>                :            :   }
-<span class="lineNum">    1751 </span>                :<span class="lineCov">          1 :   return layer-&gt;vtable-&gt;LayerEnablePaging(layer, value);</span>
-<a name="1752"><span class="lineNum">    1752 </span>                :            : }</a>
-<span class="lineNum">    1753 </span>                :            : 
-<span class="lineNum">    1754 </span>                :<span class="lineNoCov">          0 : int LayerDefaultGetExtent(layerObj *layer, rectObj *extent)</span>
-<span class="lineNum">    1755 </span>                :            : {
-<span class="lineNum">    1756 </span>                :<span class="lineNoCov">          0 :   return MS_FAILURE;</span>
-<a name="1757"><span class="lineNum">    1757 </span>                :            : }</a>
-<span class="lineNum">    1758 </span>                :            : 
-<span class="lineNum">    1759 </span>                :<span class="lineNoCov">          0 : int LayerDefaultGetAutoStyle(mapObj *map, layerObj *layer, classObj *c, shapeObj *shape)</span>
-<span class="lineNum">    1760 </span>                :            : {
-<span class="lineNum">    1761 </span>                :<span class="lineNoCov">          0 :   msSetError(MS_MISCERR, &quot;'STYLEITEM AUTO' not supported for this data source.&quot;, &quot;msLayerGetAutoStyle()&quot;);</span>
-<span class="lineNum">    1762 </span>                :<span class="lineNoCov">          0 :   return MS_FAILURE;</span>
+<span class="lineNum">    1709 </span>                :            :       //Enclose property name in double quotes (if it isn't yet) to ensure that mixed case property names are supported
+<span class="lineNum">    1710 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (escaped[0] != '&quot;')</span>
+<span class="lineNum">    1711 </span>                :            :       {
+<span class="lineNum">    1712 </span>                :<span class="lineNoCov">          0 :         size_t propertyLen = strlen(escaped);</span>
+<span class="lineNum">    1713 </span>                :<span class="lineNoCov">          0 :         escaped = msSmallRealloc(escaped, propertyLen + 3);</span>
+<span class="lineNum">    1714 </span>                :<span class="lineNoCov">          0 :         memmove(escaped + 1, escaped, propertyLen);</span>
+<span class="lineNum">    1715 </span>                :<span class="lineNoCov">          0 :         escaped[0] = '\&quot;';</span>
+<span class="lineNum">    1716 </span>                :<span class="lineNoCov">          0 :         escaped[propertyLen+1] = '\&quot;';</span>
+<span class="lineNum">    1717 </span>                :<span class="lineNoCov">          0 :         escaped[propertyLen + 2] = 0;</span>
+<span class="lineNum">    1718 </span>                :            : 
+<span class="lineNum">    1719 </span>                :            :       }
+<span class="lineNum">    1720 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (i &gt; 0)</span>
+<span class="lineNum">    1721 </span>                :<span class="lineNoCov">          0 :         strOrderBy = msStringConcatenate(strOrderBy, &quot;, &quot;);</span>
+<span class="lineNum">    1722 </span>                :<span class="lineCov">          1 :       strOrderBy = msStringConcatenate(strOrderBy, escaped);</span>
+<span class="lineNum">    1723 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( layer-&gt;sortBy.properties[i].sortOrder == SORT_DESC )</span>
+<span class="lineNum">    1724 </span>                :<span class="lineCov">          1 :         strOrderBy = msStringConcatenate(strOrderBy, &quot; DESC&quot;);</span>
+<span class="lineNum">    1725 </span>                :<span class="lineCov">          1 :       msFree(escaped);</span>
+<span class="lineNum">    1726 </span>                :            :     }
+<span class="lineNum">    1727 </span>                :            :   }
+<span class="lineNum">    1728 </span>                :<span class="lineCov">          1 :   return strOrderBy;</span>
+<span class="lineNum">    1729 </span>                :            : }
+<a name="1730"><span class="lineNum">    1730 </span>                :            : </a>
+<span class="lineNum">    1731 </span>                :            : int
+<span class="lineNum">    1732 </span>                :<span class="lineCov">          1 : msLayerApplyPlainFilterToLayer(FilterEncodingNode *psNode, mapObj *map, int iLayerIndex)</span>
+<span class="lineNum">    1733 </span>                :            : {
+<span class="lineNum">    1734 </span>                :            : #ifdef USE_OGR
+<span class="lineNum">    1735 </span>                :<span class="lineCov">          1 :   return FLTLayerApplyPlainFilterToLayer(psNode, map, iLayerIndex);</span>
+<span class="lineNum">    1736 </span>                :            : #else
+<span class="lineNum">    1737 </span>                :            :   return MS_FAILURE;
+<span class="lineNum">    1738 </span>                :            : #endif
+<a name="1739"><span class="lineNum">    1739 </span>                :            : }</a>
+<span class="lineNum">    1740 </span>                :            : 
+<span class="lineNum">    1741 </span>                :<span class="lineCov">          1 : int msLayerGetPaging(layerObj *layer)</span>
+<span class="lineNum">    1742 </span>                :            : {
+<span class="lineNum">    1743 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if ( ! layer-&gt;vtable) {</span>
+<span class="lineNum">    1744 </span>                :<span class="lineCov">          1 :     int rv =  msInitializeVirtualTable(layer);</span>
+<span class="lineNum">    1745 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (rv != MS_SUCCESS) {</span>
+<span class="lineNum">    1746 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Unable to initialize virtual table&quot;, &quot;msLayerGetPaging()&quot;);</span>
+<span class="lineNum">    1747 </span>                :<span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    1748 </span>                :            :     }
+<span class="lineNum">    1749 </span>                :            :   }
+<span class="lineNum">    1750 </span>                :<span class="lineCov">          1 :   return layer-&gt;vtable-&gt;LayerGetPaging(layer);</span>
+<a name="1751"><span class="lineNum">    1751 </span>                :            : }</a>
+<span class="lineNum">    1752 </span>                :            : 
+<span class="lineNum">    1753 </span>                :<span class="lineCov">          1 : void msLayerEnablePaging(layerObj *layer, int value)</span>
+<span class="lineNum">    1754 </span>                :            : {
+<span class="lineNum">    1755 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if ( ! layer-&gt;vtable) {</span>
+<span class="lineNum">    1756 </span>                :<span class="lineNoCov">          0 :     int rv =  msInitializeVirtualTable(layer);</span>
+<span class="lineNum">    1757 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (rv != MS_SUCCESS) {</span>
+<span class="lineNum">    1758 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Unable to initialize virtual table&quot;, &quot;msLayerEnablePaging()&quot;);</span>
+<span class="lineNum">    1759 </span>                :<span class="lineNoCov">          0 :       return;</span>
+<span class="lineNum">    1760 </span>                :            :     }
+<span class="lineNum">    1761 </span>                :            :   }
+<span class="lineNum">    1762 </span>                :<span class="lineCov">          1 :   return layer-&gt;vtable-&gt;LayerEnablePaging(layer, value);</span>
 <a name="1763"><span class="lineNum">    1763 </span>                :            : }</a>
 <span class="lineNum">    1764 </span>                :            : 
-<span class="lineNum">    1765 </span>                :<span class="lineCov">          1 : int LayerDefaultCloseConnection(layerObj *layer)</span>
+<span class="lineNum">    1765 </span>                :<span class="lineNoCov">          0 : int LayerDefaultGetExtent(layerObj *layer, rectObj *extent)</span>
 <span class="lineNum">    1766 </span>                :            : {
-<span class="lineNum">    1767 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1767 </span>                :<span class="lineNoCov">          0 :   return MS_FAILURE;</span>
 <a name="1768"><span class="lineNum">    1768 </span>                :            : }</a>
 <span class="lineNum">    1769 </span>                :            : 
-<span class="lineNum">    1770 </span>                :<span class="lineCov">          1 : int LayerDefaultCreateItems(layerObj *layer, const int nt)</span>
+<span class="lineNum">    1770 </span>                :<span class="lineNoCov">          0 : int LayerDefaultGetAutoStyle(mapObj *map, layerObj *layer, classObj *c, shapeObj *shape)</span>
 <span class="lineNum">    1771 </span>                :            : {
-<span class="lineNum">    1772 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (nt &gt; 0) {</span>
-<span class="lineNum">    1773 </span>                :<span class="lineCov">          1 :     layer-&gt;items = (char **)calloc(nt, sizeof(char *)); /* should be more than enough space */</span>
-<span class="lineNum">    1774 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     MS_CHECK_ALLOC(layer-&gt;items, sizeof(char *), MS_FAILURE);</span>
+<span class="lineNum">    1772 </span>                :<span class="lineNoCov">          0 :   msSetError(MS_MISCERR, &quot;'STYLEITEM AUTO' not supported for this data source.&quot;, &quot;msLayerGetAutoStyle()&quot;);</span>
+<span class="lineNum">    1773 </span>                :<span class="lineNoCov">          0 :   return MS_FAILURE;</span>
+<a name="1774"><span class="lineNum">    1774 </span>                :            : }</a>
 <span class="lineNum">    1775 </span>                :            : 
-<span class="lineNum">    1776 </span>                :<span class="lineCov">          1 :     layer-&gt;numitems = 0;</span>
-<span class="lineNum">    1777 </span>                :            :   }
-<span class="lineNum">    1778 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">    1776 </span>                :<span class="lineCov">          1 : int LayerDefaultCloseConnection(layerObj *layer)</span>
+<span class="lineNum">    1777 </span>                :            : {
+<span class="lineNum">    1778 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
 <a name="1779"><span class="lineNum">    1779 </span>                :            : }</a>
 <span class="lineNum">    1780 </span>                :            : 
-<span class="lineNum">    1781 </span>                :<span class="lineNoCov">          0 : int LayerDefaultGetNumFeatures(layerObj *layer)</span>
+<span class="lineNum">    1781 </span>                :<span class="lineCov">          1 : int LayerDefaultCreateItems(layerObj *layer, const int nt)</span>
 <span class="lineNum">    1782 </span>                :            : {
-<span class="lineNum">    1783 </span>                :<span class="lineNoCov">          0 :   msSetError(MS_SHPERR, &quot;Not an inline layer&quot;, &quot;msLayerGetNumFeatures()&quot;);</span>
-<span class="lineNum">    1784 </span>                :<span class="lineNoCov">          0 :   return MS_FAILURE;</span>
-<a name="1785"><span class="lineNum">    1785 </span>                :            : }</a>
+<span class="lineNum">    1783 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (nt &gt; 0) {</span>
+<span class="lineNum">    1784 </span>                :<span class="lineCov">          1 :     layer-&gt;items = (char **)calloc(nt, sizeof(char *)); /* should be more than enough space */</span>
+<span class="lineNum">    1785 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     MS_CHECK_ALLOC(layer-&gt;items, sizeof(char *), MS_FAILURE);</span>
 <span class="lineNum">    1786 </span>                :            : 
-<span class="lineNum">    1787 </span>                :<span class="lineNoCov">          0 : int LayerDefaultAutoProjection(layerObj *layer, projectionObj* projection)</span>
-<span class="lineNum">    1788 </span>                :            : {
-<span class="lineNum">    1789 </span>                :<span class="lineNoCov">          0 :   msSetError(MS_MISCERR, &quot;This data driver does not implement AUTO projection support&quot;, &quot;LayerDefaultAutoProjection()&quot;);</span>
-<span class="lineNum">    1790 </span>                :<span class="lineNoCov">          0 :   return MS_FAILURE;</span>
-<a name="1791"><span class="lineNum">    1791 </span>                :            : }</a>
-<span class="lineNum">    1792 </span>                :            : 
-<span class="lineNum">    1793 </span>                :<span class="lineCov">          1 : int LayerDefaultSupportsCommonFilters(layerObj *layer)</span>
-<span class="lineNum">    1794 </span>                :            : {
-<span class="lineNum">    1795 </span>                :<span class="lineCov">          1 :   return MS_FALSE;</span>
+<span class="lineNum">    1787 </span>                :<span class="lineCov">          1 :     layer-&gt;numitems = 0;</span>
+<span class="lineNum">    1788 </span>                :            :   }
+<span class="lineNum">    1789 </span>                :            :   return MS_SUCCESS;
+<a name="1790"><span class="lineNum">    1790 </span>                :            : }</a>
+<span class="lineNum">    1791 </span>                :            : 
+<span class="lineNum">    1792 </span>                :<span class="lineNoCov">          0 : int LayerDefaultGetNumFeatures(layerObj *layer)</span>
+<span class="lineNum">    1793 </span>                :            : {
+<span class="lineNum">    1794 </span>                :<span class="lineNoCov">          0 :   msSetError(MS_SHPERR, &quot;Not an inline layer&quot;, &quot;msLayerGetNumFeatures()&quot;);</span>
+<span class="lineNum">    1795 </span>                :<span class="lineNoCov">          0 :   return MS_FAILURE;</span>
 <a name="1796"><span class="lineNum">    1796 </span>                :            : }</a>
 <span class="lineNum">    1797 </span>                :            : 
-<span class="lineNum">    1798 </span>                :<span class="lineCov">          1 : int LayerDefaultTranslateFilter(layerObj *layer, expressionObj *filter, char *filteritem) </span>
+<span class="lineNum">    1798 </span>                :<span class="lineNoCov">          0 : int LayerDefaultAutoProjection(layerObj *layer, projectionObj* projection)</span>
 <span class="lineNum">    1799 </span>                :            : {
-<span class="lineNum">    1800 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!filter-&gt;string) return MS_SUCCESS; /* nothing to do, not an error */</span>
-<span class="lineNum">    1801 </span>                :            : 
-<span class="lineNum">    1802 </span>                :<span class="lineNoCov">          0 :   msSetError(MS_MISCERR, &quot;This data driver does not implement filter translation support&quot;, &quot;LayerDefaultTranslateFilter()&quot;);</span>
-<span class="lineNum">    1803 </span>                :<span class="lineCov">          1 :   return MS_FAILURE;</span>
-<a name="1804"><span class="lineNum">    1804 </span>                :            : }</a>
-<span class="lineNum">    1805 </span>                :            : 
-<span class="lineNum">    1806 </span>                :<span class="lineCov">          1 : int msLayerDefaultGetPaging(layerObj *layer)</span>
-<span class="lineNum">    1807 </span>                :            : {
-<span class="lineNum">    1808 </span>                :<span class="lineCov">          1 :   return MS_FALSE;</span>
-<a name="1809"><span class="lineNum">    1809 </span>                :            : }</a>
-<span class="lineNum">    1810 </span>                :            : 
-<span class="lineNum">    1811 </span>                :<span class="lineCov">          1 : void msLayerDefaultEnablePaging(layerObj *layer, int value)</span>
-<span class="lineNum">    1812 </span>                :            : {
-<span class="lineNum">    1813 </span>                :<span class="lineCov">          1 :   return;</span>
-<span class="lineNum">    1814 </span>                :            : }
-<span class="lineNum">    1815 </span>                :            : 
-<span class="lineNum">    1816 </span>                :            : /************************************************************************/
-<span class="lineNum">    1817 </span>                :            : /*                          LayerDefaultEscapeSQLParam                  */
-<span class="lineNum">    1818 </span>                :            : /*                                                                      */
-<span class="lineNum">    1819 </span>                :            : /*      Default function used to escape strings and avoid sql           */
-<span class="lineNum">    1820 </span>                :            : /*      injection. Specific drivers should redefine if an escaping      */
-<a name="1821"><span class="lineNum">    1821 </span>                :            : /*      function is available in the driver.                            */</a>
-<span class="lineNum">    1822 </span>                :            : /************************************************************************/
-<span class="lineNum">    1823 </span>                :<span class="lineCov">          1 : char *LayerDefaultEscapeSQLParam(layerObj *layer, const char* pszString)</span>
-<span class="lineNum">    1824 </span>                :            : {
-<span class="lineNum">    1825 </span>                :            :   char *pszEscapedStr=NULL;
-<span class="lineNum">    1826 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (pszString) {</span>
-<span class="lineNum">    1827 </span>                :            :     int nSrcLen;
-<span class="lineNum">    1828 </span>                :            :     char c;
-<span class="lineNum">    1829 </span>                :            :     int i=0, j=0;
-<span class="lineNum">    1830 </span>                :<span class="lineCov">          1 :     nSrcLen = (int)strlen(pszString);</span>
-<span class="lineNum">    1831 </span>                :<span class="lineCov">          1 :     pszEscapedStr = (char*) msSmallMalloc( 2 * nSrcLen + 1);</span>
-<span class="lineNum">    1832 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i = 0, j = 0; i &lt; nSrcLen; i++) {</span>
-<span class="lineNum">    1833 </span>                :<span class="lineCov">          1 :       c = pszString[i];</span>
-<span class="lineNum">    1834 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (c == '\'') {</span>
-<span class="lineNum">    1835 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '\'';</span>
-<span class="lineNum">    1836 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '\'';</span>
-<span class="lineNum">    1837 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       } else if (c == '\\') {</span>
-<span class="lineNum">    1838 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '\\';</span>
-<span class="lineNum">    1839 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '\\';</span>
-<span class="lineNum">    1840 </span>                :            :       } else
-<span class="lineNum">    1841 </span>                :<span class="lineCov">          1 :         pszEscapedStr[j++] = c;</span>
-<span class="lineNum">    1842 </span>                :            :     }
-<span class="lineNum">    1843 </span>                :<span class="lineCov">          1 :     pszEscapedStr[j] = 0;</span>
-<span class="lineNum">    1844 </span>                :            :   }
-<span class="lineNum">    1845 </span>                :<span class="lineCov">          1 :   return pszEscapedStr;</span>
-<span class="lineNum">    1846 </span>                :            : }
-<span class="lineNum">    1847 </span>                :            : 
-<span class="lineNum">    1848 </span>                :            : /************************************************************************/
-<span class="lineNum">    1849 </span>                :            : /*                          LayerDefaultEscapePropertyName              */
-<span class="lineNum">    1850 </span>                :            : /*                                                                      */
-<a name="1851"><span class="lineNum">    1851 </span>                :            : /*      Return the property name in a properly escaped and quoted form. */</a>
-<span class="lineNum">    1852 </span>                :            : /************************************************************************/
-<span class="lineNum">    1853 </span>                :<span class="lineCov">          1 : char *LayerDefaultEscapePropertyName(layerObj *layer, const char* pszString)</span>
-<span class="lineNum">    1854 </span>                :            : {
-<span class="lineNum">    1855 </span>                :            :   char* pszEscapedStr=NULL;
-<span class="lineNum">    1856 </span>                :            :   int i, j = 0;
-<span class="lineNum">    1857 </span>                :            : 
-<span class="lineNum">    1858 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if (layer &amp;&amp; pszString &amp;&amp; strlen(pszString) &gt; 0) {</span>
-<span class="lineNum">    1859 </span>                :<span class="lineCov">          1 :     int nLength = strlen(pszString);</span>
-<span class="lineNum">    1860 </span>                :            : 
-<span class="lineNum">    1861 </span>                :<span class="lineCov">          1 :     pszEscapedStr = (char*) msSmallMalloc( 1 + 2 * nLength + 1 + 1);</span>
-<span class="lineNum">    1862 </span>                :<span class="lineCov">          1 :     pszEscapedStr[j++] = '&quot;';</span>
-<span class="lineNum">    1863 </span>                :            : 
-<span class="lineNum">    1864 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for (i=0; i&lt;nLength; i++) {</span>
-<span class="lineNum">    1865 </span>                :<span class="lineCov">          1 :       char c = pszString[i];</span>
-<span class="lineNum">    1866 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (c == '&quot;') {</span>
-<span class="lineNum">    1867 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '&quot;';</span>
-<span class="lineNum">    1868 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] ='&quot;';</span>
-<span class="lineNum">    1869 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       } else if (c == '\\') {</span>
-<span class="lineNum">    1870 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '\\';</span>
-<span class="lineNum">    1871 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '\\';</span>
-<span class="lineNum">    1872 </span>                :            :       } else
-<span class="lineNum">    1873 </span>                :<span class="lineCov">          1 :         pszEscapedStr[j++] = c;</span>
-<span class="lineNum">    1874 </span>                :            :     }
-<span class="lineNum">    1875 </span>                :<span class="lineCov">          1 :     pszEscapedStr[j++] = '&quot;';</span>
-<span class="lineNum">    1876 </span>                :<span class="lineCov">          1 :     pszEscapedStr[j++] = 0;</span>
-<span class="lineNum">    1877 </span>                :            : 
-<span class="lineNum">    1878 </span>                :            :   }
-<span class="lineNum">    1879 </span>                :<span class="lineCov">          1 :   return pszEscapedStr;</span>
-<span class="lineNum">    1880 </span>                :            : }
-<span class="lineNum">    1881 </span>                :            : 
-<span class="lineNum">    1882 </span>                :            : 
-<span class="lineNum">    1883 </span>                :            : /*
-<span class="lineNum">    1884 </span>                :            :  * msConnectLayer
-<span class="lineNum">    1885 </span>                :            :  *
-<span class="lineNum">    1886 </span>                :            :  * This will connect layer object to the new layer type.
-<span class="lineNum">    1887 </span>                :            :  * Caller is responsible to close previous layer correctly.
-<span class="lineNum">    1888 </span>                :            :  * For Internal types the library_str is ignored, for PLUGIN it's
-<a name="1889"><span class="lineNum">    1889 </span>                :            :  * define what plugin to use. Returns MS_FAILURE or MS_SUCCESS.</a>
-<span class="lineNum">    1890 </span>                :            :  */
-<span class="lineNum">    1891 </span>                :<span class="lineNoCov">          0 : int msConnectLayer(layerObj *layer,</span>
-<span class="lineNum">    1892 </span>                :            :                    const int connectiontype,
-<span class="lineNum">    1893 </span>                :            :                    const char *library_str)
-<span class="lineNum">    1894 </span>                :            : {
-<span class="lineNum">    1895 </span>                :<span class="lineNoCov">          0 :   layer-&gt;connectiontype = connectiontype;</span>
-<span class="lineNum">    1896 </span>                :            :   /* For internal types, library_str is ignored */
-<span class="lineNum">    1897 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (connectiontype == MS_PLUGIN) {</span>
-<span class="lineNum">    1898 </span>                :            :     int rv;
-<span class="lineNum">    1899 </span>                :<span class="lineNoCov">          0 :     msFree(layer-&gt;plugin_library);</span>
-<span class="lineNum">    1900 </span>                :<span class="lineNoCov">          0 :     msFree(layer-&gt;plugin_library_original);</span>
-<span class="lineNum">    1901 </span>                :            : 
-<span class="lineNum">    1902 </span>                :<span class="lineNoCov">          0 :     layer-&gt;plugin_library_original = msStrdup(library_str);</span>
-<span class="lineNum">    1903 </span>                :<span class="lineNoCov">          0 :     rv = msBuildPluginLibraryPath(&amp;layer-&gt;plugin_library,</span>
-<span class="lineNum">    1904 </span>                :<span class="lineNoCov">          0 :                                   layer-&gt;plugin_library_original,</span>
-<span class="lineNum">    1905 </span>                :<span class="lineNoCov">          0 :                                   layer-&gt;map);</span>
-<span class="lineNum">    1906 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (rv != MS_SUCCESS) {</span>
-<span class="lineNum">    1907 </span>                :            :       return rv;
-<span class="lineNum">    1908 </span>                :            :     }
-<span class="lineNum">    1909 </span>                :            :   }
-<span class="lineNum">    1910 </span>                :<span class="lineNoCov">          0 :   return msInitializeVirtualTable(layer) ;</span>
-<span class="lineNum">    1911 </span>                :            : }
+<span class="lineNum">    1800 </span>                :<span class="lineNoCov">          0 :   msSetError(MS_MISCERR, &quot;This data driver does not implement AUTO projection support&quot;, &quot;LayerDefaultAutoProjection()&quot;);</span>
+<span class="lineNum">    1801 </span>                :<span class="lineNoCov">          0 :   return MS_FAILURE;</span>
+<a name="1802"><span class="lineNum">    1802 </span>                :            : }</a>
+<span class="lineNum">    1803 </span>                :            : 
+<span class="lineNum">    1804 </span>                :<span class="lineCov">          1 : int LayerDefaultSupportsCommonFilters(layerObj *layer)</span>
+<span class="lineNum">    1805 </span>                :            : {
+<span class="lineNum">    1806 </span>                :<span class="lineCov">          1 :   return MS_FALSE;</span>
+<a name="1807"><span class="lineNum">    1807 </span>                :            : }</a>
+<span class="lineNum">    1808 </span>                :            : 
+<span class="lineNum">    1809 </span>                :<span class="lineCov">          1 : int LayerDefaultTranslateFilter(layerObj *layer, expressionObj *filter, char *filteritem) </span>
+<span class="lineNum">    1810 </span>                :            : {
+<span class="lineNum">    1811 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(!filter-&gt;string) return MS_SUCCESS; /* nothing to do, not an error */</span>
+<span class="lineNum">    1812 </span>                :            : 
+<span class="lineNum">    1813 </span>                :<span class="lineNoCov">          0 :   msSetError(MS_MISCERR, &quot;This data driver does not implement filter translation support&quot;, &quot;LayerDefaultTranslateFilter()&quot;);</span>
+<span class="lineNum">    1814 </span>                :<span class="lineCov">          1 :   return MS_FAILURE;</span>
+<a name="1815"><span class="lineNum">    1815 </span>                :            : }</a>
+<span class="lineNum">    1816 </span>                :            : 
+<span class="lineNum">    1817 </span>                :<span class="lineCov">          1 : int msLayerDefaultGetPaging(layerObj *layer)</span>
+<span class="lineNum">    1818 </span>                :            : {
+<span class="lineNum">    1819 </span>                :<span class="lineCov">          1 :   return MS_FALSE;</span>
+<a name="1820"><span class="lineNum">    1820 </span>                :            : }</a>
+<span class="lineNum">    1821 </span>                :            : 
+<span class="lineNum">    1822 </span>                :<span class="lineCov">          1 : void msLayerDefaultEnablePaging(layerObj *layer, int value)</span>
+<span class="lineNum">    1823 </span>                :            : {
+<span class="lineNum">    1824 </span>                :<span class="lineCov">          1 :   return;</span>
+<span class="lineNum">    1825 </span>                :            : }
+<span class="lineNum">    1826 </span>                :            : 
+<span class="lineNum">    1827 </span>                :            : /************************************************************************/
+<span class="lineNum">    1828 </span>                :            : /*                          LayerDefaultEscapeSQLParam                  */
+<span class="lineNum">    1829 </span>                :            : /*                                                                      */
+<span class="lineNum">    1830 </span>                :            : /*      Default function used to escape strings and avoid sql           */
+<span class="lineNum">    1831 </span>                :            : /*      injection. Specific drivers should redefine if an escaping      */
+<a name="1832"><span class="lineNum">    1832 </span>                :            : /*      function is available in the driver.                            */</a>
+<span class="lineNum">    1833 </span>                :            : /************************************************************************/
+<span class="lineNum">    1834 </span>                :<span class="lineCov">          1 : char *LayerDefaultEscapeSQLParam(layerObj *layer, const char* pszString)</span>
+<span class="lineNum">    1835 </span>                :            : {
+<span class="lineNum">    1836 </span>                :            :   char *pszEscapedStr=NULL;
+<span class="lineNum">    1837 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (pszString) {</span>
+<span class="lineNum">    1838 </span>                :            :     int nSrcLen;
+<span class="lineNum">    1839 </span>                :            :     char c;
+<span class="lineNum">    1840 </span>                :            :     int i=0, j=0;
+<span class="lineNum">    1841 </span>                :<span class="lineCov">          1 :     nSrcLen = (int)strlen(pszString);</span>
+<span class="lineNum">    1842 </span>                :<span class="lineCov">          1 :     pszEscapedStr = (char*) msSmallMalloc( 2 * nSrcLen + 1);</span>
+<span class="lineNum">    1843 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(i = 0, j = 0; i &lt; nSrcLen; i++) {</span>
+<span class="lineNum">    1844 </span>                :<span class="lineCov">          1 :       c = pszString[i];</span>
+<span class="lineNum">    1845 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (c == '\'') {</span>
+<span class="lineNum">    1846 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '\'';</span>
+<span class="lineNum">    1847 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '\'';</span>
+<span class="lineNum">    1848 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       } else if (c == '\\') {</span>
+<span class="lineNum">    1849 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '\\';</span>
+<span class="lineNum">    1850 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '\\';</span>
+<span class="lineNum">    1851 </span>                :            :       } else
+<span class="lineNum">    1852 </span>                :<span class="lineCov">          1 :         pszEscapedStr[j++] = c;</span>
+<span class="lineNum">    1853 </span>                :            :     }
+<span class="lineNum">    1854 </span>                :<span class="lineCov">          1 :     pszEscapedStr[j] = 0;</span>
+<span class="lineNum">    1855 </span>                :            :   }
+<span class="lineNum">    1856 </span>                :<span class="lineCov">          1 :   return pszEscapedStr;</span>
+<span class="lineNum">    1857 </span>                :            : }
+<span class="lineNum">    1858 </span>                :            : 
+<span class="lineNum">    1859 </span>                :            : /************************************************************************/
+<span class="lineNum">    1860 </span>                :            : /*                          LayerDefaultEscapePropertyName              */
+<span class="lineNum">    1861 </span>                :            : /*                                                                      */
+<a name="1862"><span class="lineNum">    1862 </span>                :            : /*      Return the property name in a properly escaped and quoted form. */</a>
+<span class="lineNum">    1863 </span>                :            : /************************************************************************/
+<span class="lineNum">    1864 </span>                :<span class="lineCov">          1 : char *LayerDefaultEscapePropertyName(layerObj *layer, const char* pszString)</span>
+<span class="lineNum">    1865 </span>                :            : {
+<span class="lineNum">    1866 </span>                :            :   char* pszEscapedStr=NULL;
+<span class="lineNum">    1867 </span>                :            :   int i, j = 0;
+<span class="lineNum">    1868 </span>                :            : 
+<span class="lineNum">    1869 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if (layer &amp;&amp; pszString &amp;&amp; strlen(pszString) &gt; 0) {</span>
+<span class="lineNum">    1870 </span>                :<span class="lineCov">          1 :     int nLength = strlen(pszString);</span>
+<span class="lineNum">    1871 </span>                :            : 
+<span class="lineNum">    1872 </span>                :<span class="lineCov">          1 :     pszEscapedStr = (char*) msSmallMalloc( 1 + 2 * nLength + 1 + 1);</span>
+<span class="lineNum">    1873 </span>                :<span class="lineCov">          1 :     pszEscapedStr[j++] = '&quot;';</span>
+<span class="lineNum">    1874 </span>                :            : 
+<span class="lineNum">    1875 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for (i=0; i&lt;nLength; i++) {</span>
+<span class="lineNum">    1876 </span>                :<span class="lineCov">          1 :       char c = pszString[i];</span>
+<span class="lineNum">    1877 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (c == '&quot;') {</span>
+<span class="lineNum">    1878 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '&quot;';</span>
+<span class="lineNum">    1879 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] ='&quot;';</span>
+<span class="lineNum">    1880 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       } else if (c == '\\') {</span>
+<span class="lineNum">    1881 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '\\';</span>
+<span class="lineNum">    1882 </span>                :<span class="lineNoCov">          0 :         pszEscapedStr[j++] = '\\';</span>
+<span class="lineNum">    1883 </span>                :            :       } else
+<span class="lineNum">    1884 </span>                :<span class="lineCov">          1 :         pszEscapedStr[j++] = c;</span>
+<span class="lineNum">    1885 </span>                :            :     }
+<span class="lineNum">    1886 </span>                :<span class="lineCov">          1 :     pszEscapedStr[j++] = '&quot;';</span>
+<span class="lineNum">    1887 </span>                :<span class="lineCov">          1 :     pszEscapedStr[j++] = 0;</span>
+<span class="lineNum">    1888 </span>                :            : 
+<span class="lineNum">    1889 </span>                :            :   }
+<span class="lineNum">    1890 </span>                :<span class="lineCov">          1 :   return pszEscapedStr;</span>
+<span class="lineNum">    1891 </span>                :            : }
+<span class="lineNum">    1892 </span>                :            : 
+<span class="lineNum">    1893 </span>                :            : 
+<span class="lineNum">    1894 </span>                :            : /*
+<span class="lineNum">    1895 </span>                :            :  * msConnectLayer
+<span class="lineNum">    1896 </span>                :            :  *
+<span class="lineNum">    1897 </span>                :            :  * This will connect layer object to the new layer type.
+<span class="lineNum">    1898 </span>                :            :  * Caller is responsible to close previous layer correctly.
+<span class="lineNum">    1899 </span>                :            :  * For Internal types the library_str is ignored, for PLUGIN it's
+<a name="1900"><span class="lineNum">    1900 </span>                :            :  * define what plugin to use. Returns MS_FAILURE or MS_SUCCESS.</a>
+<span class="lineNum">    1901 </span>                :            :  */
+<span class="lineNum">    1902 </span>                :<span class="lineNoCov">          0 : int msConnectLayer(layerObj *layer,</span>
+<span class="lineNum">    1903 </span>                :            :                    const int connectiontype,
+<span class="lineNum">    1904 </span>                :            :                    const char *library_str)
+<span class="lineNum">    1905 </span>                :            : {
+<span class="lineNum">    1906 </span>                :<span class="lineNoCov">          0 :   layer-&gt;connectiontype = connectiontype;</span>
+<span class="lineNum">    1907 </span>                :            :   /* For internal types, library_str is ignored */
+<span class="lineNum">    1908 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (connectiontype == MS_PLUGIN) {</span>
+<span class="lineNum">    1909 </span>                :            :     int rv;
+<span class="lineNum">    1910 </span>                :<span class="lineNoCov">          0 :     msFree(layer-&gt;plugin_library);</span>
+<span class="lineNum">    1911 </span>                :<span class="lineNoCov">          0 :     msFree(layer-&gt;plugin_library_original);</span>
 <span class="lineNum">    1912 </span>                :            : 
-<span class="lineNum">    1913 </span>                :            : static int populateVirtualTable(layerVTableObj *vtable)
-<span class="lineNum">    1914 </span>                :            : {
-<a name="1915"><span class="lineNum">    1915 </span>                :            :   assert(vtable != NULL);</a>
-<span class="lineNum">    1916 </span>                :            : 
-<span class="lineNum">    1917 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerSupportsCommonFilters = LayerDefaultSupportsCommonFilters;</span>
-<span class="lineNum">    1918 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerTranslateFilter = LayerDefaultTranslateFilter;</span>
-<span class="lineNum">    1919 </span>                :            : 
-<span class="lineNum">    1920 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerInitItemInfo = LayerDefaultInitItemInfo;</span>
-<span class="lineNum">    1921 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerFreeItemInfo = LayerDefaultFreeItemInfo;</span>
-<span class="lineNum">    1922 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerOpen = LayerDefaultOpen;</span>
-<span class="lineNum">    1923 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerIsOpen = LayerDefaultIsOpen;</span>
-<span class="lineNum">    1924 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerWhichShapes = LayerDefaultWhichShapes;</span>
-<span class="lineNum">    1925 </span>                :            : 
-<span class="lineNum">    1926 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerNextShape = LayerDefaultNextShape;</span>
-<span class="lineNum">    1927 </span>                :            :   /* vtable-&gt;LayerResultsGetShape = LayerDefaultResultsGetShape; */
-<span class="lineNum">    1928 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetShape = LayerDefaultGetShape;</span>
-<span class="lineNum">    1929 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetShapeCount = LayerDefaultGetShapeCount;</span>
-<span class="lineNum">    1930 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerClose = LayerDefaultClose;</span>
-<span class="lineNum">    1931 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetItems = LayerDefaultGetItems;</span>
-<span class="lineNum">    1932 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetExtent = LayerDefaultGetExtent;</span>
-<span class="lineNum">    1933 </span>                :            : 
-<span class="lineNum">    1934 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetAutoStyle = LayerDefaultGetAutoStyle;</span>
-<span class="lineNum">    1935 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerCloseConnection = LayerDefaultCloseConnection;</span>
-<span class="lineNum">    1936 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerSetTimeFilter = msLayerMakePlainTimeFilter;</span>
-<span class="lineNum">    1937 </span>                :            : 
-<span class="lineNum">    1938 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerApplyFilterToLayer = msLayerApplyPlainFilterToLayer;</span>
-<span class="lineNum">    1939 </span>                :            : 
-<span class="lineNum">    1940 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerCreateItems = LayerDefaultCreateItems;</span>
-<span class="lineNum">    1941 </span>                :            : 
-<span class="lineNum">    1942 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetNumFeatures = LayerDefaultGetNumFeatures;</span>
-<span class="lineNum">    1943 </span>                :            : 
-<span class="lineNum">    1944 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetAutoProjection = LayerDefaultAutoProjection;</span>
-<span class="lineNum">    1945 </span>                :            : 
-<span class="lineNum">    1946 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerEscapeSQLParam = LayerDefaultEscapeSQLParam;</span>
-<span class="lineNum">    1947 </span>                :            : 
-<span class="lineNum">    1948 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerEscapePropertyName = LayerDefaultEscapePropertyName;</span>
-<span class="lineNum">    1949 </span>                :            : 
-<span class="lineNum">    1950 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerEnablePaging = msLayerDefaultEnablePaging;</span>
-<span class="lineNum">    1951 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetPaging = msLayerDefaultGetPaging;</span>
+<span class="lineNum">    1913 </span>                :<span class="lineNoCov">          0 :     layer-&gt;plugin_library_original = msStrdup(library_str);</span>
+<span class="lineNum">    1914 </span>                :<span class="lineNoCov">          0 :     rv = msBuildPluginLibraryPath(&amp;layer-&gt;plugin_library,</span>
+<span class="lineNum">    1915 </span>                :<span class="lineNoCov">          0 :                                   layer-&gt;plugin_library_original,</span>
+<span class="lineNum">    1916 </span>                :<span class="lineNoCov">          0 :                                   layer-&gt;map);</span>
+<span class="lineNum">    1917 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (rv != MS_SUCCESS) {</span>
+<span class="lineNum">    1918 </span>                :            :       return rv;
+<span class="lineNum">    1919 </span>                :            :     }
+<span class="lineNum">    1920 </span>                :            :   }
+<span class="lineNum">    1921 </span>                :<span class="lineNoCov">          0 :   return msInitializeVirtualTable(layer) ;</span>
+<span class="lineNum">    1922 </span>                :            : }
+<span class="lineNum">    1923 </span>                :            : 
+<span class="lineNum">    1924 </span>                :            : static int populateVirtualTable(layerVTableObj *vtable)
+<span class="lineNum">    1925 </span>                :            : {
+<a name="1926"><span class="lineNum">    1926 </span>                :            :   assert(vtable != NULL);</a>
+<span class="lineNum">    1927 </span>                :            : 
+<span class="lineNum">    1928 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerSupportsCommonFilters = LayerDefaultSupportsCommonFilters;</span>
+<span class="lineNum">    1929 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerTranslateFilter = LayerDefaultTranslateFilter;</span>
+<span class="lineNum">    1930 </span>                :            : 
+<span class="lineNum">    1931 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerInitItemInfo = LayerDefaultInitItemInfo;</span>
+<span class="lineNum">    1932 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerFreeItemInfo = LayerDefaultFreeItemInfo;</span>
+<span class="lineNum">    1933 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerOpen = LayerDefaultOpen;</span>
+<span class="lineNum">    1934 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerIsOpen = LayerDefaultIsOpen;</span>
+<span class="lineNum">    1935 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerWhichShapes = LayerDefaultWhichShapes;</span>
+<span class="lineNum">    1936 </span>                :            : 
+<span class="lineNum">    1937 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerNextShape = LayerDefaultNextShape;</span>
+<span class="lineNum">    1938 </span>                :            :   /* vtable-&gt;LayerResultsGetShape = LayerDefaultResultsGetShape; */
+<span class="lineNum">    1939 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetShape = LayerDefaultGetShape;</span>
+<span class="lineNum">    1940 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetShapeCount = LayerDefaultGetShapeCount;</span>
+<span class="lineNum">    1941 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerClose = LayerDefaultClose;</span>
+<span class="lineNum">    1942 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetItems = LayerDefaultGetItems;</span>
+<span class="lineNum">    1943 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetExtent = LayerDefaultGetExtent;</span>
+<span class="lineNum">    1944 </span>                :            : 
+<span class="lineNum">    1945 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetAutoStyle = LayerDefaultGetAutoStyle;</span>
+<span class="lineNum">    1946 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerCloseConnection = LayerDefaultCloseConnection;</span>
+<span class="lineNum">    1947 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerSetTimeFilter = msLayerMakePlainTimeFilter;</span>
+<span class="lineNum">    1948 </span>                :            : 
+<span class="lineNum">    1949 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerApplyFilterToLayer = msLayerApplyPlainFilterToLayer;</span>
+<span class="lineNum">    1950 </span>                :            : 
+<span class="lineNum">    1951 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerCreateItems = LayerDefaultCreateItems;</span>
 <span class="lineNum">    1952 </span>                :            : 
-<span class="lineNum">    1953 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">    1954 </span>                :            : }
-<span class="lineNum">    1955 </span>                :            : 
-<span class="lineNum">    1956 </span>                :<span class="lineCov">          1 : static int createVirtualTable(layerVTableObj **vtable)</span>
-<span class="lineNum">    1957 </span>                :            : {
-<span class="lineNum">    1958 </span>                :<span class="lineCov">          1 :   *vtable = malloc(sizeof(**vtable));</span>
-<span class="lineNum">    1959 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_CHECK_ALLOC(*vtable, sizeof(**vtable), MS_FAILURE);</span>
+<span class="lineNum">    1953 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetNumFeatures = LayerDefaultGetNumFeatures;</span>
+<span class="lineNum">    1954 </span>                :            : 
+<span class="lineNum">    1955 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetAutoProjection = LayerDefaultAutoProjection;</span>
+<span class="lineNum">    1956 </span>                :            : 
+<span class="lineNum">    1957 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerEscapeSQLParam = LayerDefaultEscapeSQLParam;</span>
+<span class="lineNum">    1958 </span>                :            : 
+<span class="lineNum">    1959 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerEscapePropertyName = LayerDefaultEscapePropertyName;</span>
 <span class="lineNum">    1960 </span>                :            : 
-<span class="lineNum">    1961 </span>                :<span class="lineCov">          1 :   return populateVirtualTable(*vtable);</span>
-<span class="lineNum">    1962 </span>                :            : }
+<span class="lineNum">    1961 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerEnablePaging = msLayerDefaultEnablePaging;</span>
+<span class="lineNum">    1962 </span>                :<span class="lineCov">          1 :   vtable-&gt;LayerGetPaging = msLayerDefaultGetPaging;</span>
 <span class="lineNum">    1963 </span>                :            : 
-<a name="1964"><span class="lineNum">    1964 </span>                :            : static int destroyVirtualTable(layerVTableObj **vtable)</a>
-<span class="lineNum">    1965 </span>                :            : {
-<span class="lineNum">    1966 </span>                :<span class="lineNoCov">          0 :   memset(*vtable, 0, sizeof(**vtable));</span>
-<span class="lineNum">    1967 </span>                :<span class="lineNoCov">          0 :   msFree(*vtable);</span>
-<span class="lineNum">    1968 </span>                :<span class="lineNoCov">          0 :   *vtable = NULL;</span>
-<span class="lineNum">    1969 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">    1970 </span>                :            : }
+<span class="lineNum">    1964 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">    1965 </span>                :            : }
+<span class="lineNum">    1966 </span>                :            : 
+<span class="lineNum">    1967 </span>                :<span class="lineCov">          1 : static int createVirtualTable(layerVTableObj **vtable)</span>
+<span class="lineNum">    1968 </span>                :            : {
+<span class="lineNum">    1969 </span>                :<span class="lineCov">          1 :   *vtable = malloc(sizeof(**vtable));</span>
+<span class="lineNum">    1970 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   MS_CHECK_ALLOC(*vtable, sizeof(**vtable), MS_FAILURE);</span>
 <span class="lineNum">    1971 </span>                :            : 
-<span class="lineNum">    1972 </span>                :<span class="lineCov">          1 : int msInitializeVirtualTable(layerObj *layer)</span>
-<span class="lineNum">    1973 </span>                :            : {
-<span class="lineNum">    1974 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;vtable) {</span>
-<span class="lineNum">    1975 </span>                :            :     destroyVirtualTable(&amp;layer-&gt;vtable);
-<span class="lineNum">    1976 </span>                :            :   }
-<span class="lineNum">    1977 </span>                :<span class="lineCov">          1 :   createVirtualTable(&amp;layer-&gt;vtable);</span>
-<span class="lineNum">    1978 </span>                :            : 
-<span class="lineNum">    1979 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(layer-&gt;features &amp;&amp; layer-&gt;connectiontype != MS_GRATICULE )</span>
-<span class="lineNum">    1980 </span>                :<span class="lineCov">          1 :     layer-&gt;connectiontype = MS_INLINE;</span>
-<span class="lineNum">    1981 </span>                :            : 
-<span class="lineNum">    1982 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(layer-&gt;tileindex &amp;&amp; layer-&gt;connectiontype == MS_SHAPEFILE)</span>
-<span class="lineNum">    1983 </span>                :<span class="lineCov">          1 :     layer-&gt;connectiontype = MS_TILED_SHAPEFILE;</span>
-<span class="lineNum">    1984 </span>                :            : 
-<span class="lineNum">    1985 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(layer-&gt;type == MS_LAYER_RASTER &amp;&amp; layer-&gt;connectiontype != MS_WMS)</span>
-<span class="lineNum">    1986 </span>                :<span class="lineCov">          1 :     layer-&gt;connectiontype = MS_RASTER;</span>
-<span class="lineNum">    1987 </span>                :            : 
-<span class="lineNum">    1988 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span> :<span class="lineCov">          1 :   switch(layer-&gt;connectiontype) {</span>
+<span class="lineNum">    1972 </span>                :<span class="lineCov">          1 :   return populateVirtualTable(*vtable);</span>
+<span class="lineNum">    1973 </span>                :            : }
+<span class="lineNum">    1974 </span>                :            : 
+<a name="1975"><span class="lineNum">    1975 </span>                :            : static int destroyVirtualTable(layerVTableObj **vtable)</a>
+<span class="lineNum">    1976 </span>                :            : {
+<span class="lineNum">    1977 </span>                :<span class="lineNoCov">          0 :   memset(*vtable, 0, sizeof(**vtable));</span>
+<span class="lineNum">    1978 </span>                :<span class="lineNoCov">          0 :   msFree(*vtable);</span>
+<span class="lineNum">    1979 </span>                :<span class="lineNoCov">          0 :   *vtable = NULL;</span>
+<span class="lineNum">    1980 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">    1981 </span>                :            : }
+<span class="lineNum">    1982 </span>                :            : 
+<span class="lineNum">    1983 </span>                :<span class="lineCov">          1 : int msInitializeVirtualTable(layerObj *layer)</span>
+<span class="lineNum">    1984 </span>                :            : {
+<span class="lineNum">    1985 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;vtable) {</span>
+<span class="lineNum">    1986 </span>                :            :     destroyVirtualTable(&amp;layer-&gt;vtable);
+<span class="lineNum">    1987 </span>                :            :   }
+<span class="lineNum">    1988 </span>                :<span class="lineCov">          1 :   createVirtualTable(&amp;layer-&gt;vtable);</span>
+<span class="lineNum">    1989 </span>                :            : 
+<span class="lineNum">    1990 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(layer-&gt;features &amp;&amp; layer-&gt;connectiontype != MS_GRATICULE )</span>
+<span class="lineNum">    1991 </span>                :<span class="lineCov">          1 :     layer-&gt;connectiontype = MS_INLINE;</span>
+<span class="lineNum">    1992 </span>                :            : 
+<span class="lineNum">    1993 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(layer-&gt;tileindex &amp;&amp; layer-&gt;connectiontype == MS_SHAPEFILE)</span>
+<span class="lineNum">    1994 </span>                :<span class="lineCov">          1 :     layer-&gt;connectiontype = MS_TILED_SHAPEFILE;</span>
+<span class="lineNum">    1995 </span>                :            : 
+<span class="lineNum">    1996 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(layer-&gt;type == MS_LAYER_RASTER &amp;&amp; layer-&gt;connectiontype != MS_WMS)</span>
+<span class="lineNum">    1997 </span>                :<span class="lineCov">          1 :     layer-&gt;connectiontype = MS_RASTER;</span>
+<span class="lineNum">    1998 </span>                :            : 
+<span class="lineNum">    1999 </span>  [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span> :<span class="lineCov">          1 :   switch(layer-&gt;connectiontype) {</span>
 <span class="lineNum">         </span><span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken X times"> + </span> 
 <span class="lineNum">         </span><span class="branchCov" title="Branch 9 was taken X times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span><span class="branchCov" title="Branch 12 was taken X times"> + </span><span class="branchCov" title="Branch 13 was taken X times"> + </span> 
 <span class="lineNum">         </span>            <span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
-<span class="lineNum">    1989 </span>                :            :     case(MS_INLINE):
-<span class="lineNum">    1990 </span>                :<span class="lineCov">          1 :       return(msINLINELayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    1991 </span>                :            :       break;
-<span class="lineNum">    1992 </span>                :            :     case(MS_SHAPEFILE):
-<span class="lineNum">    1993 </span>                :<span class="lineCov">          1 :       return(msSHPLayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    1994 </span>                :            :       break;
-<span class="lineNum">    1995 </span>                :            :     case(MS_TILED_SHAPEFILE):
-<span class="lineNum">    1996 </span>                :<span class="lineCov">          1 :       return(msTiledSHPLayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    1997 </span>                :            :       break;
-<span class="lineNum">    1998 </span>                :            :     case(MS_OGR):
-<span class="lineNum">    1999 </span>                :<span class="lineCov">          1 :       return(msOGRLayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    2000 </span>                :            :       break;
-<span class="lineNum">    2001 </span>                :            :     case(MS_POSTGIS):
-<span class="lineNum">    2002 </span>                :<span class="lineCov">          1 :       return(msPostGISLayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    2003 </span>                :            :       break;
-<span class="lineNum">    2004 </span>                :            :     case(MS_WMS):
-<span class="lineNum">    2005 </span>                :            :       /* WMS should be treated as a raster layer */
-<span class="lineNum">    2006 </span>                :<span class="lineCov">          1 :       return(msRASTERLayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    2007 </span>                :            :       break;
-<span class="lineNum">    2008 </span>                :            :     case(MS_ORACLESPATIAL):
-<span class="lineNum">    2009 </span>                :<span class="lineNoCov">          0 :       return(msOracleSpatialLayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    2010 </span>                :            :       break;
-<span class="lineNum">    2011 </span>                :            :     case(MS_WFS):
-<span class="lineNum">    2012 </span>                :<span class="lineNoCov">          0 :       return(msWFSLayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    2013 </span>                :            :       break;
-<span class="lineNum">    2014 </span>                :            :     case(MS_GRATICULE):
-<span class="lineNum">    2015 </span>                :<span class="lineCov">          1 :       return(msGraticuleLayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    2016 </span>                :            :       break;
-<span class="lineNum">    2017 </span>                :            :     case(MS_RASTER):
-<span class="lineNum">    2018 </span>                :<span class="lineCov">          1 :       return(msRASTERLayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    2019 </span>                :            :       break;
-<span class="lineNum">    2020 </span>                :            :     case(MS_PLUGIN):
-<span class="lineNum">    2021 </span>                :<span class="lineNoCov">          0 :       return(msPluginLayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    2022 </span>                :            :       break;
-<span class="lineNum">    2023 </span>                :            :     case(MS_UNION):
-<span class="lineNum">    2024 </span>                :<span class="lineNoCov">          0 :       return(msUnionLayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    2025 </span>                :            :       break;
-<span class="lineNum">    2026 </span>                :            :     case(MS_UVRASTER):
-<span class="lineNum">    2027 </span>                :<span class="lineCov">          1 :       return(msUVRASTERLayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    2028 </span>                :            :       break;
-<span class="lineNum">    2029 </span>                :            :     case(MS_CONTOUR):
-<span class="lineNum">    2030 </span>                :<span class="lineCov">          1 :       return(msContourLayerInitializeVirtualTable(layer));</span>
-<span class="lineNum">    2031 </span>                :            :       break;      
-<span class="lineNum">    2032 </span>                :            :     default:
-<span class="lineNum">    2033 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Unknown connectiontype, it was %d&quot;, &quot;msInitializeVirtualTable()&quot;, layer-&gt;connectiontype);</span>
-<span class="lineNum">    2034 </span>                :<span class="lineCov">          1 :       return MS_FAILURE;</span>
-<span class="lineNum">    2035 </span>                :            :       break;
-<span class="lineNum">    2036 </span>                :            :   }
-<span class="lineNum">    2037 </span>                :            : 
-<span class="lineNum">    2038 </span>                :            :   /* not reached */
-<span class="lineNum">    2039 </span>                :            :   return MS_FAILURE;
-<span class="lineNum">    2040 </span>                :            : }
-<span class="lineNum">    2041 </span>                :            : 
-<span class="lineNum">    2042 </span>                :            : /*
-<span class="lineNum">    2043 </span>                :            :  * INLINE: Virtual table functions
-<span class="lineNum">    2044 </span>                :            :  */
-<span class="lineNum">    2045 </span>                :            : 
-<span class="lineNum">    2046 </span>                :            : typedef struct {
-<span class="lineNum">    2047 </span>                :            :   rectObj searchrect;
-<span class="lineNum">    2048 </span>                :            :   int is_relative; /* relative coordinates? */
-<span class="lineNum">    2049 </span>                :            : }
-<a name="2050"><span class="lineNum">    2050 </span>                :            : msINLINELayerInfo;</a>
-<span class="lineNum">    2051 </span>                :            : 
-<span class="lineNum">    2052 </span>                :<span class="lineCov">          1 : int msINLINELayerIsOpen(layerObj *layer)</span>
-<span class="lineNum">    2053 </span>                :            : {
-<span class="lineNum">    2054 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;currentfeature)</span>
-<span class="lineNum">    2055 </span>                :            :     return(MS_TRUE);
-<span class="lineNum">    2056 </span>                :            :   else
-<span class="lineNum">    2057 </span>                :<span class="lineCov">          1 :     return(MS_FALSE);</span>
-<a name="2058"><span class="lineNum">    2058 </span>                :            : }</a>
-<span class="lineNum">    2059 </span>                :            : 
-<span class="lineNum">    2060 </span>                :<span class="lineCov">          1 : msINLINELayerInfo *msINLINECreateLayerInfo(void)</span>
-<span class="lineNum">    2061 </span>                :            : {
-<span class="lineNum">    2062 </span>                :<span class="lineCov">          1 :   msINLINELayerInfo *layerinfo = msSmallMalloc(sizeof(msINLINELayerInfo));</span>
-<span class="lineNum">    2063 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;searchrect.minx = -1.0;</span>
-<span class="lineNum">    2064 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;searchrect.miny = -1.0;</span>
-<span class="lineNum">    2065 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;searchrect.maxx = -1.0;</span>
-<span class="lineNum">    2066 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;searchrect.maxy = -1.0;</span>
-<span class="lineNum">    2067 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;is_relative = MS_FALSE;</span>
-<span class="lineNum">    2068 </span>                :<span class="lineCov">          1 :   return layerinfo;  </span>
+<span class="lineNum">    2000 </span>                :            :     case(MS_INLINE):
+<span class="lineNum">    2001 </span>                :<span class="lineCov">          1 :       return(msINLINELayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2002 </span>                :            :       break;
+<span class="lineNum">    2003 </span>                :            :     case(MS_SHAPEFILE):
+<span class="lineNum">    2004 </span>                :<span class="lineCov">          1 :       return(msSHPLayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2005 </span>                :            :       break;
+<span class="lineNum">    2006 </span>                :            :     case(MS_TILED_SHAPEFILE):
+<span class="lineNum">    2007 </span>                :<span class="lineCov">          1 :       return(msTiledSHPLayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2008 </span>                :            :       break;
+<span class="lineNum">    2009 </span>                :            :     case(MS_OGR):
+<span class="lineNum">    2010 </span>                :<span class="lineCov">          1 :       return(msOGRLayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2011 </span>                :            :       break;
+<span class="lineNum">    2012 </span>                :            :     case(MS_POSTGIS):
+<span class="lineNum">    2013 </span>                :<span class="lineCov">          1 :       return(msPostGISLayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2014 </span>                :            :       break;
+<span class="lineNum">    2015 </span>                :            :     case(MS_WMS):
+<span class="lineNum">    2016 </span>                :            :       /* WMS should be treated as a raster layer */
+<span class="lineNum">    2017 </span>                :<span class="lineCov">          1 :       return(msRASTERLayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2018 </span>                :            :       break;
+<span class="lineNum">    2019 </span>                :            :     case(MS_ORACLESPATIAL):
+<span class="lineNum">    2020 </span>                :<span class="lineNoCov">          0 :       return(msOracleSpatialLayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2021 </span>                :            :       break;
+<span class="lineNum">    2022 </span>                :            :     case(MS_WFS):
+<span class="lineNum">    2023 </span>                :<span class="lineNoCov">          0 :       return(msWFSLayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2024 </span>                :            :       break;
+<span class="lineNum">    2025 </span>                :            :     case(MS_GRATICULE):
+<span class="lineNum">    2026 </span>                :<span class="lineCov">          1 :       return(msGraticuleLayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2027 </span>                :            :       break;
+<span class="lineNum">    2028 </span>                :            :     case(MS_RASTER):
+<span class="lineNum">    2029 </span>                :<span class="lineCov">          1 :       return(msRASTERLayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2030 </span>                :            :       break;
+<span class="lineNum">    2031 </span>                :            :     case(MS_PLUGIN):
+<span class="lineNum">    2032 </span>                :<span class="lineNoCov">          0 :       return(msPluginLayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2033 </span>                :            :       break;
+<span class="lineNum">    2034 </span>                :            :     case(MS_UNION):
+<span class="lineNum">    2035 </span>                :<span class="lineNoCov">          0 :       return(msUnionLayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2036 </span>                :            :       break;
+<span class="lineNum">    2037 </span>                :            :     case(MS_UVRASTER):
+<span class="lineNum">    2038 </span>                :<span class="lineCov">          1 :       return(msUVRASTERLayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2039 </span>                :            :       break;
+<span class="lineNum">    2040 </span>                :            :     case(MS_CONTOUR):
+<span class="lineNum">    2041 </span>                :<span class="lineCov">          1 :       return(msContourLayerInitializeVirtualTable(layer));</span>
+<span class="lineNum">    2042 </span>                :            :       break;      
+<span class="lineNum">    2043 </span>                :            :     default:
+<span class="lineNum">    2044 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Unknown connectiontype, it was %d&quot;, &quot;msInitializeVirtualTable()&quot;, layer-&gt;connectiontype);</span>
+<span class="lineNum">    2045 </span>                :<span class="lineCov">          1 :       return MS_FAILURE;</span>
+<span class="lineNum">    2046 </span>                :            :       break;
+<span class="lineNum">    2047 </span>                :            :   }
+<span class="lineNum">    2048 </span>                :            : 
+<span class="lineNum">    2049 </span>                :            :   /* not reached */
+<span class="lineNum">    2050 </span>                :            :   return MS_FAILURE;
+<span class="lineNum">    2051 </span>                :            : }
+<span class="lineNum">    2052 </span>                :            : 
+<span class="lineNum">    2053 </span>                :            : /*
+<span class="lineNum">    2054 </span>                :            :  * INLINE: Virtual table functions
+<span class="lineNum">    2055 </span>                :            :  */
+<span class="lineNum">    2056 </span>                :            : 
+<span class="lineNum">    2057 </span>                :            : typedef struct {
+<span class="lineNum">    2058 </span>                :            :   rectObj searchrect;
+<span class="lineNum">    2059 </span>                :            :   int is_relative; /* relative coordinates? */
+<span class="lineNum">    2060 </span>                :            : }
+<a name="2061"><span class="lineNum">    2061 </span>                :            : msINLINELayerInfo;</a>
+<span class="lineNum">    2062 </span>                :            : 
+<span class="lineNum">    2063 </span>                :<span class="lineCov">          1 : int msINLINELayerIsOpen(layerObj *layer)</span>
+<span class="lineNum">    2064 </span>                :            : {
+<span class="lineNum">    2065 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;currentfeature)</span>
+<span class="lineNum">    2066 </span>                :            :     return(MS_TRUE);
+<span class="lineNum">    2067 </span>                :            :   else
+<span class="lineNum">    2068 </span>                :<span class="lineCov">          1 :     return(MS_FALSE);</span>
 <a name="2069"><span class="lineNum">    2069 </span>                :            : }</a>
 <span class="lineNum">    2070 </span>                :            : 
-<span class="lineNum">    2071 </span>                :<span class="lineCov">          1 : int msINLINELayerOpen(layerObj *layer)</span>
+<span class="lineNum">    2071 </span>                :<span class="lineCov">          1 : msINLINELayerInfo *msINLINECreateLayerInfo(void)</span>
 <span class="lineNum">    2072 </span>                :            : {
-<span class="lineNum">    2073 </span>                :            :   msINLINELayerInfo  *layerinfo;
-<span class="lineNum">    2074 </span>                :            : 
-<span class="lineNum">    2075 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;layerinfo) {</span>
-<span class="lineNum">    2076 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (layer-&gt;debug) {</span>
-<span class="lineNum">    2077 </span>                :<span class="lineNoCov">          0 :       msDebug(&quot;msINLINELayerOpen: Layer is already open!\n&quot;);</span>
-<span class="lineNum">    2078 </span>                :            :     }
-<span class="lineNum">    2079 </span>                :            :     return MS_SUCCESS;  /* already open */
-<span class="lineNum">    2080 </span>                :            :   }
-<span class="lineNum">    2081 </span>                :            :   
-<span class="lineNum">    2082 </span>                :            :   /*
-<span class="lineNum">    2083 </span>                :            :   ** Initialize the layerinfo
-<span class="lineNum">    2084 </span>                :            :   **/
-<span class="lineNum">    2085 </span>                :<span class="lineCov">          1 :   layerinfo = msINLINECreateLayerInfo();</span>
-<span class="lineNum">    2086 </span>                :            :   
-<span class="lineNum">    2087 </span>                :<span class="lineCov">          1 :   layer-&gt;currentfeature = layer-&gt;features; /* point to the begining of the feature list */</span>
-<span class="lineNum">    2088 </span>                :            : 
-<span class="lineNum">    2089 </span>                :<span class="lineCov">          1 :   layer-&gt;layerinfo = (void*)layerinfo;</span>
-<span class="lineNum">    2090 </span>                :            :   
-<span class="lineNum">    2091 </span>                :<span class="lineCov">          1 :   return(MS_SUCCESS);</span>
-<a name="2092"><span class="lineNum">    2092 </span>                :            : }</a>
-<span class="lineNum">    2093 </span>                :            : 
-<span class="lineNum">    2094 </span>                :<span class="lineCov">          1 : int msINLINELayerClose(layerObj *layer)</span>
-<span class="lineNum">    2095 </span>                :            : {
-<span class="lineNum">    2096 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;layerinfo) {</span>
-<span class="lineNum">    2097 </span>                :<span class="lineCov">          1 :     free(layer-&gt;layerinfo);</span>
-<span class="lineNum">    2098 </span>                :<span class="lineCov">          1 :     layer-&gt;layerinfo = NULL;</span>
-<span class="lineNum">    2099 </span>                :            :   }
-<span class="lineNum">    2100 </span>                :            : 
-<span class="lineNum">    2101 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<a name="2102"><span class="lineNum">    2102 </span>                :            : }</a>
-<span class="lineNum">    2103 </span>                :            : 
-<span class="lineNum">    2104 </span>                :<span class="lineCov">          1 : int msINLINELayerWhichShapes(layerObj *layer, rectObj rect, int isQuery)</span>
-<span class="lineNum">    2105 </span>                :            : {
-<span class="lineNum">    2106 </span>                :            :   msINLINELayerInfo *layerinfo = NULL;  
-<span class="lineNum">    2107 </span>                :<span class="lineCov">          1 :   layerinfo = (msINLINELayerInfo*) layer-&gt;layerinfo;</span>
-<span class="lineNum">    2108 </span>                :            : 
-<span class="lineNum">    2109 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;searchrect = rect;</span>
-<span class="lineNum">    2110 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;is_relative = (layer-&gt;transform != MS_FALSE &amp;&amp; layer-&gt;transform != MS_TRUE);</span>
-<span class="lineNum">    2111 </span>                :            :   
+<span class="lineNum">    2073 </span>                :<span class="lineCov">          1 :   msINLINELayerInfo *layerinfo = msSmallMalloc(sizeof(msINLINELayerInfo));</span>
+<span class="lineNum">    2074 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;searchrect.minx = -1.0;</span>
+<span class="lineNum">    2075 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;searchrect.miny = -1.0;</span>
+<span class="lineNum">    2076 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;searchrect.maxx = -1.0;</span>
+<span class="lineNum">    2077 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;searchrect.maxy = -1.0;</span>
+<span class="lineNum">    2078 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;is_relative = MS_FALSE;</span>
+<span class="lineNum">    2079 </span>                :<span class="lineCov">          1 :   return layerinfo;  </span>
+<a name="2080"><span class="lineNum">    2080 </span>                :            : }</a>
+<span class="lineNum">    2081 </span>                :            : 
+<span class="lineNum">    2082 </span>                :<span class="lineCov">          1 : int msINLINELayerOpen(layerObj *layer)</span>
+<span class="lineNum">    2083 </span>                :            : {
+<span class="lineNum">    2084 </span>                :            :   msINLINELayerInfo  *layerinfo;
+<span class="lineNum">    2085 </span>                :            : 
+<span class="lineNum">    2086 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;layerinfo) {</span>
+<span class="lineNum">    2087 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (layer-&gt;debug) {</span>
+<span class="lineNum">    2088 </span>                :<span class="lineNoCov">          0 :       msDebug(&quot;msINLINELayerOpen: Layer is already open!\n&quot;);</span>
+<span class="lineNum">    2089 </span>                :            :     }
+<span class="lineNum">    2090 </span>                :            :     return MS_SUCCESS;  /* already open */
+<span class="lineNum">    2091 </span>                :            :   }
+<span class="lineNum">    2092 </span>                :            :   
+<span class="lineNum">    2093 </span>                :            :   /*
+<span class="lineNum">    2094 </span>                :            :   ** Initialize the layerinfo
+<span class="lineNum">    2095 </span>                :            :   **/
+<span class="lineNum">    2096 </span>                :<span class="lineCov">          1 :   layerinfo = msINLINECreateLayerInfo();</span>
+<span class="lineNum">    2097 </span>                :            :   
+<span class="lineNum">    2098 </span>                :<span class="lineCov">          1 :   layer-&gt;currentfeature = layer-&gt;features; /* point to the begining of the feature list */</span>
+<span class="lineNum">    2099 </span>                :            : 
+<span class="lineNum">    2100 </span>                :<span class="lineCov">          1 :   layer-&gt;layerinfo = (void*)layerinfo;</span>
+<span class="lineNum">    2101 </span>                :            :   
+<span class="lineNum">    2102 </span>                :<span class="lineCov">          1 :   return(MS_SUCCESS);</span>
+<a name="2103"><span class="lineNum">    2103 </span>                :            : }</a>
+<span class="lineNum">    2104 </span>                :            : 
+<span class="lineNum">    2105 </span>                :<span class="lineCov">          1 : int msINLINELayerClose(layerObj *layer)</span>
+<span class="lineNum">    2106 </span>                :            : {
+<span class="lineNum">    2107 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (layer-&gt;layerinfo) {</span>
+<span class="lineNum">    2108 </span>                :<span class="lineCov">          1 :     free(layer-&gt;layerinfo);</span>
+<span class="lineNum">    2109 </span>                :<span class="lineCov">          1 :     layer-&gt;layerinfo = NULL;</span>
+<span class="lineNum">    2110 </span>                :            :   }
+<span class="lineNum">    2111 </span>                :            : 
 <span class="lineNum">    2112 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    2113 </span>                :            : }
-<a name="2114"><span class="lineNum">    2114 </span>                :            : </a>
-<span class="lineNum">    2115 </span>                :            : /* Author: Cristoph Spoerri and Sean Gillies */
-<span class="lineNum">    2116 </span>                :<span class="lineNoCov">          0 : int msINLINELayerGetShape(layerObj *layer, shapeObj *shape, resultObj *record)</span>
-<span class="lineNum">    2117 </span>                :            : {
-<span class="lineNum">    2118 </span>                :            :   int i=0;
-<span class="lineNum">    2119 </span>                :            :   featureListNodeObjPtr current;
-<span class="lineNum">    2120 </span>                :            : 
-<span class="lineNum">    2121 </span>                :<span class="lineNoCov">          0 :   int shapeindex = record-&gt;shapeindex; /* only index necessary */</span>
-<span class="lineNum">    2122 </span>                :            : 
-<span class="lineNum">    2123 </span>                :<span class="lineNoCov">          0 :   current = layer-&gt;features;</span>
-<span class="lineNum">    2124 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   while (current!=NULL &amp;&amp; i!=shapeindex) {</span>
-<span class="lineNum">    2125 </span>                :<span class="lineNoCov">          0 :     i++;</span>
-<span class="lineNum">    2126 </span>                :<span class="lineNoCov">          0 :     current = current-&gt;next;</span>
-<span class="lineNum">    2127 </span>                :            :   }
-<span class="lineNum">    2128 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (current == NULL) {</span>
-<span class="lineNum">    2129 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_SHPERR, &quot;No inline feature with this index.&quot;, &quot;msINLINELayerGetShape()&quot;);</span>
-<span class="lineNum">    2130 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    2131 </span>                :            :   }
-<span class="lineNum">    2132 </span>                :            : 
-<span class="lineNum">    2133 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (msCopyShape(&amp;(current-&gt;shape), shape) != MS_SUCCESS) {</span>
-<span class="lineNum">    2134 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_SHPERR, &quot;Cannot retrieve inline shape. There some problem with the shape&quot;, &quot;msINLINELayerGetShape()&quot;);</span>
-<span class="lineNum">    2135 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    2136 </span>                :            :   }
-<span class="lineNum">    2137 </span>                :            :   /* check for the expected size of the values array */
-<span class="lineNum">    2138 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (layer-&gt;numitems &gt; shape-&gt;numvalues) {</span>
-<span class="lineNum">    2139 </span>                :<span class="lineNoCov">          0 :     shape-&gt;values = (char **)msSmallRealloc(shape-&gt;values, sizeof(char *)*(layer-&gt;numitems));</span>
-<span class="lineNum">    2140 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (i = shape-&gt;numvalues; i &lt; layer-&gt;numitems; i++)</span>
-<span class="lineNum">    2141 </span>                :<span class="lineNoCov">          0 :       shape-&gt;values[i] = msStrdup(&quot;&quot;);</span>
+<a name="2113"><span class="lineNum">    2113 </span>                :            : }</a>
+<span class="lineNum">    2114 </span>                :            : 
+<span class="lineNum">    2115 </span>                :<span class="lineCov">          1 : int msINLINELayerWhichShapes(layerObj *layer, rectObj rect, int isQuery)</span>
+<span class="lineNum">    2116 </span>                :            : {
+<span class="lineNum">    2117 </span>                :            :   msINLINELayerInfo *layerinfo = NULL;  
+<span class="lineNum">    2118 </span>                :<span class="lineCov">          1 :   layerinfo = (msINLINELayerInfo*) layer-&gt;layerinfo;</span>
+<span class="lineNum">    2119 </span>                :            : 
+<span class="lineNum">    2120 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;searchrect = rect;</span>
+<span class="lineNum">    2121 </span>                :<span class="lineCov">          1 :   layerinfo-&gt;is_relative = (layer-&gt;transform != MS_FALSE &amp;&amp; layer-&gt;transform != MS_TRUE);</span>
+<span class="lineNum">    2122 </span>                :            :   
+<span class="lineNum">    2123 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    2124 </span>                :            : }
+<a name="2125"><span class="lineNum">    2125 </span>                :            : </a>
+<span class="lineNum">    2126 </span>                :            : /* Author: Cristoph Spoerri and Sean Gillies */
+<span class="lineNum">    2127 </span>                :<span class="lineNoCov">          0 : int msINLINELayerGetShape(layerObj *layer, shapeObj *shape, resultObj *record)</span>
+<span class="lineNum">    2128 </span>                :            : {
+<span class="lineNum">    2129 </span>                :            :   int i=0;
+<span class="lineNum">    2130 </span>                :            :   featureListNodeObjPtr current;
+<span class="lineNum">    2131 </span>                :            : 
+<span class="lineNum">    2132 </span>                :<span class="lineNoCov">          0 :   int shapeindex = record-&gt;shapeindex; /* only index necessary */</span>
+<span class="lineNum">    2133 </span>                :            : 
+<span class="lineNum">    2134 </span>                :<span class="lineNoCov">          0 :   current = layer-&gt;features;</span>
+<span class="lineNum">    2135 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   while (current!=NULL &amp;&amp; i!=shapeindex) {</span>
+<span class="lineNum">    2136 </span>                :<span class="lineNoCov">          0 :     i++;</span>
+<span class="lineNum">    2137 </span>                :<span class="lineNoCov">          0 :     current = current-&gt;next;</span>
+<span class="lineNum">    2138 </span>                :            :   }
+<span class="lineNum">    2139 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (current == NULL) {</span>
+<span class="lineNum">    2140 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_SHPERR, &quot;No inline feature with this index.&quot;, &quot;msINLINELayerGetShape()&quot;);</span>
+<span class="lineNum">    2141 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
 <span class="lineNum">    2142 </span>                :            :   }
-<span class="lineNum">    2143 </span>                :<span class="lineNoCov">          0 :   msComputeBounds(shape);</span>
-<span class="lineNum">    2144 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<a name="2145"><span class="lineNum">    2145 </span>                :            : }</a>
-<span class="lineNum">    2146 </span>                :            : 
-<span class="lineNum">    2147 </span>                :<span class="lineCov">          1 : int msINLINELayerNextShape(layerObj *layer, shapeObj *shape)</span>
-<span class="lineNum">    2148 </span>                :            : {
-<span class="lineNum">    2149 </span>                :            :   msINLINELayerInfo *layerinfo = NULL;  
-<span class="lineNum">    2150 </span>                :            :   shapeObj * s;
-<span class="lineNum">    2151 </span>                :            :   
-<span class="lineNum">    2152 </span>                :<span class="lineCov">          1 :   layerinfo = (msINLINELayerInfo*) layer-&gt;layerinfo;</span>
-<span class="lineNum">    2153 </span>                :            :   
-<span class="lineNum">    2154 </span>                :            :   while (1) {
-<span class="lineNum">    2155 </span>                :            : 
-<span class="lineNum">    2156 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( ! (layer-&gt;currentfeature)) {</span>
-<span class="lineNum">    2157 </span>                :            :       /* out of features */
-<span class="lineNum">    2158 </span>                :            :       return(MS_DONE);
-<span class="lineNum">    2159 </span>                :            :     }
-<span class="lineNum">    2160 </span>                :            : 
-<span class="lineNum">    2161 </span>                :<span class="lineCov">          1 :     s = &amp;(layer-&gt;currentfeature-&gt;shape);</span>
-<span class="lineNum">    2162 </span>                :<span class="lineCov">          1 :     layer-&gt;currentfeature = layer-&gt;currentfeature-&gt;next;</span>
-<span class="lineNum">    2163 </span>                :<span class="lineCov">          1 :     msComputeBounds(s);</span>
-<span class="lineNum">    2164 </span>                :            : 
-<span class="lineNum">    2165 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 3 was taken X times"> + </span><span class="branchCov" title="Branch 4 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (layerinfo-&gt;is_relative || msRectOverlap(&amp;s-&gt;bounds, &amp;layerinfo-&gt;searchrect)) {</span>
-<span class="lineNum">    2166 </span>                :            :    
-<span class="lineNum">    2167 </span>                :<span class="lineCov">          1 :       msCopyShape(s, shape);</span>
-<span class="lineNum">    2168 </span>                :            : 
-<span class="lineNum">    2169 </span>                :            :       /* check for the expected size of the values array */
-<span class="lineNum">    2170 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (layer-&gt;numitems &gt; shape-&gt;numvalues) {</span>
-<span class="lineNum">    2171 </span>                :            :         int i;
-<span class="lineNum">    2172 </span>                :<span class="lineNoCov">          0 :         shape-&gt;values = (char **)msSmallRealloc(shape-&gt;values, sizeof(char *)*(layer-&gt;numitems));</span>
-<span class="lineNum">    2173 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineCov">          1 :         for (i = shape-&gt;numvalues; i &lt; layer-&gt;numitems; i++)</span>
-<span class="lineNum">    2174 </span>                :<span class="lineNoCov">          0 :           shape-&gt;values[i] = msStrdup(&quot;&quot;);</span>
-<span class="lineNum">    2175 </span>                :            :       }
-<span class="lineNum">    2176 </span>                :            : 
-<span class="lineNum">    2177 </span>                :            :       break;
-<span class="lineNum">    2178 </span>                :            :     }
-<span class="lineNum">    2179 </span>                :            :     
-<span class="lineNum">    2180 </span>                :            :   }
-<span class="lineNum">    2181 </span>                :            : 
-<span class="lineNum">    2182 </span>                :            :   return(MS_SUCCESS);
-<a name="2183"><span class="lineNum">    2183 </span>                :            : }</a>
-<span class="lineNum">    2184 </span>                :            : 
-<span class="lineNum">    2185 </span>                :<span class="lineNoCov">          0 : int msINLINELayerGetNumFeatures(layerObj *layer)</span>
-<span class="lineNum">    2186 </span>                :            : {
-<span class="lineNum">    2187 </span>                :            :   int i = 0;
-<span class="lineNum">    2188 </span>                :            :   featureListNodeObjPtr current;
-<span class="lineNum">    2189 </span>                :            : 
-<span class="lineNum">    2190 </span>                :<span class="lineNoCov">          0 :   current = layer-&gt;features;</span>
-<span class="lineNum">    2191 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   while (current != NULL) {</span>
-<span class="lineNum">    2192 </span>                :<span class="lineNoCov">          0 :     i++;</span>
-<span class="lineNum">    2193 </span>                :<span class="lineNoCov">          0 :     current = current-&gt;next;</span>
-<span class="lineNum">    2194 </span>                :            :   }
-<span class="lineNum">    2195 </span>                :<span class="lineNoCov">          0 :   return i;</span>
-<span class="lineNum">    2196 </span>                :            : }
-<span class="lineNum">    2197 </span>                :            : 
-<span class="lineNum">    2198 </span>                :            : 
-<span class="lineNum">    2199 </span>                :            : 
-<span class="lineNum">    2200 </span>                :            : /*
-<a name="2201"><span class="lineNum">    2201 </span>                :            : Returns an escaped string</a>
-<span class="lineNum">    2202 </span>                :            : */
-<span class="lineNum">    2203 </span>                :<span class="lineCov">          1 : char  *msLayerEscapeSQLParam(layerObj *layer, const char*pszString)</span>
-<span class="lineNum">    2204 </span>                :            : {
-<span class="lineNum">    2205 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if ( ! layer-&gt;vtable) {</span>
-<span class="lineNum">    2206 </span>                :<span class="lineCov">          1 :     int rv =  msInitializeVirtualTable(layer);</span>
-<span class="lineNum">    2207 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (rv != MS_SUCCESS)</span>
-<span class="lineNum">    2208 </span>                :            :       return &quot;&quot;;
-<span class="lineNum">    2209 </span>                :            :   }
-<span class="lineNum">    2210 </span>                :<span class="lineCov">          1 :   return layer-&gt;vtable-&gt;LayerEscapeSQLParam(layer, pszString);</span>
-<a name="2211"><span class="lineNum">    2211 </span>                :            : }</a>
-<span class="lineNum">    2212 </span>                :            : 
-<span class="lineNum">    2213 </span>                :<span class="lineCov">          1 : char  *msLayerEscapePropertyName(layerObj *layer, const char*pszString)</span>
-<span class="lineNum">    2214 </span>                :            : {
-<span class="lineNum">    2215 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if ( ! layer-&gt;vtable) {</span>
-<span class="lineNum">    2216 </span>                :<span class="lineNoCov">          0 :     int rv =  msInitializeVirtualTable(layer);</span>
-<span class="lineNum">    2217 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (rv != MS_SUCCESS)</span>
-<span class="lineNum">    2218 </span>                :            :       return &quot;&quot;;
-<span class="lineNum">    2219 </span>                :            :   }
-<span class="lineNum">    2220 </span>                :<span class="lineCov">          1 :   return layer-&gt;vtable-&gt;LayerEscapePropertyName(layer, pszString);</span>
-<span class="lineNum">    2221 </span>                :            : }
-<span class="lineNum">    2222 </span>                :            : 
-<a name="2223"><span class="lineNum">    2223 </span>                :            : </a>
-<span class="lineNum">    2224 </span>                :            : int
-<span class="lineNum">    2225 </span>                :<span class="lineCov">          1 : msINLINELayerInitializeVirtualTable(layerObj *layer)</span>
-<span class="lineNum">    2226 </span>                :            : {
-<span class="lineNum">    2227 </span>                :            :   assert(layer != NULL);
-<span class="lineNum">    2228 </span>                :            :   assert(layer-&gt;vtable != NULL);
-<span class="lineNum">    2229 </span>                :            : 
-<span class="lineNum">    2230 </span>                :            :   /* layer-&gt;vtable-&gt;LayerInitItemInfo, use default */
-<span class="lineNum">    2231 </span>                :            :   /* layer-&gt;vtable-&gt;LayerFreeItemInfo, use default */
-<span class="lineNum">    2232 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerOpen = msINLINELayerOpen;</span>
-<span class="lineNum">    2233 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerIsOpen = msINLINELayerIsOpen;</span>
-<span class="lineNum">    2234 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msINLINELayerWhichShapes;</span>
-<span class="lineNum">    2235 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msINLINELayerNextShape;</span>
-<span class="lineNum">    2236 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetShapeCount, use default */
-<span class="lineNum">    2237 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msINLINELayerGetShape;</span>
-<span class="lineNum">    2238 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msINLINELayerClose;</span>
-<span class="lineNum">    2239 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetItems, use default */
+<span class="lineNum">    2143 </span>                :            : 
+<span class="lineNum">    2144 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (msCopyShape(&amp;(current-&gt;shape), shape) != MS_SUCCESS) {</span>
+<span class="lineNum">    2145 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_SHPERR, &quot;Cannot retrieve inline shape. There some problem with the shape&quot;, &quot;msINLINELayerGetShape()&quot;);</span>
+<span class="lineNum">    2146 </span>                :<span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    2147 </span>                :            :   }
+<span class="lineNum">    2148 </span>                :            :   /* check for the expected size of the values array */
+<span class="lineNum">    2149 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (layer-&gt;numitems &gt; shape-&gt;numvalues) {</span>
+<span class="lineNum">    2150 </span>                :<span class="lineNoCov">          0 :     shape-&gt;values = (char **)msSmallRealloc(shape-&gt;values, sizeof(char *)*(layer-&gt;numitems));</span>
+<span class="lineNum">    2151 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (i = shape-&gt;numvalues; i &lt; layer-&gt;numitems; i++)</span>
+<span class="lineNum">    2152 </span>                :<span class="lineNoCov">          0 :       shape-&gt;values[i] = msStrdup(&quot;&quot;);</span>
+<span class="lineNum">    2153 </span>                :            :   }
+<span class="lineNum">    2154 </span>                :<span class="lineNoCov">          0 :   msComputeBounds(shape);</span>
+<span class="lineNum">    2155 </span>                :<span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<a name="2156"><span class="lineNum">    2156 </span>                :            : }</a>
+<span class="lineNum">    2157 </span>                :            : 
+<span class="lineNum">    2158 </span>                :<span class="lineCov">          1 : int msINLINELayerNextShape(layerObj *layer, shapeObj *shape)</span>
+<span class="lineNum">    2159 </span>                :            : {
+<span class="lineNum">    2160 </span>                :            :   msINLINELayerInfo *layerinfo = NULL;  
+<span class="lineNum">    2161 </span>                :            :   shapeObj * s;
+<span class="lineNum">    2162 </span>                :            :   
+<span class="lineNum">    2163 </span>                :<span class="lineCov">          1 :   layerinfo = (msINLINELayerInfo*) layer-&gt;layerinfo;</span>
+<span class="lineNum">    2164 </span>                :            :   
+<span class="lineNum">    2165 </span>                :            :   while (1) {
+<span class="lineNum">    2166 </span>                :            : 
+<span class="lineNum">    2167 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( ! (layer-&gt;currentfeature)) {</span>
+<span class="lineNum">    2168 </span>                :            :       /* out of features */
+<span class="lineNum">    2169 </span>                :            :       return(MS_DONE);
+<span class="lineNum">    2170 </span>                :            :     }
+<span class="lineNum">    2171 </span>                :            : 
+<span class="lineNum">    2172 </span>                :<span class="lineCov">          1 :     s = &amp;(layer-&gt;currentfeature-&gt;shape);</span>
+<span class="lineNum">    2173 </span>                :<span class="lineCov">          1 :     layer-&gt;currentfeature = layer-&gt;currentfeature-&gt;next;</span>
+<span class="lineNum">    2174 </span>                :<span class="lineCov">          1 :     msComputeBounds(s);</span>
+<span class="lineNum">    2175 </span>                :            : 
+<span class="lineNum">    2176 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 3 was taken X times"> + </span><span class="branchCov" title="Branch 4 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (layerinfo-&gt;is_relative || msRectOverlap(&amp;s-&gt;bounds, &amp;layerinfo-&gt;searchrect)) {</span>
+<span class="lineNum">    2177 </span>                :            :    
+<span class="lineNum">    2178 </span>                :<span class="lineCov">          1 :       msCopyShape(s, shape);</span>
+<span class="lineNum">    2179 </span>                :            : 
+<span class="lineNum">    2180 </span>                :            :       /* check for the expected size of the values array */
+<span class="lineNum">    2181 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (layer-&gt;numitems &gt; shape-&gt;numvalues) {</span>
+<span class="lineNum">    2182 </span>                :            :         int i;
+<span class="lineNum">    2183 </span>                :<span class="lineNoCov">          0 :         shape-&gt;values = (char **)msSmallRealloc(shape-&gt;values, sizeof(char *)*(layer-&gt;numitems));</span>
+<span class="lineNum">    2184 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineCov">          1 :         for (i = shape-&gt;numvalues; i &lt; layer-&gt;numitems; i++)</span>
+<span class="lineNum">    2185 </span>                :<span class="lineNoCov">          0 :           shape-&gt;values[i] = msStrdup(&quot;&quot;);</span>
+<span class="lineNum">    2186 </span>                :            :       }
+<span class="lineNum">    2187 </span>                :            : 
+<span class="lineNum">    2188 </span>                :            :       break;
+<span class="lineNum">    2189 </span>                :            :     }
+<span class="lineNum">    2190 </span>                :            :     
+<span class="lineNum">    2191 </span>                :            :   }
+<span class="lineNum">    2192 </span>                :            : 
+<span class="lineNum">    2193 </span>                :            :   return(MS_SUCCESS);
+<a name="2194"><span class="lineNum">    2194 </span>                :            : }</a>
+<span class="lineNum">    2195 </span>                :            : 
+<span class="lineNum">    2196 </span>                :<span class="lineNoCov">          0 : int msINLINELayerGetNumFeatures(layerObj *layer)</span>
+<span class="lineNum">    2197 </span>                :            : {
+<span class="lineNum">    2198 </span>                :            :   int i = 0;
+<span class="lineNum">    2199 </span>                :            :   featureListNodeObjPtr current;
+<span class="lineNum">    2200 </span>                :            : 
+<span class="lineNum">    2201 </span>                :<span class="lineNoCov">          0 :   current = layer-&gt;features;</span>
+<span class="lineNum">    2202 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   while (current != NULL) {</span>
+<span class="lineNum">    2203 </span>                :<span class="lineNoCov">          0 :     i++;</span>
+<span class="lineNum">    2204 </span>                :<span class="lineNoCov">          0 :     current = current-&gt;next;</span>
+<span class="lineNum">    2205 </span>                :            :   }
+<span class="lineNum">    2206 </span>                :<span class="lineNoCov">          0 :   return i;</span>
+<span class="lineNum">    2207 </span>                :            : }
+<span class="lineNum">    2208 </span>                :            : 
+<span class="lineNum">    2209 </span>                :            : 
+<span class="lineNum">    2210 </span>                :            : 
+<span class="lineNum">    2211 </span>                :            : /*
+<a name="2212"><span class="lineNum">    2212 </span>                :            : Returns an escaped string</a>
+<span class="lineNum">    2213 </span>                :            : */
+<span class="lineNum">    2214 </span>                :<span class="lineCov">          1 : char  *msLayerEscapeSQLParam(layerObj *layer, const char*pszString)</span>
+<span class="lineNum">    2215 </span>                :            : {
+<span class="lineNum">    2216 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if ( ! layer-&gt;vtable) {</span>
+<span class="lineNum">    2217 </span>                :<span class="lineCov">          1 :     int rv =  msInitializeVirtualTable(layer);</span>
+<span class="lineNum">    2218 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (rv != MS_SUCCESS)</span>
+<span class="lineNum">    2219 </span>                :            :       return &quot;&quot;;
+<span class="lineNum">    2220 </span>                :            :   }
+<span class="lineNum">    2221 </span>                :<span class="lineCov">          1 :   return layer-&gt;vtable-&gt;LayerEscapeSQLParam(layer, pszString);</span>
+<a name="2222"><span class="lineNum">    2222 </span>                :            : }</a>
+<span class="lineNum">    2223 </span>                :            : 
+<span class="lineNum">    2224 </span>                :<span class="lineCov">          1 : char  *msLayerEscapePropertyName(layerObj *layer, const char*pszString)</span>
+<span class="lineNum">    2225 </span>                :            : {
+<span class="lineNum">    2226 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if ( ! layer-&gt;vtable) {</span>
+<span class="lineNum">    2227 </span>                :<span class="lineNoCov">          0 :     int rv =  msInitializeVirtualTable(layer);</span>
+<span class="lineNum">    2228 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (rv != MS_SUCCESS)</span>
+<span class="lineNum">    2229 </span>                :            :       return &quot;&quot;;
+<span class="lineNum">    2230 </span>                :            :   }
+<span class="lineNum">    2231 </span>                :<span class="lineCov">          1 :   return layer-&gt;vtable-&gt;LayerEscapePropertyName(layer, pszString);</span>
+<span class="lineNum">    2232 </span>                :            : }
+<span class="lineNum">    2233 </span>                :            : 
+<a name="2234"><span class="lineNum">    2234 </span>                :            : </a>
+<span class="lineNum">    2235 </span>                :            : int
+<span class="lineNum">    2236 </span>                :<span class="lineCov">          1 : msINLINELayerInitializeVirtualTable(layerObj *layer)</span>
+<span class="lineNum">    2237 </span>                :            : {
+<span class="lineNum">    2238 </span>                :            :   assert(layer != NULL);
+<span class="lineNum">    2239 </span>                :            :   assert(layer-&gt;vtable != NULL);
 <span class="lineNum">    2240 </span>                :            : 
-<span class="lineNum">    2241 </span>                :            :   /*
-<span class="lineNum">    2242 </span>                :            :    * Original code contained following
-<span class="lineNum">    2243 </span>                :            :    * TODO: need to compute extents
-<span class="lineNum">    2244 </span>                :            :    */
-<span class="lineNum">    2245 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetExtent, use default */
-<span class="lineNum">    2246 </span>                :            : 
-<span class="lineNum">    2247 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
-<span class="lineNum">    2248 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCloseConnection, use default */
-<span class="lineNum">    2249 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msLayerMakeBackticsTimeFilter;</span>
-<span class="lineNum">    2250 </span>                :            : 
-<span class="lineNum">    2251 </span>                :            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
-<span class="lineNum">    2252 </span>                :            : 
-<span class="lineNum">    2253 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
-<span class="lineNum">    2254 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetNumFeatures = msINLINELayerGetNumFeatures;</span>
-<span class="lineNum">    2255 </span>                :            : 
-<span class="lineNum">    2256 </span>                :            :   /*layer-&gt;vtable-&gt;LayerEscapeSQLParam, use default*/
-<span class="lineNum">    2257 </span>                :            :   /*layer-&gt;vtable-&gt;LayerEscapePropertyName, use default*/
-<span class="lineNum">    2258 </span>                :            : 
-<span class="lineNum">    2259 </span>                :            :   /* layer-&gt;vtable-&gt;LayerEnablePaging, use default */
-<span class="lineNum">    2260 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetPaging, use default */
+<span class="lineNum">    2241 </span>                :            :   /* layer-&gt;vtable-&gt;LayerInitItemInfo, use default */
+<span class="lineNum">    2242 </span>                :            :   /* layer-&gt;vtable-&gt;LayerFreeItemInfo, use default */
+<span class="lineNum">    2243 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerOpen = msINLINELayerOpen;</span>
+<span class="lineNum">    2244 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerIsOpen = msINLINELayerIsOpen;</span>
+<span class="lineNum">    2245 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msINLINELayerWhichShapes;</span>
+<span class="lineNum">    2246 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msINLINELayerNextShape;</span>
+<span class="lineNum">    2247 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetShapeCount, use default */
+<span class="lineNum">    2248 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msINLINELayerGetShape;</span>
+<span class="lineNum">    2249 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msINLINELayerClose;</span>
+<span class="lineNum">    2250 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetItems, use default */
+<span class="lineNum">    2251 </span>                :            : 
+<span class="lineNum">    2252 </span>                :            :   /*
+<span class="lineNum">    2253 </span>                :            :    * Original code contained following
+<span class="lineNum">    2254 </span>                :            :    * TODO: need to compute extents
+<span class="lineNum">    2255 </span>                :            :    */
+<span class="lineNum">    2256 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetExtent, use default */
+<span class="lineNum">    2257 </span>                :            : 
+<span class="lineNum">    2258 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
+<span class="lineNum">    2259 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCloseConnection, use default */
+<span class="lineNum">    2260 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msLayerMakeBackticsTimeFilter;</span>
 <span class="lineNum">    2261 </span>                :            : 
-<span class="lineNum">    2262 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    2263 </span>                :            : }
-<span class="lineNum">    2264 </span>                :            : 
-<span class="lineNum">    2265 </span>                :            : 
+<span class="lineNum">    2262 </span>                :            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
+<span class="lineNum">    2263 </span>                :            : 
+<span class="lineNum">    2264 </span>                :            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
+<span class="lineNum">    2265 </span>                :<span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetNumFeatures = msINLINELayerGetNumFeatures;</span>
+<span class="lineNum">    2266 </span>                :            : 
+<span class="lineNum">    2267 </span>                :            :   /*layer-&gt;vtable-&gt;LayerEscapeSQLParam, use default*/
+<span class="lineNum">    2268 </span>                :            :   /*layer-&gt;vtable-&gt;LayerEscapePropertyName, use default*/
+<span class="lineNum">    2269 </span>                :            : 
+<span class="lineNum">    2270 </span>                :            :   /* layer-&gt;vtable-&gt;LayerEnablePaging, use default */
+<span class="lineNum">    2271 </span>                :            :   /* layer-&gt;vtable-&gt;LayerGetPaging, use default */
+<span class="lineNum">    2272 </span>                :            : 
+<span class="lineNum">    2273 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    2274 </span>                :            : }
+<span class="lineNum">    2275 </span>                :            : 
+<span class="lineNum">    2276 </span>                :            : 
 </pre>
       </td>
     </tr>
