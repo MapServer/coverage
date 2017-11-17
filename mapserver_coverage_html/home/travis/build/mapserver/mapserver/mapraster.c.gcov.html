@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">195</td>
-            <td class="headerCovTableEntry">385</td>
-            <td class="headerCovTableEntryLo">50.6 %</td>
+            <td class="headerCovTableEntry">196</td>
+            <td class="headerCovTableEntry">386</td>
+            <td class="headerCovTableEntryLo">50.8 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -49,9 +49,9 @@
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">159</td>
-            <td class="headerCovTableEntry">326</td>
-            <td class="headerCovTableEntryLo">48.8 %</td>
+            <td class="headerCovTableEntry">161</td>
+            <td class="headerCovTableEntry">328</td>
+            <td class="headerCovTableEntryLo">49.1 %</td>
           </tr>
           <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -766,329 +766,338 @@
 <span class="lineNum">     690 </span>                :            :     }
 <span class="lineNum">     691 </span>                :            : 
 <span class="lineNum">     692 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(layer-&gt;connectiontype != MS_KERNELDENSITY) {</span>
-<span class="lineNum">     693 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(strlen(filename) == 0) continue;</span>
-<span class="lineNum">     694 </span>                :            : 
-<span class="lineNum">     695 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(layer-&gt;debug == MS_TRUE)</span>
-<span class="lineNum">     696 </span>                :<span class="lineCov">          1 :         msDebug( &quot;msDrawRasterLayerLow(%s): Filename is: %s\n&quot;, layer-&gt;name, filename);</span>
-<span class="lineNum">     697 </span>                :            : 
-<span class="lineNum">     698 </span>                :<span class="lineCov">          1 :       msDrawRasterBuildRasterPath(map, layer, filename, szPath);</span>
-<span class="lineNum">     699 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(layer-&gt;debug == MS_TRUE)</span>
-<span class="lineNum">     700 </span>                :<span class="lineCov">          1 :         msDebug(&quot;msDrawRasterLayerLow(%s): Path is: %s\n&quot;, layer-&gt;name, szPath);</span>
-<span class="lineNum">     701 </span>                :            : 
-<span class="lineNum">     702 </span>                :            :       /*
-<span class="lineNum">     703 </span>                :            :        ** Note: because we do decryption after the above path expansion
-<span class="lineNum">     704 </span>                :            :        ** which depends on actually finding a file, it essentially means that
-<span class="lineNum">     705 </span>                :            :        ** fancy path manipulation is essentially disabled when using encrypted
-<span class="lineNum">     706 </span>                :            :        ** components. But that is mostly ok, since stuff like sde,postgres and
-<span class="lineNum">     707 </span>                :            :        ** oracle georaster do not use real paths.
-<span class="lineNum">     708 </span>                :            :        */
-<span class="lineNum">     709 </span>                :<span class="lineCov">          1 :       decrypted_path = msDecryptStringTokens( map, szPath );</span>
-<span class="lineNum">     710 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( decrypted_path == NULL )</span>
-<span class="lineNum">     711 </span>                :            :         return MS_FAILURE;
-<span class="lineNum">     712 </span>                :            : 
-<span class="lineNum">     713 </span>                :<span class="lineCov">          1 :       msAcquireLock( TLOCK_GDAL );</span>
-<span class="lineNum">     714 </span>                :<span class="lineCov">          1 :       hDS = GDALOpenShared( decrypted_path, GA_ReadOnly );</span>
-<span class="lineNum">     715 </span>                :            :     } else {
-<span class="lineNum">     716 </span>                :<span class="lineCov">          1 :       msAcquireLock( TLOCK_GDAL );</span>
-<span class="lineNum">     717 </span>                :<span class="lineCov">          1 :       status = msComputeKernelDensityDataset(map, image, layer, &amp;hDS, &amp;kernel_density_cleanup_ptr);</span>
-<span class="lineNum">     718 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(status != MS_SUCCESS) {</span>
-<span class="lineNum">     719 </span>                :<span class="lineNoCov">          0 :         msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">     720 </span>                :            :         final_status = status;
-<span class="lineNum">     721 </span>                :<span class="lineNoCov">          0 :         goto cleanup;</span>
-<span class="lineNum">     722 </span>                :            :       }
-<span class="lineNum">     723 </span>                :            :       done = MS_TRUE;
-<span class="lineNum">     724 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(msProjectionsDiffer(&amp;map-&gt;projection,&amp;layer-&gt;projection)) {</span>
-<span class="lineNum">     725 </span>                :<span class="lineCov">          1 :         char *mapProjStr = msGetProjectionString(&amp;(map-&gt;projection));</span>
-<span class="lineNum">     726 </span>                :            : 
-<span class="lineNum">     727 </span>                :            :         /* Set the projection to the map file projection */
-<span class="lineNum">     728 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :         if (msLoadProjectionString(&amp;(layer-&gt;projection), mapProjStr) != 0) {</span>
-<span class="lineNum">     729 </span>                :<span class="lineNoCov">          0 :           GDALClose( hDS );</span>
-<span class="lineNum">     730 </span>                :<span class="lineNoCov">          0 :           msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">     731 </span>                :<span class="lineNoCov">          0 :           msSetError(MS_CGIERR, &quot;Unable to set projection on interpolation layer.&quot;, &quot;msDrawRasterLayerLow()&quot;);</span>
-<span class="lineNum">     732 </span>                :<span class="lineNoCov">          0 :           return(MS_FAILURE);</span>
-<span class="lineNum">     733 </span>                :            :         }
-<span class="lineNum">     734 </span>                :<span class="lineCov">          1 :         free(mapProjStr);</span>
-<span class="lineNum">     735 </span>                :            :       }
-<span class="lineNum">     736 </span>                :            :     }
-<span class="lineNum">     737 </span>                :            : 
-<span class="lineNum">     738 </span>                :            : 
-<span class="lineNum">     739 </span>                :            :     /*
-<span class="lineNum">     740 </span>                :            :     ** If GDAL doesn't recognise it, and it wasn't successfully opened
-<span class="lineNum">     741 </span>                :            :     ** Generate an error.
-<span class="lineNum">     742 </span>                :            :     */
-<span class="lineNum">     743 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(hDS == NULL) {</span>
-<span class="lineNum">     744 </span>                :<span class="lineNoCov">          0 :       int ignore_missing = msMapIgnoreMissingData(map);</span>
-<span class="lineNum">     745 </span>                :<span class="lineNoCov">          0 :       const char *cpl_error_msg = msDrawRasterGetCPLErrorMsg(decrypted_path, szPath);</span>
+<span class="lineNum">     693 </span>                :            :       char* pszPath;
+<span class="lineNum">     694 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(strlen(filename) == 0) continue;</span>
+<span class="lineNum">     695 </span>                :            : 
+<span class="lineNum">     696 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(layer-&gt;debug == MS_TRUE)</span>
+<span class="lineNum">     697 </span>                :<span class="lineCov">          1 :         msDebug( &quot;msDrawRasterLayerLow(%s): Filename is: %s\n&quot;, layer-&gt;name, filename);</span>
+<span class="lineNum">     698 </span>                :            : 
+<span class="lineNum">     699 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( strncmp(filename, &quot;&lt;VRTDataset&quot;, strlen(&quot;&lt;VRTDataset&quot;)) == 0 )</span>
+<span class="lineNum">     700 </span>                :            :       {
+<span class="lineNum">     701 </span>                :            :         pszPath = filename;
+<span class="lineNum">     702 </span>                :            :       }
+<span class="lineNum">     703 </span>                :            :       else
+<span class="lineNum">     704 </span>                :            :       {
+<span class="lineNum">     705 </span>                :<span class="lineCov">          1 :         msDrawRasterBuildRasterPath(map, layer, filename, szPath);</span>
+<span class="lineNum">     706 </span>                :            :         pszPath = szPath;
+<span class="lineNum">     707 </span>                :            :       }
+<span class="lineNum">     708 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(layer-&gt;debug == MS_TRUE)</span>
+<span class="lineNum">     709 </span>                :<span class="lineCov">          1 :         msDebug(&quot;msDrawRasterLayerLow(%s): Path is: %s\n&quot;, layer-&gt;name, pszPath);</span>
+<span class="lineNum">     710 </span>                :            : 
+<span class="lineNum">     711 </span>                :            :       /*
+<span class="lineNum">     712 </span>                :            :        ** Note: because we do decryption after the above path expansion
+<span class="lineNum">     713 </span>                :            :        ** which depends on actually finding a file, it essentially means that
+<span class="lineNum">     714 </span>                :            :        ** fancy path manipulation is essentially disabled when using encrypted
+<span class="lineNum">     715 </span>                :            :        ** components. But that is mostly ok, since stuff like sde,postgres and
+<span class="lineNum">     716 </span>                :            :        ** oracle georaster do not use real paths.
+<span class="lineNum">     717 </span>                :            :        */
+<span class="lineNum">     718 </span>                :<span class="lineCov">          1 :       decrypted_path = msDecryptStringTokens( map, pszPath );</span>
+<span class="lineNum">     719 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( decrypted_path == NULL )</span>
+<span class="lineNum">     720 </span>                :            :         return MS_FAILURE;
+<span class="lineNum">     721 </span>                :            : 
+<span class="lineNum">     722 </span>                :<span class="lineCov">          1 :       msAcquireLock( TLOCK_GDAL );</span>
+<span class="lineNum">     723 </span>                :<span class="lineCov">          1 :       hDS = GDALOpenShared( decrypted_path, GA_ReadOnly );</span>
+<span class="lineNum">     724 </span>                :            :     } else {
+<span class="lineNum">     725 </span>                :<span class="lineCov">          1 :       msAcquireLock( TLOCK_GDAL );</span>
+<span class="lineNum">     726 </span>                :<span class="lineCov">          1 :       status = msComputeKernelDensityDataset(map, image, layer, &amp;hDS, &amp;kernel_density_cleanup_ptr);</span>
+<span class="lineNum">     727 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(status != MS_SUCCESS) {</span>
+<span class="lineNum">     728 </span>                :<span class="lineNoCov">          0 :         msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">     729 </span>                :            :         final_status = status;
+<span class="lineNum">     730 </span>                :<span class="lineNoCov">          0 :         goto cleanup;</span>
+<span class="lineNum">     731 </span>                :            :       }
+<span class="lineNum">     732 </span>                :            :       done = MS_TRUE;
+<span class="lineNum">     733 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(msProjectionsDiffer(&amp;map-&gt;projection,&amp;layer-&gt;projection)) {</span>
+<span class="lineNum">     734 </span>                :<span class="lineCov">          1 :         char *mapProjStr = msGetProjectionString(&amp;(map-&gt;projection));</span>
+<span class="lineNum">     735 </span>                :            : 
+<span class="lineNum">     736 </span>                :            :         /* Set the projection to the map file projection */
+<span class="lineNum">     737 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :         if (msLoadProjectionString(&amp;(layer-&gt;projection), mapProjStr) != 0) {</span>
+<span class="lineNum">     738 </span>                :<span class="lineNoCov">          0 :           GDALClose( hDS );</span>
+<span class="lineNum">     739 </span>                :<span class="lineNoCov">          0 :           msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">     740 </span>                :<span class="lineNoCov">          0 :           msSetError(MS_CGIERR, &quot;Unable to set projection on interpolation layer.&quot;, &quot;msDrawRasterLayerLow()&quot;);</span>
+<span class="lineNum">     741 </span>                :<span class="lineNoCov">          0 :           return(MS_FAILURE);</span>
+<span class="lineNum">     742 </span>                :            :         }
+<span class="lineNum">     743 </span>                :<span class="lineCov">          1 :         free(mapProjStr);</span>
+<span class="lineNum">     744 </span>                :            :       }
+<span class="lineNum">     745 </span>                :            :     }
 <span class="lineNum">     746 </span>                :            : 
-<span class="lineNum">     747 </span>                :<span class="lineNoCov">          0 :       msFree( decrypted_path );</span>
-<span class="lineNum">     748 </span>                :            :       decrypted_path = NULL;
-<span class="lineNum">     749 </span>                :            : 
-<span class="lineNum">     750 </span>                :<span class="lineNoCov">          0 :       msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">     751 </span>                :            : 
-<span class="lineNum">     752 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(ignore_missing == MS_MISSING_DATA_FAIL) {</span>
-<span class="lineNum">     753 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_IOERR, &quot;Corrupt, empty or missing file '%s' for layer '%s'. %s&quot;, &quot;msDrawRasterLayerLow()&quot;, szPath, layer-&gt;name, cpl_error_msg );</span>
-<span class="lineNum">     754 </span>                :<span class="lineNoCov">          0 :         return(MS_FAILURE);</span>
-<span class="lineNum">     755 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       } else if( ignore_missing == MS_MISSING_DATA_LOG ) {</span>
-<span class="lineNum">     756 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if( layer-&gt;debug || layer-&gt;map-&gt;debug ) {</span>
-<span class="lineNum">     757 </span>                :<span class="lineNoCov">          0 :           msDebug( &quot;Corrupt, empty or missing file '%s' for layer '%s' ... ignoring this missing data.  %s\n&quot;, szPath, layer-&gt;name, cpl_error_msg );</span>
-<span class="lineNum">     758 </span>                :            :         }
-<span class="lineNum">     759 </span>                :<span class="lineNoCov">          0 :         continue;</span>
-<span class="lineNum">     760 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       } else if( ignore_missing == MS_MISSING_DATA_IGNORE ) {</span>
-<span class="lineNum">     761 </span>                :<span class="lineNoCov">          0 :         continue;</span>
-<span class="lineNum">     762 </span>                :            :       } else {
-<span class="lineNum">     763 </span>                :            :         /* never get here */
-<span class="lineNum">     764 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_IOERR, &quot;msIgnoreMissingData returned unexpected value.&quot;, &quot;msDrawRasterLayerLow()&quot;);</span>
-<span class="lineNum">     765 </span>                :<span class="lineNoCov">          0 :         return(MS_FAILURE);</span>
-<span class="lineNum">     766 </span>                :            :       }
-<span class="lineNum">     767 </span>                :            :     }
-<span class="lineNum">     768 </span>                :            : 
-<span class="lineNum">     769 </span>                :<span class="lineCov">          1 :     msFree( decrypted_path );</span>
-<span class="lineNum">     770 </span>                :            :     decrypted_path = NULL;
-<span class="lineNum">     771 </span>                :            : 
-<span class="lineNum">     772 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( msDrawRasterLoadProjection(layer, hDS, filename, tilesrsindex, tilesrsname) != MS_SUCCESS )</span>
-<span class="lineNum">     773 </span>                :            :     {
-<span class="lineNum">     774 </span>                :<span class="lineNoCov">          0 :         GDALClose( hDS );</span>
-<span class="lineNum">     775 </span>                :<span class="lineNoCov">          0 :         msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">     776 </span>                :            :         final_status = MS_FAILURE;
-<span class="lineNum">     777 </span>                :<span class="lineNoCov">          0 :         break;</span>
-<span class="lineNum">     778 </span>                :            :     }
-<span class="lineNum">     779 </span>                :            : 
-<span class="lineNum">     780 </span>                :<span class="lineCov">          1 :     msGetGDALGeoTransform( hDS, map, layer, adfGeoTransform );</span>
-<span class="lineNum">     781 </span>                :            : 
-<span class="lineNum">     782 </span>                :            :     /*
-<span class="lineNum">     783 </span>                :            :     ** We want to resample if the source image is rotated, if
-<span class="lineNum">     784 </span>                :            :     ** the projections differ or if resampling has been explicitly
-<span class="lineNum">     785 </span>                :            :     ** requested, or if the image has north-down instead of north-up.
-<span class="lineNum">     786 </span>                :            :     */
-<span class="lineNum">     787 </span>                :            : #ifdef USE_PROJ
-<span class="lineNum">     788 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if( ((adfGeoTransform[2] != 0.0 || adfGeoTransform[4] != 0.0</span>
-<span class="lineNum">     789 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :           || adfGeoTransform[5] &gt; 0.0 || adfGeoTransform[1] &lt; 0.0 )</span>
-<span class="lineNum">     790 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :          &amp;&amp; layer-&gt;transform )</span>
-<span class="lineNum">     791 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :         || msProjectionsDiffer( &amp;(map-&gt;projection),</span>
-<span class="lineNum">     792 </span>                :            :                                 &amp;(layer-&gt;projection) )
-<span class="lineNum">     793 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :         || CSLFetchNameValue( layer-&gt;processing, &quot;RESAMPLE&quot; ) != NULL ) {</span>
-<span class="lineNum">     794 </span>                :<span class="lineCov">          1 :       status = msResampleGDALToMap( map, layer, image, rb, hDS );</span>
-<span class="lineNum">     795 </span>                :            :     } else
-<span class="lineNum">     796 </span>                :            : #endif
-<span class="lineNum">     797 </span>                :            :     {
-<span class="lineNum">     798 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( adfGeoTransform[2] != 0.0 || adfGeoTransform[4] != 0.0 ) {</span>
-<span class="lineNum">     799 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if( layer-&gt;debug || map-&gt;debug )</span>
-<span class="lineNum">     800 </span>                :<span class="lineNoCov">          0 :           msDebug(</span>
-<span class="lineNum">     801 </span>                :            :             &quot;Layer %s has rotational coefficients but we\n&quot;
-<span class="lineNum">     802 </span>                :            :             &quot;are unable to use them, projections support\n&quot;
-<span class="lineNum">     803 </span>                :            :             &quot;needs to be built in.&quot;,
-<span class="lineNum">     804 </span>                :            :             layer-&gt;name );
-<span class="lineNum">     805 </span>                :            : 
-<span class="lineNum">     806 </span>                :            :       }
-<span class="lineNum">     807 </span>                :<span class="lineCov">          1 :       status = msDrawRasterLayerGDAL(map, layer, image, rb, hDS );</span>
-<span class="lineNum">     808 </span>                :            :     }
-<span class="lineNum">     809 </span>                :            : 
-<span class="lineNum">     810 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( status == -1 ) {</span>
-<span class="lineNum">     811 </span>                :<span class="lineNoCov">          0 :       GDALClose( hDS );</span>
-<span class="lineNum">     812 </span>                :<span class="lineNoCov">          0 :       msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">     813 </span>                :            :       final_status = MS_FAILURE;
-<span class="lineNum">     814 </span>                :<span class="lineNoCov">          0 :       break;</span>
-<span class="lineNum">     815 </span>                :            :     }
-<span class="lineNum">     816 </span>                :            : 
-<span class="lineNum">     817 </span>                :            :     /*
-<span class="lineNum">     818 </span>                :            :     ** Should we keep this file open for future use?
-<span class="lineNum">     819 </span>                :            :     ** default to keeping open for single data files, and
-<span class="lineNum">     820 </span>                :            :     ** to closing for tile indexes
-<span class="lineNum">     821 </span>                :            :     */
-<span class="lineNum">     822 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(layer-&gt;connectiontype == MS_KERNELDENSITY) {</span>
-<span class="lineNum">     823 </span>                :            :       /*
-<span class="lineNum">     824 </span>                :            :       ** Fix issue #5330
-<span class="lineNum">     825 </span>                :            :       ** The in-memory kernel density heatmap gdal dataset handle (hDS) gets re-used
-<span class="lineNum">     826 </span>                :            :       ** but the associated rasterband cache doesn't get flushed, which causes old data
-<span class="lineNum">     827 </span>                :            :       ** to be rendered instead of the newly generated imagery. To fix, simply close the
-<span class="lineNum">     828 </span>                :            :       ** the handle and prevent further re-use.
-<span class="lineNum">     829 </span>                :            :       ** Note that instead of this workaround, we could explicitely set 
-<span class="lineNum">     830 </span>                :            :       ** CLOSE_CONNECTION=ALWAYS on the kerneldensity layer.
-<span class="lineNum">     831 </span>                :            :       */
-<span class="lineNum">     832 </span>                :<span class="lineCov">          1 :       GDALClose( hDS );</span>
-<span class="lineNum">     833 </span>                :            :     }
-<span class="lineNum">     834 </span>                :            :     else {
-<span class="lineNum">     835 </span>                :<span class="lineCov">          1 :       close_connection = msLayerGetProcessingKey( layer,</span>
-<span class="lineNum">     836 </span>                :            :                        &quot;CLOSE_CONNECTION&quot; );
-<span class="lineNum">     837 </span>                :            : 
-<span class="lineNum">     838 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( close_connection == NULL &amp;&amp; layer-&gt;tileindex == NULL )</span>
-<span class="lineNum">     839 </span>                :            :         close_connection = &quot;DEFER&quot;;
-<span class="lineNum">     840 </span>                :            : 
-<span class="lineNum">     841 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( close_connection != NULL</span>
-<span class="lineNum">     842 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           &amp;&amp; strcasecmp(close_connection,&quot;DEFER&quot;) == 0 ) {</span>
-<span class="lineNum">     843 </span>                :<span class="lineCov">          1 :         GDALDereferenceDataset( hDS );</span>
-<span class="lineNum">     844 </span>                :            :       } else {
-<span class="lineNum">     845 </span>                :<span class="lineCov">          1 :         GDALClose( hDS );</span>
-<span class="lineNum">     846 </span>                :            :       }
-<span class="lineNum">     847 </span>                :            :     }
-<span class="lineNum">     848 </span>                :<span class="lineCov">          1 :     msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">     849 </span>                :            :   } /* next tile */
-<span class="lineNum">     850 </span>                :            : 
-<span class="lineNum">     851 </span>                :            : cleanup:
-<span class="lineNum">     852 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(layer-&gt;tileindex) { /* tiling clean-up */</span>
-<span class="lineNum">     853 </span>                :<span class="lineCov">          1 :     msDrawRasterCleanupTileLayer(tlp, tilelayerindex);</span>
-<span class="lineNum">     854 </span>                :            :   }
-<span class="lineNum">     855 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(layer-&gt;connectiontype == MS_KERNELDENSITY &amp;&amp; kernel_density_cleanup_ptr) {</span>
-<span class="lineNum">     856 </span>                :<span class="lineCov">          1 :     msCleanupKernelDensityDataset(map, image, layer, kernel_density_cleanup_ptr);</span>
-<span class="lineNum">     857 </span>                :            :   }
-<span class="lineNum">     858 </span>                :            : 
-<span class="lineNum">     859 </span>                :            :   return final_status;
-<span class="lineNum">     860 </span>                :            : 
-<span class="lineNum">     861 </span>                :            : #endif /* defined(USE_GDAL) */
-<span class="lineNum">     862 </span>                :            : }
-<span class="lineNum">     863 </span>                :            : 
-<span class="lineNum">     864 </span>                :            : /************************************************************************/
-<span class="lineNum">     865 </span>                :            : /*                         msDrawReferenceMap()                         */
-<a name="866"><span class="lineNum">     866 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     747 </span>                :            : 
+<span class="lineNum">     748 </span>                :            :     /*
+<span class="lineNum">     749 </span>                :            :     ** If GDAL doesn't recognise it, and it wasn't successfully opened
+<span class="lineNum">     750 </span>                :            :     ** Generate an error.
+<span class="lineNum">     751 </span>                :            :     */
+<span class="lineNum">     752 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(hDS == NULL) {</span>
+<span class="lineNum">     753 </span>                :<span class="lineNoCov">          0 :       int ignore_missing = msMapIgnoreMissingData(map);</span>
+<span class="lineNum">     754 </span>                :<span class="lineNoCov">          0 :       const char *cpl_error_msg = msDrawRasterGetCPLErrorMsg(decrypted_path, szPath);</span>
+<span class="lineNum">     755 </span>                :            : 
+<span class="lineNum">     756 </span>                :<span class="lineNoCov">          0 :       msFree( decrypted_path );</span>
+<span class="lineNum">     757 </span>                :            :       decrypted_path = NULL;
+<span class="lineNum">     758 </span>                :            : 
+<span class="lineNum">     759 </span>                :<span class="lineNoCov">          0 :       msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">     760 </span>                :            : 
+<span class="lineNum">     761 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(ignore_missing == MS_MISSING_DATA_FAIL) {</span>
+<span class="lineNum">     762 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_IOERR, &quot;Corrupt, empty or missing file '%s' for layer '%s'. %s&quot;, &quot;msDrawRasterLayerLow()&quot;, szPath, layer-&gt;name, cpl_error_msg );</span>
+<span class="lineNum">     763 </span>                :<span class="lineNoCov">          0 :         return(MS_FAILURE);</span>
+<span class="lineNum">     764 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       } else if( ignore_missing == MS_MISSING_DATA_LOG ) {</span>
+<span class="lineNum">     765 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if( layer-&gt;debug || layer-&gt;map-&gt;debug ) {</span>
+<span class="lineNum">     766 </span>                :<span class="lineNoCov">          0 :           msDebug( &quot;Corrupt, empty or missing file '%s' for layer '%s' ... ignoring this missing data.  %s\n&quot;, szPath, layer-&gt;name, cpl_error_msg );</span>
+<span class="lineNum">     767 </span>                :            :         }
+<span class="lineNum">     768 </span>                :<span class="lineNoCov">          0 :         continue;</span>
+<span class="lineNum">     769 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       } else if( ignore_missing == MS_MISSING_DATA_IGNORE ) {</span>
+<span class="lineNum">     770 </span>                :<span class="lineNoCov">          0 :         continue;</span>
+<span class="lineNum">     771 </span>                :            :       } else {
+<span class="lineNum">     772 </span>                :            :         /* never get here */
+<span class="lineNum">     773 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_IOERR, &quot;msIgnoreMissingData returned unexpected value.&quot;, &quot;msDrawRasterLayerLow()&quot;);</span>
+<span class="lineNum">     774 </span>                :<span class="lineNoCov">          0 :         return(MS_FAILURE);</span>
+<span class="lineNum">     775 </span>                :            :       }
+<span class="lineNum">     776 </span>                :            :     }
+<span class="lineNum">     777 </span>                :            : 
+<span class="lineNum">     778 </span>                :<span class="lineCov">          1 :     msFree( decrypted_path );</span>
+<span class="lineNum">     779 </span>                :            :     decrypted_path = NULL;
+<span class="lineNum">     780 </span>                :            : 
+<span class="lineNum">     781 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( msDrawRasterLoadProjection(layer, hDS, filename, tilesrsindex, tilesrsname) != MS_SUCCESS )</span>
+<span class="lineNum">     782 </span>                :            :     {
+<span class="lineNum">     783 </span>                :<span class="lineNoCov">          0 :         GDALClose( hDS );</span>
+<span class="lineNum">     784 </span>                :<span class="lineNoCov">          0 :         msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">     785 </span>                :            :         final_status = MS_FAILURE;
+<span class="lineNum">     786 </span>                :<span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     787 </span>                :            :     }
+<span class="lineNum">     788 </span>                :            : 
+<span class="lineNum">     789 </span>                :<span class="lineCov">          1 :     msGetGDALGeoTransform( hDS, map, layer, adfGeoTransform );</span>
+<span class="lineNum">     790 </span>                :            : 
+<span class="lineNum">     791 </span>                :            :     /*
+<span class="lineNum">     792 </span>                :            :     ** We want to resample if the source image is rotated, if
+<span class="lineNum">     793 </span>                :            :     ** the projections differ or if resampling has been explicitly
+<span class="lineNum">     794 </span>                :            :     ** requested, or if the image has north-down instead of north-up.
+<span class="lineNum">     795 </span>                :            :     */
+<span class="lineNum">     796 </span>                :            : #ifdef USE_PROJ
+<span class="lineNum">     797 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if( ((adfGeoTransform[2] != 0.0 || adfGeoTransform[4] != 0.0</span>
+<span class="lineNum">     798 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :           || adfGeoTransform[5] &gt; 0.0 || adfGeoTransform[1] &lt; 0.0 )</span>
+<span class="lineNum">     799 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :          &amp;&amp; layer-&gt;transform )</span>
+<span class="lineNum">     800 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :         || msProjectionsDiffer( &amp;(map-&gt;projection),</span>
+<span class="lineNum">     801 </span>                :            :                                 &amp;(layer-&gt;projection) )
+<span class="lineNum">     802 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :         || CSLFetchNameValue( layer-&gt;processing, &quot;RESAMPLE&quot; ) != NULL ) {</span>
+<span class="lineNum">     803 </span>                :<span class="lineCov">          1 :       status = msResampleGDALToMap( map, layer, image, rb, hDS );</span>
+<span class="lineNum">     804 </span>                :            :     } else
+<span class="lineNum">     805 </span>                :            : #endif
+<span class="lineNum">     806 </span>                :            :     {
+<span class="lineNum">     807 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( adfGeoTransform[2] != 0.0 || adfGeoTransform[4] != 0.0 ) {</span>
+<span class="lineNum">     808 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if( layer-&gt;debug || map-&gt;debug )</span>
+<span class="lineNum">     809 </span>                :<span class="lineNoCov">          0 :           msDebug(</span>
+<span class="lineNum">     810 </span>                :            :             &quot;Layer %s has rotational coefficients but we\n&quot;
+<span class="lineNum">     811 </span>                :            :             &quot;are unable to use them, projections support\n&quot;
+<span class="lineNum">     812 </span>                :            :             &quot;needs to be built in.&quot;,
+<span class="lineNum">     813 </span>                :            :             layer-&gt;name );
+<span class="lineNum">     814 </span>                :            : 
+<span class="lineNum">     815 </span>                :            :       }
+<span class="lineNum">     816 </span>                :<span class="lineCov">          1 :       status = msDrawRasterLayerGDAL(map, layer, image, rb, hDS );</span>
+<span class="lineNum">     817 </span>                :            :     }
+<span class="lineNum">     818 </span>                :            : 
+<span class="lineNum">     819 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if( status == -1 ) {</span>
+<span class="lineNum">     820 </span>                :<span class="lineNoCov">          0 :       GDALClose( hDS );</span>
+<span class="lineNum">     821 </span>                :<span class="lineNoCov">          0 :       msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">     822 </span>                :            :       final_status = MS_FAILURE;
+<span class="lineNum">     823 </span>                :<span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     824 </span>                :            :     }
+<span class="lineNum">     825 </span>                :            : 
+<span class="lineNum">     826 </span>                :            :     /*
+<span class="lineNum">     827 </span>                :            :     ** Should we keep this file open for future use?
+<span class="lineNum">     828 </span>                :            :     ** default to keeping open for single data files, and
+<span class="lineNum">     829 </span>                :            :     ** to closing for tile indexes
+<span class="lineNum">     830 </span>                :            :     */
+<span class="lineNum">     831 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(layer-&gt;connectiontype == MS_KERNELDENSITY) {</span>
+<span class="lineNum">     832 </span>                :            :       /*
+<span class="lineNum">     833 </span>                :            :       ** Fix issue #5330
+<span class="lineNum">     834 </span>                :            :       ** The in-memory kernel density heatmap gdal dataset handle (hDS) gets re-used
+<span class="lineNum">     835 </span>                :            :       ** but the associated rasterband cache doesn't get flushed, which causes old data
+<span class="lineNum">     836 </span>                :            :       ** to be rendered instead of the newly generated imagery. To fix, simply close the
+<span class="lineNum">     837 </span>                :            :       ** the handle and prevent further re-use.
+<span class="lineNum">     838 </span>                :            :       ** Note that instead of this workaround, we could explicitely set 
+<span class="lineNum">     839 </span>                :            :       ** CLOSE_CONNECTION=ALWAYS on the kerneldensity layer.
+<span class="lineNum">     840 </span>                :            :       */
+<span class="lineNum">     841 </span>                :<span class="lineCov">          1 :       GDALClose( hDS );</span>
+<span class="lineNum">     842 </span>                :            :     }
+<span class="lineNum">     843 </span>                :            :     else {
+<span class="lineNum">     844 </span>                :<span class="lineCov">          1 :       close_connection = msLayerGetProcessingKey( layer,</span>
+<span class="lineNum">     845 </span>                :            :                        &quot;CLOSE_CONNECTION&quot; );
+<span class="lineNum">     846 </span>                :            : 
+<span class="lineNum">     847 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( close_connection == NULL &amp;&amp; layer-&gt;tileindex == NULL )</span>
+<span class="lineNum">     848 </span>                :            :         close_connection = &quot;DEFER&quot;;
+<span class="lineNum">     849 </span>                :            : 
+<span class="lineNum">     850 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( close_connection != NULL</span>
+<span class="lineNum">     851 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           &amp;&amp; strcasecmp(close_connection,&quot;DEFER&quot;) == 0 ) {</span>
+<span class="lineNum">     852 </span>                :<span class="lineCov">          1 :         GDALDereferenceDataset( hDS );</span>
+<span class="lineNum">     853 </span>                :            :       } else {
+<span class="lineNum">     854 </span>                :<span class="lineCov">          1 :         GDALClose( hDS );</span>
+<span class="lineNum">     855 </span>                :            :       }
+<span class="lineNum">     856 </span>                :            :     }
+<span class="lineNum">     857 </span>                :<span class="lineCov">          1 :     msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">     858 </span>                :            :   } /* next tile */
+<span class="lineNum">     859 </span>                :            : 
+<span class="lineNum">     860 </span>                :            : cleanup:
+<span class="lineNum">     861 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(layer-&gt;tileindex) { /* tiling clean-up */</span>
+<span class="lineNum">     862 </span>                :<span class="lineCov">          1 :     msDrawRasterCleanupTileLayer(tlp, tilelayerindex);</span>
+<span class="lineNum">     863 </span>                :            :   }
+<span class="lineNum">     864 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if(layer-&gt;connectiontype == MS_KERNELDENSITY &amp;&amp; kernel_density_cleanup_ptr) {</span>
+<span class="lineNum">     865 </span>                :<span class="lineCov">          1 :     msCleanupKernelDensityDataset(map, image, layer, kernel_density_cleanup_ptr);</span>
+<span class="lineNum">     866 </span>                :            :   }
 <span class="lineNum">     867 </span>                :            : 
-<span class="lineNum">     868 </span>                :<span class="lineNoCov">          0 : imageObj *msDrawReferenceMap(mapObj *map)</span>
-<span class="lineNum">     869 </span>                :            : {
-<span class="lineNum">     870 </span>                :            :   double cellsize;
-<span class="lineNum">     871 </span>                :            :   int x1,y1,x2,y2;
-<span class="lineNum">     872 </span>                :            :   char szPath[MS_MAXPATHLEN];
-<span class="lineNum">     873 </span>                :            :   int status = MS_SUCCESS;
-<span class="lineNum">     874 </span>                :            : 
-<span class="lineNum">     875 </span>                :            :   imageObj   *image = NULL;
-<span class="lineNum">     876 </span>                :            :   styleObj style;
-<span class="lineNum">     877 </span>                :            : 
-<span class="lineNum">     878 </span>                :            : 
-<span class="lineNum">     879 </span>                :<span class="lineNoCov">          0 :   rendererVTableObj *renderer = MS_MAP_RENDERER(map);</span>
-<span class="lineNum">     880 </span>                :<span class="lineNoCov">          0 :   rasterBufferObj *refImage = (rasterBufferObj*)calloc(1,sizeof(rasterBufferObj));</span>
-<span class="lineNum">     881 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_CHECK_ALLOC(refImage, sizeof(rasterBufferObj), NULL);</span>
-<span class="lineNum">     882 </span>                :            : 
-<span class="lineNum">     883 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(MS_SUCCESS != renderer-&gt;loadImageFromFile(msBuildPath(szPath, map-&gt;mappath, map-&gt;reference.image),refImage)) {</span>
-<span class="lineNum">     884 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR,&quot;error loading reference image %s&quot;,&quot;msDrawREferenceMap()&quot;,szPath);</span>
-<span class="lineNum">     885 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
-<span class="lineNum">     886 </span>                :            :   }
+<span class="lineNum">     868 </span>                :            :   return final_status;
+<span class="lineNum">     869 </span>                :            : 
+<span class="lineNum">     870 </span>                :            : #endif /* defined(USE_GDAL) */
+<span class="lineNum">     871 </span>                :            : }
+<span class="lineNum">     872 </span>                :            : 
+<span class="lineNum">     873 </span>                :            : /************************************************************************/
+<span class="lineNum">     874 </span>                :            : /*                         msDrawReferenceMap()                         */
+<a name="875"><span class="lineNum">     875 </span>                :            : /************************************************************************/</a>
+<span class="lineNum">     876 </span>                :            : 
+<span class="lineNum">     877 </span>                :<span class="lineNoCov">          0 : imageObj *msDrawReferenceMap(mapObj *map)</span>
+<span class="lineNum">     878 </span>                :            : {
+<span class="lineNum">     879 </span>                :            :   double cellsize;
+<span class="lineNum">     880 </span>                :            :   int x1,y1,x2,y2;
+<span class="lineNum">     881 </span>                :            :   char szPath[MS_MAXPATHLEN];
+<span class="lineNum">     882 </span>                :            :   int status = MS_SUCCESS;
+<span class="lineNum">     883 </span>                :            : 
+<span class="lineNum">     884 </span>                :            :   imageObj   *image = NULL;
+<span class="lineNum">     885 </span>                :            :   styleObj style;
+<span class="lineNum">     886 </span>                :            : 
 <span class="lineNum">     887 </span>                :            : 
-<span class="lineNum">     888 </span>                :<span class="lineNoCov">          0 :   image = msImageCreate(refImage-&gt;width, refImage-&gt;height, map-&gt;outputformat,</span>
-<span class="lineNum">     889 </span>                :            :                         map-&gt;web.imagepath, map-&gt;web.imageurl, map-&gt;resolution, map-&gt;defresolution, &amp;(map-&gt;reference.color));
-<span class="lineNum">     890 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(!image) return NULL;</span>
+<span class="lineNum">     888 </span>                :<span class="lineNoCov">          0 :   rendererVTableObj *renderer = MS_MAP_RENDERER(map);</span>
+<span class="lineNum">     889 </span>                :<span class="lineNoCov">          0 :   rasterBufferObj *refImage = (rasterBufferObj*)calloc(1,sizeof(rasterBufferObj));</span>
+<span class="lineNum">     890 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   MS_CHECK_ALLOC(refImage, sizeof(rasterBufferObj), NULL);</span>
 <span class="lineNum">     891 </span>                :            : 
-<span class="lineNum">     892 </span>                :<span class="lineNoCov">          0 :   status = renderer-&gt;mergeRasterBuffer(image,refImage,1.0,0,0,0,0,refImage-&gt;width, refImage-&gt;height);</span>
-<span class="lineNum">     893 </span>                :<span class="lineNoCov">          0 :   msFreeRasterBuffer(refImage);</span>
-<span class="lineNum">     894 </span>                :<span class="lineNoCov">          0 :   free(refImage);</span>
-<span class="lineNum">     895 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(UNLIKELY(status == MS_FAILURE))</span>
-<span class="lineNum">     896 </span>                :            :     return NULL;
-<span class="lineNum">     897 </span>                :            : 
-<span class="lineNum">     898 </span>                :            :   /* make sure the extent given in mapfile fits the image */
-<span class="lineNum">     899 </span>                :<span class="lineNoCov">          0 :   cellsize = msAdjustExtent(&amp;(map-&gt;reference.extent),</span>
-<span class="lineNum">     900 </span>                :            :                             image-&gt;width, image-&gt;height);
-<span class="lineNum">     901 </span>                :            : 
-<span class="lineNum">     902 </span>                :            :   /* convert map extent to reference image coordinates */
-<span class="lineNum">     903 </span>                :<span class="lineNoCov">          0 :   x1 = MS_MAP2IMAGE_X(map-&gt;extent.minx,  map-&gt;reference.extent.minx, cellsize);</span>
-<span class="lineNum">     904 </span>                :<span class="lineNoCov">          0 :   x2 = MS_MAP2IMAGE_X(map-&gt;extent.maxx,  map-&gt;reference.extent.minx, cellsize);</span>
-<span class="lineNum">     905 </span>                :<span class="lineNoCov">          0 :   y1 = MS_MAP2IMAGE_Y(map-&gt;extent.maxy,  map-&gt;reference.extent.maxy, cellsize);</span>
-<span class="lineNum">     906 </span>                :<span class="lineNoCov">          0 :   y2 = MS_MAP2IMAGE_Y(map-&gt;extent.miny,  map-&gt;reference.extent.maxy, cellsize);</span>
-<span class="lineNum">     907 </span>                :            : 
-<span class="lineNum">     908 </span>                :<span class="lineNoCov">          0 :   initStyle(&amp;style);</span>
-<span class="lineNum">     909 </span>                :<span class="lineNoCov">          0 :   style.color = map-&gt;reference.color;</span>
-<span class="lineNum">     910 </span>                :<span class="lineNoCov">          0 :   style.outlinecolor = map-&gt;reference.outlinecolor;</span>
-<span class="lineNum">     911 </span>                :            : 
-<span class="lineNum">     912 </span>                :            :   /* if extent are smaller than minbox size */
-<span class="lineNum">     913 </span>                :            :   /* draw that extent on the reference image */
-<span class="lineNum">     914 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( (abs(x2 - x1) &gt; map-&gt;reference.minboxsize) ||</span>
-<span class="lineNum">     915 </span>                :<span class="lineNoCov">          0 :       (abs(y2 - y1) &gt; map-&gt;reference.minboxsize) ) {</span>
-<span class="lineNum">     916 </span>                :            :     shapeObj rect;
-<span class="lineNum">     917 </span>                :            :     lineObj line;
-<span class="lineNum">     918 </span>                :            :     pointObj points[5];
-<span class="lineNum">     919 </span>                :<span class="lineNoCov">          0 :     msInitShape(&amp;rect);</span>
+<span class="lineNum">     892 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(MS_SUCCESS != renderer-&gt;loadImageFromFile(msBuildPath(szPath, map-&gt;mappath, map-&gt;reference.image),refImage)) {</span>
+<span class="lineNum">     893 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR,&quot;error loading reference image %s&quot;,&quot;msDrawREferenceMap()&quot;,szPath);</span>
+<span class="lineNum">     894 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">     895 </span>                :            :   }
+<span class="lineNum">     896 </span>                :            : 
+<span class="lineNum">     897 </span>                :<span class="lineNoCov">          0 :   image = msImageCreate(refImage-&gt;width, refImage-&gt;height, map-&gt;outputformat,</span>
+<span class="lineNum">     898 </span>                :            :                         map-&gt;web.imagepath, map-&gt;web.imageurl, map-&gt;resolution, map-&gt;defresolution, &amp;(map-&gt;reference.color));
+<span class="lineNum">     899 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(!image) return NULL;</span>
+<span class="lineNum">     900 </span>                :            : 
+<span class="lineNum">     901 </span>                :<span class="lineNoCov">          0 :   status = renderer-&gt;mergeRasterBuffer(image,refImage,1.0,0,0,0,0,refImage-&gt;width, refImage-&gt;height);</span>
+<span class="lineNum">     902 </span>                :<span class="lineNoCov">          0 :   msFreeRasterBuffer(refImage);</span>
+<span class="lineNum">     903 </span>                :<span class="lineNoCov">          0 :   free(refImage);</span>
+<span class="lineNum">     904 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(UNLIKELY(status == MS_FAILURE))</span>
+<span class="lineNum">     905 </span>                :            :     return NULL;
+<span class="lineNum">     906 </span>                :            : 
+<span class="lineNum">     907 </span>                :            :   /* make sure the extent given in mapfile fits the image */
+<span class="lineNum">     908 </span>                :<span class="lineNoCov">          0 :   cellsize = msAdjustExtent(&amp;(map-&gt;reference.extent),</span>
+<span class="lineNum">     909 </span>                :            :                             image-&gt;width, image-&gt;height);
+<span class="lineNum">     910 </span>                :            : 
+<span class="lineNum">     911 </span>                :            :   /* convert map extent to reference image coordinates */
+<span class="lineNum">     912 </span>                :<span class="lineNoCov">          0 :   x1 = MS_MAP2IMAGE_X(map-&gt;extent.minx,  map-&gt;reference.extent.minx, cellsize);</span>
+<span class="lineNum">     913 </span>                :<span class="lineNoCov">          0 :   x2 = MS_MAP2IMAGE_X(map-&gt;extent.maxx,  map-&gt;reference.extent.minx, cellsize);</span>
+<span class="lineNum">     914 </span>                :<span class="lineNoCov">          0 :   y1 = MS_MAP2IMAGE_Y(map-&gt;extent.maxy,  map-&gt;reference.extent.maxy, cellsize);</span>
+<span class="lineNum">     915 </span>                :<span class="lineNoCov">          0 :   y2 = MS_MAP2IMAGE_Y(map-&gt;extent.miny,  map-&gt;reference.extent.maxy, cellsize);</span>
+<span class="lineNum">     916 </span>                :            : 
+<span class="lineNum">     917 </span>                :<span class="lineNoCov">          0 :   initStyle(&amp;style);</span>
+<span class="lineNum">     918 </span>                :<span class="lineNoCov">          0 :   style.color = map-&gt;reference.color;</span>
+<span class="lineNum">     919 </span>                :<span class="lineNoCov">          0 :   style.outlinecolor = map-&gt;reference.outlinecolor;</span>
 <span class="lineNum">     920 </span>                :            : 
-<span class="lineNum">     921 </span>                :<span class="lineNoCov">          0 :     line.point = points;</span>
-<span class="lineNum">     922 </span>                :<span class="lineNoCov">          0 :     line.numpoints = 5;</span>
-<span class="lineNum">     923 </span>                :<span class="lineNoCov">          0 :     rect.line = &amp;line;</span>
-<span class="lineNum">     924 </span>                :<span class="lineNoCov">          0 :     rect.numlines = 1;</span>
-<span class="lineNum">     925 </span>                :<span class="lineNoCov">          0 :     rect.type = MS_SHAPE_POLYGON;</span>
-<span class="lineNum">     926 </span>                :            : 
-<span class="lineNum">     927 </span>                :<span class="lineNoCov">          0 :     line.point[0].x = x1;</span>
-<span class="lineNum">     928 </span>                :<span class="lineNoCov">          0 :     line.point[0].y = y1;</span>
-<span class="lineNum">     929 </span>                :<span class="lineNoCov">          0 :     line.point[1].x = x1;</span>
-<span class="lineNum">     930 </span>                :<span class="lineNoCov">          0 :     line.point[1].y = y2;</span>
-<span class="lineNum">     931 </span>                :<span class="lineNoCov">          0 :     line.point[2].x = x2;</span>
-<span class="lineNum">     932 </span>                :<span class="lineNoCov">          0 :     line.point[2].y = y2;</span>
-<span class="lineNum">     933 </span>                :<span class="lineNoCov">          0 :     line.point[3].x = x2;</span>
-<span class="lineNum">     934 </span>                :<span class="lineNoCov">          0 :     line.point[3].y = y1;</span>
-<span class="lineNum">     935 </span>                :<span class="lineNoCov">          0 :     line.point[4].x = line.point[0].x;</span>
-<span class="lineNum">     936 </span>                :<span class="lineNoCov">          0 :     line.point[4].y = line.point[0].y;</span>
-<span class="lineNum">     937 </span>                :            : 
-<span class="lineNum">     938 </span>                :<span class="lineNoCov">          0 :     line.numpoints = 5;</span>
-<span class="lineNum">     939 </span>                :            : 
-<span class="lineNum">     940 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if( map-&gt;reference.maxboxsize == 0 ||</span>
-<span class="lineNum">     941 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ((abs(x2 - x1) &lt; map-&gt;reference.maxboxsize) &amp;&amp;</span>
-<span class="lineNum">     942 </span>                :<span class="lineNoCov">          0 :          (abs(y2 - y1) &lt; map-&gt;reference.maxboxsize)) ) {</span>
-<span class="lineNum">     943 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(UNLIKELY(MS_FAILURE == msDrawShadeSymbol(map, image, &amp;rect, &amp;style, 1.0))) {</span>
-<span class="lineNum">     944 </span>                :<span class="lineNoCov">          0 :         msFreeImage(image);</span>
-<span class="lineNum">     945 </span>                :<span class="lineNoCov">          0 :         return NULL;</span>
-<span class="lineNum">     946 </span>                :            :       }
-<span class="lineNum">     947 </span>                :            :     }
+<span class="lineNum">     921 </span>                :            :   /* if extent are smaller than minbox size */
+<span class="lineNum">     922 </span>                :            :   /* draw that extent on the reference image */
+<span class="lineNum">     923 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if( (abs(x2 - x1) &gt; map-&gt;reference.minboxsize) ||</span>
+<span class="lineNum">     924 </span>                :<span class="lineNoCov">          0 :       (abs(y2 - y1) &gt; map-&gt;reference.minboxsize) ) {</span>
+<span class="lineNum">     925 </span>                :            :     shapeObj rect;
+<span class="lineNum">     926 </span>                :            :     lineObj line;
+<span class="lineNum">     927 </span>                :            :     pointObj points[5];
+<span class="lineNum">     928 </span>                :<span class="lineNoCov">          0 :     msInitShape(&amp;rect);</span>
+<span class="lineNum">     929 </span>                :            : 
+<span class="lineNum">     930 </span>                :<span class="lineNoCov">          0 :     line.point = points;</span>
+<span class="lineNum">     931 </span>                :<span class="lineNoCov">          0 :     line.numpoints = 5;</span>
+<span class="lineNum">     932 </span>                :<span class="lineNoCov">          0 :     rect.line = &amp;line;</span>
+<span class="lineNum">     933 </span>                :<span class="lineNoCov">          0 :     rect.numlines = 1;</span>
+<span class="lineNum">     934 </span>                :<span class="lineNoCov">          0 :     rect.type = MS_SHAPE_POLYGON;</span>
+<span class="lineNum">     935 </span>                :            : 
+<span class="lineNum">     936 </span>                :<span class="lineNoCov">          0 :     line.point[0].x = x1;</span>
+<span class="lineNum">     937 </span>                :<span class="lineNoCov">          0 :     line.point[0].y = y1;</span>
+<span class="lineNum">     938 </span>                :<span class="lineNoCov">          0 :     line.point[1].x = x1;</span>
+<span class="lineNum">     939 </span>                :<span class="lineNoCov">          0 :     line.point[1].y = y2;</span>
+<span class="lineNum">     940 </span>                :<span class="lineNoCov">          0 :     line.point[2].x = x2;</span>
+<span class="lineNum">     941 </span>                :<span class="lineNoCov">          0 :     line.point[2].y = y2;</span>
+<span class="lineNum">     942 </span>                :<span class="lineNoCov">          0 :     line.point[3].x = x2;</span>
+<span class="lineNum">     943 </span>                :<span class="lineNoCov">          0 :     line.point[3].y = y1;</span>
+<span class="lineNum">     944 </span>                :<span class="lineNoCov">          0 :     line.point[4].x = line.point[0].x;</span>
+<span class="lineNum">     945 </span>                :<span class="lineNoCov">          0 :     line.point[4].y = line.point[0].y;</span>
+<span class="lineNum">     946 </span>                :            : 
+<span class="lineNum">     947 </span>                :<span class="lineNoCov">          0 :     line.numpoints = 5;</span>
 <span class="lineNum">     948 </span>                :            : 
-<span class="lineNum">     949 </span>                :            :   } else { /* else draw the marker symbol */
-<span class="lineNum">     950 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if( map-&gt;reference.maxboxsize == 0 ||</span>
-<span class="lineNum">     951 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ((abs(x2 - x1) &lt; map-&gt;reference.maxboxsize) &amp;&amp;</span>
-<span class="lineNum">     952 </span>                :<span class="lineNoCov">          0 :          (abs(y2 - y1) &lt; map-&gt;reference.maxboxsize)) ) {</span>
-<span class="lineNum">     953 </span>                :<span class="lineNoCov">          0 :       style.size = map-&gt;reference.markersize;</span>
-<span class="lineNum">     954 </span>                :            : 
-<span class="lineNum">     955 </span>                :            :       /* if the marker symbol is specify draw this symbol else draw a cross */
-<span class="lineNum">     956 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(map-&gt;reference.marker || map-&gt;reference.markername) {</span>
-<span class="lineNum">     957 </span>                :            :         pointObj point;
-<span class="lineNum">     958 </span>                :<span class="lineNoCov">          0 :         point.x = (double)(x1 + x2)/2;</span>
-<span class="lineNum">     959 </span>                :<span class="lineNoCov">          0 :         point.y = (double)(y1 + y2)/2;</span>
-<span class="lineNum">     960 </span>                :            : 
-<span class="lineNum">     961 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(map-&gt;reference.marker) {</span>
-<span class="lineNum">     962 </span>                :<span class="lineNoCov">          0 :           style.symbol = map-&gt;reference.marker;</span>
-<span class="lineNum">     963 </span>                :            :         } else {
-<span class="lineNum">     964 </span>                :<span class="lineNoCov">          0 :           style.symbol = msGetSymbolIndex(&amp;map-&gt;symbolset,  map-&gt;reference.markername, MS_TRUE);</span>
-<span class="lineNum">     965 </span>                :            :         }
-<span class="lineNum">     966 </span>                :            : 
-<span class="lineNum">     967 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(UNLIKELY(MS_FAILURE == msDrawMarkerSymbol(map, image, &amp;point, &amp;style, 1.0))) {</span>
-<span class="lineNum">     968 </span>                :<span class="lineNoCov">          0 :           msFreeImage(image);</span>
-<span class="lineNum">     969 </span>                :<span class="lineNoCov">          0 :           return NULL;</span>
-<span class="lineNum">     970 </span>                :            :         }
-<span class="lineNum">     971 </span>                :            :       } else {
-<span class="lineNum">     972 </span>                :            :         int x21, y21;
-<span class="lineNum">     973 </span>                :            :         shapeObj cross;
-<span class="lineNum">     974 </span>                :            :         lineObj lines[4];
-<span class="lineNum">     975 </span>                :            :         pointObj point[8];
-<span class="lineNum">     976 </span>                :            :         int i;
-<span class="lineNum">     977 </span>                :            :         /* determine the center point */
-<span class="lineNum">     978 </span>                :<span class="lineNoCov">          0 :         x21 = MS_NINT((x1 + x2)/2);</span>
-<span class="lineNum">     979 </span>                :<span class="lineNoCov">          0 :         y21 = MS_NINT((y1 + y2)/2);</span>
-<span class="lineNum">     980 </span>                :            : 
-<span class="lineNum">     981 </span>                :<span class="lineNoCov">          0 :         msInitShape(&amp;cross);</span>
-<span class="lineNum">     982 </span>                :<span class="lineNoCov">          0 :         cross.numlines = 4;</span>
-<span class="lineNum">     983 </span>                :<span class="lineNoCov">          0 :         cross.line = lines;</span>
-<span class="lineNum">     984 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for(i=0; i&lt;4; i++) {</span>
-<span class="lineNum">     985 </span>                :<span class="lineNoCov">          0 :           cross.line[i].numpoints = 2;</span>
-<span class="lineNum">     986 </span>                :<span class="lineNoCov">          0 :           cross.line[i].point = &amp;(point[2*i]);</span>
-<span class="lineNum">     987 </span>                :            :         }
-<span class="lineNum">     988 </span>                :            :         /* draw a cross */
-<span class="lineNum">     989 </span>                :<span class="lineNoCov">          0 :         cross.line[0].point[0].x = x21-8;</span>
-<span class="lineNum">     990 </span>                :<span class="lineNoCov">          0 :         cross.line[0].point[0].y = y21;</span>
-<span class="lineNum">     991 </span>                :<span class="lineNoCov">          0 :         cross.line[0].point[1].x = x21-3;</span>
-<span class="lineNum">     992 </span>                :<span class="lineNoCov">          0 :         cross.line[0].point[1].y = y21;</span>
-<span class="lineNum">     993 </span>                :<span class="lineNoCov">          0 :         cross.line[1].point[0].x = x21;</span>
-<span class="lineNum">     994 </span>                :<span class="lineNoCov">          0 :         cross.line[1].point[0].y = y21-8;</span>
-<span class="lineNum">     995 </span>                :<span class="lineNoCov">          0 :         cross.line[1].point[1].x = x21;</span>
-<span class="lineNum">     996 </span>                :<span class="lineNoCov">          0 :         cross.line[1].point[1].y = y21-3;</span>
-<span class="lineNum">     997 </span>                :<span class="lineNoCov">          0 :         cross.line[2].point[0].x = x21;</span>
-<span class="lineNum">     998 </span>                :<span class="lineNoCov">          0 :         cross.line[2].point[0].y = y21+3;</span>
-<span class="lineNum">     999 </span>                :<span class="lineNoCov">          0 :         cross.line[2].point[1].x = x21;</span>
-<span class="lineNum">    1000 </span>                :<span class="lineNoCov">          0 :         cross.line[2].point[1].y = y21+8;</span>
-<span class="lineNum">    1001 </span>                :<span class="lineNoCov">          0 :         cross.line[3].point[0].x = x21+3;</span>
-<span class="lineNum">    1002 </span>                :<span class="lineNoCov">          0 :         cross.line[3].point[0].y = y21;</span>
-<span class="lineNum">    1003 </span>                :<span class="lineNoCov">          0 :         cross.line[3].point[1].x = x21+8;</span>
-<span class="lineNum">    1004 </span>                :<span class="lineNoCov">          0 :         cross.line[3].point[1].y = y21;</span>
-<span class="lineNum">    1005 </span>                :            : 
-<span class="lineNum">    1006 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(UNLIKELY(MS_FAILURE == msDrawLineSymbol(map,image,&amp;cross,&amp;style,1.0))) {</span>
-<span class="lineNum">    1007 </span>                :<span class="lineNoCov">          0 :           msFreeImage(image);</span>
-<span class="lineNum">    1008 </span>                :<span class="lineNoCov">          0 :           return NULL;</span>
-<span class="lineNum">    1009 </span>                :            :         }
-<span class="lineNum">    1010 </span>                :            :       }
-<span class="lineNum">    1011 </span>                :            :     }
-<span class="lineNum">    1012 </span>                :            :   }
-<span class="lineNum">    1013 </span>                :            : 
-<span class="lineNum">    1014 </span>                :            :   return(image);
-<span class="lineNum">    1015 </span>                :            : }
+<span class="lineNum">     949 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if( map-&gt;reference.maxboxsize == 0 ||</span>
+<span class="lineNum">     950 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ((abs(x2 - x1) &lt; map-&gt;reference.maxboxsize) &amp;&amp;</span>
+<span class="lineNum">     951 </span>                :<span class="lineNoCov">          0 :          (abs(y2 - y1) &lt; map-&gt;reference.maxboxsize)) ) {</span>
+<span class="lineNum">     952 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(UNLIKELY(MS_FAILURE == msDrawShadeSymbol(map, image, &amp;rect, &amp;style, 1.0))) {</span>
+<span class="lineNum">     953 </span>                :<span class="lineNoCov">          0 :         msFreeImage(image);</span>
+<span class="lineNum">     954 </span>                :<span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     955 </span>                :            :       }
+<span class="lineNum">     956 </span>                :            :     }
+<span class="lineNum">     957 </span>                :            : 
+<span class="lineNum">     958 </span>                :            :   } else { /* else draw the marker symbol */
+<span class="lineNum">     959 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if( map-&gt;reference.maxboxsize == 0 ||</span>
+<span class="lineNum">     960 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ((abs(x2 - x1) &lt; map-&gt;reference.maxboxsize) &amp;&amp;</span>
+<span class="lineNum">     961 </span>                :<span class="lineNoCov">          0 :          (abs(y2 - y1) &lt; map-&gt;reference.maxboxsize)) ) {</span>
+<span class="lineNum">     962 </span>                :<span class="lineNoCov">          0 :       style.size = map-&gt;reference.markersize;</span>
+<span class="lineNum">     963 </span>                :            : 
+<span class="lineNum">     964 </span>                :            :       /* if the marker symbol is specify draw this symbol else draw a cross */
+<span class="lineNum">     965 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(map-&gt;reference.marker || map-&gt;reference.markername) {</span>
+<span class="lineNum">     966 </span>                :            :         pointObj point;
+<span class="lineNum">     967 </span>                :<span class="lineNoCov">          0 :         point.x = (double)(x1 + x2)/2;</span>
+<span class="lineNum">     968 </span>                :<span class="lineNoCov">          0 :         point.y = (double)(y1 + y2)/2;</span>
+<span class="lineNum">     969 </span>                :            : 
+<span class="lineNum">     970 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(map-&gt;reference.marker) {</span>
+<span class="lineNum">     971 </span>                :<span class="lineNoCov">          0 :           style.symbol = map-&gt;reference.marker;</span>
+<span class="lineNum">     972 </span>                :            :         } else {
+<span class="lineNum">     973 </span>                :<span class="lineNoCov">          0 :           style.symbol = msGetSymbolIndex(&amp;map-&gt;symbolset,  map-&gt;reference.markername, MS_TRUE);</span>
+<span class="lineNum">     974 </span>                :            :         }
+<span class="lineNum">     975 </span>                :            : 
+<span class="lineNum">     976 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(UNLIKELY(MS_FAILURE == msDrawMarkerSymbol(map, image, &amp;point, &amp;style, 1.0))) {</span>
+<span class="lineNum">     977 </span>                :<span class="lineNoCov">          0 :           msFreeImage(image);</span>
+<span class="lineNum">     978 </span>                :<span class="lineNoCov">          0 :           return NULL;</span>
+<span class="lineNum">     979 </span>                :            :         }
+<span class="lineNum">     980 </span>                :            :       } else {
+<span class="lineNum">     981 </span>                :            :         int x21, y21;
+<span class="lineNum">     982 </span>                :            :         shapeObj cross;
+<span class="lineNum">     983 </span>                :            :         lineObj lines[4];
+<span class="lineNum">     984 </span>                :            :         pointObj point[8];
+<span class="lineNum">     985 </span>                :            :         int i;
+<span class="lineNum">     986 </span>                :            :         /* determine the center point */
+<span class="lineNum">     987 </span>                :<span class="lineNoCov">          0 :         x21 = MS_NINT((x1 + x2)/2);</span>
+<span class="lineNum">     988 </span>                :<span class="lineNoCov">          0 :         y21 = MS_NINT((y1 + y2)/2);</span>
+<span class="lineNum">     989 </span>                :            : 
+<span class="lineNum">     990 </span>                :<span class="lineNoCov">          0 :         msInitShape(&amp;cross);</span>
+<span class="lineNum">     991 </span>                :<span class="lineNoCov">          0 :         cross.numlines = 4;</span>
+<span class="lineNum">     992 </span>                :<span class="lineNoCov">          0 :         cross.line = lines;</span>
+<span class="lineNum">     993 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for(i=0; i&lt;4; i++) {</span>
+<span class="lineNum">     994 </span>                :<span class="lineNoCov">          0 :           cross.line[i].numpoints = 2;</span>
+<span class="lineNum">     995 </span>                :<span class="lineNoCov">          0 :           cross.line[i].point = &amp;(point[2*i]);</span>
+<span class="lineNum">     996 </span>                :            :         }
+<span class="lineNum">     997 </span>                :            :         /* draw a cross */
+<span class="lineNum">     998 </span>                :<span class="lineNoCov">          0 :         cross.line[0].point[0].x = x21-8;</span>
+<span class="lineNum">     999 </span>                :<span class="lineNoCov">          0 :         cross.line[0].point[0].y = y21;</span>
+<span class="lineNum">    1000 </span>                :<span class="lineNoCov">          0 :         cross.line[0].point[1].x = x21-3;</span>
+<span class="lineNum">    1001 </span>                :<span class="lineNoCov">          0 :         cross.line[0].point[1].y = y21;</span>
+<span class="lineNum">    1002 </span>                :<span class="lineNoCov">          0 :         cross.line[1].point[0].x = x21;</span>
+<span class="lineNum">    1003 </span>                :<span class="lineNoCov">          0 :         cross.line[1].point[0].y = y21-8;</span>
+<span class="lineNum">    1004 </span>                :<span class="lineNoCov">          0 :         cross.line[1].point[1].x = x21;</span>
+<span class="lineNum">    1005 </span>                :<span class="lineNoCov">          0 :         cross.line[1].point[1].y = y21-3;</span>
+<span class="lineNum">    1006 </span>                :<span class="lineNoCov">          0 :         cross.line[2].point[0].x = x21;</span>
+<span class="lineNum">    1007 </span>                :<span class="lineNoCov">          0 :         cross.line[2].point[0].y = y21+3;</span>
+<span class="lineNum">    1008 </span>                :<span class="lineNoCov">          0 :         cross.line[2].point[1].x = x21;</span>
+<span class="lineNum">    1009 </span>                :<span class="lineNoCov">          0 :         cross.line[2].point[1].y = y21+8;</span>
+<span class="lineNum">    1010 </span>                :<span class="lineNoCov">          0 :         cross.line[3].point[0].x = x21+3;</span>
+<span class="lineNum">    1011 </span>                :<span class="lineNoCov">          0 :         cross.line[3].point[0].y = y21;</span>
+<span class="lineNum">    1012 </span>                :<span class="lineNoCov">          0 :         cross.line[3].point[1].x = x21+8;</span>
+<span class="lineNum">    1013 </span>                :<span class="lineNoCov">          0 :         cross.line[3].point[1].y = y21;</span>
+<span class="lineNum">    1014 </span>                :            : 
+<span class="lineNum">    1015 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(UNLIKELY(MS_FAILURE == msDrawLineSymbol(map,image,&amp;cross,&amp;style,1.0))) {</span>
+<span class="lineNum">    1016 </span>                :<span class="lineNoCov">          0 :           msFreeImage(image);</span>
+<span class="lineNum">    1017 </span>                :<span class="lineNoCov">          0 :           return NULL;</span>
+<span class="lineNum">    1018 </span>                :            :         }
+<span class="lineNum">    1019 </span>                :            :       }
+<span class="lineNum">    1020 </span>                :            :     }
+<span class="lineNum">    1021 </span>                :            :   }
+<span class="lineNum">    1022 </span>                :            : 
+<span class="lineNum">    1023 </span>                :            :   return(image);
+<span class="lineNum">    1024 </span>                :            : }
 </pre>
       </td>
     </tr>

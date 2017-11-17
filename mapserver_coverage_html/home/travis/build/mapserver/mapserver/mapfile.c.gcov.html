@@ -31,27 +31,27 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">1889</td>
-            <td class="headerCovTableEntry">3868</td>
-            <td class="headerCovTableEntryLo">48.8 %</td>
+            <td class="headerCovTableEntry">1902</td>
+            <td class="headerCovTableEntry">3881</td>
+            <td class="headerCovTableEntryLo">49.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
             <td class="headerValue">XXXX-XX-XX</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">108</td>
-            <td class="headerCovTableEntry">185</td>
-            <td class="headerCovTableEntryLo">58.4 %</td>
+            <td class="headerCovTableEntry">109</td>
+            <td class="headerCovTableEntry">186</td>
+            <td class="headerCovTableEntryLo">58.6 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">1073</td>
-            <td class="headerCovTableEntry">2887</td>
-            <td class="headerCovTableEntryLo">37.2 %</td>
+            <td class="headerCovTableEntry">1077</td>
+            <td class="headerCovTableEntry">2891</td>
+            <td class="headerCovTableEntryLo">37.3 %</td>
           </tr>
           <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -7331,307 +7331,327 @@
 <span class="lineNum">    7154 </span>                :<span class="lineCov">          1 :     default_key = msNextKeyFromHashTable(table, default_key);</span>
 <span class="lineNum">    7155 </span>                :            :   }
 <span class="lineNum">    7156 </span>                :<span class="lineCov">          1 :   return;</span>
-<span class="lineNum">    7157 </span>                :            : }
+<a name="7157"><span class="lineNum">    7157 </span>                :            : }</a>
 <span class="lineNum">    7158 </span>                :            : 
-<span class="lineNum">    7159 </span>                :            : /*
-<span class="lineNum">    7160 </span>                :            : ** Loop through layer metadata for keys that have a default_%key% pattern to replace
-<a name="7161"><span class="lineNum">    7161 </span>                :            : ** remaining %key% entries by their default value.</a>
-<span class="lineNum">    7162 </span>                :            : */
-<span class="lineNum">    7163 </span>                :<span class="lineCov">          1 : void msApplyDefaultSubstitutions(mapObj *map)</span>
-<span class="lineNum">    7164 </span>                :            : {
-<span class="lineNum">    7165 </span>                :            :   int i,j;
-<span class="lineNum">    7166 </span>                :            : 
-<span class="lineNum">    7167 </span>                :            :   /* output formats (#3751) */
-<span class="lineNum">    7168 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;map-&gt;numoutputformats; i++) {</span>
-<span class="lineNum">    7169 </span>                :<span class="lineCov">          1 :     applyOutputFormatDefaultSubstitutions(map-&gt;outputformatlist[i], &quot;filename&quot;, &amp;(map-&gt;web.validation));</span>
-<span class="lineNum">    7170 </span>                :<span class="lineCov">          1 :     applyOutputFormatDefaultSubstitutions(map-&gt;outputformatlist[i], &quot;JSONP&quot;, &amp;(map-&gt;web.validation));</span>
-<span class="lineNum">    7171 </span>                :            :   }
-<span class="lineNum">    7172 </span>                :            : 
-<span class="lineNum">    7173 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;map-&gt;numlayers; i++) {</span>
-<span class="lineNum">    7174 </span>                :<span class="lineCov">          1 :     layerObj *layer = GET_LAYER(map, i);</span>
-<span class="lineNum">    7175 </span>                :            : 
-<span class="lineNum">    7176 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(j=0; j&lt;layer-&gt;numclasses; j++) {    /* class settings take precedence...  */</span>
-<span class="lineNum">    7177 </span>                :<span class="lineCov">          1 :       classObj *class = GET_CLASS(map, i, j);</span>
-<span class="lineNum">    7178 </span>                :<span class="lineCov">          1 :       applyClassDefaultSubstitutions(class, &amp;(class-&gt;validation));</span>
-<span class="lineNum">    7179 </span>                :            :     }
-<span class="lineNum">    7180 </span>                :            : 
-<span class="lineNum">    7181 </span>                :<span class="lineCov">          1 :     applyLayerDefaultSubstitutions(layer, &amp;(layer-&gt;validation)); /* ...then layer settings... */</span>
-<span class="lineNum">    7182 </span>                :<span class="lineCov">          1 :     applyLayerDefaultSubstitutions(layer, &amp;(map-&gt;web.validation)); /* ...and finally web settings */</span>
-<span class="lineNum">    7183 </span>                :            :   }
-<a name="7184"><span class="lineNum">    7184 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">    7159 </span>                :<span class="lineCov">          1 : static void applyHashTableDefaultSubstitutions(hashTableObj *hashTab, hashTableObj *table)</span>
+<span class="lineNum">    7160 </span>                :            : {
+<span class="lineNum">    7161 </span>                :            :   int i;
+<span class="lineNum">    7162 </span>                :<span class="lineCov">          1 :   const char *default_key = msFirstKeyFromHashTable(table);</span>
+<span class="lineNum">    7163 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   while (default_key) {</span>
+<span class="lineNum">    7164 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (!strncmp(default_key, &quot;default_&quot;, 8)) {</span>
+<span class="lineNum">    7165 </span>                :<span class="lineCov">          1 :       size_t buffer_size = (strlen(default_key) - 5);</span>
+<span class="lineNum">    7166 </span>                :<span class="lineCov">          1 :       char *to = msLookupHashTable(table, default_key);</span>
+<span class="lineNum">    7167 </span>                :<span class="lineCov">          1 :       char *tag = (char *)msSmallMalloc(buffer_size);</span>
+<span class="lineNum">    7168 </span>                :<span class="lineCov">          1 :       snprintf(tag, buffer_size, &quot;%%%s%%&quot;, &amp;(default_key[8]));</span>
+<span class="lineNum">    7169 </span>                :            : 
+<span class="lineNum">    7170 </span>                :<span class="lineCov">          1 :       hashTableSubstituteString(hashTab, tag, to);</span>
+<span class="lineNum">    7171 </span>                :<span class="lineCov">          1 :       free(tag);</span>
+<span class="lineNum">    7172 </span>                :            :     }
+<span class="lineNum">    7173 </span>                :<span class="lineCov">          1 :     default_key = msNextKeyFromHashTable(table, default_key);</span>
+<span class="lineNum">    7174 </span>                :            :   }
+<span class="lineNum">    7175 </span>                :<span class="lineCov">          1 :   return;</span>
+<span class="lineNum">    7176 </span>                :            : }
+<span class="lineNum">    7177 </span>                :            : 
+<span class="lineNum">    7178 </span>                :            : /*
+<span class="lineNum">    7179 </span>                :            : ** Loop through layer metadata for keys that have a default_%key% pattern to replace
+<a name="7180"><span class="lineNum">    7180 </span>                :            : ** remaining %key% entries by their default value.</a>
+<span class="lineNum">    7181 </span>                :            : */
+<span class="lineNum">    7182 </span>                :<span class="lineCov">          1 : void msApplyDefaultSubstitutions(mapObj *map)</span>
+<span class="lineNum">    7183 </span>                :            : {
+<span class="lineNum">    7184 </span>                :            :   int i,j;
 <span class="lineNum">    7185 </span>                :            : 
-<span class="lineNum">    7186 </span>                :<span class="lineCov">          1 : char *_get_param_value(const char *key, char **names, char **values, int npairs) {</span>
-<span class="lineNum">    7187 </span>                :            : 
-<span class="lineNum">    7188 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(getenv(key)) { /* envirronment override */</span>
-<span class="lineNum">    7189 </span>                :<span class="lineCov">          1 :     return getenv(key);</span>
+<span class="lineNum">    7186 </span>                :            :   /* output formats (#3751) */
+<span class="lineNum">    7187 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;map-&gt;numoutputformats; i++) {</span>
+<span class="lineNum">    7188 </span>                :<span class="lineCov">          1 :     applyOutputFormatDefaultSubstitutions(map-&gt;outputformatlist[i], &quot;filename&quot;, &amp;(map-&gt;web.validation));</span>
+<span class="lineNum">    7189 </span>                :<span class="lineCov">          1 :     applyOutputFormatDefaultSubstitutions(map-&gt;outputformatlist[i], &quot;JSONP&quot;, &amp;(map-&gt;web.validation));</span>
 <span class="lineNum">    7190 </span>                :            :   }
-<span class="lineNum">    7191 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   while(npairs) {</span>
-<span class="lineNum">    7192 </span>                :<span class="lineCov">          1 :     npairs--;</span>
-<span class="lineNum">    7193 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(strcasecmp(key, names[npairs]) == 0) {</span>
-<span class="lineNum">    7194 </span>                :<span class="lineCov">          1 :       return values[npairs];</span>
-<span class="lineNum">    7195 </span>                :            :     }
-<span class="lineNum">    7196 </span>                :            :   }
-<span class="lineNum">    7197 </span>                :            :   return NULL;
-<a name="7198"><span class="lineNum">    7198 </span>                :            : }</a>
+<span class="lineNum">    7191 </span>                :            : 
+<span class="lineNum">    7192 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;map-&gt;numlayers; i++) {</span>
+<span class="lineNum">    7193 </span>                :<span class="lineCov">          1 :     layerObj *layer = GET_LAYER(map, i);</span>
+<span class="lineNum">    7194 </span>                :            : 
+<span class="lineNum">    7195 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(j=0; j&lt;layer-&gt;numclasses; j++) {    /* class settings take precedence...  */</span>
+<span class="lineNum">    7196 </span>                :<span class="lineCov">          1 :       classObj *class = GET_CLASS(map, i, j);</span>
+<span class="lineNum">    7197 </span>                :<span class="lineCov">          1 :       applyClassDefaultSubstitutions(class, &amp;(class-&gt;validation));</span>
+<span class="lineNum">    7198 </span>                :            :     }
 <span class="lineNum">    7199 </span>                :            : 
-<span class="lineNum">    7200 </span>                :<span class="lineCov">          1 : void msApplySubstitutions(mapObj *map, char **names, char **values, int npairs)</span>
-<span class="lineNum">    7201 </span>                :            : {
-<span class="lineNum">    7202 </span>                :            :   int l;
-<span class="lineNum">    7203 </span>                :            :   const char *key, *value, *validation;
-<span class="lineNum">    7204 </span>                :            :   char *tag;
-<span class="lineNum">    7205 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(l=0; l&lt;map-&gt;numlayers; l++) {</span>
-<span class="lineNum">    7206 </span>                :            :     int c;
-<span class="lineNum">    7207 </span>                :<span class="lineCov">          1 :     layerObj *lp = GET_LAYER(map,l);</span>
-<span class="lineNum">    7208 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(c=0; c&lt;lp-&gt;numclasses; c++) {</span>
-<span class="lineNum">    7209 </span>                :<span class="lineCov">          1 :       classObj *cp = lp-&gt;class[c];</span>
-<span class="lineNum">    7210 </span>                :            :       key = NULL;
-<span class="lineNum">    7211 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       while( (key = msNextKeyFromHashTable(&amp;cp-&gt;validation, key)) ) {</span>
-<span class="lineNum">    7212 </span>                :<span class="lineCov">          1 :         value = _get_param_value(key,names,values,npairs);</span>
-<span class="lineNum">    7213 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(!value) continue; /*parameter was not in url*/</span>
-<span class="lineNum">    7214 </span>                :<span class="lineCov">          1 :         validation = msLookupHashTable(&amp;cp-&gt;validation, key);</span>
-<span class="lineNum">    7215 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if(msEvalRegex(validation, value)) {</span>
-<span class="lineNum">    7216 </span>                :            :           /* we've found a substitution and it validates correctly, now let's apply it */
-<span class="lineNum">    7217 </span>                :<span class="lineCov">          1 :           tag = msSmallMalloc(strlen(key)+3);</span>
-<span class="lineNum">    7218 </span>                :            :           sprintf(tag,&quot;%%%s%%&quot;,key);
-<span class="lineNum">    7219 </span>                :<span class="lineCov">          1 :           classSubstituteString(cp,tag,value);</span>
-<span class="lineNum">    7220 </span>                :<span class="lineCov">          1 :           free(tag);</span>
-<span class="lineNum">    7221 </span>                :            :         } else {
-<span class="lineNum">    7222 </span>                :<span class="lineNoCov">          0 :           msSetError(MS_REGEXERR, &quot;Parameter pattern validation failed.&quot; , &quot;msApplySubstitutions()&quot;);</span>
-<span class="lineNum">    7223 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(map-&gt;debug || lp-&gt;debug) {</span>
-<span class="lineNum">    7224 </span>                :<span class="lineCov">          1 :             msDebug(&quot;layer (%s), class %d: failed to validate (%s=%s) for regex (%s)\n&quot;, lp-&gt;name, c, key, value, validation);</span>
-<span class="lineNum">    7225 </span>                :            :           }
-<span class="lineNum">    7226 </span>                :            :         }
-<span class="lineNum">    7227 </span>                :            : 
-<span class="lineNum">    7228 </span>                :            :       }
-<span class="lineNum">    7229 </span>                :            :     }
-<span class="lineNum">    7230 </span>                :            :     key = NULL;
-<span class="lineNum">    7231 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     while( (key = msNextKeyFromHashTable(&amp;lp-&gt;validation, key)) ) {</span>
-<span class="lineNum">    7232 </span>                :<span class="lineCov">          1 :       value = _get_param_value(key,names,values,npairs);</span>
-<span class="lineNum">    7233 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(!value) continue; /*parameter was not in url*/</span>
-<span class="lineNum">    7234 </span>                :<span class="lineCov">          1 :       validation = msLookupHashTable(&amp;lp-&gt;validation, key);</span>
-<span class="lineNum">    7235 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(msEvalRegex(validation, value)) {</span>
-<span class="lineNum">    7236 </span>                :            :         /* we've found a substitution and it validates correctly, now let's apply it */
-<span class="lineNum">    7237 </span>                :<span class="lineCov">          1 :         tag = msSmallMalloc(strlen(key)+3);</span>
-<span class="lineNum">    7238 </span>                :            :         sprintf(tag,&quot;%%%s%%&quot;,key);
-<span class="lineNum">    7239 </span>                :<span class="lineCov">          1 :         layerSubstituteString(lp,tag,value);</span>
-<span class="lineNum">    7240 </span>                :<span class="lineCov">          1 :         free(tag);</span>
-<span class="lineNum">    7241 </span>                :            :       } else {
-<span class="lineNum">    7242 </span>                :<span class="lineCov">          1 :         msSetError(MS_REGEXERR, &quot;Parameter pattern validation failed.&quot; , &quot;msApplySubstitutions()&quot;);</span>
-<span class="lineNum">    7243 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(map-&gt;debug || lp-&gt;debug) {</span>
-<span class="lineNum">    7244 </span>                :<span class="lineCov">          1 :           msDebug(&quot;layer (%s): failed to validate (%s=%s) for regex (%s)\n&quot;, lp-&gt;name, key, value, validation);</span>
-<span class="lineNum">    7245 </span>                :            :         }
-<span class="lineNum">    7246 </span>                :            :       }
+<span class="lineNum">    7200 </span>                :<span class="lineCov">          1 :     applyLayerDefaultSubstitutions(layer, &amp;(layer-&gt;validation)); /* ...then layer settings... */</span>
+<span class="lineNum">    7201 </span>                :<span class="lineCov">          1 :     applyLayerDefaultSubstitutions(layer, &amp;(map-&gt;web.validation)); /* ...and finally web settings */</span>
+<span class="lineNum">    7202 </span>                :            :   }
+<span class="lineNum">    7203 </span>                :<span class="lineCov">          1 :   applyHashTableDefaultSubstitutions(&amp;map-&gt;web.metadata, &amp;(map-&gt;web.validation));</span>
+<a name="7204"><span class="lineNum">    7204 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">    7205 </span>                :            : 
+<span class="lineNum">    7206 </span>                :<span class="lineCov">          1 : char *_get_param_value(const char *key, char **names, char **values, int npairs) {</span>
+<span class="lineNum">    7207 </span>                :            : 
+<span class="lineNum">    7208 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(getenv(key)) { /* envirronment override */</span>
+<span class="lineNum">    7209 </span>                :<span class="lineCov">          1 :     return getenv(key);</span>
+<span class="lineNum">    7210 </span>                :            :   }
+<span class="lineNum">    7211 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   while(npairs) {</span>
+<span class="lineNum">    7212 </span>                :<span class="lineCov">          1 :     npairs--;</span>
+<span class="lineNum">    7213 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(strcasecmp(key, names[npairs]) == 0) {</span>
+<span class="lineNum">    7214 </span>                :<span class="lineCov">          1 :       return values[npairs];</span>
+<span class="lineNum">    7215 </span>                :            :     }
+<span class="lineNum">    7216 </span>                :            :   }
+<span class="lineNum">    7217 </span>                :            :   return NULL;
+<a name="7218"><span class="lineNum">    7218 </span>                :            : }</a>
+<span class="lineNum">    7219 </span>                :            : 
+<span class="lineNum">    7220 </span>                :<span class="lineCov">          1 : void msApplySubstitutions(mapObj *map, char **names, char **values, int npairs)</span>
+<span class="lineNum">    7221 </span>                :            : {
+<span class="lineNum">    7222 </span>                :            :   int l;
+<span class="lineNum">    7223 </span>                :            :   const char *key, *value, *validation;
+<span class="lineNum">    7224 </span>                :            :   char *tag;
+<span class="lineNum">    7225 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for(l=0; l&lt;map-&gt;numlayers; l++) {</span>
+<span class="lineNum">    7226 </span>                :            :     int c;
+<span class="lineNum">    7227 </span>                :<span class="lineCov">          1 :     layerObj *lp = GET_LAYER(map,l);</span>
+<span class="lineNum">    7228 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for(c=0; c&lt;lp-&gt;numclasses; c++) {</span>
+<span class="lineNum">    7229 </span>                :<span class="lineCov">          1 :       classObj *cp = lp-&gt;class[c];</span>
+<span class="lineNum">    7230 </span>                :            :       key = NULL;
+<span class="lineNum">    7231 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       while( (key = msNextKeyFromHashTable(&amp;cp-&gt;validation, key)) ) {</span>
+<span class="lineNum">    7232 </span>                :<span class="lineCov">          1 :         value = _get_param_value(key,names,values,npairs);</span>
+<span class="lineNum">    7233 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(!value) continue; /*parameter was not in url*/</span>
+<span class="lineNum">    7234 </span>                :<span class="lineCov">          1 :         validation = msLookupHashTable(&amp;cp-&gt;validation, key);</span>
+<span class="lineNum">    7235 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if(msEvalRegex(validation, value)) {</span>
+<span class="lineNum">    7236 </span>                :            :           /* we've found a substitution and it validates correctly, now let's apply it */
+<span class="lineNum">    7237 </span>                :<span class="lineCov">          1 :           tag = msSmallMalloc(strlen(key)+3);</span>
+<span class="lineNum">    7238 </span>                :            :           sprintf(tag,&quot;%%%s%%&quot;,key);
+<span class="lineNum">    7239 </span>                :<span class="lineCov">          1 :           classSubstituteString(cp,tag,value);</span>
+<span class="lineNum">    7240 </span>                :<span class="lineCov">          1 :           free(tag);</span>
+<span class="lineNum">    7241 </span>                :            :         } else {
+<span class="lineNum">    7242 </span>                :<span class="lineNoCov">          0 :           msSetError(MS_REGEXERR, &quot;Parameter pattern validation failed.&quot; , &quot;msApplySubstitutions()&quot;);</span>
+<span class="lineNum">    7243 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(map-&gt;debug || lp-&gt;debug) {</span>
+<span class="lineNum">    7244 </span>                :<span class="lineCov">          1 :             msDebug(&quot;layer (%s), class %d: failed to validate (%s=%s) for regex (%s)\n&quot;, lp-&gt;name, c, key, value, validation);</span>
+<span class="lineNum">    7245 </span>                :            :           }
+<span class="lineNum">    7246 </span>                :            :         }
 <span class="lineNum">    7247 </span>                :            : 
-<span class="lineNum">    7248 </span>                :            :     }
-<span class="lineNum">    7249 </span>                :            :   }
-<span class="lineNum">    7250 </span>                :            :   key = NULL;
-<span class="lineNum">    7251 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   while( (key = msNextKeyFromHashTable(&amp;map-&gt;web.validation, key)) ) {</span>
-<span class="lineNum">    7252 </span>                :<span class="lineCov">          1 :     value = _get_param_value(key,names,values,npairs);</span>
-<span class="lineNum">    7253 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(!value) continue; /*parameter was not in url*/</span>
-<span class="lineNum">    7254 </span>                :<span class="lineCov">          1 :     validation = msLookupHashTable(&amp;map-&gt;web.validation, key);</span>
-<span class="lineNum">    7255 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(msEvalRegex(validation, value)) {</span>
-<span class="lineNum">    7256 </span>                :            :       /* we've found a substitution and it validates correctly, now let's apply it */
-<span class="lineNum">    7257 </span>                :<span class="lineCov">          1 :       tag = msSmallMalloc(strlen(key)+3);</span>
-<span class="lineNum">    7258 </span>                :            :       sprintf(tag,&quot;%%%s%%&quot;,key);
-<span class="lineNum">    7259 </span>                :<span class="lineCov">          1 :       mapSubstituteString(map,tag,value);</span>
-<span class="lineNum">    7260 </span>                :<span class="lineCov">          1 :       free(tag);</span>
-<span class="lineNum">    7261 </span>                :            :     } else {
-<span class="lineNum">    7262 </span>                :<span class="lineCov">          1 :       msSetError(MS_REGEXERR, &quot;Parameter pattern validation failed.&quot; , &quot;msApplySubstitutions()&quot;);</span>
-<span class="lineNum">    7263 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(map-&gt;debug) {</span>
-<span class="lineNum">    7264 </span>                :<span class="lineCov">          1 :         msDebug(&quot;failed to validate (%s=%s) for regex (%s)\n&quot;, key, value, validation);</span>
-<span class="lineNum">    7265 </span>                :            :       }
-<span class="lineNum">    7266 </span>                :            :     }
+<span class="lineNum">    7248 </span>                :            :       }
+<span class="lineNum">    7249 </span>                :            :     }
+<span class="lineNum">    7250 </span>                :            :     key = NULL;
+<span class="lineNum">    7251 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     while( (key = msNextKeyFromHashTable(&amp;lp-&gt;validation, key)) ) {</span>
+<span class="lineNum">    7252 </span>                :<span class="lineCov">          1 :       value = _get_param_value(key,names,values,npairs);</span>
+<span class="lineNum">    7253 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(!value) continue; /*parameter was not in url*/</span>
+<span class="lineNum">    7254 </span>                :<span class="lineCov">          1 :       validation = msLookupHashTable(&amp;lp-&gt;validation, key);</span>
+<span class="lineNum">    7255 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(msEvalRegex(validation, value)) {</span>
+<span class="lineNum">    7256 </span>                :            :         /* we've found a substitution and it validates correctly, now let's apply it */
+<span class="lineNum">    7257 </span>                :<span class="lineCov">          1 :         tag = msSmallMalloc(strlen(key)+3);</span>
+<span class="lineNum">    7258 </span>                :            :         sprintf(tag,&quot;%%%s%%&quot;,key);
+<span class="lineNum">    7259 </span>                :<span class="lineCov">          1 :         layerSubstituteString(lp,tag,value);</span>
+<span class="lineNum">    7260 </span>                :<span class="lineCov">          1 :         free(tag);</span>
+<span class="lineNum">    7261 </span>                :            :       } else {
+<span class="lineNum">    7262 </span>                :<span class="lineCov">          1 :         msSetError(MS_REGEXERR, &quot;Parameter pattern validation failed.&quot; , &quot;msApplySubstitutions()&quot;);</span>
+<span class="lineNum">    7263 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :         if(map-&gt;debug || lp-&gt;debug) {</span>
+<span class="lineNum">    7264 </span>                :<span class="lineCov">          1 :           msDebug(&quot;layer (%s): failed to validate (%s=%s) for regex (%s)\n&quot;, lp-&gt;name, key, value, validation);</span>
+<span class="lineNum">    7265 </span>                :            :         }
+<span class="lineNum">    7266 </span>                :            :       }
 <span class="lineNum">    7267 </span>                :            : 
-<span class="lineNum">    7268 </span>                :            :   }
-<span class="lineNum">    7269 </span>                :<span class="lineCov">          1 : }</span>
-<span class="lineNum">    7270 </span>                :            : 
-<span class="lineNum">    7271 </span>                :            : /*
-<span class="lineNum">    7272 </span>                :            : ** Returns an array with one entry per mapfile token.  Useful to manipulate
-<span class="lineNum">    7273 </span>                :            : ** mapfiles in MapScript.
-<span class="lineNum">    7274 </span>                :            : **
-<a name="7275"><span class="lineNum">    7275 </span>                :            : ** The returned array should be freed using msFreeCharArray().</a>
-<span class="lineNum">    7276 </span>                :            : */
-<span class="lineNum">    7277 </span>                :<span class="lineNoCov">          0 : static char **tokenizeMapInternal(char *filename, int *ret_numtokens)</span>
-<span class="lineNum">    7278 </span>                :            : {
-<span class="lineNum">    7279 </span>                :            :   char **tokens = NULL;
-<span class="lineNum">    7280 </span>                :            :   int  numtokens=0, numtokens_allocated=0;
-<span class="lineNum">    7281 </span>                :            :   size_t buffer_size = 0;
-<span class="lineNum">    7282 </span>                :            : 
-<span class="lineNum">    7283 </span>                :<span class="lineNoCov">          0 :   *ret_numtokens = 0;</span>
-<span class="lineNum">    7284 </span>                :            : 
-<span class="lineNum">    7285 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(!filename) {</span>
-<span class="lineNum">    7286 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Filename is undefined.&quot;, &quot;msTokenizeMap()&quot;);</span>
-<span class="lineNum">    7287 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    7268 </span>                :            :     }
+<span class="lineNum">    7269 </span>                :            :   }
+<span class="lineNum">    7270 </span>                :            :   key = NULL;
+<span class="lineNum">    7271 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :   while( (key = msNextKeyFromHashTable(&amp;map-&gt;web.validation, key)) ) {</span>
+<span class="lineNum">    7272 </span>                :<span class="lineCov">          1 :     value = _get_param_value(key,names,values,npairs);</span>
+<span class="lineNum">    7273 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(!value) continue; /*parameter was not in url*/</span>
+<span class="lineNum">    7274 </span>                :<span class="lineCov">          1 :     validation = msLookupHashTable(&amp;map-&gt;web.validation, key);</span>
+<span class="lineNum">    7275 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(msEvalRegex(validation, value)) {</span>
+<span class="lineNum">    7276 </span>                :            :       /* we've found a substitution and it validates correctly, now let's apply it */
+<span class="lineNum">    7277 </span>                :<span class="lineCov">          1 :       tag = msSmallMalloc(strlen(key)+3);</span>
+<span class="lineNum">    7278 </span>                :            :       sprintf(tag,&quot;%%%s%%&quot;,key);
+<span class="lineNum">    7279 </span>                :<span class="lineCov">          1 :       mapSubstituteString(map,tag,value);</span>
+<span class="lineNum">    7280 </span>                :<span class="lineCov">          1 :       free(tag);</span>
+<span class="lineNum">    7281 </span>                :            :     } else {
+<span class="lineNum">    7282 </span>                :<span class="lineCov">          1 :       msSetError(MS_REGEXERR, &quot;Parameter pattern validation failed.&quot; , &quot;msApplySubstitutions()&quot;);</span>
+<span class="lineNum">    7283 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(map-&gt;debug) {</span>
+<span class="lineNum">    7284 </span>                :<span class="lineCov">          1 :         msDebug(&quot;failed to validate (%s=%s) for regex (%s)\n&quot;, key, value, validation);</span>
+<span class="lineNum">    7285 </span>                :            :       }
+<span class="lineNum">    7286 </span>                :            :     }
+<span class="lineNum">    7287 </span>                :            : 
 <span class="lineNum">    7288 </span>                :            :   }
-<span class="lineNum">    7289 </span>                :            : 
-<span class="lineNum">    7290 </span>                :            :   /*
-<span class="lineNum">    7291 </span>                :            :   ** Check map filename to make sure it's legal
-<span class="lineNum">    7292 </span>                :            :   */
-<span class="lineNum">    7293 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(getenv(&quot;MS_MAPFILE_PATTERN&quot;)) { /* user override */</span>
-<span class="lineNum">    7294 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(msEvalRegex(getenv(&quot;MS_MAPFILE_PATTERN&quot;), filename) != MS_TRUE) {</span>
-<span class="lineNum">    7295 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_REGEXERR, &quot;MS_MAPFILE_PATTERN validation failed.&quot; , &quot;msLoadMap()&quot;);</span>
-<span class="lineNum">    7296 </span>                :<span class="lineNoCov">          0 :       return(NULL);</span>
-<span class="lineNum">    7297 </span>                :            :     }
-<span class="lineNum">    7298 </span>                :            :   } else { /* check the default */
-<span class="lineNum">    7299 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(msEvalRegex(MS_DEFAULT_MAPFILE_PATTERN, filename) != MS_TRUE) {</span>
-<span class="lineNum">    7300 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_REGEXERR, &quot;MS_DEFAULT_MAPFILE_PATTERN validation failed.&quot; , &quot;msLoadMap()&quot;);</span>
-<span class="lineNum">    7301 </span>                :<span class="lineNoCov">          0 :       return(NULL);</span>
-<span class="lineNum">    7302 </span>                :            :     }
-<span class="lineNum">    7303 </span>                :            :   }
+<span class="lineNum">    7289 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">    7290 </span>                :            : 
+<span class="lineNum">    7291 </span>                :            : /*
+<span class="lineNum">    7292 </span>                :            : ** Returns an array with one entry per mapfile token.  Useful to manipulate
+<span class="lineNum">    7293 </span>                :            : ** mapfiles in MapScript.
+<span class="lineNum">    7294 </span>                :            : **
+<a name="7295"><span class="lineNum">    7295 </span>                :            : ** The returned array should be freed using msFreeCharArray().</a>
+<span class="lineNum">    7296 </span>                :            : */
+<span class="lineNum">    7297 </span>                :<span class="lineNoCov">          0 : static char **tokenizeMapInternal(char *filename, int *ret_numtokens)</span>
+<span class="lineNum">    7298 </span>                :            : {
+<span class="lineNum">    7299 </span>                :            :   char **tokens = NULL;
+<span class="lineNum">    7300 </span>                :            :   int  numtokens=0, numtokens_allocated=0;
+<span class="lineNum">    7301 </span>                :            :   size_t buffer_size = 0;
+<span class="lineNum">    7302 </span>                :            : 
+<span class="lineNum">    7303 </span>                :<span class="lineNoCov">          0 :   *ret_numtokens = 0;</span>
 <span class="lineNum">    7304 </span>                :            : 
-<span class="lineNum">    7305 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if((msyyin = fopen(filename,&quot;r&quot;)) == NULL) {</span>
-<span class="lineNum">    7306 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_IOERR, &quot;(%s)&quot;, &quot;msTokenizeMap()&quot;, filename);</span>
+<span class="lineNum">    7305 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(!filename) {</span>
+<span class="lineNum">    7306 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Filename is undefined.&quot;, &quot;msTokenizeMap()&quot;);</span>
 <span class="lineNum">    7307 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
 <span class="lineNum">    7308 </span>                :            :   }
 <span class="lineNum">    7309 </span>                :            : 
-<span class="lineNum">    7310 </span>                :<span class="lineNoCov">          0 :   msyystate = MS_TOKENIZE_FILE; /* restore lexer state to INITIAL, and do return comments */</span>
-<span class="lineNum">    7311 </span>                :<span class="lineNoCov">          0 :   msyylex();</span>
-<span class="lineNum">    7312 </span>                :<span class="lineNoCov">          0 :   msyyreturncomments = 1; /* want all tokens, including comments */</span>
-<span class="lineNum">    7313 </span>                :            : 
-<span class="lineNum">    7314 </span>                :<span class="lineNoCov">          0 :   msyyrestart(msyyin); /* start at line begining, line 1 */</span>
-<span class="lineNum">    7315 </span>                :<span class="lineNoCov">          0 :   msyylineno = 1;</span>
-<span class="lineNum">    7316 </span>                :            : 
-<span class="lineNum">    7317 </span>                :            :   numtokens = 0;
-<span class="lineNum">    7318 </span>                :            :   numtokens_allocated = 256;
-<span class="lineNum">    7319 </span>                :<span class="lineNoCov">          0 :   tokens = (char **) malloc(numtokens_allocated*sizeof(char*));</span>
-<span class="lineNum">    7320 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(tokens == NULL) {</span>
-<span class="lineNum">    7321 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, NULL, &quot;msTokenizeMap()&quot;);</span>
-<span class="lineNum">    7322 </span>                :<span class="lineNoCov">          0 :     fclose(msyyin);</span>
-<span class="lineNum">    7323 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
-<span class="lineNum">    7324 </span>                :            :   }
-<span class="lineNum">    7325 </span>                :            : 
-<span class="lineNum">    7326 </span>                :            :   for(;;) {
-<span class="lineNum">    7327 </span>                :            : 
-<span class="lineNum">    7328 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(numtokens_allocated &lt;= numtokens) {</span>
-<span class="lineNum">    7329 </span>                :<span class="lineNoCov">          0 :       numtokens_allocated *= 2; /* double size of the array every time we reach the limit */</span>
-<span class="lineNum">    7330 </span>                :<span class="lineNoCov">          0 :       tokens = (char **)realloc(tokens, numtokens_allocated*sizeof(char*));</span>
-<span class="lineNum">    7331 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(tokens == NULL) {</span>
-<span class="lineNum">    7332 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_MEMERR, &quot;Realloc() error.&quot;, &quot;msTokenizeMap()&quot;);</span>
-<span class="lineNum">    7333 </span>                :<span class="lineNoCov">          0 :         fclose(msyyin);</span>
-<span class="lineNum">    7334 </span>                :<span class="lineNoCov">          0 :         return NULL;</span>
-<span class="lineNum">    7335 </span>                :            :       }
-<span class="lineNum">    7336 </span>                :            :     }
-<span class="lineNum">    7337 </span>                :            : 
-<span class="lineNum">    7338 </span>  [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span> :<span class="lineNoCov">          0 :     switch(msyylex()) {</span>
+<span class="lineNum">    7310 </span>                :            :   /*
+<span class="lineNum">    7311 </span>                :            :   ** Check map filename to make sure it's legal
+<span class="lineNum">    7312 </span>                :            :   */
+<span class="lineNum">    7313 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(getenv(&quot;MS_MAPFILE_PATTERN&quot;)) { /* user override */</span>
+<span class="lineNum">    7314 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(msEvalRegex(getenv(&quot;MS_MAPFILE_PATTERN&quot;), filename) != MS_TRUE) {</span>
+<span class="lineNum">    7315 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_REGEXERR, &quot;MS_MAPFILE_PATTERN validation failed.&quot; , &quot;msLoadMap()&quot;);</span>
+<span class="lineNum">    7316 </span>                :<span class="lineNoCov">          0 :       return(NULL);</span>
+<span class="lineNum">    7317 </span>                :            :     }
+<span class="lineNum">    7318 </span>                :            :   } else { /* check the default */
+<span class="lineNum">    7319 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(msEvalRegex(MS_DEFAULT_MAPFILE_PATTERN, filename) != MS_TRUE) {</span>
+<span class="lineNum">    7320 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_REGEXERR, &quot;MS_DEFAULT_MAPFILE_PATTERN validation failed.&quot; , &quot;msLoadMap()&quot;);</span>
+<span class="lineNum">    7321 </span>                :<span class="lineNoCov">          0 :       return(NULL);</span>
+<span class="lineNum">    7322 </span>                :            :     }
+<span class="lineNum">    7323 </span>                :            :   }
+<span class="lineNum">    7324 </span>                :            : 
+<span class="lineNum">    7325 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if((msyyin = fopen(filename,&quot;r&quot;)) == NULL) {</span>
+<span class="lineNum">    7326 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_IOERR, &quot;(%s)&quot;, &quot;msTokenizeMap()&quot;, filename);</span>
+<span class="lineNum">    7327 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    7328 </span>                :            :   }
+<span class="lineNum">    7329 </span>                :            : 
+<span class="lineNum">    7330 </span>                :<span class="lineNoCov">          0 :   msyystate = MS_TOKENIZE_FILE; /* restore lexer state to INITIAL, and do return comments */</span>
+<span class="lineNum">    7331 </span>                :<span class="lineNoCov">          0 :   msyylex();</span>
+<span class="lineNum">    7332 </span>                :<span class="lineNoCov">          0 :   msyyreturncomments = 1; /* want all tokens, including comments */</span>
+<span class="lineNum">    7333 </span>                :            : 
+<span class="lineNum">    7334 </span>                :<span class="lineNoCov">          0 :   msyyrestart(msyyin); /* start at line begining, line 1 */</span>
+<span class="lineNum">    7335 </span>                :<span class="lineNoCov">          0 :   msyylineno = 1;</span>
+<span class="lineNum">    7336 </span>                :            : 
+<span class="lineNum">    7337 </span>                :            :   numtokens = 0;
+<span class="lineNum">    7338 </span>                :            :   numtokens_allocated = 256;
+<span class="lineNum">    7339 </span>                :<span class="lineNoCov">          0 :   tokens = (char **) malloc(numtokens_allocated*sizeof(char*));</span>
+<span class="lineNum">    7340 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if(tokens == NULL) {</span>
+<span class="lineNum">    7341 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_MEMERR, NULL, &quot;msTokenizeMap()&quot;);</span>
+<span class="lineNum">    7342 </span>                :<span class="lineNoCov">          0 :     fclose(msyyin);</span>
+<span class="lineNum">    7343 </span>                :<span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    7344 </span>                :            :   }
+<span class="lineNum">    7345 </span>                :            : 
+<span class="lineNum">    7346 </span>                :            :   for(;;) {
+<span class="lineNum">    7347 </span>                :            : 
+<span class="lineNum">    7348 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(numtokens_allocated &lt;= numtokens) {</span>
+<span class="lineNum">    7349 </span>                :<span class="lineNoCov">          0 :       numtokens_allocated *= 2; /* double size of the array every time we reach the limit */</span>
+<span class="lineNum">    7350 </span>                :<span class="lineNoCov">          0 :       tokens = (char **)realloc(tokens, numtokens_allocated*sizeof(char*));</span>
+<span class="lineNum">    7351 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(tokens == NULL) {</span>
+<span class="lineNum">    7352 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_MEMERR, &quot;Realloc() error.&quot;, &quot;msTokenizeMap()&quot;);</span>
+<span class="lineNum">    7353 </span>                :<span class="lineNoCov">          0 :         fclose(msyyin);</span>
+<span class="lineNum">    7354 </span>                :<span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">    7355 </span>                :            :       }
+<span class="lineNum">    7356 </span>                :            :     }
+<span class="lineNum">    7357 </span>                :            : 
+<span class="lineNum">    7358 </span>  [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span> :<span class="lineNoCov">          0 :     switch(msyylex()) {</span>
 <span class="lineNum">         </span>            <span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
-<span class="lineNum">    7339 </span>                :            :       case(EOF): /* This is the normal way out... cleanup and exit */
-<span class="lineNum">    7340 </span>                :<span class="lineNoCov">          0 :         fclose(msyyin);</span>
-<span class="lineNum">    7341 </span>                :<span class="lineNoCov">          0 :         *ret_numtokens = numtokens;</span>
-<span class="lineNum">    7342 </span>                :<span class="lineNoCov">          0 :         return(tokens);</span>
-<span class="lineNum">    7343 </span>                :            :         break;
-<span class="lineNum">    7344 </span>                :            :       case(MS_STRING):
-<span class="lineNum">    7345 </span>                :<span class="lineNoCov">          0 :         buffer_size = strlen(msyystring_buffer)+2+1;</span>
-<span class="lineNum">    7346 </span>                :<span class="lineNoCov">          0 :         tokens[numtokens] = (char*) msSmallMalloc(buffer_size);</span>
-<span class="lineNum">    7347 </span>                :<span class="lineNoCov">          0 :         snprintf(tokens[numtokens], buffer_size, &quot;\&quot;%s\&quot;&quot;, msyystring_buffer);</span>
-<span class="lineNum">    7348 </span>                :            :         break;
-<span class="lineNum">    7349 </span>                :            :       case(MS_EXPRESSION):
-<span class="lineNum">    7350 </span>                :<span class="lineNoCov">          0 :         buffer_size = strlen(msyystring_buffer)+2+1;</span>
-<span class="lineNum">    7351 </span>                :<span class="lineNoCov">          0 :         tokens[numtokens] = (char*) msSmallMalloc(buffer_size);</span>
-<span class="lineNum">    7352 </span>                :<span class="lineNoCov">          0 :         snprintf(tokens[numtokens], buffer_size, &quot;(%s)&quot;, msyystring_buffer);</span>
-<span class="lineNum">    7353 </span>                :            :         break;
-<span class="lineNum">    7354 </span>                :            :       case(MS_REGEX):
-<span class="lineNum">    7355 </span>                :<span class="lineNoCov">          0 :         buffer_size = strlen(msyystring_buffer)+2+1;</span>
-<span class="lineNum">    7356 </span>                :<span class="lineNoCov">          0 :         tokens[numtokens] = (char*) msSmallMalloc(buffer_size);</span>
-<span class="lineNum">    7357 </span>                :<span class="lineNoCov">          0 :         snprintf(tokens[numtokens], buffer_size, &quot;/%s/&quot;, msyystring_buffer);</span>
-<span class="lineNum">    7358 </span>                :            :         break;
-<span class="lineNum">    7359 </span>                :            :       default:
-<span class="lineNum">    7360 </span>                :<span class="lineNoCov">          0 :         tokens[numtokens] = msStrdup(msyystring_buffer);</span>
-<span class="lineNum">    7361 </span>                :<span class="lineNoCov">          0 :         break;</span>
-<span class="lineNum">    7362 </span>                :            :     }
-<span class="lineNum">    7363 </span>                :            : 
-<span class="lineNum">    7364 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(tokens[numtokens] == NULL) {</span>
-<span class="lineNum">    7365 </span>                :            :       int i;
-<span class="lineNum">    7366 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MEMERR, NULL, &quot;msTokenizeMap()&quot;);</span>
-<span class="lineNum">    7367 </span>                :<span class="lineNoCov">          0 :       fclose(msyyin);</span>
-<span class="lineNum">    7368 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(i=0; i&lt;numtokens; i++)</span>
-<span class="lineNum">    7369 </span>                :<span class="lineNoCov">          0 :         msFree(tokens[i]);</span>
-<span class="lineNum">    7370 </span>                :<span class="lineNoCov">          0 :       msFree(tokens);</span>
-<span class="lineNum">    7371 </span>                :<span class="lineNoCov">          0 :       return NULL;</span>
-<span class="lineNum">    7372 </span>                :            :     }
-<span class="lineNum">    7373 </span>                :            : 
-<span class="lineNum">    7374 </span>                :<span class="lineNoCov">          0 :     numtokens++;</span>
-<span class="lineNum">    7375 </span>                :<span class="lineNoCov">          0 :   }</span>
-<span class="lineNum">    7376 </span>                :            : 
-<span class="lineNum">    7377 </span>                :            :   return NULL;   /* should never get here */
-<span class="lineNum">    7378 </span>                :            : }
-<span class="lineNum">    7379 </span>                :            : 
-<span class="lineNum">    7380 </span>                :            : /*
-<a name="7381"><span class="lineNum">    7381 </span>                :            : ** Wraps tokenizeMapInternal</a>
-<span class="lineNum">    7382 </span>                :            : */
-<span class="lineNum">    7383 </span>                :<span class="lineNoCov">          0 : char **msTokenizeMap(char *filename, int *numtokens)</span>
-<span class="lineNum">    7384 </span>                :            : {
-<span class="lineNum">    7385 </span>                :            :   char **tokens;
-<span class="lineNum">    7386 </span>                :            : 
-<span class="lineNum">    7387 </span>                :<span class="lineNoCov">          0 :   msAcquireLock( TLOCK_PARSER );</span>
-<span class="lineNum">    7388 </span>                :<span class="lineNoCov">          0 :   tokens = tokenizeMapInternal( filename, numtokens );</span>
-<span class="lineNum">    7389 </span>                :<span class="lineNoCov">          0 :   msReleaseLock( TLOCK_PARSER );</span>
-<span class="lineNum">    7390 </span>                :            : 
-<span class="lineNum">    7391 </span>                :<span class="lineNoCov">          0 :   return tokens;</span>
-<a name="7392"><span class="lineNum">    7392 </span>                :            : }</a>
+<span class="lineNum">    7359 </span>                :            :       case(EOF): /* This is the normal way out... cleanup and exit */
+<span class="lineNum">    7360 </span>                :<span class="lineNoCov">          0 :         fclose(msyyin);</span>
+<span class="lineNum">    7361 </span>                :<span class="lineNoCov">          0 :         *ret_numtokens = numtokens;</span>
+<span class="lineNum">    7362 </span>                :<span class="lineNoCov">          0 :         return(tokens);</span>
+<span class="lineNum">    7363 </span>                :            :         break;
+<span class="lineNum">    7364 </span>                :            :       case(MS_STRING):
+<span class="lineNum">    7365 </span>                :<span class="lineNoCov">          0 :         buffer_size = strlen(msyystring_buffer)+2+1;</span>
+<span class="lineNum">    7366 </span>                :<span class="lineNoCov">          0 :         tokens[numtokens] = (char*) msSmallMalloc(buffer_size);</span>
+<span class="lineNum">    7367 </span>                :<span class="lineNoCov">          0 :         snprintf(tokens[numtokens], buffer_size, &quot;\&quot;%s\&quot;&quot;, msyystring_buffer);</span>
+<span class="lineNum">    7368 </span>                :            :         break;
+<span class="lineNum">    7369 </span>                :            :       case(MS_EXPRESSION):
+<span class="lineNum">    7370 </span>                :<span class="lineNoCov">          0 :         buffer_size = strlen(msyystring_buffer)+2+1;</span>
+<span class="lineNum">    7371 </span>                :<span class="lineNoCov">          0 :         tokens[numtokens] = (char*) msSmallMalloc(buffer_size);</span>
+<span class="lineNum">    7372 </span>                :<span class="lineNoCov">          0 :         snprintf(tokens[numtokens], buffer_size, &quot;(%s)&quot;, msyystring_buffer);</span>
+<span class="lineNum">    7373 </span>                :            :         break;
+<span class="lineNum">    7374 </span>                :            :       case(MS_REGEX):
+<span class="lineNum">    7375 </span>                :<span class="lineNoCov">          0 :         buffer_size = strlen(msyystring_buffer)+2+1;</span>
+<span class="lineNum">    7376 </span>                :<span class="lineNoCov">          0 :         tokens[numtokens] = (char*) msSmallMalloc(buffer_size);</span>
+<span class="lineNum">    7377 </span>                :<span class="lineNoCov">          0 :         snprintf(tokens[numtokens], buffer_size, &quot;/%s/&quot;, msyystring_buffer);</span>
+<span class="lineNum">    7378 </span>                :            :         break;
+<span class="lineNum">    7379 </span>                :            :       default:
+<span class="lineNum">    7380 </span>                :<span class="lineNoCov">          0 :         tokens[numtokens] = msStrdup(msyystring_buffer);</span>
+<span class="lineNum">    7381 </span>                :<span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">    7382 </span>                :            :     }
+<span class="lineNum">    7383 </span>                :            : 
+<span class="lineNum">    7384 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(tokens[numtokens] == NULL) {</span>
+<span class="lineNum">    7385 </span>                :            :       int i;
+<span class="lineNum">    7386 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MEMERR, NULL, &quot;msTokenizeMap()&quot;);</span>
+<span class="lineNum">    7387 </span>                :<span class="lineNoCov">          0 :       fclose(msyyin);</span>
+<span class="lineNum">    7388 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(i=0; i&lt;numtokens; i++)</span>
+<span class="lineNum">    7389 </span>                :<span class="lineNoCov">          0 :         msFree(tokens[i]);</span>
+<span class="lineNum">    7390 </span>                :<span class="lineNoCov">          0 :       msFree(tokens);</span>
+<span class="lineNum">    7391 </span>                :<span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">    7392 </span>                :            :     }
 <span class="lineNum">    7393 </span>                :            : 
-<span class="lineNum">    7394 </span>                :<span class="lineCov">          1 : void msCloseConnections(mapObj *map)</span>
-<span class="lineNum">    7395 </span>                :            : {
-<span class="lineNum">    7396 </span>                :            :   int i;
-<span class="lineNum">    7397 </span>                :            :   layerObj *lp;
-<span class="lineNum">    7398 </span>                :            : 
-<span class="lineNum">    7399 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (i=0; i&lt;map-&gt;numlayers; i++) {</span>
-<span class="lineNum">    7400 </span>                :<span class="lineCov">          1 :     lp = (GET_LAYER(map, i));</span>
-<span class="lineNum">    7401 </span>                :            : 
-<span class="lineNum">    7402 </span>                :            :     /* If the vtable is null, then the layer is never accessed or used -&gt; skip it
-<span class="lineNum">    7403 </span>                :            :      */
-<span class="lineNum">    7404 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (lp-&gt;vtable) {</span>
-<span class="lineNum">    7405 </span>                :<span class="lineCov">          1 :       lp-&gt;vtable-&gt;LayerCloseConnection(lp);</span>
-<span class="lineNum">    7406 </span>                :            :     }
-<span class="lineNum">    7407 </span>                :            :   }
-<a name="7408"><span class="lineNum">    7408 </span>                :<span class="lineCov">          1 : }</span></a>
-<span class="lineNum">    7409 </span>                :            : 
-<span class="lineNum">    7410 </span>                :<span class="lineCov">          1 : void initResultCache(resultCacheObj *resultcache)</span>
-<span class="lineNum">    7411 </span>                :            : {
-<span class="lineNum">    7412 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (resultcache) {</span>
-<span class="lineNum">    7413 </span>                :<span class="lineCov">          1 :     resultcache-&gt;results = NULL;</span>
-<span class="lineNum">    7414 </span>                :<span class="lineCov">          1 :     resultcache-&gt;numresults = 0;</span>
-<span class="lineNum">    7415 </span>                :<span class="lineCov">          1 :     resultcache-&gt;cachesize = 0;</span>
-<span class="lineNum">    7416 </span>                :<span class="lineCov">          1 :     resultcache-&gt;bounds.minx = resultcache-&gt;bounds.miny = resultcache-&gt;bounds.maxx = resultcache-&gt;bounds.maxy = -1;</span>
-<span class="lineNum">    7417 </span>                :<span class="lineCov">          1 :     resultcache-&gt;previousBounds = resultcache-&gt;bounds;</span>
-<span class="lineNum">    7418 </span>                :<span class="lineCov">          1 :     resultcache-&gt;usegetshape = MS_FALSE;</span>
-<span class="lineNum">    7419 </span>                :            :   }
-<a name="7420"><span class="lineNum">    7420 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">    7394 </span>                :<span class="lineNoCov">          0 :     numtokens++;</span>
+<span class="lineNum">    7395 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">    7396 </span>                :            : 
+<span class="lineNum">    7397 </span>                :            :   return NULL;   /* should never get here */
+<span class="lineNum">    7398 </span>                :            : }
+<span class="lineNum">    7399 </span>                :            : 
+<span class="lineNum">    7400 </span>                :            : /*
+<a name="7401"><span class="lineNum">    7401 </span>                :            : ** Wraps tokenizeMapInternal</a>
+<span class="lineNum">    7402 </span>                :            : */
+<span class="lineNum">    7403 </span>                :<span class="lineNoCov">          0 : char **msTokenizeMap(char *filename, int *numtokens)</span>
+<span class="lineNum">    7404 </span>                :            : {
+<span class="lineNum">    7405 </span>                :            :   char **tokens;
+<span class="lineNum">    7406 </span>                :            : 
+<span class="lineNum">    7407 </span>                :<span class="lineNoCov">          0 :   msAcquireLock( TLOCK_PARSER );</span>
+<span class="lineNum">    7408 </span>                :<span class="lineNoCov">          0 :   tokens = tokenizeMapInternal( filename, numtokens );</span>
+<span class="lineNum">    7409 </span>                :<span class="lineNoCov">          0 :   msReleaseLock( TLOCK_PARSER );</span>
+<span class="lineNum">    7410 </span>                :            : 
+<span class="lineNum">    7411 </span>                :<span class="lineNoCov">          0 :   return tokens;</span>
+<a name="7412"><span class="lineNum">    7412 </span>                :            : }</a>
+<span class="lineNum">    7413 </span>                :            : 
+<span class="lineNum">    7414 </span>                :<span class="lineCov">          1 : void msCloseConnections(mapObj *map)</span>
+<span class="lineNum">    7415 </span>                :            : {
+<span class="lineNum">    7416 </span>                :            :   int i;
+<span class="lineNum">    7417 </span>                :            :   layerObj *lp;
+<span class="lineNum">    7418 </span>                :            : 
+<span class="lineNum">    7419 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for (i=0; i&lt;map-&gt;numlayers; i++) {</span>
+<span class="lineNum">    7420 </span>                :<span class="lineCov">          1 :     lp = (GET_LAYER(map, i));</span>
 <span class="lineNum">    7421 </span>                :            : 
-<span class="lineNum">    7422 </span>                :<span class="lineCov">          1 : void cleanupResultCache(resultCacheObj *resultcache)</span>
-<span class="lineNum">    7423 </span>                :            : {
-<span class="lineNum">    7424 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(resultcache) {</span>
-<span class="lineNum">    7425 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(resultcache-&gt;results)</span>
-<span class="lineNum">    7426 </span>                :            :     {
-<span class="lineNum">    7427 </span>                :            :         int i;
-<span class="lineNum">    7428 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for( i = 0; i &lt; resultcache-&gt;numresults; i++ )</span>
-<span class="lineNum">    7429 </span>                :            :         {
-<span class="lineNum">    7430 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if( resultcache-&gt;results[i].shape )</span>
-<span class="lineNum">    7431 </span>                :            :             {
-<span class="lineNum">    7432 </span>                :<span class="lineCov">          1 :                 msFreeShape( resultcache-&gt;results[i].shape );</span>
-<span class="lineNum">    7433 </span>                :<span class="lineCov">          1 :                 msFree( resultcache-&gt;results[i].shape );</span>
-<span class="lineNum">    7434 </span>                :            :             }
-<span class="lineNum">    7435 </span>                :            :         }
-<span class="lineNum">    7436 </span>                :<span class="lineCov">          1 :         free(resultcache-&gt;results);</span>
-<span class="lineNum">    7437 </span>                :            :     }
-<span class="lineNum">    7438 </span>                :<span class="lineCov">          1 :     resultcache-&gt;results = NULL;</span>
-<span class="lineNum">    7439 </span>                :<span class="lineCov">          1 :     initResultCache(resultcache);</span>
-<span class="lineNum">    7440 </span>                :            :   }
-<span class="lineNum">    7441 </span>                :<span class="lineCov">          1 : }</span>
-<a name="7442"><span class="lineNum">    7442 </span>                :            : </a>
-<span class="lineNum">    7443 </span>                :            : 
-<span class="lineNum">    7444 </span>                :<span class="lineCov">          1 : static int resolveSymbolNames(mapObj* map)</span>
-<span class="lineNum">    7445 </span>                :            : {
-<span class="lineNum">    7446 </span>                :            :   int i, j;
-<span class="lineNum">    7447 </span>                :            : 
-<span class="lineNum">    7448 </span>                :            :   /* step through layers and classes to resolve symbol names */
-<span class="lineNum">    7449 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;map-&gt;numlayers; i++) {</span>
-<span class="lineNum">    7450 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :     for(j=0; j&lt;GET_LAYER(map, i)-&gt;numclasses; j++) {</span>
-<span class="lineNum">    7451 </span>[<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">          1 :       if(classResolveSymbolNames(GET_LAYER(map, i)-&gt;class[j]) != MS_SUCCESS) return MS_FAILURE;</span>
-<span class="lineNum">    7452 </span>                :            :     }
-<span class="lineNum">    7453 </span>                :            :   }
-<span class="lineNum">    7454 </span>                :            : 
-<span class="lineNum">    7455 </span>                :            :   return MS_SUCCESS;
-<span class="lineNum">    7456 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">    7422 </span>                :            :     /* If the vtable is null, then the layer is never accessed or used -&gt; skip it
+<span class="lineNum">    7423 </span>                :            :      */
+<span class="lineNum">    7424 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if (lp-&gt;vtable) {</span>
+<span class="lineNum">    7425 </span>                :<span class="lineCov">          1 :       lp-&gt;vtable-&gt;LayerCloseConnection(lp);</span>
+<span class="lineNum">    7426 </span>                :            :     }
+<span class="lineNum">    7427 </span>                :            :   }
+<a name="7428"><span class="lineNum">    7428 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">    7429 </span>                :            : 
+<span class="lineNum">    7430 </span>                :<span class="lineCov">          1 : void initResultCache(resultCacheObj *resultcache)</span>
+<span class="lineNum">    7431 </span>                :            : {
+<span class="lineNum">    7432 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if (resultcache) {</span>
+<span class="lineNum">    7433 </span>                :<span class="lineCov">          1 :     resultcache-&gt;results = NULL;</span>
+<span class="lineNum">    7434 </span>                :<span class="lineCov">          1 :     resultcache-&gt;numresults = 0;</span>
+<span class="lineNum">    7435 </span>                :<span class="lineCov">          1 :     resultcache-&gt;cachesize = 0;</span>
+<span class="lineNum">    7436 </span>                :<span class="lineCov">          1 :     resultcache-&gt;bounds.minx = resultcache-&gt;bounds.miny = resultcache-&gt;bounds.maxx = resultcache-&gt;bounds.maxy = -1;</span>
+<span class="lineNum">    7437 </span>                :<span class="lineCov">          1 :     resultcache-&gt;previousBounds = resultcache-&gt;bounds;</span>
+<span class="lineNum">    7438 </span>                :<span class="lineCov">          1 :     resultcache-&gt;usegetshape = MS_FALSE;</span>
+<span class="lineNum">    7439 </span>                :            :   }
+<a name="7440"><span class="lineNum">    7440 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">    7441 </span>                :            : 
+<span class="lineNum">    7442 </span>                :<span class="lineCov">          1 : void cleanupResultCache(resultCacheObj *resultcache)</span>
+<span class="lineNum">    7443 </span>                :            : {
+<span class="lineNum">    7444 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if(resultcache) {</span>
+<span class="lineNum">    7445 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(resultcache-&gt;results)</span>
+<span class="lineNum">    7446 </span>                :            :     {
+<span class="lineNum">    7447 </span>                :            :         int i;
+<span class="lineNum">    7448 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :         for( i = 0; i &lt; resultcache-&gt;numresults; i++ )</span>
+<span class="lineNum">    7449 </span>                :            :         {
+<span class="lineNum">    7450 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :             if( resultcache-&gt;results[i].shape )</span>
+<span class="lineNum">    7451 </span>                :            :             {
+<span class="lineNum">    7452 </span>                :<span class="lineCov">          1 :                 msFreeShape( resultcache-&gt;results[i].shape );</span>
+<span class="lineNum">    7453 </span>                :<span class="lineCov">          1 :                 msFree( resultcache-&gt;results[i].shape );</span>
+<span class="lineNum">    7454 </span>                :            :             }
+<span class="lineNum">    7455 </span>                :            :         }
+<span class="lineNum">    7456 </span>                :<span class="lineCov">          1 :         free(resultcache-&gt;results);</span>
+<span class="lineNum">    7457 </span>                :            :     }
+<span class="lineNum">    7458 </span>                :<span class="lineCov">          1 :     resultcache-&gt;results = NULL;</span>
+<span class="lineNum">    7459 </span>                :<span class="lineCov">          1 :     initResultCache(resultcache);</span>
+<span class="lineNum">    7460 </span>                :            :   }
+<span class="lineNum">    7461 </span>                :<span class="lineCov">          1 : }</span>
+<a name="7462"><span class="lineNum">    7462 </span>                :            : </a>
+<span class="lineNum">    7463 </span>                :            : 
+<span class="lineNum">    7464 </span>                :<span class="lineCov">          1 : static int resolveSymbolNames(mapObj* map)</span>
+<span class="lineNum">    7465 </span>                :            : {
+<span class="lineNum">    7466 </span>                :            :   int i, j;
+<span class="lineNum">    7467 </span>                :            : 
+<span class="lineNum">    7468 </span>                :            :   /* step through layers and classes to resolve symbol names */
+<span class="lineNum">    7469 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :   for(i=0; i&lt;map-&gt;numlayers; i++) {</span>
+<span class="lineNum">    7470 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :     for(j=0; j&lt;GET_LAYER(map, i)-&gt;numclasses; j++) {</span>
+<span class="lineNum">    7471 </span>[<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">          1 :       if(classResolveSymbolNames(GET_LAYER(map, i)-&gt;class[j]) != MS_SUCCESS) return MS_FAILURE;</span>
+<span class="lineNum">    7472 </span>                :            :     }
+<span class="lineNum">    7473 </span>                :            :   }
+<span class="lineNum">    7474 </span>                :            : 
+<span class="lineNum">    7475 </span>                :            :   return MS_SUCCESS;
+<span class="lineNum">    7476 </span>                :<span class="lineCov">          1 : }</span>
 </pre>
       </td>
     </tr>
