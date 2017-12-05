@@ -31,8 +31,8 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">1615</td>
-            <td class="headerCovTableEntry">2164</td>
+            <td class="headerCovTableEntry">1616</td>
+            <td class="headerCovTableEntry">2165</td>
             <td class="headerCovTableEntryLo">74.6 %</td>
           </tr>
           <tr>
@@ -4603,269 +4603,271 @@
 <span class="lineNum">    4486 </span>                :<span class="lineCov">          1 :   snprintf(numbands, sizeof(numbands), &quot;%d&quot;, msCountChars(bandlist, ',')+1);</span>
 <span class="lineNum">    4487 </span>                :<span class="lineCov">          1 :   msSetOutputFormatOption(map-&gt;outputformat, &quot;BAND_COUNT&quot;, numbands);</span>
 <span class="lineNum">    4488 </span>                :            : 
-<span class="lineNum">    4489 </span>                :            :   /* check for the interpolation */
-<span class="lineNum">    4490 </span>                :            :   /* Defaults to NEAREST */
-<span class="lineNum">    4491 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(params-&gt;interpolation != NULL) {</span>
-<span class="lineNum">    4492 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(EQUALN(params-&gt;interpolation,&quot;NEAREST&quot;,7)) {</span>
-<span class="lineNum">    4493 </span>                :<span class="lineCov">          1 :       msLayerSetProcessingKey(layer, &quot;RESAMPLE&quot;, &quot;NEAREST&quot;);</span>
-<span class="lineNum">    4494 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     } else if(EQUAL(params-&gt;interpolation,&quot;BILINEAR&quot;)) {</span>
-<span class="lineNum">    4495 </span>                :<span class="lineCov">          1 :       msLayerSetProcessingKey(layer, &quot;RESAMPLE&quot;, &quot;BILINEAR&quot;);</span>
-<span class="lineNum">    4496 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     } else if(EQUAL(params-&gt;interpolation,&quot;AVERAGE&quot;)) {</span>
-<span class="lineNum">    4497 </span>                :<span class="lineCov">          1 :       msLayerSetProcessingKey(layer, &quot;RESAMPLE&quot;, &quot;AVERAGE&quot;);</span>
-<span class="lineNum">    4498 </span>                :            :     } else {
-<span class="lineNum">    4499 </span>                :<span class="lineCov">          1 :       msFree(bandlist);</span>
-<span class="lineNum">    4500 </span>                :<span class="lineCov">          1 :       msSetError( MS_WCSERR, &quot;'%s' specifies an unsupported interpolation method.&quot;,</span>
-<span class="lineNum">    4501 </span>                :            :                   &quot;msWCSGetCoverage20()&quot;, params-&gt;interpolation );
-<span class="lineNum">    4502 </span>                :<span class="lineCov">          1 :       msWCSClearCoverageMetadata20(&amp;cm);</span>
-<span class="lineNum">    4503 </span>                :<span class="lineCov">          1 :       return msWCSException(map, &quot;InvalidParameterValue&quot;, &quot;interpolation&quot;, params-&gt;version);</span>
-<span class="lineNum">    4504 </span>                :            :     }
-<span class="lineNum">    4505 </span>                :            :   } else {
-<span class="lineNum">    4506 </span>                :<span class="lineCov">          1 :     msLayerSetProcessingKey(layer, &quot;RESAMPLE&quot;, &quot;NEAREST&quot;);</span>
-<span class="lineNum">    4507 </span>                :            :   }
-<span class="lineNum">    4508 </span>                :            : 
-<span class="lineNum">    4509 </span>                :            :   /* since the dataset is only used in one layer, set it to be    */
-<span class="lineNum">    4510 </span>                :            :   /* closed after drawing the layer. This normally defaults to    */
-<span class="lineNum">    4511 </span>                :            :   /* DEFER and will produce a memory leak, because the dataset    */
-<span class="lineNum">    4512 </span>                :            :   /* will not be closed.                                          */
-<span class="lineNum">    4513 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if( msLayerGetProcessingKey(layer, &quot;CLOSE_CONNECTION&quot;) == NULL ) {</span>
-<span class="lineNum">    4514 </span>                :<span class="lineCov">          1 :     msLayerSetProcessingKey(layer, &quot;CLOSE_CONNECTION&quot;, &quot;NORMAL&quot;);</span>
-<span class="lineNum">    4515 </span>                :            :   }
-<span class="lineNum">    4516 </span>                :            : 
-<span class="lineNum">    4517 </span>                :            :   /* create the image object  */
-<span class="lineNum">    4518 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (!map-&gt;outputformat) {</span>
-<span class="lineNum">    4519 </span>                :<span class="lineNoCov">          0 :     msWCSClearCoverageMetadata20(&amp;cm);</span>
-<span class="lineNum">    4520 </span>                :<span class="lineNoCov">          0 :     msFree(bandlist);</span>
-<span class="lineNum">    4521 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_WCSERR, &quot;The map outputformat is missing!&quot;,</span>
-<span class="lineNum">    4522 </span>                :            :                &quot;msWCSGetCoverage20()&quot;);
-<span class="lineNum">    4523 </span>                :<span class="lineNoCov">          0 :     return msWCSException(map, NULL, NULL, params-&gt;version);</span>
-<span class="lineNum">    4524 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   } else if (MS_RENDERER_PLUGIN(map-&gt;outputformat)) {</span>
-<span class="lineNum">    4525 </span>                :<span class="lineCov">          1 :     image = msImageCreate(map-&gt;width, map-&gt;height, map-&gt;outputformat,</span>
-<span class="lineNum">    4526 </span>                :            :                           map-&gt;web.imagepath, map-&gt;web.imageurl, map-&gt;resolution,
-<span class="lineNum">    4527 </span>                :            :                           map-&gt;defresolution, &amp;map-&gt;imagecolor);
-<span class="lineNum">    4528 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   } else if (MS_RENDERER_RAWDATA(map-&gt;outputformat)) {</span>
-<span class="lineNum">    4529 </span>                :<span class="lineCov">          1 :     image = msImageCreate(map-&gt;width, map-&gt;height, map-&gt;outputformat,</span>
-<span class="lineNum">    4530 </span>                :            :                           map-&gt;web.imagepath, map-&gt;web.imageurl, map-&gt;resolution,
-<span class="lineNum">    4531 </span>                :            :                           map-&gt;defresolution, &amp;map-&gt;imagecolor);
-<span class="lineNum">    4532 </span>                :            :   } else {
-<span class="lineNum">    4533 </span>                :<span class="lineNoCov">          0 :     msFree(bandlist);</span>
-<span class="lineNum">    4534 </span>                :<span class="lineNoCov">          0 :     msWCSClearCoverageMetadata20(&amp;cm);</span>
-<span class="lineNum">    4535 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_WCSERR, &quot;Map outputformat not supported for WCS!&quot;,</span>
-<span class="lineNum">    4536 </span>                :            :                &quot;msWCSGetCoverage20()&quot;);
-<span class="lineNum">    4537 </span>                :<span class="lineNoCov">          0 :     return msWCSException(map, NULL, NULL, params-&gt;version);</span>
-<span class="lineNum">    4538 </span>                :            :   }
-<span class="lineNum">    4539 </span>                :            : 
-<span class="lineNum">    4540 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (image == NULL) {</span>
-<span class="lineNum">    4541 </span>                :<span class="lineNoCov">          0 :     msFree(bandlist);</span>
-<span class="lineNum">    4542 </span>                :<span class="lineNoCov">          0 :     msWCSClearCoverageMetadata20(&amp;cm);</span>
-<span class="lineNum">    4543 </span>                :<span class="lineNoCov">          0 :     return msWCSException(map, NULL, NULL, params-&gt;version);</span>
-<span class="lineNum">    4544 </span>                :            :   }
-<span class="lineNum">    4545 </span>                :            : 
-<span class="lineNum">    4546 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(layer-&gt;mask) {</span>
-<span class="lineNum">    4547 </span>                :<span class="lineCov">          1 :     int maskLayerIdx = msGetLayerIndex(map,layer-&gt;mask);</span>
-<span class="lineNum">    4548 </span>                :            :     layerObj *maskLayer;
-<span class="lineNum">    4549 </span>                :            :     outputFormatObj *altFormat;
-<span class="lineNum">    4550 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(maskLayerIdx == -1) {</span>
-<span class="lineNum">    4551 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Layer (%s) references unknown mask layer (%s)&quot;, &quot;msDrawLayer()&quot;,</span>
-<span class="lineNum">    4552 </span>                :            :                  layer-&gt;name,layer-&gt;mask);
-<span class="lineNum">    4553 </span>                :<span class="lineNoCov">          0 :       msFreeImage(image);</span>
-<span class="lineNum">    4554 </span>                :<span class="lineNoCov">          0 :       msFree(bandlist);</span>
-<span class="lineNum">    4555 </span>                :<span class="lineNoCov">          0 :       msWCSClearCoverageMetadata20(&amp;cm);</span>
-<span class="lineNum">    4556 </span>                :<span class="lineNoCov">          0 :       return msWCSException(map, NULL, NULL, params-&gt;version);</span>
-<span class="lineNum">    4557 </span>                :            :     }
-<span class="lineNum">    4558 </span>                :<span class="lineCov">          1 :     maskLayer = GET_LAYER(map, maskLayerIdx);</span>
-<span class="lineNum">    4559 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(!maskLayer-&gt;maskimage) {</span>
-<span class="lineNum">    4560 </span>                :            :       int i,retcode;
-<span class="lineNum">    4561 </span>                :            :       int origstatus, origlabelcache;
-<span class="lineNum">    4562 </span>                :<span class="lineCov">          1 :       char *origImageType = msStrdup(map-&gt;imagetype);</span>
-<span class="lineNum">    4563 </span>                :<span class="lineCov">          1 :       altFormat =  msSelectOutputFormat(map, &quot;png24&quot;);</span>
-<span class="lineNum">    4564 </span>                :<span class="lineCov">          1 :       msInitializeRendererVTable(altFormat);</span>
-<span class="lineNum">    4565 </span>                :            :       /* TODO: check the png24 format hasn't been tampered with, i.e. it's agg */
-<span class="lineNum">    4566 </span>                :<span class="lineCov">          1 :       maskLayer-&gt;maskimage= msImageCreate(image-&gt;width, image-&gt;height,altFormat,</span>
-<span class="lineNum">    4567 </span>                :            :                                           image-&gt;imagepath, image-&gt;imageurl, map-&gt;resolution, map-&gt;defresolution, NULL);
-<span class="lineNum">    4568 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (!maskLayer-&gt;maskimage) {</span>
-<span class="lineNum">    4569 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_MISCERR, &quot;Unable to initialize mask image.&quot;, &quot;msDrawLayer()&quot;);</span>
-<span class="lineNum">    4570 </span>                :<span class="lineNoCov">          0 :         msFreeImage(image);</span>
-<span class="lineNum">    4571 </span>                :<span class="lineNoCov">          0 :         msFree(bandlist);</span>
-<span class="lineNum">    4572 </span>                :<span class="lineNoCov">          0 :         msWCSClearCoverageMetadata20(&amp;cm);</span>
-<span class="lineNum">    4573 </span>                :<span class="lineNoCov">          0 :         return msWCSException(map, NULL, NULL, params-&gt;version);</span>
-<span class="lineNum">    4574 </span>                :            :       }
-<span class="lineNum">    4575 </span>                :            : 
-<span class="lineNum">    4576 </span>                :            :       /*
-<span class="lineNum">    4577 </span>                :            :        * force the masked layer to status on, and turn off the labelcache so that
-<span class="lineNum">    4578 </span>                :            :        * eventual labels are added to the temporary image instead of being added
-<span class="lineNum">    4579 </span>                :            :        * to the labelcache
-<span class="lineNum">    4580 </span>                :            :        */
-<span class="lineNum">    4581 </span>                :<span class="lineCov">          1 :       origstatus = maskLayer-&gt;status;</span>
-<span class="lineNum">    4582 </span>                :<span class="lineCov">          1 :       origlabelcache = maskLayer-&gt;labelcache;</span>
-<span class="lineNum">    4583 </span>                :<span class="lineCov">          1 :       maskLayer-&gt;status = MS_ON;</span>
-<span class="lineNum">    4584 </span>                :<span class="lineCov">          1 :       maskLayer-&gt;labelcache = MS_OFF;</span>
-<span class="lineNum">    4585 </span>                :            : 
-<span class="lineNum">    4586 </span>                :            :       /* draw the mask layer in the temporary image */
-<span class="lineNum">    4587 </span>                :<span class="lineCov">          1 :       retcode = msDrawLayer(map, maskLayer, maskLayer-&gt;maskimage);</span>
-<span class="lineNum">    4588 </span>                :<span class="lineCov">          1 :       maskLayer-&gt;status = origstatus;</span>
-<span class="lineNum">    4589 </span>                :<span class="lineCov">          1 :       maskLayer-&gt;labelcache = origlabelcache;</span>
-<span class="lineNum">    4590 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(retcode != MS_SUCCESS) {</span>
-<span class="lineNum">    4591 </span>                :<span class="lineNoCov">          0 :         free(origImageType);</span>
-<span class="lineNum">    4592 </span>                :<span class="lineNoCov">          0 :         msFreeImage(image);</span>
-<span class="lineNum">    4593 </span>                :<span class="lineNoCov">          0 :         msFree(bandlist);</span>
-<span class="lineNum">    4594 </span>                :<span class="lineNoCov">          0 :         msWCSClearCoverageMetadata20(&amp;cm);</span>
-<span class="lineNum">    4595 </span>                :<span class="lineNoCov">          0 :         return msWCSException(map, NULL, NULL, params-&gt;version);</span>
-<span class="lineNum">    4596 </span>                :            :       }
-<span class="lineNum">    4597 </span>                :            :       /*
-<span class="lineNum">    4598 </span>                :            :        * hack to work around bug #3834: if we have use an alternate renderer, the symbolset may contain
-<span class="lineNum">    4599 </span>                :            :        * symbols that reference it. We want to remove those references before the altFormat is destroyed
-<span class="lineNum">    4600 </span>                :            :        * to avoid a segfault and/or a leak, and so the the main renderer doesn't pick the cache up thinking
-<span class="lineNum">    4601 </span>                :            :        * it's for him.
-<span class="lineNum">    4602 </span>                :            :        */
-<span class="lineNum">    4603 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(i=0; i&lt;map-&gt;symbolset.numsymbols; i++) {</span>
-<span class="lineNum">    4604 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (map-&gt;symbolset.symbol[i]!=NULL) {</span>
-<span class="lineNum">    4605 </span>                :<span class="lineCov">          1 :           symbolObj *s = map-&gt;symbolset.symbol[i];</span>
-<span class="lineNum">    4606 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if(s-&gt;renderer == MS_IMAGE_RENDERER(maskLayer-&gt;maskimage)) {</span>
-<span class="lineNum">    4607 </span>                :<span class="lineNoCov">          0 :             MS_IMAGE_RENDERER(maskLayer-&gt;maskimage)-&gt;freeSymbol(s);</span>
-<span class="lineNum">    4608 </span>                :<span class="lineNoCov">          0 :             s-&gt;renderer = NULL;</span>
-<span class="lineNum">    4609 </span>                :            :           }
-<span class="lineNum">    4610 </span>                :            :         }
-<span class="lineNum">    4611 </span>                :            :       }
-<span class="lineNum">    4612 </span>                :            :       /* set the imagetype from the original outputformat back (it was removed by msSelectOutputFormat() */
-<span class="lineNum">    4613 </span>                :<span class="lineCov">          1 :       msFree(map-&gt;imagetype);</span>
-<span class="lineNum">    4614 </span>                :<span class="lineCov">          1 :       map-&gt;imagetype = origImageType;</span>
-<span class="lineNum">    4615 </span>                :            : 
-<span class="lineNum">    4616 </span>                :            :     }
-<span class="lineNum">    4617 </span>                :            :   }
-<span class="lineNum">    4618 </span>                :            : 
-<span class="lineNum">    4619 </span>                :            :   /* Actually produce the &quot;grid&quot;. */
-<span class="lineNum">    4620 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( MS_RENDERER_RAWDATA(map-&gt;outputformat) ) {</span>
-<span class="lineNum">    4621 </span>                :<span class="lineCov">          1 :     status = msDrawRasterLayerLow( map, layer, image, NULL );</span>
-<span class="lineNum">    4622 </span>                :            :   } else {
-<span class="lineNum">    4623 </span>                :            :     rasterBufferObj rb;
-<span class="lineNum">    4624 </span>                :<span class="lineCov">          1 :     status = MS_IMAGE_RENDERER(image)-&gt;getRasterBufferHandle(image,&amp;rb);</span>
-<span class="lineNum">    4625 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(LIKELY(status == MS_SUCCESS))</span>
-<span class="lineNum">    4626 </span>                :<span class="lineCov">          1 :       status = msDrawRasterLayerLow( map, layer, image, &amp;rb );</span>
-<span class="lineNum">    4627 </span>                :            :   }
-<span class="lineNum">    4628 </span>                :            : 
-<span class="lineNum">    4629 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( status != MS_SUCCESS ) {</span>
-<span class="lineNum">    4630 </span>                :<span class="lineNoCov">          0 :     msFree(bandlist);</span>
-<span class="lineNum">    4631 </span>                :<span class="lineNoCov">          0 :     msFreeImage(image);</span>
-<span class="lineNum">    4632 </span>                :<span class="lineNoCov">          0 :     msWCSClearCoverageMetadata20(&amp;cm);</span>
-<span class="lineNum">    4633 </span>                :<span class="lineNoCov">          0 :     return msWCSException(map, NULL, NULL, params-&gt;version );</span>
-<span class="lineNum">    4634 </span>                :            :   }
-<span class="lineNum">    4635 </span>                :            : 
-<span class="lineNum">    4636 </span>                :            :   /* GML+Image */
-<span class="lineNum">    4637 </span>                :            :   /* Embed the image into multipart message */
-<span class="lineNum">    4638 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(params-&gt;multipart == MS_TRUE) {</span>
-<span class="lineNum">    4639 </span>                :            :     xmlDocPtr psDoc = NULL;       /* document pointer */
-<span class="lineNum">    4640 </span>                :            :     xmlNodePtr psRootNode, psRangeSet, psFile, psRangeParameters;
-<span class="lineNum">    4641 </span>                :            :     xmlNsPtr psGmlNs = NULL,
-<span class="lineNum">    4642 </span>                :            :              psGmlcovNs = NULL,
-<span class="lineNum">    4643 </span>                :            :              psSweNs = NULL,
-<span class="lineNum">    4644 </span>                :            :              psXLinkNs = NULL;
-<span class="lineNum">    4645 </span>                :            :     wcs20coverageMetadataObj tmpCm;
-<span class="lineNum">    4646 </span>                :            :     char *srs_uri, *default_filename;
-<span class="lineNum">    4647 </span>                :            :     const char *filename;
-<span class="lineNum">    4648 </span>                :            :     char *file_ref, *role;
-<span class="lineNum">    4649 </span>                :            :     int length = 0, swapAxes;
-<span class="lineNum">    4650 </span>                :            : 
-<span class="lineNum">    4651 </span>                :            :     /* Create Document  */
-<span class="lineNum">    4652 </span>                :<span class="lineCov">          1 :     psDoc = xmlNewDoc(BAD_CAST &quot;1.0&quot;);</span>
-<span class="lineNum">    4653 </span>                :<span class="lineCov">          1 :     psRootNode = xmlNewNode(NULL, BAD_CAST MS_WCS_GML_COVERAGETYPE_RECTIFIED_GRID_COVERAGE);</span>
-<span class="lineNum">    4654 </span>                :<span class="lineCov">          1 :     xmlDocSetRootElement(psDoc, psRootNode);</span>
-<span class="lineNum">    4655 </span>                :            : 
-<span class="lineNum">    4656 </span>                :<span class="lineCov">          1 :     msWCSPrepareNamespaces20(psDoc, psRootNode, map);</span>
+<span class="lineNum">    4489 </span>                :<span class="lineCov">          1 :   msWCSApplyLayerCreationOptions(layer, map-&gt;outputformat, bandlist);</span>
+<span class="lineNum">    4490 </span>                :            : 
+<span class="lineNum">    4491 </span>                :            :   /* check for the interpolation */
+<span class="lineNum">    4492 </span>                :            :   /* Defaults to NEAREST */
+<span class="lineNum">    4493 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(params-&gt;interpolation != NULL) {</span>
+<span class="lineNum">    4494 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(EQUALN(params-&gt;interpolation,&quot;NEAREST&quot;,7)) {</span>
+<span class="lineNum">    4495 </span>                :<span class="lineCov">          1 :       msLayerSetProcessingKey(layer, &quot;RESAMPLE&quot;, &quot;NEAREST&quot;);</span>
+<span class="lineNum">    4496 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     } else if(EQUAL(params-&gt;interpolation,&quot;BILINEAR&quot;)) {</span>
+<span class="lineNum">    4497 </span>                :<span class="lineCov">          1 :       msLayerSetProcessingKey(layer, &quot;RESAMPLE&quot;, &quot;BILINEAR&quot;);</span>
+<span class="lineNum">    4498 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     } else if(EQUAL(params-&gt;interpolation,&quot;AVERAGE&quot;)) {</span>
+<span class="lineNum">    4499 </span>                :<span class="lineCov">          1 :       msLayerSetProcessingKey(layer, &quot;RESAMPLE&quot;, &quot;AVERAGE&quot;);</span>
+<span class="lineNum">    4500 </span>                :            :     } else {
+<span class="lineNum">    4501 </span>                :<span class="lineCov">          1 :       msFree(bandlist);</span>
+<span class="lineNum">    4502 </span>                :<span class="lineCov">          1 :       msSetError( MS_WCSERR, &quot;'%s' specifies an unsupported interpolation method.&quot;,</span>
+<span class="lineNum">    4503 </span>                :            :                   &quot;msWCSGetCoverage20()&quot;, params-&gt;interpolation );
+<span class="lineNum">    4504 </span>                :<span class="lineCov">          1 :       msWCSClearCoverageMetadata20(&amp;cm);</span>
+<span class="lineNum">    4505 </span>                :<span class="lineCov">          1 :       return msWCSException(map, &quot;InvalidParameterValue&quot;, &quot;interpolation&quot;, params-&gt;version);</span>
+<span class="lineNum">    4506 </span>                :            :     }
+<span class="lineNum">    4507 </span>                :            :   } else {
+<span class="lineNum">    4508 </span>                :<span class="lineCov">          1 :     msLayerSetProcessingKey(layer, &quot;RESAMPLE&quot;, &quot;NEAREST&quot;);</span>
+<span class="lineNum">    4509 </span>                :            :   }
+<span class="lineNum">    4510 </span>                :            : 
+<span class="lineNum">    4511 </span>                :            :   /* since the dataset is only used in one layer, set it to be    */
+<span class="lineNum">    4512 </span>                :            :   /* closed after drawing the layer. This normally defaults to    */
+<span class="lineNum">    4513 </span>                :            :   /* DEFER and will produce a memory leak, because the dataset    */
+<span class="lineNum">    4514 </span>                :            :   /* will not be closed.                                          */
+<span class="lineNum">    4515 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if( msLayerGetProcessingKey(layer, &quot;CLOSE_CONNECTION&quot;) == NULL ) {</span>
+<span class="lineNum">    4516 </span>                :<span class="lineCov">          1 :     msLayerSetProcessingKey(layer, &quot;CLOSE_CONNECTION&quot;, &quot;NORMAL&quot;);</span>
+<span class="lineNum">    4517 </span>                :            :   }
+<span class="lineNum">    4518 </span>                :            : 
+<span class="lineNum">    4519 </span>                :            :   /* create the image object  */
+<span class="lineNum">    4520 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (!map-&gt;outputformat) {</span>
+<span class="lineNum">    4521 </span>                :<span class="lineNoCov">          0 :     msWCSClearCoverageMetadata20(&amp;cm);</span>
+<span class="lineNum">    4522 </span>                :<span class="lineNoCov">          0 :     msFree(bandlist);</span>
+<span class="lineNum">    4523 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_WCSERR, &quot;The map outputformat is missing!&quot;,</span>
+<span class="lineNum">    4524 </span>                :            :                &quot;msWCSGetCoverage20()&quot;);
+<span class="lineNum">    4525 </span>                :<span class="lineNoCov">          0 :     return msWCSException(map, NULL, NULL, params-&gt;version);</span>
+<span class="lineNum">    4526 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   } else if (MS_RENDERER_PLUGIN(map-&gt;outputformat)) {</span>
+<span class="lineNum">    4527 </span>                :<span class="lineCov">          1 :     image = msImageCreate(map-&gt;width, map-&gt;height, map-&gt;outputformat,</span>
+<span class="lineNum">    4528 </span>                :            :                           map-&gt;web.imagepath, map-&gt;web.imageurl, map-&gt;resolution,
+<span class="lineNum">    4529 </span>                :            :                           map-&gt;defresolution, &amp;map-&gt;imagecolor);
+<span class="lineNum">    4530 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   } else if (MS_RENDERER_RAWDATA(map-&gt;outputformat)) {</span>
+<span class="lineNum">    4531 </span>                :<span class="lineCov">          1 :     image = msImageCreate(map-&gt;width, map-&gt;height, map-&gt;outputformat,</span>
+<span class="lineNum">    4532 </span>                :            :                           map-&gt;web.imagepath, map-&gt;web.imageurl, map-&gt;resolution,
+<span class="lineNum">    4533 </span>                :            :                           map-&gt;defresolution, &amp;map-&gt;imagecolor);
+<span class="lineNum">    4534 </span>                :            :   } else {
+<span class="lineNum">    4535 </span>                :<span class="lineNoCov">          0 :     msFree(bandlist);</span>
+<span class="lineNum">    4536 </span>                :<span class="lineNoCov">          0 :     msWCSClearCoverageMetadata20(&amp;cm);</span>
+<span class="lineNum">    4537 </span>                :<span class="lineNoCov">          0 :     msSetError(MS_WCSERR, &quot;Map outputformat not supported for WCS!&quot;,</span>
+<span class="lineNum">    4538 </span>                :            :                &quot;msWCSGetCoverage20()&quot;);
+<span class="lineNum">    4539 </span>                :<span class="lineNoCov">          0 :     return msWCSException(map, NULL, NULL, params-&gt;version);</span>
+<span class="lineNum">    4540 </span>                :            :   }
+<span class="lineNum">    4541 </span>                :            : 
+<span class="lineNum">    4542 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if (image == NULL) {</span>
+<span class="lineNum">    4543 </span>                :<span class="lineNoCov">          0 :     msFree(bandlist);</span>
+<span class="lineNum">    4544 </span>                :<span class="lineNoCov">          0 :     msWCSClearCoverageMetadata20(&amp;cm);</span>
+<span class="lineNum">    4545 </span>                :<span class="lineNoCov">          0 :     return msWCSException(map, NULL, NULL, params-&gt;version);</span>
+<span class="lineNum">    4546 </span>                :            :   }
+<span class="lineNum">    4547 </span>                :            : 
+<span class="lineNum">    4548 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(layer-&gt;mask) {</span>
+<span class="lineNum">    4549 </span>                :<span class="lineCov">          1 :     int maskLayerIdx = msGetLayerIndex(map,layer-&gt;mask);</span>
+<span class="lineNum">    4550 </span>                :            :     layerObj *maskLayer;
+<span class="lineNum">    4551 </span>                :            :     outputFormatObj *altFormat;
+<span class="lineNum">    4552 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(maskLayerIdx == -1) {</span>
+<span class="lineNum">    4553 </span>                :<span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Layer (%s) references unknown mask layer (%s)&quot;, &quot;msDrawLayer()&quot;,</span>
+<span class="lineNum">    4554 </span>                :            :                  layer-&gt;name,layer-&gt;mask);
+<span class="lineNum">    4555 </span>                :<span class="lineNoCov">          0 :       msFreeImage(image);</span>
+<span class="lineNum">    4556 </span>                :<span class="lineNoCov">          0 :       msFree(bandlist);</span>
+<span class="lineNum">    4557 </span>                :<span class="lineNoCov">          0 :       msWCSClearCoverageMetadata20(&amp;cm);</span>
+<span class="lineNum">    4558 </span>                :<span class="lineNoCov">          0 :       return msWCSException(map, NULL, NULL, params-&gt;version);</span>
+<span class="lineNum">    4559 </span>                :            :     }
+<span class="lineNum">    4560 </span>                :<span class="lineCov">          1 :     maskLayer = GET_LAYER(map, maskLayerIdx);</span>
+<span class="lineNum">    4561 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(!maskLayer-&gt;maskimage) {</span>
+<span class="lineNum">    4562 </span>                :            :       int i,retcode;
+<span class="lineNum">    4563 </span>                :            :       int origstatus, origlabelcache;
+<span class="lineNum">    4564 </span>                :<span class="lineCov">          1 :       char *origImageType = msStrdup(map-&gt;imagetype);</span>
+<span class="lineNum">    4565 </span>                :<span class="lineCov">          1 :       altFormat =  msSelectOutputFormat(map, &quot;png24&quot;);</span>
+<span class="lineNum">    4566 </span>                :<span class="lineCov">          1 :       msInitializeRendererVTable(altFormat);</span>
+<span class="lineNum">    4567 </span>                :            :       /* TODO: check the png24 format hasn't been tampered with, i.e. it's agg */
+<span class="lineNum">    4568 </span>                :<span class="lineCov">          1 :       maskLayer-&gt;maskimage= msImageCreate(image-&gt;width, image-&gt;height,altFormat,</span>
+<span class="lineNum">    4569 </span>                :            :                                           image-&gt;imagepath, image-&gt;imageurl, map-&gt;resolution, map-&gt;defresolution, NULL);
+<span class="lineNum">    4570 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if (!maskLayer-&gt;maskimage) {</span>
+<span class="lineNum">    4571 </span>                :<span class="lineNoCov">          0 :         msSetError(MS_MISCERR, &quot;Unable to initialize mask image.&quot;, &quot;msDrawLayer()&quot;);</span>
+<span class="lineNum">    4572 </span>                :<span class="lineNoCov">          0 :         msFreeImage(image);</span>
+<span class="lineNum">    4573 </span>                :<span class="lineNoCov">          0 :         msFree(bandlist);</span>
+<span class="lineNum">    4574 </span>                :<span class="lineNoCov">          0 :         msWCSClearCoverageMetadata20(&amp;cm);</span>
+<span class="lineNum">    4575 </span>                :<span class="lineNoCov">          0 :         return msWCSException(map, NULL, NULL, params-&gt;version);</span>
+<span class="lineNum">    4576 </span>                :            :       }
+<span class="lineNum">    4577 </span>                :            : 
+<span class="lineNum">    4578 </span>                :            :       /*
+<span class="lineNum">    4579 </span>                :            :        * force the masked layer to status on, and turn off the labelcache so that
+<span class="lineNum">    4580 </span>                :            :        * eventual labels are added to the temporary image instead of being added
+<span class="lineNum">    4581 </span>                :            :        * to the labelcache
+<span class="lineNum">    4582 </span>                :            :        */
+<span class="lineNum">    4583 </span>                :<span class="lineCov">          1 :       origstatus = maskLayer-&gt;status;</span>
+<span class="lineNum">    4584 </span>                :<span class="lineCov">          1 :       origlabelcache = maskLayer-&gt;labelcache;</span>
+<span class="lineNum">    4585 </span>                :<span class="lineCov">          1 :       maskLayer-&gt;status = MS_ON;</span>
+<span class="lineNum">    4586 </span>                :<span class="lineCov">          1 :       maskLayer-&gt;labelcache = MS_OFF;</span>
+<span class="lineNum">    4587 </span>                :            : 
+<span class="lineNum">    4588 </span>                :            :       /* draw the mask layer in the temporary image */
+<span class="lineNum">    4589 </span>                :<span class="lineCov">          1 :       retcode = msDrawLayer(map, maskLayer, maskLayer-&gt;maskimage);</span>
+<span class="lineNum">    4590 </span>                :<span class="lineCov">          1 :       maskLayer-&gt;status = origstatus;</span>
+<span class="lineNum">    4591 </span>                :<span class="lineCov">          1 :       maskLayer-&gt;labelcache = origlabelcache;</span>
+<span class="lineNum">    4592 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(retcode != MS_SUCCESS) {</span>
+<span class="lineNum">    4593 </span>                :<span class="lineNoCov">          0 :         free(origImageType);</span>
+<span class="lineNum">    4594 </span>                :<span class="lineNoCov">          0 :         msFreeImage(image);</span>
+<span class="lineNum">    4595 </span>                :<span class="lineNoCov">          0 :         msFree(bandlist);</span>
+<span class="lineNum">    4596 </span>                :<span class="lineNoCov">          0 :         msWCSClearCoverageMetadata20(&amp;cm);</span>
+<span class="lineNum">    4597 </span>                :<span class="lineNoCov">          0 :         return msWCSException(map, NULL, NULL, params-&gt;version);</span>
+<span class="lineNum">    4598 </span>                :            :       }
+<span class="lineNum">    4599 </span>                :            :       /*
+<span class="lineNum">    4600 </span>                :            :        * hack to work around bug #3834: if we have use an alternate renderer, the symbolset may contain
+<span class="lineNum">    4601 </span>                :            :        * symbols that reference it. We want to remove those references before the altFormat is destroyed
+<span class="lineNum">    4602 </span>                :            :        * to avoid a segfault and/or a leak, and so the the main renderer doesn't pick the cache up thinking
+<span class="lineNum">    4603 </span>                :            :        * it's for him.
+<span class="lineNum">    4604 </span>                :            :        */
+<span class="lineNum">    4605 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       for(i=0; i&lt;map-&gt;symbolset.numsymbols; i++) {</span>
+<span class="lineNum">    4606 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (map-&gt;symbolset.symbol[i]!=NULL) {</span>
+<span class="lineNum">    4607 </span>                :<span class="lineCov">          1 :           symbolObj *s = map-&gt;symbolset.symbol[i];</span>
+<span class="lineNum">    4608 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :           if(s-&gt;renderer == MS_IMAGE_RENDERER(maskLayer-&gt;maskimage)) {</span>
+<span class="lineNum">    4609 </span>                :<span class="lineNoCov">          0 :             MS_IMAGE_RENDERER(maskLayer-&gt;maskimage)-&gt;freeSymbol(s);</span>
+<span class="lineNum">    4610 </span>                :<span class="lineNoCov">          0 :             s-&gt;renderer = NULL;</span>
+<span class="lineNum">    4611 </span>                :            :           }
+<span class="lineNum">    4612 </span>                :            :         }
+<span class="lineNum">    4613 </span>                :            :       }
+<span class="lineNum">    4614 </span>                :            :       /* set the imagetype from the original outputformat back (it was removed by msSelectOutputFormat() */
+<span class="lineNum">    4615 </span>                :<span class="lineCov">          1 :       msFree(map-&gt;imagetype);</span>
+<span class="lineNum">    4616 </span>                :<span class="lineCov">          1 :       map-&gt;imagetype = origImageType;</span>
+<span class="lineNum">    4617 </span>                :            : 
+<span class="lineNum">    4618 </span>                :            :     }
+<span class="lineNum">    4619 </span>                :            :   }
+<span class="lineNum">    4620 </span>                :            : 
+<span class="lineNum">    4621 </span>                :            :   /* Actually produce the &quot;grid&quot;. */
+<span class="lineNum">    4622 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( MS_RENDERER_RAWDATA(map-&gt;outputformat) ) {</span>
+<span class="lineNum">    4623 </span>                :<span class="lineCov">          1 :     status = msDrawRasterLayerLow( map, layer, image, NULL );</span>
+<span class="lineNum">    4624 </span>                :            :   } else {
+<span class="lineNum">    4625 </span>                :            :     rasterBufferObj rb;
+<span class="lineNum">    4626 </span>                :<span class="lineCov">          1 :     status = MS_IMAGE_RENDERER(image)-&gt;getRasterBufferHandle(image,&amp;rb);</span>
+<span class="lineNum">    4627 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(LIKELY(status == MS_SUCCESS))</span>
+<span class="lineNum">    4628 </span>                :<span class="lineCov">          1 :       status = msDrawRasterLayerLow( map, layer, image, &amp;rb );</span>
+<span class="lineNum">    4629 </span>                :            :   }
+<span class="lineNum">    4630 </span>                :            : 
+<span class="lineNum">    4631 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if( status != MS_SUCCESS ) {</span>
+<span class="lineNum">    4632 </span>                :<span class="lineNoCov">          0 :     msFree(bandlist);</span>
+<span class="lineNum">    4633 </span>                :<span class="lineNoCov">          0 :     msFreeImage(image);</span>
+<span class="lineNum">    4634 </span>                :<span class="lineNoCov">          0 :     msWCSClearCoverageMetadata20(&amp;cm);</span>
+<span class="lineNum">    4635 </span>                :<span class="lineNoCov">          0 :     return msWCSException(map, NULL, NULL, params-&gt;version );</span>
+<span class="lineNum">    4636 </span>                :            :   }
+<span class="lineNum">    4637 </span>                :            : 
+<span class="lineNum">    4638 </span>                :            :   /* GML+Image */
+<span class="lineNum">    4639 </span>                :            :   /* Embed the image into multipart message */
+<span class="lineNum">    4640 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   if(params-&gt;multipart == MS_TRUE) {</span>
+<span class="lineNum">    4641 </span>                :            :     xmlDocPtr psDoc = NULL;       /* document pointer */
+<span class="lineNum">    4642 </span>                :            :     xmlNodePtr psRootNode, psRangeSet, psFile, psRangeParameters;
+<span class="lineNum">    4643 </span>                :            :     xmlNsPtr psGmlNs = NULL,
+<span class="lineNum">    4644 </span>                :            :              psGmlcovNs = NULL,
+<span class="lineNum">    4645 </span>                :            :              psSweNs = NULL,
+<span class="lineNum">    4646 </span>                :            :              psXLinkNs = NULL;
+<span class="lineNum">    4647 </span>                :            :     wcs20coverageMetadataObj tmpCm;
+<span class="lineNum">    4648 </span>                :            :     char *srs_uri, *default_filename;
+<span class="lineNum">    4649 </span>                :            :     const char *filename;
+<span class="lineNum">    4650 </span>                :            :     char *file_ref, *role;
+<span class="lineNum">    4651 </span>                :            :     int length = 0, swapAxes;
+<span class="lineNum">    4652 </span>                :            : 
+<span class="lineNum">    4653 </span>                :            :     /* Create Document  */
+<span class="lineNum">    4654 </span>                :<span class="lineCov">          1 :     psDoc = xmlNewDoc(BAD_CAST &quot;1.0&quot;);</span>
+<span class="lineNum">    4655 </span>                :<span class="lineCov">          1 :     psRootNode = xmlNewNode(NULL, BAD_CAST MS_WCS_GML_COVERAGETYPE_RECTIFIED_GRID_COVERAGE);</span>
+<span class="lineNum">    4656 </span>                :<span class="lineCov">          1 :     xmlDocSetRootElement(psDoc, psRootNode);</span>
 <span class="lineNum">    4657 </span>                :            : 
-<span class="lineNum">    4658 </span>                :<span class="lineCov">          1 :     psGmlNs    = xmlSearchNs(psDoc, psRootNode, BAD_CAST MS_OWSCOMMON_GML_NAMESPACE_PREFIX);</span>
-<span class="lineNum">    4659 </span>                :<span class="lineCov">          1 :     psGmlcovNs = xmlSearchNs(psDoc, psRootNode, BAD_CAST MS_OWSCOMMON_GMLCOV_NAMESPACE_PREFIX);</span>
-<span class="lineNum">    4660 </span>                :<span class="lineCov">          1 :     psSweNs    = xmlSearchNs(psDoc, psRootNode, BAD_CAST MS_OWSCOMMON_SWE_NAMESPACE_PREFIX);</span>
-<span class="lineNum">    4661 </span>                :<span class="lineCov">          1 :     xmlSearchNs(psDoc, psRootNode, BAD_CAST MS_OWSCOMMON_WCS_NAMESPACE_PREFIX);</span>
-<span class="lineNum">    4662 </span>                :<span class="lineCov">          1 :     psXLinkNs  = xmlSearchNs(psDoc, psRootNode, BAD_CAST MS_OWSCOMMON_W3C_XLINK_NAMESPACE_PREFIX);</span>
-<span class="lineNum">    4663 </span>                :            : 
-<span class="lineNum">    4664 </span>                :<span class="lineCov">          1 :     xmlNewNsProp(psRootNode, psGmlNs, BAD_CAST &quot;id&quot;, BAD_CAST layer-&gt;name);</span>
+<span class="lineNum">    4658 </span>                :<span class="lineCov">          1 :     msWCSPrepareNamespaces20(psDoc, psRootNode, map);</span>
+<span class="lineNum">    4659 </span>                :            : 
+<span class="lineNum">    4660 </span>                :<span class="lineCov">          1 :     psGmlNs    = xmlSearchNs(psDoc, psRootNode, BAD_CAST MS_OWSCOMMON_GML_NAMESPACE_PREFIX);</span>
+<span class="lineNum">    4661 </span>                :<span class="lineCov">          1 :     psGmlcovNs = xmlSearchNs(psDoc, psRootNode, BAD_CAST MS_OWSCOMMON_GMLCOV_NAMESPACE_PREFIX);</span>
+<span class="lineNum">    4662 </span>                :<span class="lineCov">          1 :     psSweNs    = xmlSearchNs(psDoc, psRootNode, BAD_CAST MS_OWSCOMMON_SWE_NAMESPACE_PREFIX);</span>
+<span class="lineNum">    4663 </span>                :<span class="lineCov">          1 :     xmlSearchNs(psDoc, psRootNode, BAD_CAST MS_OWSCOMMON_WCS_NAMESPACE_PREFIX);</span>
+<span class="lineNum">    4664 </span>                :<span class="lineCov">          1 :     psXLinkNs  = xmlSearchNs(psDoc, psRootNode, BAD_CAST MS_OWSCOMMON_W3C_XLINK_NAMESPACE_PREFIX);</span>
 <span class="lineNum">    4665 </span>                :            : 
-<span class="lineNum">    4666 </span>                :<span class="lineCov">          1 :     xmlSetNs(psRootNode, psGmlcovNs);</span>
+<span class="lineNum">    4666 </span>                :<span class="lineCov">          1 :     xmlNewNsProp(psRootNode, psGmlNs, BAD_CAST &quot;id&quot;, BAD_CAST layer-&gt;name);</span>
 <span class="lineNum">    4667 </span>                :            : 
-<span class="lineNum">    4668 </span>                :<span class="lineCov">          1 :     srs_uri = msOWSGetProjURI(&amp;map-&gt;projection, NULL, &quot;CO&quot;, 1);</span>
+<span class="lineNum">    4668 </span>                :<span class="lineCov">          1 :     xmlSetNs(psRootNode, psGmlcovNs);</span>
 <span class="lineNum">    4669 </span>                :            : 
-<span class="lineNum">    4670 </span>                :<span class="lineCov">          1 :     tmpCm = cm;</span>
-<span class="lineNum">    4671 </span>                :<span class="lineCov">          1 :     tmpCm.extent = map-&gt;extent;</span>
-<span class="lineNum">    4672 </span>                :<span class="lineCov">          1 :     tmpCm.xsize = map-&gt;width;</span>
-<span class="lineNum">    4673 </span>                :<span class="lineCov">          1 :     tmpCm.ysize = map-&gt;height;</span>
-<span class="lineNum">    4674 </span>                :<span class="lineCov">          1 :     strlcpy(tmpCm.srs_uri, srs_uri, sizeof(tmpCm.srs_uri));</span>
-<span class="lineNum">    4675 </span>                :            : 
-<span class="lineNum">    4676 </span>                :<span class="lineCov">          1 :     tmpCm.xresolution = map-&gt;gt.geotransform[1];</span>
-<span class="lineNum">    4677 </span>                :<span class="lineCov">          1 :     tmpCm.yresolution = map-&gt;gt.geotransform[5];</span>
-<span class="lineNum">    4678 </span>                :            : 
-<span class="lineNum">    4679 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     tmpCm.extent.minx = MS_MIN(map-&gt;gt.geotransform[0], map-&gt;gt.geotransform[0] + map-&gt;width * tmpCm.xresolution);</span>
-<span class="lineNum">    4680 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     tmpCm.extent.miny = MS_MIN(map-&gt;gt.geotransform[3], map-&gt;gt.geotransform[3] + map-&gt;height * tmpCm.yresolution);</span>
-<span class="lineNum">    4681 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     tmpCm.extent.maxx = MS_MAX(map-&gt;gt.geotransform[0], map-&gt;gt.geotransform[0] + map-&gt;width * tmpCm.xresolution);</span>
-<span class="lineNum">    4682 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     tmpCm.extent.maxy = MS_MAX(map-&gt;gt.geotransform[3], map-&gt;gt.geotransform[3] + map-&gt;height * tmpCm.yresolution);</span>
-<span class="lineNum">    4683 </span>                :            : 
-<span class="lineNum">    4684 </span>                :<span class="lineCov">          1 :     swapAxes = msWCSSwapAxes20(srs_uri);</span>
-<span class="lineNum">    4685 </span>                :<span class="lineCov">          1 :     msFree(srs_uri);</span>
-<span class="lineNum">    4686 </span>                :            : 
-<span class="lineNum">    4687 </span>                :            :     /* Setup layer information  */
-<span class="lineNum">    4688 </span>                :<span class="lineCov">          1 :     msWCSCommon20_CreateBoundedBy(layer, &amp;tmpCm, psGmlNs, psRootNode, &amp;(map-&gt;projection), swapAxes);</span>
-<span class="lineNum">    4689 </span>                :<span class="lineCov">          1 :     msWCSCommon20_CreateDomainSet(layer, &amp;tmpCm, psGmlNs, psRootNode, &amp;(map-&gt;projection), swapAxes);</span>
-<span class="lineNum">    4690 </span>                :            : 
-<span class="lineNum">    4691 </span>                :<span class="lineCov">          1 :     psRangeSet = xmlNewChild(psRootNode, psGmlNs, BAD_CAST &quot;rangeSet&quot;, NULL);</span>
-<span class="lineNum">    4692 </span>                :<span class="lineCov">          1 :     psFile     = xmlNewChild(psRangeSet, psGmlNs, BAD_CAST &quot;File&quot;, NULL);</span>
-<span class="lineNum">    4693 </span>                :            : 
-<span class="lineNum">    4694 </span>                :            :     /* TODO: wait for updated specifications */
-<span class="lineNum">    4695 </span>                :<span class="lineCov">          1 :     psRangeParameters = xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;rangeParameters&quot;, NULL);</span>
-<span class="lineNum">    4696 </span>                :            : 
-<span class="lineNum">    4697 </span>                :<span class="lineCov">          1 :     default_filename = msStrdup(&quot;out.&quot;);</span>
-<span class="lineNum">    4698 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     default_filename = msStringConcatenate(default_filename, MS_IMAGE_EXTENSION(image-&gt;format));</span>
-<span class="lineNum">    4699 </span>                :            : 
-<span class="lineNum">    4700 </span>                :<span class="lineCov">          1 :     filename = msGetOutputFormatOption(image-&gt;format, &quot;FILENAME&quot;, default_filename);</span>
-<span class="lineNum">    4701 </span>                :<span class="lineCov">          1 :     length = strlen(&quot;cid:coverage/&quot;) + strlen(filename) + 1;</span>
-<span class="lineNum">    4702 </span>                :<span class="lineCov">          1 :     file_ref = msSmallMalloc(length);</span>
-<span class="lineNum">    4703 </span>                :<span class="lineCov">          1 :     strlcpy(file_ref, &quot;cid:coverage/&quot;, length);</span>
-<span class="lineNum">    4704 </span>                :<span class="lineCov">          1 :     strlcat(file_ref, filename, length);</span>
-<span class="lineNum">    4705 </span>                :<span class="lineCov">          1 :     msFree(default_filename);</span>
-<span class="lineNum">    4706 </span>                :            : 
-<span class="lineNum">    4707 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(EQUAL(MS_IMAGE_MIME_TYPE(map-&gt;outputformat), &quot;image/tiff&quot;)) {</span>
-<span class="lineNum">    4708 </span>                :            :       length = strlen(MS_WCS_20_PROFILE_GML_GEOTIFF) + 1;
-<span class="lineNum">    4709 </span>                :<span class="lineCov">          1 :       role = msSmallMalloc(length);</span>
-<span class="lineNum">    4710 </span>                :<span class="lineCov">          1 :       strlcpy(role, MS_WCS_20_PROFILE_GML_GEOTIFF, length);</span>
-<span class="lineNum">    4711 </span>                :            :     } else {
-<span class="lineNum">    4712 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       length = strlen(MS_IMAGE_MIME_TYPE(map-&gt;outputformat)) + 1;</span>
-<span class="lineNum">    4713 </span>                :<span class="lineCov">          1 :       role = msSmallMalloc(length);</span>
-<span class="lineNum">    4714 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       strlcpy(role, MS_IMAGE_MIME_TYPE(map-&gt;outputformat), length);</span>
-<span class="lineNum">    4715 </span>                :            :     }
-<span class="lineNum">    4716 </span>                :            : 
-<span class="lineNum">    4717 </span>                :<span class="lineCov">          1 :     xmlNewNsProp(psRangeParameters, psXLinkNs, BAD_CAST &quot;href&quot;, BAD_CAST file_ref);</span>
-<span class="lineNum">    4718 </span>                :<span class="lineCov">          1 :     xmlNewNsProp(psRangeParameters, psXLinkNs, BAD_CAST &quot;role&quot;, BAD_CAST role);</span>
-<span class="lineNum">    4719 </span>                :<span class="lineCov">          1 :     xmlNewNsProp(psRangeParameters, psXLinkNs, BAD_CAST &quot;arcrole&quot;, BAD_CAST &quot;fileReference&quot;);</span>
-<span class="lineNum">    4720 </span>                :            : 
-<span class="lineNum">    4721 </span>                :<span class="lineCov">          1 :     xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;fileReference&quot;, BAD_CAST file_ref);</span>
-<span class="lineNum">    4722 </span>                :<span class="lineCov">          1 :     xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;fileStructure&quot;, NULL);</span>
-<span class="lineNum">    4723 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;mimeType&quot;, BAD_CAST MS_IMAGE_MIME_TYPE(map-&gt;outputformat));</span>
-<span class="lineNum">    4724 </span>                :            : 
-<span class="lineNum">    4725 </span>                :<span class="lineCov">          1 :     msWCSCommon20_CreateRangeType(layer, &amp;cm, bandlist, psGmlNs, psGmlcovNs, psSweNs, psXLinkNs, psRootNode);</span>
+<span class="lineNum">    4670 </span>                :<span class="lineCov">          1 :     srs_uri = msOWSGetProjURI(&amp;map-&gt;projection, NULL, &quot;CO&quot;, 1);</span>
+<span class="lineNum">    4671 </span>                :            : 
+<span class="lineNum">    4672 </span>                :<span class="lineCov">          1 :     tmpCm = cm;</span>
+<span class="lineNum">    4673 </span>                :<span class="lineCov">          1 :     tmpCm.extent = map-&gt;extent;</span>
+<span class="lineNum">    4674 </span>                :<span class="lineCov">          1 :     tmpCm.xsize = map-&gt;width;</span>
+<span class="lineNum">    4675 </span>                :<span class="lineCov">          1 :     tmpCm.ysize = map-&gt;height;</span>
+<span class="lineNum">    4676 </span>                :<span class="lineCov">          1 :     strlcpy(tmpCm.srs_uri, srs_uri, sizeof(tmpCm.srs_uri));</span>
+<span class="lineNum">    4677 </span>                :            : 
+<span class="lineNum">    4678 </span>                :<span class="lineCov">          1 :     tmpCm.xresolution = map-&gt;gt.geotransform[1];</span>
+<span class="lineNum">    4679 </span>                :<span class="lineCov">          1 :     tmpCm.yresolution = map-&gt;gt.geotransform[5];</span>
+<span class="lineNum">    4680 </span>                :            : 
+<span class="lineNum">    4681 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     tmpCm.extent.minx = MS_MIN(map-&gt;gt.geotransform[0], map-&gt;gt.geotransform[0] + map-&gt;width * tmpCm.xresolution);</span>
+<span class="lineNum">    4682 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     tmpCm.extent.miny = MS_MIN(map-&gt;gt.geotransform[3], map-&gt;gt.geotransform[3] + map-&gt;height * tmpCm.yresolution);</span>
+<span class="lineNum">    4683 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     tmpCm.extent.maxx = MS_MAX(map-&gt;gt.geotransform[0], map-&gt;gt.geotransform[0] + map-&gt;width * tmpCm.xresolution);</span>
+<span class="lineNum">    4684 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     tmpCm.extent.maxy = MS_MAX(map-&gt;gt.geotransform[3], map-&gt;gt.geotransform[3] + map-&gt;height * tmpCm.yresolution);</span>
+<span class="lineNum">    4685 </span>                :            : 
+<span class="lineNum">    4686 </span>                :<span class="lineCov">          1 :     swapAxes = msWCSSwapAxes20(srs_uri);</span>
+<span class="lineNum">    4687 </span>                :<span class="lineCov">          1 :     msFree(srs_uri);</span>
+<span class="lineNum">    4688 </span>                :            : 
+<span class="lineNum">    4689 </span>                :            :     /* Setup layer information  */
+<span class="lineNum">    4690 </span>                :<span class="lineCov">          1 :     msWCSCommon20_CreateBoundedBy(layer, &amp;tmpCm, psGmlNs, psRootNode, &amp;(map-&gt;projection), swapAxes);</span>
+<span class="lineNum">    4691 </span>                :<span class="lineCov">          1 :     msWCSCommon20_CreateDomainSet(layer, &amp;tmpCm, psGmlNs, psRootNode, &amp;(map-&gt;projection), swapAxes);</span>
+<span class="lineNum">    4692 </span>                :            : 
+<span class="lineNum">    4693 </span>                :<span class="lineCov">          1 :     psRangeSet = xmlNewChild(psRootNode, psGmlNs, BAD_CAST &quot;rangeSet&quot;, NULL);</span>
+<span class="lineNum">    4694 </span>                :<span class="lineCov">          1 :     psFile     = xmlNewChild(psRangeSet, psGmlNs, BAD_CAST &quot;File&quot;, NULL);</span>
+<span class="lineNum">    4695 </span>                :            : 
+<span class="lineNum">    4696 </span>                :            :     /* TODO: wait for updated specifications */
+<span class="lineNum">    4697 </span>                :<span class="lineCov">          1 :     psRangeParameters = xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;rangeParameters&quot;, NULL);</span>
+<span class="lineNum">    4698 </span>                :            : 
+<span class="lineNum">    4699 </span>                :<span class="lineCov">          1 :     default_filename = msStrdup(&quot;out.&quot;);</span>
+<span class="lineNum">    4700 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     default_filename = msStringConcatenate(default_filename, MS_IMAGE_EXTENSION(image-&gt;format));</span>
+<span class="lineNum">    4701 </span>                :            : 
+<span class="lineNum">    4702 </span>                :<span class="lineCov">          1 :     filename = msGetOutputFormatOption(image-&gt;format, &quot;FILENAME&quot;, default_filename);</span>
+<span class="lineNum">    4703 </span>                :<span class="lineCov">          1 :     length = strlen(&quot;cid:coverage/&quot;) + strlen(filename) + 1;</span>
+<span class="lineNum">    4704 </span>                :<span class="lineCov">          1 :     file_ref = msSmallMalloc(length);</span>
+<span class="lineNum">    4705 </span>                :<span class="lineCov">          1 :     strlcpy(file_ref, &quot;cid:coverage/&quot;, length);</span>
+<span class="lineNum">    4706 </span>                :<span class="lineCov">          1 :     strlcat(file_ref, filename, length);</span>
+<span class="lineNum">    4707 </span>                :<span class="lineCov">          1 :     msFree(default_filename);</span>
+<span class="lineNum">    4708 </span>                :            : 
+<span class="lineNum">    4709 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(EQUAL(MS_IMAGE_MIME_TYPE(map-&gt;outputformat), &quot;image/tiff&quot;)) {</span>
+<span class="lineNum">    4710 </span>                :            :       length = strlen(MS_WCS_20_PROFILE_GML_GEOTIFF) + 1;
+<span class="lineNum">    4711 </span>                :<span class="lineCov">          1 :       role = msSmallMalloc(length);</span>
+<span class="lineNum">    4712 </span>                :<span class="lineCov">          1 :       strlcpy(role, MS_WCS_20_PROFILE_GML_GEOTIFF, length);</span>
+<span class="lineNum">    4713 </span>                :            :     } else {
+<span class="lineNum">    4714 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       length = strlen(MS_IMAGE_MIME_TYPE(map-&gt;outputformat)) + 1;</span>
+<span class="lineNum">    4715 </span>                :<span class="lineCov">          1 :       role = msSmallMalloc(length);</span>
+<span class="lineNum">    4716 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       strlcpy(role, MS_IMAGE_MIME_TYPE(map-&gt;outputformat), length);</span>
+<span class="lineNum">    4717 </span>                :            :     }
+<span class="lineNum">    4718 </span>                :            : 
+<span class="lineNum">    4719 </span>                :<span class="lineCov">          1 :     xmlNewNsProp(psRangeParameters, psXLinkNs, BAD_CAST &quot;href&quot;, BAD_CAST file_ref);</span>
+<span class="lineNum">    4720 </span>                :<span class="lineCov">          1 :     xmlNewNsProp(psRangeParameters, psXLinkNs, BAD_CAST &quot;role&quot;, BAD_CAST role);</span>
+<span class="lineNum">    4721 </span>                :<span class="lineCov">          1 :     xmlNewNsProp(psRangeParameters, psXLinkNs, BAD_CAST &quot;arcrole&quot;, BAD_CAST &quot;fileReference&quot;);</span>
+<span class="lineNum">    4722 </span>                :            : 
+<span class="lineNum">    4723 </span>                :<span class="lineCov">          1 :     xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;fileReference&quot;, BAD_CAST file_ref);</span>
+<span class="lineNum">    4724 </span>                :<span class="lineCov">          1 :     xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;fileStructure&quot;, NULL);</span>
+<span class="lineNum">    4725 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;mimeType&quot;, BAD_CAST MS_IMAGE_MIME_TYPE(map-&gt;outputformat));</span>
 <span class="lineNum">    4726 </span>                :            : 
-<span class="lineNum">    4727 </span>                :<span class="lineCov">          1 :     msIO_setHeader(&quot;Content-Type&quot;,&quot;multipart/related; boundary=wcs&quot;);</span>
-<span class="lineNum">    4728 </span>                :<span class="lineCov">          1 :     msIO_sendHeaders();</span>
-<span class="lineNum">    4729 </span>                :<span class="lineCov">          1 :     msIO_printf(&quot;\r\n--wcs\r\n&quot;);</span>
-<span class="lineNum">    4730 </span>                :            : 
-<span class="lineNum">    4731 </span>                :<span class="lineCov">          1 :     msWCSWriteDocument20(map, psDoc);</span>
-<span class="lineNum">    4732 </span>                :<span class="lineCov">          1 :     msWCSWriteFile20(map, image, params, 1);</span>
-<span class="lineNum">    4733 </span>                :            : 
-<span class="lineNum">    4734 </span>                :<span class="lineCov">          1 :     msFree(file_ref);</span>
-<span class="lineNum">    4735 </span>                :<span class="lineCov">          1 :     msFree(role);</span>
-<span class="lineNum">    4736 </span>                :<span class="lineCov">          1 :     xmlFreeDoc(psDoc);</span>
-<span class="lineNum">    4737 </span>                :<span class="lineCov">          1 :     xmlCleanupParser();</span>
-<span class="lineNum">    4738 </span>                :            :   /* just print out the file without gml */
-<span class="lineNum">    4739 </span>                :            :   } else {
-<span class="lineNum">    4740 </span>                :<span class="lineCov">          1 :     msWCSWriteFile20(map, image, params, 0);</span>
-<span class="lineNum">    4741 </span>                :            :   }
-<span class="lineNum">    4742 </span>                :            : 
-<span class="lineNum">    4743 </span>                :<span class="lineCov">          1 :   msFree(bandlist);</span>
-<span class="lineNum">    4744 </span>                :<span class="lineCov">          1 :   msWCSClearCoverageMetadata20(&amp;cm);</span>
-<span class="lineNum">    4745 </span>                :<span class="lineCov">          1 :   msFreeImage(image);</span>
-<span class="lineNum">    4746 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    4747 </span>                :<span class="lineCov">          1 : }</span>
-<span class="lineNum">    4748 </span>                :            : 
-<span class="lineNum">    4749 </span>                :            : #endif /* defined(USE_LIBXML2) */
+<span class="lineNum">    4727 </span>                :<span class="lineCov">          1 :     msWCSCommon20_CreateRangeType(layer, &amp;cm, bandlist, psGmlNs, psGmlcovNs, psSweNs, psXLinkNs, psRootNode);</span>
+<span class="lineNum">    4728 </span>                :            : 
+<span class="lineNum">    4729 </span>                :<span class="lineCov">          1 :     msIO_setHeader(&quot;Content-Type&quot;,&quot;multipart/related; boundary=wcs&quot;);</span>
+<span class="lineNum">    4730 </span>                :<span class="lineCov">          1 :     msIO_sendHeaders();</span>
+<span class="lineNum">    4731 </span>                :<span class="lineCov">          1 :     msIO_printf(&quot;\r\n--wcs\r\n&quot;);</span>
+<span class="lineNum">    4732 </span>                :            : 
+<span class="lineNum">    4733 </span>                :<span class="lineCov">          1 :     msWCSWriteDocument20(map, psDoc);</span>
+<span class="lineNum">    4734 </span>                :<span class="lineCov">          1 :     msWCSWriteFile20(map, image, params, 1);</span>
+<span class="lineNum">    4735 </span>                :            : 
+<span class="lineNum">    4736 </span>                :<span class="lineCov">          1 :     msFree(file_ref);</span>
+<span class="lineNum">    4737 </span>                :<span class="lineCov">          1 :     msFree(role);</span>
+<span class="lineNum">    4738 </span>                :<span class="lineCov">          1 :     xmlFreeDoc(psDoc);</span>
+<span class="lineNum">    4739 </span>                :<span class="lineCov">          1 :     xmlCleanupParser();</span>
+<span class="lineNum">    4740 </span>                :            :   /* just print out the file without gml */
+<span class="lineNum">    4741 </span>                :            :   } else {
+<span class="lineNum">    4742 </span>                :<span class="lineCov">          1 :     msWCSWriteFile20(map, image, params, 0);</span>
+<span class="lineNum">    4743 </span>                :            :   }
+<span class="lineNum">    4744 </span>                :            : 
+<span class="lineNum">    4745 </span>                :<span class="lineCov">          1 :   msFree(bandlist);</span>
+<span class="lineNum">    4746 </span>                :<span class="lineCov">          1 :   msWCSClearCoverageMetadata20(&amp;cm);</span>
+<span class="lineNum">    4747 </span>                :<span class="lineCov">          1 :   msFreeImage(image);</span>
+<span class="lineNum">    4748 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    4749 </span>                :<span class="lineCov">          1 : }</span>
 <span class="lineNum">    4750 </span>                :            : 
-<span class="lineNum">    4751 </span>                :            : #endif /* defined(USE_WCS_SVR) */
+<span class="lineNum">    4751 </span>                :            : #endif /* defined(USE_LIBXML2) */
+<span class="lineNum">    4752 </span>                :            : 
+<span class="lineNum">    4753 </span>                :            : #endif /* defined(USE_WCS_SVR) */
 </pre>
       </td>
     </tr>
