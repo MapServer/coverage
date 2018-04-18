@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">176</td>
-            <td class="headerCovTableEntry">230</td>
-            <td class="headerCovTableEntryMed">76.5 %</td>
+            <td class="headerCovTableEntry">180</td>
+            <td class="headerCovTableEntry">234</td>
+            <td class="headerCovTableEntryMed">76.9 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -410,185 +410,191 @@
 <span class="lineNum">     320 </span>                :<span class="lineCov">          1 :   VectorTile__Tile mvt_tile = VECTOR_TILE__TILE__INIT;</span>
 <span class="lineNum">     321 </span>                :<span class="lineCov">          1 :   mvt_tile.layers = msSmallCalloc(map-&gt;numlayers,sizeof(VectorTile__Tile__Layer*));</span>
 <span class="lineNum">     322 </span>                :            : 
-<span class="lineNum">     323 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for( iLayer = 0; iLayer &lt; map-&gt;numlayers; iLayer++ ) {</span>
-<span class="lineNum">     324 </span>                :            :     int status=MS_SUCCESS;
-<span class="lineNum">     325 </span>                :<span class="lineCov">          1 :     layerObj *layer = GET_LAYER(map, iLayer);</span>
-<span class="lineNum">     326 </span>                :            :     int i;
-<span class="lineNum">     327 </span>                :            :     shapeObj shape;
-<span class="lineNum">     328 </span>                :            :     gmlItemListObj *item_list = NULL;
-<span class="lineNum">     329 </span>                :            :     VectorTile__Tile__Layer *mvt_layer;
-<span class="lineNum">     330 </span>                :<span class="lineCov">          1 :     value_lookup_table value_lookup_cache = {NULL};</span>
-<span class="lineNum">     331 </span>                :            :     value_lookup *cur_value_lookup, *tmp_value_lookup;
-<span class="lineNum">     332 </span>                :            :     rectObj rect;
-<span class="lineNum">     333 </span>                :            : 
-<span class="lineNum">     334 </span>                :            :     int features_size = 0;
-<span class="lineNum">     335 </span>                :            : 
-<span class="lineNum">     336 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(!msLayerIsVisible(map, layer)) continue;</span>
-<span class="lineNum">     337 </span>                :            : 
-<span class="lineNum">     338 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(layer-&gt;type != MS_LAYER_POINT &amp;&amp; layer-&gt;type != MS_LAYER_POLYGON &amp;&amp; layer-&gt;type != MS_LAYER_LINE)</span>
-<span class="lineNum">     339 </span>                :<span class="lineNoCov">          0 :       continue;</span>
-<span class="lineNum">     340 </span>                :            : 
-<span class="lineNum">     341 </span>                :<span class="lineCov">          1 :     status = msLayerOpen(layer);</span>
-<span class="lineNum">     342 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(status != MS_SUCCESS) {</span>
-<span class="lineNum">     343 </span>                :            :       retcode = status;
-<span class="lineNum">     344 </span>                :            :       goto layer_cleanup;
-<span class="lineNum">     345 </span>                :            :     }
+<span class="lineNum">     323 </span>                :            :   /* expand the map-&gt;extent so it goes from pixel center (MapServer) to pixel edge (OWS) */
+<span class="lineNum">     324 </span>                :<span class="lineCov">          1 :   map-&gt;extent.minx -= map-&gt;cellsize * 0.5;</span>
+<span class="lineNum">     325 </span>                :<span class="lineCov">          1 :   map-&gt;extent.maxx += map-&gt;cellsize * 0.5;</span>
+<span class="lineNum">     326 </span>                :<span class="lineCov">          1 :   map-&gt;extent.miny -= map-&gt;cellsize * 0.5;</span>
+<span class="lineNum">     327 </span>                :<span class="lineCov">          1 :   map-&gt;extent.maxy += map-&gt;cellsize * 0.5;</span>
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :   for( iLayer = 0; iLayer &lt; map-&gt;numlayers; iLayer++ ) {</span>
+<span class="lineNum">     330 </span>                :            :     int status=MS_SUCCESS;
+<span class="lineNum">     331 </span>                :<span class="lineCov">          1 :     layerObj *layer = GET_LAYER(map, iLayer);</span>
+<span class="lineNum">     332 </span>                :            :     int i;
+<span class="lineNum">     333 </span>                :            :     shapeObj shape;
+<span class="lineNum">     334 </span>                :            :     gmlItemListObj *item_list = NULL;
+<span class="lineNum">     335 </span>                :            :     VectorTile__Tile__Layer *mvt_layer;
+<span class="lineNum">     336 </span>                :<span class="lineCov">          1 :     value_lookup_table value_lookup_cache = {NULL};</span>
+<span class="lineNum">     337 </span>                :            :     value_lookup *cur_value_lookup, *tmp_value_lookup;
+<span class="lineNum">     338 </span>                :            :     rectObj rect;
+<span class="lineNum">     339 </span>                :            : 
+<span class="lineNum">     340 </span>                :            :     int features_size = 0;
+<span class="lineNum">     341 </span>                :            : 
+<span class="lineNum">     342 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(!msLayerIsVisible(map, layer)) continue;</span>
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(layer-&gt;type != MS_LAYER_POINT &amp;&amp; layer-&gt;type != MS_LAYER_POLYGON &amp;&amp; layer-&gt;type != MS_LAYER_LINE)</span>
+<span class="lineNum">     345 </span>                :<span class="lineNoCov">          0 :       continue;</span>
 <span class="lineNum">     346 </span>                :            : 
-<span class="lineNum">     347 </span>                :<span class="lineCov">          1 :     status = msLayerWhichItems(layer, MS_TRUE, NULL); /* we want all items - behaves like a query in that sense */</span>
+<span class="lineNum">     347 </span>                :<span class="lineCov">          1 :     status = msLayerOpen(layer);</span>
 <span class="lineNum">     348 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(status != MS_SUCCESS) {</span>
 <span class="lineNum">     349 </span>                :            :       retcode = status;
 <span class="lineNum">     350 </span>                :            :       goto layer_cleanup;
 <span class="lineNum">     351 </span>                :            :     }
 <span class="lineNum">     352 </span>                :            : 
-<span class="lineNum">     353 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     354 </span>                :            :     /*      Will we need to reproject?                                      */
-<span class="lineNum">     355 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     356 </span>                :<span class="lineCov">          1 :     layer-&gt;project = msProjectionsDiffer(&amp;(layer-&gt;projection), &amp;(map-&gt;projection));</span>
-<span class="lineNum">     357 </span>                :            : 
-<span class="lineNum">     358 </span>                :<span class="lineCov">          1 :     rect = map-&gt;extent;</span>
-<span class="lineNum">     359 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(layer-&gt;project) msProjectRect(&amp;(map-&gt;projection), &amp;(layer-&gt;projection), &amp;rect);</span>
-<span class="lineNum">     360 </span>                :            : 
-<span class="lineNum">     361 </span>                :<span class="lineCov">          1 :     status = msLayerWhichShapes(layer, rect, MS_TRUE);</span>
-<span class="lineNum">     362 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(status == MS_DONE) { /* no overlap - that's ok */</span>
-<span class="lineNum">     363 </span>                :            :       retcode = MS_SUCCESS;
-<span class="lineNum">     364 </span>                :            :       goto layer_cleanup;
-<span class="lineNum">     365 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     } else if(status != MS_SUCCESS) {</span>
-<span class="lineNum">     366 </span>                :            :       retcode = status;
-<span class="lineNum">     367 </span>                :            :       goto layer_cleanup;
-<span class="lineNum">     368 </span>                :            :     }
-<span class="lineNum">     369 </span>                :            : 
-<span class="lineNum">     370 </span>                :<span class="lineCov">          1 :     mvt_tile.layers[mvt_tile.n_layers++] = msSmallMalloc(sizeof(VectorTile__Tile__Layer));</span>
-<span class="lineNum">     371 </span>                :<span class="lineCov">          1 :     mvt_layer = mvt_tile.layers[mvt_tile.n_layers-1];</span>
-<span class="lineNum">     372 </span>                :<span class="lineCov">          1 :     vector_tile__tile__layer__init(mvt_layer);</span>
-<span class="lineNum">     373 </span>                :<span class="lineCov">          1 :     mvt_layer-&gt;version = 2;</span>
-<span class="lineNum">     374 </span>                :<span class="lineCov">          1 :     mvt_layer-&gt;name = layer-&gt;name;</span>
-<span class="lineNum">     375 </span>                :<span class="lineCov">          1 :     mvt_buffer = msGetOutputFormatOption(map-&gt;outputformat, &quot;EXTENT&quot;, &quot;4096&quot;);</span>
-<span class="lineNum">     376 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     mvt_layer-&gt;extent = MS_ABS(atoi(mvt_buffer));</span>
-<span class="lineNum">     377 </span>                :<span class="lineCov">          1 :     mvt_layer-&gt;has_extent = 1;</span>
-<span class="lineNum">     378 </span>                :            : 
-<span class="lineNum">     379 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     380 </span>                :            :     /*      Create appropriate attributes on this layer.                    */
-<span class="lineNum">     381 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     382 </span>                :<span class="lineCov">          1 :     item_list = msGMLGetItems( layer, &quot;G&quot; );</span>
-<span class="lineNum">     383 </span>                :            :     assert( item_list-&gt;numitems == layer-&gt;numitems );
+<span class="lineNum">     353 </span>                :<span class="lineCov">          1 :     status = msLayerWhichItems(layer, MS_TRUE, NULL); /* we want all items - behaves like a query in that sense */</span>
+<span class="lineNum">     354 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(status != MS_SUCCESS) {</span>
+<span class="lineNum">     355 </span>                :            :       retcode = status;
+<span class="lineNum">     356 </span>                :            :       goto layer_cleanup;
+<span class="lineNum">     357 </span>                :            :     }
+<span class="lineNum">     358 </span>                :            : 
+<span class="lineNum">     359 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     360 </span>                :            :     /*      Will we need to reproject?                                      */
+<span class="lineNum">     361 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     362 </span>                :<span class="lineCov">          1 :     layer-&gt;project = msProjectionsDiffer(&amp;(layer-&gt;projection), &amp;(map-&gt;projection));</span>
+<span class="lineNum">     363 </span>                :            : 
+<span class="lineNum">     364 </span>                :<span class="lineCov">          1 :     rect = map-&gt;extent;</span>
+<span class="lineNum">     365 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(layer-&gt;project) msProjectRect(&amp;(map-&gt;projection), &amp;(layer-&gt;projection), &amp;rect);</span>
+<span class="lineNum">     366 </span>                :            : 
+<span class="lineNum">     367 </span>                :<span class="lineCov">          1 :     status = msLayerWhichShapes(layer, rect, MS_TRUE);</span>
+<span class="lineNum">     368 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(status == MS_DONE) { /* no overlap - that's ok */</span>
+<span class="lineNum">     369 </span>                :            :       retcode = MS_SUCCESS;
+<span class="lineNum">     370 </span>                :            :       goto layer_cleanup;
+<span class="lineNum">     371 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     } else if(status != MS_SUCCESS) {</span>
+<span class="lineNum">     372 </span>                :            :       retcode = status;
+<span class="lineNum">     373 </span>                :            :       goto layer_cleanup;
+<span class="lineNum">     374 </span>                :            :     }
+<span class="lineNum">     375 </span>                :            : 
+<span class="lineNum">     376 </span>                :<span class="lineCov">          1 :     mvt_tile.layers[mvt_tile.n_layers++] = msSmallMalloc(sizeof(VectorTile__Tile__Layer));</span>
+<span class="lineNum">     377 </span>                :<span class="lineCov">          1 :     mvt_layer = mvt_tile.layers[mvt_tile.n_layers-1];</span>
+<span class="lineNum">     378 </span>                :<span class="lineCov">          1 :     vector_tile__tile__layer__init(mvt_layer);</span>
+<span class="lineNum">     379 </span>                :<span class="lineCov">          1 :     mvt_layer-&gt;version = 2;</span>
+<span class="lineNum">     380 </span>                :<span class="lineCov">          1 :     mvt_layer-&gt;name = layer-&gt;name;</span>
+<span class="lineNum">     381 </span>                :<span class="lineCov">          1 :     mvt_buffer = msGetOutputFormatOption(map-&gt;outputformat, &quot;EXTENT&quot;, &quot;4096&quot;);</span>
+<span class="lineNum">     382 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     mvt_layer-&gt;extent = MS_ABS(atoi(mvt_buffer));</span>
+<span class="lineNum">     383 </span>                :<span class="lineCov">          1 :     mvt_layer-&gt;has_extent = 1;</span>
 <span class="lineNum">     384 </span>                :            : 
-<span class="lineNum">     385 </span>                :<span class="lineCov">          1 :     mvt_layer-&gt;keys = msSmallMalloc(layer-&gt;numitems * sizeof(char*));</span>
-<span class="lineNum">     386 </span>                :            : 
-<span class="lineNum">     387 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = 0; i &lt; layer-&gt;numitems; i++ ) {</span>
-<span class="lineNum">     388 </span>                :<span class="lineCov">          1 :       gmlItemObj *item = item_list-&gt;items + i;</span>
-<span class="lineNum">     389 </span>                :            : 
-<span class="lineNum">     390 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( !item-&gt;visible )</span>
-<span class="lineNum">     391 </span>                :<span class="lineNoCov">          0 :         continue;</span>
+<span class="lineNum">     385 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     386 </span>                :            :     /*      Create appropriate attributes on this layer.                    */
+<span class="lineNum">     387 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     388 </span>                :<span class="lineCov">          1 :     item_list = msGMLGetItems( layer, &quot;G&quot; );</span>
+<span class="lineNum">     389 </span>                :            :     assert( item_list-&gt;numitems == layer-&gt;numitems );
+<span class="lineNum">     390 </span>                :            : 
+<span class="lineNum">     391 </span>                :<span class="lineCov">          1 :     mvt_layer-&gt;keys = msSmallMalloc(layer-&gt;numitems * sizeof(char*));</span>
 <span class="lineNum">     392 </span>                :            : 
-<span class="lineNum">     393 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( item-&gt;alias )</span>
-<span class="lineNum">     394 </span>                :<span class="lineNoCov">          0 :         mvt_layer-&gt;keys[mvt_layer-&gt;n_keys++] = msStrdup(item-&gt;alias);</span>
-<span class="lineNum">     395 </span>                :            :       else
-<span class="lineNum">     396 </span>                :<span class="lineCov">          1 :         mvt_layer-&gt;keys[mvt_layer-&gt;n_keys++] = msStrdup(item-&gt;name);</span>
-<span class="lineNum">     397 </span>                :            :     }
+<span class="lineNum">     393 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     for( i = 0; i &lt; layer-&gt;numitems; i++ ) {</span>
+<span class="lineNum">     394 </span>                :<span class="lineCov">          1 :       gmlItemObj *item = item_list-&gt;items + i;</span>
+<span class="lineNum">     395 </span>                :            : 
+<span class="lineNum">     396 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( !item-&gt;visible )</span>
+<span class="lineNum">     397 </span>                :<span class="lineNoCov">          0 :         continue;</span>
 <span class="lineNum">     398 </span>                :            : 
-<span class="lineNum">     399 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     400 </span>                :            :     /*      Setup joins if needed.  This is likely untested.                */
-<span class="lineNum">     401 </span>                :            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     402 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(layer-&gt;numjoins &gt; 0) {</span>
-<span class="lineNum">     403 </span>                :            :       int j;
-<span class="lineNum">     404 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(j=0; j&lt;layer-&gt;numjoins; j++) {</span>
-<span class="lineNum">     405 </span>                :<span class="lineNoCov">          0 :         status = msJoinConnect(layer, &amp;(layer-&gt;joins[j]));</span>
-<span class="lineNum">     406 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(status != MS_SUCCESS) {</span>
-<span class="lineNum">     407 </span>                :            :           retcode = status;
-<span class="lineNum">     408 </span>                :            :           goto layer_cleanup;
-<span class="lineNum">     409 </span>                :            :         }
-<span class="lineNum">     410 </span>                :            :       }
-<span class="lineNum">     411 </span>                :            :     }
-<span class="lineNum">     412 </span>                :            : 
-<span class="lineNum">     413 </span>                :<span class="lineCov">          1 :     mvt_layer-&gt;features = msSmallCalloc(FEATURES_INCREMENT_SIZE, sizeof(VectorTile__Tile__Feature*));</span>
-<span class="lineNum">     414 </span>                :            :     features_size = FEATURES_INCREMENT_SIZE;
-<span class="lineNum">     415 </span>                :            : 
-<span class="lineNum">     416 </span>                :<span class="lineCov">          1 :     msInitShape(&amp;shape);</span>
-<span class="lineNum">     417 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     while((status = msLayerNextShape(layer, &amp;shape)) == MS_SUCCESS) {</span>
-<span class="lineNum">     418 </span>                :            :       
-<span class="lineNum">     419 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(layer-&gt;numclasses &gt; 0) {</span>
-<span class="lineNum">     420 </span>                :<span class="lineCov">          1 :         shape.classindex = msShapeGetClass(layer, map, &amp;shape, NULL, -1); /* Perform classification, and some annotation related magic. */</span>
-<span class="lineNum">     421 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if(shape.classindex &lt; 0)</span>
-<span class="lineNum">     422 </span>                :            :           goto feature_cleanup; /* no matching CLASS found, skip this feature */
-<span class="lineNum">     423 </span>                :            :       }
-<span class="lineNum">     424 </span>                :            : 
-<span class="lineNum">     425 </span>                :            :       /*
-<span class="lineNum">     426 </span>                :            :       ** prepare any necessary JOINs here (one-to-one only)
-<span class="lineNum">     427 </span>                :            :       */
-<span class="lineNum">     428 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( layer-&gt;numjoins &gt; 0) {</span>
-<span class="lineNum">     429 </span>                :            :         int j;
+<span class="lineNum">     399 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( item-&gt;alias )</span>
+<span class="lineNum">     400 </span>                :<span class="lineNoCov">          0 :         mvt_layer-&gt;keys[mvt_layer-&gt;n_keys++] = msStrdup(item-&gt;alias);</span>
+<span class="lineNum">     401 </span>                :            :       else
+<span class="lineNum">     402 </span>                :<span class="lineCov">          1 :         mvt_layer-&gt;keys[mvt_layer-&gt;n_keys++] = msStrdup(item-&gt;name);</span>
+<span class="lineNum">     403 </span>                :            :     }
+<span class="lineNum">     404 </span>                :            : 
+<span class="lineNum">     405 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     406 </span>                :            :     /*      Setup joins if needed.  This is likely untested.                */
+<span class="lineNum">     407 </span>                :            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     408 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :     if(layer-&gt;numjoins &gt; 0) {</span>
+<span class="lineNum">     409 </span>                :            :       int j;
+<span class="lineNum">     410 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(j=0; j&lt;layer-&gt;numjoins; j++) {</span>
+<span class="lineNum">     411 </span>                :<span class="lineNoCov">          0 :         status = msJoinConnect(layer, &amp;(layer-&gt;joins[j]));</span>
+<span class="lineNum">     412 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if(status != MS_SUCCESS) {</span>
+<span class="lineNum">     413 </span>                :            :           retcode = status;
+<span class="lineNum">     414 </span>                :            :           goto layer_cleanup;
+<span class="lineNum">     415 </span>                :            :         }
+<span class="lineNum">     416 </span>                :            :       }
+<span class="lineNum">     417 </span>                :            :     }
+<span class="lineNum">     418 </span>                :            : 
+<span class="lineNum">     419 </span>                :<span class="lineCov">          1 :     mvt_layer-&gt;features = msSmallCalloc(FEATURES_INCREMENT_SIZE, sizeof(VectorTile__Tile__Feature*));</span>
+<span class="lineNum">     420 </span>                :            :     features_size = FEATURES_INCREMENT_SIZE;
+<span class="lineNum">     421 </span>                :            : 
+<span class="lineNum">     422 </span>                :<span class="lineCov">          1 :     msInitShape(&amp;shape);</span>
+<span class="lineNum">     423 </span>        [<span class="branchCov" title="Branch 1 was taken X times"> + </span><span class="branchCov" title="Branch 2 was taken X times"> + </span>]:<span class="lineCov">          1 :     while((status = msLayerNextShape(layer, &amp;shape)) == MS_SUCCESS) {</span>
+<span class="lineNum">     424 </span>                :            :       
+<span class="lineNum">     425 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(layer-&gt;numclasses &gt; 0) {</span>
+<span class="lineNum">     426 </span>                :<span class="lineCov">          1 :         shape.classindex = msShapeGetClass(layer, map, &amp;shape, NULL, -1); /* Perform classification, and some annotation related magic. */</span>
+<span class="lineNum">     427 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if(shape.classindex &lt; 0)</span>
+<span class="lineNum">     428 </span>                :            :           goto feature_cleanup; /* no matching CLASS found, skip this feature */
+<span class="lineNum">     429 </span>                :            :       }
 <span class="lineNum">     430 </span>                :            : 
-<span class="lineNum">     431 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for(j=0; j &lt; layer-&gt;numjoins; j++) {</span>
-<span class="lineNum">     432 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(layer-&gt;joins[j].type == MS_JOIN_ONE_TO_ONE) {</span>
-<span class="lineNum">     433 </span>                :<span class="lineNoCov">          0 :             msJoinPrepare(&amp;(layer-&gt;joins[j]), &amp;shape);</span>
-<span class="lineNum">     434 </span>                :<span class="lineNoCov">          0 :             msJoinNext(&amp;(layer-&gt;joins[j])); /* fetch the first row */</span>
-<span class="lineNum">     435 </span>                :            :           }
-<span class="lineNum">     436 </span>                :            :         }
-<span class="lineNum">     437 </span>                :            :       }
-<span class="lineNum">     438 </span>                :            : 
-<span class="lineNum">     439 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(mvt_layer-&gt;n_features == features_size) { /* need to allocate more space */</span>
-<span class="lineNum">     440 </span>                :<span class="lineCov">          1 :         features_size += FEATURES_INCREMENT_SIZE;</span>
-<span class="lineNum">     441 </span>                :<span class="lineCov">          1 :         mvt_layer-&gt;features = msSmallRealloc(mvt_layer-&gt;features, sizeof(VectorTile__Tile__Feature*)*(features_size));</span>
-<span class="lineNum">     442 </span>                :            :       }
-<span class="lineNum">     443 </span>                :            : 
-<span class="lineNum">     444 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( layer-&gt;project ) {</span>
-<span class="lineNum">     445 </span>                :<span class="lineCov">          1 :         status = msProjectShape(&amp;layer-&gt;projection, &amp;layer-&gt;map-&gt;projection, &amp;shape);</span>
-<span class="lineNum">     446 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       }      if( status == MS_SUCCESS ) {</span>
-<span class="lineNum">     447 </span>                :<span class="lineCov">          1 :         status = mvtWriteShape( layer, &amp;shape, mvt_layer, item_list, &amp;value_lookup_cache, &amp;map-&gt;extent, buffer );</span>
+<span class="lineNum">     431 </span>                :            :       /*
+<span class="lineNum">     432 </span>                :            :       ** prepare any necessary JOINs here (one-to-one only)
+<span class="lineNum">     433 </span>                :            :       */
+<span class="lineNum">     434 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if( layer-&gt;numjoins &gt; 0) {</span>
+<span class="lineNum">     435 </span>                :            :         int j;
+<span class="lineNum">     436 </span>                :            : 
+<span class="lineNum">     437 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for(j=0; j &lt; layer-&gt;numjoins; j++) {</span>
+<span class="lineNum">     438 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(layer-&gt;joins[j].type == MS_JOIN_ONE_TO_ONE) {</span>
+<span class="lineNum">     439 </span>                :<span class="lineNoCov">          0 :             msJoinPrepare(&amp;(layer-&gt;joins[j]), &amp;shape);</span>
+<span class="lineNum">     440 </span>                :<span class="lineNoCov">          0 :             msJoinNext(&amp;(layer-&gt;joins[j])); /* fetch the first row */</span>
+<span class="lineNum">     441 </span>                :            :           }
+<span class="lineNum">     442 </span>                :            :         }
+<span class="lineNum">     443 </span>                :            :       }
+<span class="lineNum">     444 </span>                :            : 
+<span class="lineNum">     445 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchCov" title="Branch 1 was taken X times"> + </span>]:<span class="lineCov">          1 :       if(mvt_layer-&gt;n_features == features_size) { /* need to allocate more space */</span>
+<span class="lineNum">     446 </span>                :<span class="lineCov">          1 :         features_size += FEATURES_INCREMENT_SIZE;</span>
+<span class="lineNum">     447 </span>                :<span class="lineCov">          1 :         mvt_layer-&gt;features = msSmallRealloc(mvt_layer-&gt;features, sizeof(VectorTile__Tile__Feature*)*(features_size));</span>
 <span class="lineNum">     448 </span>                :            :       }
 <span class="lineNum">     449 </span>                :            : 
-<span class="lineNum">     450 </span>                :            :       feature_cleanup:
-<span class="lineNum">     451 </span>                :<span class="lineCov">          1 :       msFreeShape(&amp;shape);</span>
-<span class="lineNum">     452 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(retcode != MS_SUCCESS) goto layer_cleanup;</span>
-<span class="lineNum">     453 </span>                :            :     } /* next shape */
-<span class="lineNum">     454 </span>                :            :     layer_cleanup:
-<span class="lineNum">     455 </span>                :<span class="lineCov">          1 :     msLayerClose(layer);</span>
-<span class="lineNum">     456 </span>                :<span class="lineCov">          1 :     msGMLFreeItems(item_list);</span>
-<span class="lineNum">     457 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     UT_HASH_ITER(hh, value_lookup_cache.cache, cur_value_lookup, tmp_value_lookup) {</span>
+<span class="lineNum">     450 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if( layer-&gt;project ) {</span>
+<span class="lineNum">     451 </span>                :<span class="lineCov">          1 :         status = msProjectShape(&amp;layer-&gt;projection, &amp;layer-&gt;map-&gt;projection, &amp;shape);</span>
+<span class="lineNum">     452 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       }      if( status == MS_SUCCESS ) {</span>
+<span class="lineNum">     453 </span>                :<span class="lineCov">          1 :         status = mvtWriteShape( layer, &amp;shape, mvt_layer, item_list, &amp;value_lookup_cache, &amp;map-&gt;extent, buffer );</span>
+<span class="lineNum">     454 </span>                :            :       }
+<span class="lineNum">     455 </span>                :            : 
+<span class="lineNum">     456 </span>                :            :       feature_cleanup:
+<span class="lineNum">     457 </span>                :<span class="lineCov">          1 :       msFreeShape(&amp;shape);</span>
+<span class="lineNum">     458 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :       if(retcode != MS_SUCCESS) goto layer_cleanup;</span>
+<span class="lineNum">     459 </span>                :            :     } /* next shape */
+<span class="lineNum">     460 </span>                :            :     layer_cleanup:
+<span class="lineNum">     461 </span>                :<span class="lineCov">          1 :     msLayerClose(layer);</span>
+<span class="lineNum">     462 </span>                :<span class="lineCov">          1 :     msGMLFreeItems(item_list);</span>
+<span class="lineNum">     463 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :     UT_HASH_ITER(hh, value_lookup_cache.cache, cur_value_lookup, tmp_value_lookup) {</span>
 <span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken X times"> + </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>]
-<span class="lineNum">     458 </span>                :<span class="lineCov">          1 :       msFree(cur_value_lookup-&gt;value);</span>
-<span class="lineNum">     459 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       UT_HASH_DEL(value_lookup_cache.cache,cur_value_lookup);</span>
+<span class="lineNum">     464 </span>                :<span class="lineCov">          1 :       msFree(cur_value_lookup-&gt;value);</span>
+<span class="lineNum">     465 </span>[<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken X times"> + </span><span class="branchCov" title="Branch 3 was taken X times"> + </span>]:<span class="lineCov">          1 :       UT_HASH_DEL(value_lookup_cache.cache,cur_value_lookup);</span>
 <span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken X times"> + </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken X times"> + </span>]
 <span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken X times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken X times"> + </span><span class="branchCov" title="Branch 11 was taken X times"> + </span>]
 <span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken X times"> + </span><span class="branchCov" title="Branch 13 was taken X times"> + </span>][<span class="branchCov" title="Branch 14 was taken X times"> + </span><span class="branchCov" title="Branch 15 was taken X times"> + </span>]
-<span class="lineNum">     460 </span>                :<span class="lineCov">          1 :       msFree(cur_value_lookup);</span>
-<span class="lineNum">     461 </span>                :            :     }
-<span class="lineNum">     462 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(retcode != MS_SUCCESS) goto cleanup;</span>
-<span class="lineNum">     463 </span>                :            :   } /* next layer */
-<span class="lineNum">     464 </span>                :            : 
-<span class="lineNum">     465 </span>                :<span class="lineCov">          1 :   len = vector_tile__tile__get_packed_size(&amp;mvt_tile); // This is the calculated packing length</span>
-<span class="lineNum">     466 </span>                :            : 
-<span class="lineNum">     467 </span>                :<span class="lineCov">          1 :   buf = msSmallMalloc(len); // Allocate memory</span>
-<span class="lineNum">     468 </span>                :<span class="lineCov">          1 :   vector_tile__tile__pack(&amp;mvt_tile, buf);</span>
-<span class="lineNum">     469 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( sendheaders ) {</span>
-<span class="lineNum">     470 </span>                :<span class="lineCov">          1 :     msIO_fprintf( stdout,</span>
-<span class="lineNum">     471 </span>                :            :       &quot;Content-Length: %d\r\n&quot;
-<span class="lineNum">     472 </span>                :            :       &quot;Content-Type: application/x-protobuf\r\n\r\n&quot;,
-<span class="lineNum">     473 </span>                :            :                   len);
-<span class="lineNum">     474 </span>                :            :   }
-<span class="lineNum">     475 </span>                :<span class="lineCov">          1 :   msIO_fwrite(buf,len,1,stdout);</span>
-<span class="lineNum">     476 </span>                :<span class="lineCov">          1 :   msFree(buf);</span>
-<span class="lineNum">     477 </span>                :            : 
-<span class="lineNum">     478 </span>                :            :   cleanup:
-<span class="lineNum">     479 </span>                :            :   freeMvtTile(&amp;mvt_tile);
-<span class="lineNum">     480 </span>                :            : 
-<span class="lineNum">     481 </span>                :<span class="lineCov">          1 :   return retcode;</span>
-<a name="482"><span class="lineNum">     482 </span>                :            : }</a>
+<span class="lineNum">     466 </span>                :<span class="lineCov">          1 :       msFree(cur_value_lookup);</span>
+<span class="lineNum">     467 </span>                :            :     }
+<span class="lineNum">     468 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(retcode != MS_SUCCESS) goto cleanup;</span>
+<span class="lineNum">     469 </span>                :            :   } /* next layer */
+<span class="lineNum">     470 </span>                :            : 
+<span class="lineNum">     471 </span>                :<span class="lineCov">          1 :   len = vector_tile__tile__get_packed_size(&amp;mvt_tile); // This is the calculated packing length</span>
+<span class="lineNum">     472 </span>                :            : 
+<span class="lineNum">     473 </span>                :<span class="lineCov">          1 :   buf = msSmallMalloc(len); // Allocate memory</span>
+<span class="lineNum">     474 </span>                :<span class="lineCov">          1 :   vector_tile__tile__pack(&amp;mvt_tile, buf);</span>
+<span class="lineNum">     475 </span>        [<span class="branchCov" title="Branch 0 was taken X times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   if( sendheaders ) {</span>
+<span class="lineNum">     476 </span>                :<span class="lineCov">          1 :     msIO_fprintf( stdout,</span>
+<span class="lineNum">     477 </span>                :            :       &quot;Content-Length: %d\r\n&quot;
+<span class="lineNum">     478 </span>                :            :       &quot;Content-Type: application/x-protobuf\r\n\r\n&quot;,
+<span class="lineNum">     479 </span>                :            :                   len);
+<span class="lineNum">     480 </span>                :            :   }
+<span class="lineNum">     481 </span>                :<span class="lineCov">          1 :   msIO_fwrite(buf,len,1,stdout);</span>
+<span class="lineNum">     482 </span>                :<span class="lineCov">          1 :   msFree(buf);</span>
 <span class="lineNum">     483 </span>                :            : 
-<span class="lineNum">     484 </span>                :<span class="lineCov">          1 : int msPopulateRendererVTableMVT(rendererVTableObj * renderer) {</span>
-<span class="lineNum">     485 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     486 </span>                :<span class="lineCov">          1 : }</span>
-<span class="lineNum">     487 </span>                :            : #else
-<span class="lineNum">     488 </span>                :            : int msPopulateRendererVTableMVT(rendererVTableObj * renderer) {
-<span class="lineNum">     489 </span>                :            :   msSetError(MS_MISCERR, &quot;Vector Tile Driver requested but support is not compiled in&quot;, &quot;msPopulateRendererVTableMVT()&quot;);
-<span class="lineNum">     490 </span>                :            :   return MS_FAILURE;
-<span class="lineNum">     491 </span>                :            : }
-<span class="lineNum">     492 </span>                :            : 
-<span class="lineNum">     493 </span>                :            : int msMVTWriteTile( mapObj *map, int sendheaders ) {
-<span class="lineNum">     494 </span>                :            :   msSetError(MS_MISCERR, &quot;Vector Tile support is not available.&quot;, &quot;msMVTWriteTile()&quot;);
-<span class="lineNum">     495 </span>                :            :   return MS_FAILURE;
-<span class="lineNum">     496 </span>                :            : }
-<span class="lineNum">     497 </span>                :            : #endif
+<span class="lineNum">     484 </span>                :            :   cleanup:
+<span class="lineNum">     485 </span>                :            :   freeMvtTile(&amp;mvt_tile);
+<span class="lineNum">     486 </span>                :            : 
+<span class="lineNum">     487 </span>                :<span class="lineCov">          1 :   return retcode;</span>
+<a name="488"><span class="lineNum">     488 </span>                :            : }</a>
+<span class="lineNum">     489 </span>                :            : 
+<span class="lineNum">     490 </span>                :<span class="lineCov">          1 : int msPopulateRendererVTableMVT(rendererVTableObj * renderer) {</span>
+<span class="lineNum">     491 </span>                :<span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     492 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     493 </span>                :            : #else
+<span class="lineNum">     494 </span>                :            : int msPopulateRendererVTableMVT(rendererVTableObj * renderer) {
+<span class="lineNum">     495 </span>                :            :   msSetError(MS_MISCERR, &quot;Vector Tile Driver requested but support is not compiled in&quot;, &quot;msPopulateRendererVTableMVT()&quot;);
+<span class="lineNum">     496 </span>                :            :   return MS_FAILURE;
+<span class="lineNum">     497 </span>                :            : }
+<span class="lineNum">     498 </span>                :            : 
+<span class="lineNum">     499 </span>                :            : int msMVTWriteTile( mapObj *map, int sendheaders ) {
+<span class="lineNum">     500 </span>                :            :   msSetError(MS_MISCERR, &quot;Vector Tile support is not available.&quot;, &quot;msMVTWriteTile()&quot;);
+<span class="lineNum">     501 </span>                :            :   return MS_FAILURE;
+<span class="lineNum">     502 </span>                :            : }
+<span class="lineNum">     503 </span>                :            : #endif
 </pre>
       </td>
     </tr>
