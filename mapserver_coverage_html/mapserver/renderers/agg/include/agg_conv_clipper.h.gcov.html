@@ -1,0 +1,375 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - mapserver/renderers/agg/include/agg_conv_clipper.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">mapserver/renderers/agg/include</a> - agg_conv_clipper.h<span style="font-size: 80%;"> (source / <a href="agg_conv_clipper.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">72</td>
+            <td class="headerCovTableEntry">90</td>
+            <td class="headerCovTableEntryMed">80.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*******************************************************************************</a>
+<span class="lineNum">       2 </span>            : *                                                                              *
+<span class="lineNum">       3 </span>            : * Author    :  Angus Johnson                                                   *
+<span class="lineNum">       4 </span>            : * Version   :  1.1                                                             *
+<span class="lineNum">       5 </span>            : * Date      :  4 April 2011                                                    *
+<span class="lineNum">       6 </span>            : * Website   :  http://www.angusj.com                                           *
+<span class="lineNum">       7 </span>            : * Copyright :  Angus Johnson 2010-2011                                         *
+<span class="lineNum">       8 </span>            : *                                                                              *
+<span class="lineNum">       9 </span>            : * License:                                                                     *
+<span class="lineNum">      10 </span>            : * Use, modification &amp; distribution is subject to Boost Software License Ver 1. *
+<span class="lineNum">      11 </span>            : * http://www.boost.org/LICENSE_1_0.txt                                         *
+<span class="lineNum">      12 </span>            : *                                                                              *
+<span class="lineNum">      13 </span>            : *******************************************************************************/
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #ifndef AGG_CONV_CLIPPER_INCLUDED
+<span class="lineNum">      16 </span>            : #define AGG_CONV_CLIPPER_INCLUDED
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #if defined(_MSC_VER) &amp;&amp; (_MSC_VER &gt;= 1800)
+<span class="lineNum">      19 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">      20 </span>            : #endif
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : #include &lt;cmath&gt;
+<span class="lineNum">      23 </span>            : #include &quot;agg_basics.h&quot;
+<span class="lineNum">      24 </span>            : #include &quot;agg_array.h&quot;
+<span class="lineNum">      25 </span>            : #include &quot;clipper.hpp&quot;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : namespace mapserver
+<span class="lineNum">      28 </span>            : {
+<span class="lineNum">      29 </span>            :   enum clipper_op_e { clipper_or,
+<span class="lineNum">      30 </span>            :     clipper_and, clipper_xor, clipper_a_minus_b, clipper_b_minus_a };
+<span class="lineNum">      31 </span>            :   enum clipper_PolyFillType {clipper_even_odd, clipper_non_zero, clipper_positive, clipper_negative};
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            :   template&lt;class VSA, class VSB&gt; class conv_clipper
+<span class="lineNum">      34 </span>            :   {
+<span class="lineNum">      35 </span>            :     enum status { status_move_to, status_line_to, status_stop };
+<span class="lineNum">      36 </span>            :     typedef VSA source_a_type;
+<span class="lineNum">      37 </span>            :     typedef VSB source_b_type;
+<span class="lineNum">      38 </span>            :     typedef conv_clipper&lt;source_a_type, source_b_type&gt; self_type;
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            :   private:
+<span class="lineNum">      41 </span>            :     source_a_type*              m_src_a;
+<span class="lineNum">      42 </span>            :     source_b_type*              m_src_b;
+<span class="lineNum">      43 </span>            :     status                  m_status;
+<span class="lineNum">      44 </span>            :     int                   m_vertex;
+<span class="lineNum">      45 </span>            :     int                   m_contour;
+<span class="lineNum">      46 </span>            :   int                   m_scaling_factor;
+<span class="lineNum">      47 </span>            :     clipper_op_e              m_operation;
+<span class="lineNum">      48 </span>            :     pod_bvector&lt;ClipperLib::IntPoint, 8&gt;    m_vertex_accumulator;
+<span class="lineNum">      49 </span>            :     ClipperLib::Polygons            m_poly_a;
+<span class="lineNum">      50 </span>            :     ClipperLib::Polygons            m_poly_b;
+<span class="lineNum">      51 </span>            :     ClipperLib::Polygons            m_result;
+<span class="lineNum">      52 </span>            :     ClipperLib::Clipper           m_clipper;
+<span class="lineNum">      53 </span>            :     clipper_PolyFillType          m_subjFillType;
+<span class="lineNum">      54 </span>            :     clipper_PolyFillType          m_clipFillType;
+<span class="lineNum">      55 </span>            : 
+<a name="56"><span class="lineNum">      56 </span>            :     int Round(double val)</a>
+<span class="lineNum">      57 </span>            :     {
+<span class="lineNum">      58 </span><span class="lineCov">          1 :     if ((val &lt; 0)) return (int)(val - 0.5); else return (int)(val + 0.5);</span>
+<span class="lineNum">      59 </span>            :     }
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            :   public:
+<span class="lineNum">      62 </span><span class="lineCov">          1 :     conv_clipper(source_a_type &amp;a, source_b_type &amp;b,</span>
+<span class="lineNum">      63 </span>            :       clipper_op_e op = clipper_or,
+<span class="lineNum">      64 </span>            :       clipper_PolyFillType subjFillType = clipper_even_odd,
+<span class="lineNum">      65 </span>            :       clipper_PolyFillType clipFillType = clipper_even_odd,
+<span class="lineNum">      66 </span>            :     int scaling_factor = 2) :
+<span class="lineNum">      67 </span>            :         m_src_a(&amp;a),
+<span class="lineNum">      68 </span>            :         m_src_b(&amp;b),
+<span class="lineNum">      69 </span>            :         m_status(status_move_to),
+<span class="lineNum">      70 </span>            :         m_vertex(-1),
+<span class="lineNum">      71 </span>            :         m_contour(-1),
+<span class="lineNum">      72 </span>            :         m_operation(op),
+<span class="lineNum">      73 </span>            :         m_subjFillType(subjFillType),
+<span class="lineNum">      74 </span><span class="lineCov">          1 :         m_clipFillType(clipFillType)</span>
+<span class="lineNum">      75 </span>            :     {
+<span class="lineNum">      76 </span><span class="lineCov">          1 :     m_scaling_factor = std::max(std::min(scaling_factor, 6),0);</span>
+<span class="lineNum">      77 </span><span class="lineCov">          1 :     m_scaling_factor = Round(std::pow((double)10, m_scaling_factor));</span>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">          1 :   }</span></a>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span><span class="lineCov">          1 :     ~conv_clipper()</span>
+<span class="lineNum">      81 </span>            :     {
+<span class="lineNum">      82 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            :     void attach1(VSA &amp;source, clipper_PolyFillType subjFillType = clipper_even_odd)
+<span class="lineNum">      85 </span>            :       { m_src_a = &amp;source; m_subjFillType = subjFillType; }
+<span class="lineNum">      86 </span>            :     void attach2(VSB &amp;source, clipper_PolyFillType clipFillType = clipper_even_odd)
+<span class="lineNum">      87 </span>            :       { m_src_b = &amp;source; m_clipFillType = clipFillType; }
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            :     void operation(clipper_op_e v) { m_operation = v; }
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            :     void rewind(unsigned path_id);
+<span class="lineNum">      92 </span>            :     unsigned vertex(double* x, double* y);
+<span class="lineNum">      93 </span>            :   
+<span class="lineNum">      94 </span>            :     bool next_contour();
+<span class="lineNum">      95 </span>            :     bool next_vertex(double* x, double* y);
+<span class="lineNum">      96 </span>            :     void start_extracting();
+<span class="lineNum">      97 </span>            :     void add_vertex_(double &amp;x, double &amp;y);
+<a name="98"><span class="lineNum">      98 </span>            :     void end_contour(ClipperLib::Polygons &amp;p);</a>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineCov">          1 :   template&lt;class VS&gt; void add(VS &amp;src, ClipperLib::Polygons &amp;p){</span>
+<span class="lineNum">     101 </span>            :     unsigned cmd;
+<span class="lineNum">     102 </span>            :     double x; double y; double start_x; double start_y;
+<span class="lineNum">     103 </span>            :     bool starting_first_line;
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            :     start_x = 0.0;
+<span class="lineNum">     106 </span>            :     start_y = 0.0;
+<span class="lineNum">     107 </span>            :     starting_first_line = true;
+<span class="lineNum">     108 </span><span class="lineCov">          1 :     p.resize(0);</span>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineCov">          1 :     cmd = src-&gt;vertex( &amp;x , &amp;y );</span>
+<span class="lineNum">     111 </span><span class="lineCov">          1 :     while(!is_stop(cmd))</span>
+<span class="lineNum">     112 </span>            :     {
+<span class="lineNum">     113 </span><span class="lineCov">          1 :       if(is_vertex(cmd))</span>
+<span class="lineNum">     114 </span>            :       {
+<span class="lineNum">     115 </span><span class="lineCov">          1 :       if(is_move_to(cmd))</span>
+<span class="lineNum">     116 </span>            :       {
+<span class="lineNum">     117 </span><span class="lineCov">          1 :         if(!starting_first_line ) end_contour(p);</span>
+<span class="lineNum">     118 </span><span class="lineCov">          1 :         start_x = x;</span>
+<span class="lineNum">     119 </span><span class="lineCov">          1 :         start_y = y;</span>
+<span class="lineNum">     120 </span>            :       }
+<span class="lineNum">     121 </span><span class="lineCov">          1 :       add_vertex_( x, y );</span>
+<span class="lineNum">     122 </span>            :       starting_first_line = false;
+<span class="lineNum">     123 </span>            :       }
+<span class="lineNum">     124 </span><span class="lineCov">          1 :       else if(is_end_poly(cmd))</span>
+<span class="lineNum">     125 </span>            :       {
+<span class="lineNum">     126 </span><span class="lineCov">          1 :       if(!starting_first_line &amp;&amp; is_closed(cmd))</span>
+<span class="lineNum">     127 </span><span class="lineCov">          1 :         add_vertex_( start_x, start_y );</span>
+<span class="lineNum">     128 </span>            :       }
+<span class="lineNum">     129 </span><span class="lineCov">          1 :       cmd = src-&gt;vertex( &amp;x, &amp;y );</span>
+<span class="lineNum">     130 </span>            :     }
+<span class="lineNum">     131 </span><span class="lineCov">          1 :     end_contour(p);</span>
+<span class="lineNum">     132 </span><span class="lineCov">          1 :   }</span>
+<span class="lineNum">     133 </span>            :   };
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :   //------------------------------------------------------------------------
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            :   template&lt;class VSA, class VSB&gt; 
+<a name="138"><span class="lineNum">     138 </span>            :   void conv_clipper&lt;VSA, VSB&gt;::start_extracting()</a>
+<span class="lineNum">     139 </span>            :   {
+<span class="lineNum">     140 </span><span class="lineCov">          1 :     m_status = status_move_to;</span>
+<span class="lineNum">     141 </span><span class="lineCov">          1 :     m_contour = -1;</span>
+<span class="lineNum">     142 </span><span class="lineCov">          1 :     m_vertex = -1;</span>
+<span class="lineNum">     143 </span>            :   }
+<span class="lineNum">     144 </span>            :   //------------------------------------------------------------------------------
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            :   template&lt;class VSA, class VSB&gt;
+<span class="lineNum">     147 </span><span class="lineCov">          1 :   void conv_clipper&lt;VSA, VSB&gt;::rewind(unsigned path_id)</span>
+<span class="lineNum">     148 </span>            :   {
+<span class="lineNum">     149 </span><span class="lineCov">          1 :     m_src_a-&gt;rewind( path_id );</span>
+<span class="lineNum">     150 </span><span class="lineCov">          1 :     m_src_b-&gt;rewind( path_id );</span>
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span><span class="lineCov">          1 :     add( m_src_a , m_poly_a );</span>
+<span class="lineNum">     153 </span><span class="lineCov">          1 :     add( m_src_b , m_poly_b );</span>
+<span class="lineNum">     154 </span><span class="lineCov">          1 :     m_result.resize(0);</span>
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            :     ClipperLib::PolyFillType pftSubj, pftClip;
+<span class="lineNum">     157 </span><span class="lineCov">          1 :     switch (m_subjFillType)</span>
+<span class="lineNum">     158 </span>            :     {
+<span class="lineNum">     159 </span>            :       case clipper_even_odd: pftSubj = ClipperLib::pftEvenOdd; break;
+<span class="lineNum">     160 </span>            :       case clipper_non_zero: pftSubj = ClipperLib::pftNonZero; break;
+<span class="lineNum">     161 </span>            :       case clipper_positive: pftSubj = ClipperLib::pftPositive; break;
+<span class="lineNum">     162 </span>            :       default: pftSubj = ClipperLib::pftNegative;
+<span class="lineNum">     163 </span>            :     }
+<span class="lineNum">     164 </span><span class="lineCov">          1 :     switch (m_clipFillType)</span>
+<span class="lineNum">     165 </span>            :     {
+<span class="lineNum">     166 </span>            :       case clipper_even_odd: pftClip = ClipperLib::pftEvenOdd; break;
+<span class="lineNum">     167 </span>            :       case clipper_non_zero: pftClip = ClipperLib::pftNonZero; break;
+<span class="lineNum">     168 </span>            :       case clipper_positive: pftClip = ClipperLib::pftPositive; break;
+<span class="lineNum">     169 </span>            :       default: pftClip = ClipperLib::pftNegative;
+<span class="lineNum">     170 </span>            :     }
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span><span class="lineCov">          1 :     m_clipper.Clear();</span>
+<span class="lineNum">     173 </span><span class="lineCov">          1 :     switch( m_operation ) {</span>
+<span class="lineNum">     174 </span>            :       case clipper_or:
+<span class="lineNum">     175 </span>            :         {
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         m_clipper.AddPolygons( m_poly_a , ClipperLib::ptSubject );</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :         m_clipper.AddPolygons( m_poly_b , ClipperLib::ptClip );</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :         m_clipper.Execute( ClipperLib::ctUnion , m_result , pftSubj, pftClip);</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :     break;</span>
+<span class="lineNum">     180 </span>            :         }
+<span class="lineNum">     181 </span>            :       case clipper_and:
+<span class="lineNum">     182 </span>            :         {
+<span class="lineNum">     183 </span><span class="lineCov">          1 :         m_clipper.AddPolygons( m_poly_a , ClipperLib::ptSubject );</span>
+<span class="lineNum">     184 </span><span class="lineCov">          1 :         m_clipper.AddPolygons( m_poly_b , ClipperLib::ptClip );</span>
+<span class="lineNum">     185 </span><span class="lineCov">          1 :         m_clipper.Execute( ClipperLib::ctIntersection , m_result, pftSubj, pftClip );</span>
+<span class="lineNum">     186 </span><span class="lineCov">          1 :     break;</span>
+<span class="lineNum">     187 </span>            :         }
+<span class="lineNum">     188 </span>            :       case clipper_xor:
+<span class="lineNum">     189 </span>            :         {
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :         m_clipper.AddPolygons( m_poly_a , ClipperLib::ptSubject );</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :         m_clipper.AddPolygons( m_poly_b , ClipperLib::ptClip );</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :         m_clipper.Execute( ClipperLib::ctXor , m_result, pftSubj, pftClip );</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :     break;</span>
+<span class="lineNum">     194 </span>            :         }
+<span class="lineNum">     195 </span>            :       case clipper_a_minus_b:
+<span class="lineNum">     196 </span>            :         {
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :         m_clipper.AddPolygons( m_poly_a , ClipperLib::ptSubject );</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :         m_clipper.AddPolygons( m_poly_b , ClipperLib::ptClip );</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :         m_clipper.Execute( ClipperLib::ctDifference , m_result, pftSubj, pftClip );</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :     break;</span>
+<span class="lineNum">     201 </span>            :         }
+<span class="lineNum">     202 </span>            :       case clipper_b_minus_a:
+<span class="lineNum">     203 </span>            :         {
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :         m_clipper.AddPolygons( m_poly_b , ClipperLib::ptSubject );</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :         m_clipper.AddPolygons( m_poly_a , ClipperLib::ptClip );</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :         m_clipper.Execute( ClipperLib::ctDifference , m_result, pftSubj, pftClip );</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :     break;</span>
+<span class="lineNum">     208 </span>            :         }
+<span class="lineNum">     209 </span>            :     }
+<span class="lineNum">     210 </span>            :     start_extracting();
+<span class="lineNum">     211 </span><span class="lineCov">          1 :   }</span>
+<span class="lineNum">     212 </span>            :   //------------------------------------------------------------------------------
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span>            :   template&lt;class VSA, class VSB&gt;
+<span class="lineNum">     215 </span><span class="lineCov">          1 :   void conv_clipper&lt;VSA, VSB&gt;::end_contour( ClipperLib::Polygons &amp;p)</span>
+<span class="lineNum">     216 </span>            :   {
+<span class="lineNum">     217 </span>            :   unsigned i, len;
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span><span class="lineCov">          1 :   if( m_vertex_accumulator.size() &lt; 3 ) return;</span>
+<span class="lineNum">     220 </span><span class="lineCov">          1 :   len = p.size();</span>
+<span class="lineNum">     221 </span><span class="lineCov">          1 :   p.resize(len+1);</span>
+<span class="lineNum">     222 </span><span class="lineCov">          1 :   p[len].resize(m_vertex_accumulator.size());</span>
+<span class="lineNum">     223 </span><span class="lineCov">          1 :   for( i = 0 ; i &lt; m_vertex_accumulator.size() ; i++ )</span>
+<span class="lineNum">     224 </span><span class="lineCov">          1 :     p[len][i] = m_vertex_accumulator[i];</span>
+<span class="lineNum">     225 </span>            :   m_vertex_accumulator.remove_all();
+<span class="lineNum">     226 </span>            :   }
+<span class="lineNum">     227 </span>            :   //------------------------------------------------------------------------------
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span>            :   template&lt;class VSA, class VSB&gt; 
+<span class="lineNum">     230 </span><span class="lineCov">          1 :   void conv_clipper&lt;VSA, VSB&gt;::add_vertex_(double &amp;x, double &amp;y)</span>
+<span class="lineNum">     231 </span>            :   {
+<span class="lineNum">     232 </span>            :     ClipperLib::IntPoint v;
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span><span class="lineCov">          1 :     v.X = Round(x * m_scaling_factor);</span>
+<span class="lineNum">     235 </span><span class="lineCov">          1 :     v.Y = Round(y * m_scaling_factor);</span>
+<span class="lineNum">     236 </span><span class="lineCov">          1 :     m_vertex_accumulator.add( v );</span>
+<span class="lineNum">     237 </span><span class="lineCov">          1 :   }</span>
+<span class="lineNum">     238 </span>            :   //------------------------------------------------------------------------------
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            :   template&lt;class VSA, class VSB&gt; 
+<a name="241"><span class="lineNum">     241 </span>            :   bool conv_clipper&lt;VSA, VSB&gt;::next_contour()</a>
+<span class="lineNum">     242 </span>            :   {   
+<span class="lineNum">     243 </span><span class="lineCov">          1 :   m_contour++;</span>
+<span class="lineNum">     244 </span><span class="lineCov">          1 :   if(m_contour &gt;= (int)m_result.size()) return false;</span>
+<span class="lineNum">     245 </span><span class="lineCov">          1 :   m_vertex =-1;</span>
+<span class="lineNum">     246 </span>            :   return true;
+<span class="lineNum">     247 </span>            : }
+<span class="lineNum">     248 </span>            : //------------------------------------------------------------------------------
+<a name="249"><span class="lineNum">     249 </span>            : </a>
+<span class="lineNum">     250 </span>            :   template&lt;class VSA, class VSB&gt; 
+<span class="lineNum">     251 </span><span class="lineCov">          1 :   bool conv_clipper&lt;VSA, VSB&gt;::next_vertex(double *x, double *y)</span>
+<span class="lineNum">     252 </span>            :   {
+<span class="lineNum">     253 </span><span class="lineCov">          1 :     m_vertex++;</span>
+<span class="lineNum">     254 </span><span class="lineCov">          1 :     if(m_vertex &gt;= (int)m_result[m_contour].size()) return false;</span>
+<span class="lineNum">     255 </span><span class="lineCov">          1 :     *x = (double)m_result[ m_contour ][ m_vertex ].X / m_scaling_factor;</span>
+<span class="lineNum">     256 </span><span class="lineCov">          1 :     *y = (double)m_result[ m_contour ][ m_vertex ].Y / m_scaling_factor;</span>
+<span class="lineNum">     257 </span><span class="lineCov">          1 :     return true;</span>
+<span class="lineNum">     258 </span>            :   }
+<span class="lineNum">     259 </span>            :   //------------------------------------------------------------------------------
+<span class="lineNum">     260 </span>            : 
+<span class="lineNum">     261 </span>            :   template&lt;class VSA, class VSB&gt;
+<span class="lineNum">     262 </span><span class="lineCov">          1 :   unsigned conv_clipper&lt;VSA, VSB&gt;::vertex(double *x, double *y)</span>
+<span class="lineNum">     263 </span>            : {
+<span class="lineNum">     264 </span><span class="lineCov">          1 :   if(  m_status == status_move_to )</span>
+<span class="lineNum">     265 </span>            :   {
+<span class="lineNum">     266 </span><span class="lineCov">          1 :     if( next_contour() )</span>
+<span class="lineNum">     267 </span>            :     {
+<span class="lineNum">     268 </span><span class="lineCov">          1 :       if(  next_vertex( x, y ) )</span>
+<span class="lineNum">     269 </span>            :       {
+<span class="lineNum">     270 </span><span class="lineCov">          1 :         m_status =status_line_to;</span>
+<span class="lineNum">     271 </span><span class="lineCov">          1 :         return path_cmd_move_to;</span>
+<span class="lineNum">     272 </span>            :       }
+<span class="lineNum">     273 </span>            :     else
+<span class="lineNum">     274 </span>            :     {
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :         m_status = status_stop;</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :         return path_cmd_end_poly | path_flags_close;</span>
+<span class="lineNum">     277 </span>            :       }
+<span class="lineNum">     278 </span>            :     }
+<span class="lineNum">     279 </span>            :   else
+<span class="lineNum">     280 </span>            :       return path_cmd_stop;
+<span class="lineNum">     281 </span>            :   }
+<span class="lineNum">     282 </span>            :   else
+<span class="lineNum">     283 </span>            :   {
+<span class="lineNum">     284 </span><span class="lineCov">          1 :     if(  next_vertex( x, y ) )</span>
+<span class="lineNum">     285 </span>            :     {
+<span class="lineNum">     286 </span>            :       return path_cmd_line_to;
+<span class="lineNum">     287 </span>            :     }
+<span class="lineNum">     288 </span>            :   else
+<span class="lineNum">     289 </span>            :     {
+<span class="lineNum">     290 </span><span class="lineCov">          1 :       m_status = status_move_to;</span>
+<span class="lineNum">     291 </span><span class="lineCov">          1 :       return path_cmd_end_poly | path_flags_close;</span>
+<span class="lineNum">     292 </span>            :     }
+<span class="lineNum">     293 </span>            :   }
+<span class="lineNum">     294 </span>            : }
+<span class="lineNum">     295 </span>            : //------------------------------------------------------------------------------
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span>            : } //namespace agg
+<span class="lineNum">     299 </span>            : #endif //AGG_CONV_CLIPPER_INCLUDED
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

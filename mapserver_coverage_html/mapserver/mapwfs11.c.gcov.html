@@ -1,0 +1,603 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - mapserver/mapwfs11.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">mapserver</a> - mapwfs11.c<span style="font-size: 80%;"> (source / <a href="mapwfs11.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">177</td>
+            <td class="headerCovTableEntry">190</td>
+            <td class="headerCovTableEntryHi">93.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /**********************************************************************</a>
+<span class="lineNum">       2 </span>            :  * $Id$
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * Project:  MapServer
+<span class="lineNum">       5 </span>            :  * Purpose:  OGC WFS 1.1.0 implementation. This file holds some WFS 1.1.0
+<span class="lineNum">       6 </span>            :  *           specific functions but other parts are still implemented in mapwfs.c.
+<span class="lineNum">       7 </span>            :  * Author:   Y. Assefa, DM Solutions Group (assefa@dmsolutions.ca)
+<span class="lineNum">       8 </span>            :  *
+<span class="lineNum">       9 </span>            :  **********************************************************************
+<span class="lineNum">      10 </span>            :  * Copyright (c) 2008, Y. Assefa, DM Solutions Group Inc
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      13 </span>            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      14 </span>            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      15 </span>            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      16 </span>            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      17 </span>            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      18 </span>            :  *
+<span class="lineNum">      19 </span>            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      20 </span>            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      21 </span>            :  *
+<span class="lineNum">      22 </span>            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<span class="lineNum">      23 </span>            :  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      24 </span>            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+<span class="lineNum">      25 </span>            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      26 </span>            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      27 </span>            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      28 </span>            :  ****************************************************************************/
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #include &quot;mapserver.h&quot;
+<span class="lineNum">      31 </span>            : #include &quot;mapows.h&quot;
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #if defined(USE_WFS_SVR) &amp;&amp; defined(USE_LIBXML2)
+<span class="lineNum">      36 </span>            : #include &quot;maplibxml2.h&quot;
+<span class="lineNum">      37 </span>            : #include &quot;mapowscommon.h&quot;
+<span class="lineNum">      38 </span>            : #include &quot;mapogcfilter.h&quot;
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : /************************************************************************/
+<span class="lineNum">      41 </span>            : /*                          msWFSException11()                          */
+<a name="42"><span class="lineNum">      42 </span>            : /************************************************************************/</a>
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span><span class="lineCov">          1 : int msWFSException11(mapObj *map, const char *locator,</span>
+<span class="lineNum">      45 </span>            :                      const char *exceptionCode, const char *version)
+<span class="lineNum">      46 </span>            : {
+<span class="lineNum">      47 </span><span class="lineCov">          1 :   int size = 0;</span>
+<span class="lineNum">      48 </span>            :   char *errorString     = NULL;
+<span class="lineNum">      49 </span>            :   char *schemasLocation = NULL;
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            :   xmlDocPtr  psDoc      = NULL;
+<span class="lineNum">      52 </span>            :   xmlNodePtr psRootNode = NULL;
+<span class="lineNum">      53 </span>            :   xmlNsPtr   psNsOws    = NULL;
+<span class="lineNum">      54 </span><span class="lineCov">          1 :   xmlChar *buffer       = NULL;</span>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span><span class="lineCov">          1 :   if (version == NULL)</span>
+<span class="lineNum">      57 </span>            :     version = &quot;1.1.0&quot;;
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span><span class="lineCov">          1 :   psNsOws = xmlNewNs(NULL, BAD_CAST &quot;http://www.opengis.net/ows&quot;, BAD_CAST &quot;ows&quot;);</span>
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span><span class="lineCov">          1 :   errorString = msGetErrorString(&quot;\n&quot;);</span>
+<span class="lineNum">      62 </span><span class="lineCov">          1 :   schemasLocation = msEncodeHTMLEntities(msOWSGetSchemasLocation(map));</span>
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span><span class="lineCov">          1 :   psDoc = xmlNewDoc(BAD_CAST &quot;1.0&quot;);</span>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span><span class="lineCov">          1 :   psRootNode = msOWSCommonExceptionReport(psNsOws, OWS_1_0_0, schemasLocation, version, msOWSGetLanguage(map, &quot;exception&quot;), exceptionCode, locator, errorString);</span>
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span><span class="lineCov">          1 :   xmlDocSetRootElement(psDoc, psRootNode);</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineCov">          1 :   xmlNewNs(psRootNode, BAD_CAST &quot;http://www.opengis.net/ows&quot;, BAD_CAST &quot;ows&quot;);</span>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span><span class="lineCov">          1 :   msIO_setHeader(&quot;Content-Type&quot;,&quot;text/xml; charset=UTF-8&quot;);</span>
+<span class="lineNum">      73 </span><span class="lineCov">          1 :   msIO_sendHeaders();</span>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineCov">          1 :   xmlDocDumpFormatMemoryEnc(psDoc, &amp;buffer, &amp;size, (&quot;UTF-8&quot;), 1);</span>
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span><span class="lineCov">          1 :   msIO_printf(&quot;%s&quot;, buffer);</span>
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            :   /*free buffer and the document */
+<span class="lineNum">      80 </span><span class="lineCov">          1 :   free(errorString);</span>
+<span class="lineNum">      81 </span><span class="lineCov">          1 :   free(schemasLocation);</span>
+<span class="lineNum">      82 </span><span class="lineCov">          1 :   xmlFree(buffer);</span>
+<span class="lineNum">      83 </span><span class="lineCov">          1 :   xmlFreeDoc(psDoc);</span>
+<span class="lineNum">      84 </span><span class="lineCov">          1 :   xmlFreeNs(psNsOws);</span>
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            :   /* clear error since we have already reported it */
+<span class="lineNum">      87 </span><span class="lineCov">          1 :   msResetErrorList();</span>
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span><span class="lineCov">          1 :   return MS_FAILURE;</span>
+<span class="lineNum">      90 </span>            : }
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            : /************************************************************************/
+<a name="94"><span class="lineNum">      94 </span>            : /*                            msWFSDumpLayer11                          */</a>
+<span class="lineNum">      95 </span>            : /************************************************************************/
+<span class="lineNum">      96 </span><span class="lineCov">          1 : xmlNodePtr msWFSDumpLayer11(mapObj *map, layerObj *lp, xmlNsPtr psNsOws,</span>
+<span class="lineNum">      97 </span>            :                             int nWFSVersion, const char* validate_language,
+<span class="lineNum">      98 </span>            :                             char *script_url)
+<span class="lineNum">      99 </span>            : {
+<span class="lineNum">     100 </span>            :   rectObj ext;
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span>            :   xmlNodePtr psRootNode, psNode;
+<span class="lineNum">     103 </span>            :   const char *value    = NULL;
+<span class="lineNum">     104 </span>            :   char *valueToFree;
+<span class="lineNum">     105 </span>            :   char **tokens;
+<span class="lineNum">     106 </span><span class="lineCov">          1 :   int n=0,i=0;</span>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">          1 :   psRootNode = xmlNewNode(NULL, BAD_CAST &quot;FeatureType&quot;);</span>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            :   /* add namespace to layer name */
+<span class="lineNum">     111 </span><span class="lineCov">          1 :   value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;namespace_prefix&quot;);</span>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            :   /* FIXME? Should probably be applied to WFS 1.1 as well, but the addition */
+<span class="lineNum">     114 </span>            :   /* of the prefix can be disruptive for clients */
+<span class="lineNum">     115 </span><span class="lineCov">          1 :   if( value == NULL &amp;&amp; nWFSVersion &gt;= OWS_2_0_0 )</span>
+<span class="lineNum">     116 </span>            :       value = MS_DEFAULT_NAMESPACE_PREFIX;
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineCov">          1 :   if(value) {</span>
+<span class="lineNum">     119 </span><span class="lineCov">          1 :     n = strlen(value)+strlen(lp-&gt;name)+1+1;</span>
+<span class="lineNum">     120 </span><span class="lineCov">          1 :     valueToFree = (char *) msSmallMalloc(sizeof(char*)*n);</span>
+<span class="lineNum">     121 </span><span class="lineCov">          1 :     snprintf(valueToFree, n, &quot;%s%s%s&quot;, (value ? value : &quot;&quot;), (value ? &quot;:&quot; : &quot;&quot;), lp-&gt;name);</span>
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span><span class="lineCov">          1 :     psNode = xmlNewTextChild(psRootNode, NULL, BAD_CAST &quot;Name&quot;, BAD_CAST valueToFree);</span>
+<span class="lineNum">     124 </span><span class="lineCov">          1 :     msFree(valueToFree);</span>
+<span class="lineNum">     125 </span>            :   } else {
+<span class="lineNum">     126 </span><span class="lineCov">          1 :     psNode = xmlNewTextChild(psRootNode, NULL, BAD_CAST &quot;Name&quot;, BAD_CAST lp-&gt;name);</span>
+<span class="lineNum">     127 </span>            :   }
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span><span class="lineCov">          1 :   if (lp-&gt;name &amp;&amp; strlen(lp-&gt;name) &gt; 0 &amp;&amp;</span>
+<span class="lineNum">     130 </span><span class="lineCov">          1 :       (msIsXMLTagValid(lp-&gt;name) == MS_FALSE || isdigit(lp-&gt;name[0])))</span>
+<span class="lineNum">     131 </span>            :   {
+<span class="lineNum">     132 </span>            :     char szTmp[512];
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :     snprintf(szTmp, sizeof(szTmp),</span>
+<span class="lineNum">     134 </span>            :              &quot;WARNING: The layer name '%s' might contain spaces or &quot;
+<span class="lineNum">     135 </span>            :              &quot;invalid characters or may start with a number. This could lead to potential problems&quot;,
+<span class="lineNum">     136 </span>            :              lp-&gt;name);
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :     xmlAddSibling(psNode, xmlNewComment(BAD_CAST szTmp));</span>
+<span class="lineNum">     138 </span>            :   }
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span><span class="lineCov">          1 :   value = msOWSLookupMetadataWithLanguage(&amp;(lp-&gt;metadata), &quot;FO&quot;, &quot;title&quot;, validate_language);</span>
+<span class="lineNum">     141 </span><span class="lineCov">          1 :   if (!value)</span>
+<span class="lineNum">     142 </span><span class="lineCov">          1 :     value =(const char*)lp-&gt;name;</span>
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span><span class="lineCov">          1 :   psNode = xmlNewTextChild(psRootNode, NULL, BAD_CAST &quot;Title&quot;, BAD_CAST value);</span>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span><span class="lineCov">          1 :   value = msOWSLookupMetadataWithLanguage(&amp;(lp-&gt;metadata), &quot;FO&quot;, &quot;abstract&quot;, validate_language);</span>
+<span class="lineNum">     148 </span><span class="lineCov">          1 :   if (value)</span>
+<span class="lineNum">     149 </span><span class="lineCov">          1 :     psNode = xmlNewTextChild(psRootNode, NULL, BAD_CAST &quot;Abstract&quot;, BAD_CAST value);</span>
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span><span class="lineCov">          1 :   value = msOWSLookupMetadataWithLanguage(&amp;(lp-&gt;metadata), &quot;FO&quot;, &quot;keywordlist&quot;, validate_language);</span>
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span><span class="lineCov">          1 :   if(value)</span>
+<span class="lineNum">     156 </span><span class="lineCov">          1 :     msLibXml2GenerateList(</span>
+<span class="lineNum">     157 </span>            :         xmlNewChild(psRootNode, psNsOws, BAD_CAST &quot;Keywords&quot;, NULL),
+<span class="lineNum">     158 </span>            :         NULL, &quot;Keyword&quot;, value, ',' );
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span>            :   /*support DefaultSRS and OtherSRS*/
+<span class="lineNum">     161 </span><span class="lineCov">          1 :   valueToFree = msOWSGetProjURN(&amp;(map-&gt;projection),&amp;(map-&gt;web.metadata),&quot;FO&quot;,MS_FALSE);</span>
+<span class="lineNum">     162 </span><span class="lineCov">          1 :   if (!valueToFree)</span>
+<span class="lineNum">     163 </span><span class="lineCov">          1 :     valueToFree = msOWSGetProjURN(&amp;(lp-&gt;projection), &amp;(lp-&gt;metadata), &quot;FO&quot;, MS_FALSE);</span>
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span><span class="lineCov">          1 :   if (valueToFree) {</span>
+<span class="lineNum">     166 </span><span class="lineCov">          1 :     tokens = msStringSplit(valueToFree, ' ', &amp;n);</span>
+<span class="lineNum">     167 </span><span class="lineCov">          1 :     if (tokens &amp;&amp; n &gt; 0) {</span>
+<span class="lineNum">     168 </span><span class="lineCov">          1 :       if( nWFSVersion == OWS_1_1_0 )</span>
+<span class="lineNum">     169 </span><span class="lineCov">          1 :         psNode = xmlNewTextChild(psRootNode, NULL, BAD_CAST &quot;DefaultSRS&quot;, BAD_CAST tokens[0]);</span>
+<span class="lineNum">     170 </span>            :       else
+<span class="lineNum">     171 </span><span class="lineCov">          1 :         psNode = xmlNewTextChild(psRootNode, NULL, BAD_CAST &quot;DefaultCRS&quot;, BAD_CAST tokens[0]);</span>
+<span class="lineNum">     172 </span><span class="lineCov">          1 :       for (i=1; i&lt;n; i++)</span>
+<span class="lineNum">     173 </span>            :       {
+<span class="lineNum">     174 </span><span class="lineCov">          1 :         if( nWFSVersion == OWS_1_1_0 )</span>
+<span class="lineNum">     175 </span><span class="lineCov">          1 :           psNode = xmlNewTextChild(psRootNode, NULL, BAD_CAST &quot;OtherSRS&quot;, BAD_CAST tokens[i]);</span>
+<span class="lineNum">     176 </span>            :         else
+<span class="lineNum">     177 </span><span class="lineCov">          1 :           psNode = xmlNewTextChild(psRootNode, NULL, BAD_CAST &quot;OtherCRS&quot;, BAD_CAST tokens[i]);</span>
+<span class="lineNum">     178 </span>            :       }
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineCov">          1 :       msFreeCharArray(tokens, n);</span>
+<span class="lineNum">     181 </span>            :     }
+<span class="lineNum">     182 </span>            :   } else
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :     xmlAddSibling(psNode,</span>
+<span class="lineNum">     184 </span>            :                   xmlNewComment(BAD_CAST &quot;WARNING: Mandatory mapfile parameter: (at least one of) MAP.PROJECTION, LAYER.PROJECTION or wfs/ows_srs metadata was missing in this context.&quot;));
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span><span class="lineCov">          1 :   free(valueToFree);</span>
+<span class="lineNum">     187 </span>            :   valueToFree = NULL;
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            :   /*TODO: adevertize only gml3?*/
+<span class="lineNum">     190 </span><span class="lineCov">          1 :   psNode = xmlNewNode(NULL, BAD_CAST &quot;OutputFormats&quot;);</span>
+<span class="lineNum">     191 </span><span class="lineCov">          1 :   xmlAddChild(psRootNode, psNode);</span>
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            :   {
+<span class="lineNum">     194 </span><span class="lineCov">          1 :     char *formats_list = msWFSGetOutputFormatList( map, lp, nWFSVersion );</span>
+<span class="lineNum">     195 </span>            :     int iformat, n;
+<span class="lineNum">     196 </span>            :     char **tokens;
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span><span class="lineCov">          1 :     n = 0;</span>
+<span class="lineNum">     199 </span><span class="lineCov">          1 :     tokens = msStringSplit(formats_list, ',', &amp;n);</span>
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span><span class="lineCov">          1 :     for( iformat = 0; iformat &lt; n; iformat++ )</span>
+<span class="lineNum">     202 </span><span class="lineCov">          1 :       xmlNewTextChild(psNode, NULL, BAD_CAST &quot;Format&quot;,</span>
+<span class="lineNum">     203 </span><span class="lineCov">          1 :                   BAD_CAST tokens[iformat] );</span>
+<span class="lineNum">     204 </span><span class="lineCov">          1 :     msFree( formats_list );</span>
+<span class="lineNum">     205 </span><span class="lineCov">          1 :     msFreeCharArray( tokens, n );</span>
+<span class="lineNum">     206 </span>            :   }
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span>            :   /*bbox*/
+<span class="lineNum">     209 </span><span class="lineCov">          1 :   if (msOWSGetLayerExtent(map, lp, &quot;FO&quot;, &amp;ext) == MS_SUCCESS) {</span>
+<span class="lineNum">     210 </span>            :     /*convert to latlong*/
+<span class="lineNum">     211 </span><span class="lineCov">          1 :     if (lp-&gt;projection.numargs &gt; 0)</span>
+<span class="lineNum">     212 </span><span class="lineCov">          1 :       msOWSProjectToWGS84(&amp;lp-&gt;projection, &amp;ext);</span>
+<span class="lineNum">     213 </span>            :     else
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :       msOWSProjectToWGS84(&amp;map-&gt;projection, &amp;ext);</span>
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span><span class="lineCov">          1 :     xmlAddChild(psRootNode,</span>
+<span class="lineNum">     217 </span>            :                 msOWSCommonWGS84BoundingBox( psNsOws, 2,
+<span class="lineNum">     218 </span>            :                     ext.minx, ext.miny,
+<span class="lineNum">     219 </span>            :                     ext.maxx, ext.maxy));
+<span class="lineNum">     220 </span>            :   } else {
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :     xmlNewChild(psRootNode, psNsOws, BAD_CAST &quot;WGS84BoundingBox&quot;, NULL);</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :     xmlAddSibling(psNode,</span>
+<span class="lineNum">     223 </span>            :                   xmlNewComment(BAD_CAST &quot;WARNING: Optional WGS84BoundingBox could not be established for this layer.  Consider setting the EXTENT in the LAYER object, or wfs_extent metadata. Also check that your data exists in the DATA statement&quot;));
+<span class="lineNum">     224 </span>            :   }
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span><span class="lineCov">          1 :   if (! msOWSLookupMetadata(&amp;(lp-&gt;metadata), &quot;FO&quot;, &quot;metadataurl_href&quot;))</span>
+<span class="lineNum">     227 </span><span class="lineCov">          1 :     msMetadataSetGetMetadataURL(lp, script_url);</span>
+<span class="lineNum">     228 </span><span class="lineCov">          1 :   value = msOWSLookupMetadata(&amp;(lp-&gt;metadata), &quot;FO&quot;, &quot;metadataurl_href&quot;);</span>
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span><span class="lineCov">          1 :   if (value) {</span>
+<span class="lineNum">     231 </span><span class="lineCov">          1 :     if( nWFSVersion &gt;= OWS_2_0_0 )</span>
+<span class="lineNum">     232 </span>            :     {
+<span class="lineNum">     233 </span><span class="lineCov">          1 :         psNode = xmlNewChild(psRootNode, NULL, BAD_CAST &quot;MetadataURL&quot;, NULL);</span>
+<span class="lineNum">     234 </span><span class="lineCov">          1 :         xmlNewProp(psNode, BAD_CAST &quot;xlink:href&quot;, BAD_CAST value);</span>
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span><span class="lineCov">          1 :         value = msOWSLookupMetadata(&amp;(lp-&gt;metadata), &quot;FO&quot;, &quot;metadataurl_about&quot;);</span>
+<span class="lineNum">     237 </span><span class="lineCov">          1 :         if( value != NULL )</span>
+<span class="lineNum">     238 </span><span class="lineCov">          1 :             xmlNewProp(psNode, BAD_CAST &quot;about&quot;, BAD_CAST value);</span>
+<span class="lineNum">     239 </span>            :     }
+<span class="lineNum">     240 </span>            :     else
+<span class="lineNum">     241 </span>            :     {
+<span class="lineNum">     242 </span><span class="lineCov">          1 :         psNode = xmlNewTextChild(psRootNode, NULL, BAD_CAST &quot;MetadataURL&quot;, BAD_CAST value);</span>
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span><span class="lineCov">          1 :         value = msOWSLookupMetadata(&amp;(lp-&gt;metadata), &quot;FO&quot;, &quot;metadataurl_format&quot;);</span>
+<span class="lineNum">     245 </span>            : 
+<span class="lineNum">     246 </span><span class="lineCov">          1 :         if (!value)</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :             value = msStrdup(&quot;text/html&quot;); /* default */</span>
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span><span class="lineCov">          1 :         xmlNewProp(psNode, BAD_CAST &quot;format&quot;, BAD_CAST value);</span>
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span><span class="lineCov">          1 :         value = msOWSLookupMetadata(&amp;(lp-&gt;metadata), &quot;FO&quot;, &quot;metadataurl_type&quot;);</span>
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span><span class="lineCov">          1 :         if (!value)</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :             value = msStrdup(&quot;FGDC&quot;); /* default */</span>
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span><span class="lineCov">          1 :         xmlNewProp(psNode, BAD_CAST &quot;type&quot;, BAD_CAST value);</span>
+<span class="lineNum">     257 </span>            :     }
+<span class="lineNum">     258 </span>            :   }
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span><span class="lineCov">          1 :   return psRootNode;</span>
+<span class="lineNum">     261 </span>            : }
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span>            : /************************************************************************/
+<span class="lineNum">     264 </span>            : /*                          msWFSGetCapabilities11                      */
+<span class="lineNum">     265 </span>            : /*                                                                      */
+<a name="266"><span class="lineNum">     266 </span>            : /*      Return the capabilities document for wfs 1.1.0                  */</a>
+<span class="lineNum">     267 </span>            : /************************************************************************/
+<span class="lineNum">     268 </span><span class="lineCov">          1 : int msWFSGetCapabilities11(mapObj *map, wfsParamsObj *params,</span>
+<span class="lineNum">     269 </span>            :                            cgiRequestObj *req, owsRequestObj *ows_request)
+<span class="lineNum">     270 </span>            : {
+<span class="lineNum">     271 </span>            :   xmlDocPtr psDoc = NULL;       /* document pointer */
+<span class="lineNum">     272 </span>            :   xmlNodePtr psRootNode, psMainNode, psNode, psFtNode;
+<span class="lineNum">     273 </span>            :   const char *updatesequence=NULL;
+<span class="lineNum">     274 </span>            :   xmlNsPtr psNsOws, psNsXLink, psNsOgc;
+<span class="lineNum">     275 </span>            :   char *schemalocation = NULL;
+<span class="lineNum">     276 </span>            :   char *xsi_schemaLocation = NULL;
+<span class="lineNum">     277 </span>            :   const char *user_namespace_prefix = NULL;
+<span class="lineNum">     278 </span>            :   const char *user_namespace_uri = NULL;
+<span class="lineNum">     279 </span>            :   gmlNamespaceListObj *namespaceList=NULL; /* for external application schema support */
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span>            :   char *script_url=NULL, *formats_list;
+<span class="lineNum">     282 </span>            :   const char *value = NULL;
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span><span class="lineCov">          1 :   xmlChar *buffer = NULL;</span>
+<span class="lineNum">     285 </span><span class="lineCov">          1 :   int size = 0, i;</span>
+<span class="lineNum">     286 </span>            :   msIOContext *context = NULL;
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span>            :   int ows_version = OWS_1_0_0;
+<span class="lineNum">     289 </span>            :   int ret;
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     292 </span>            :   /*      Handle updatesequence                                           */
+<span class="lineNum">     293 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     294 </span><span class="lineCov">          1 :   ret = msWFSHandleUpdateSequence(map, params, &quot;msWFSGetCapabilities11()&quot;);</span>
+<span class="lineNum">     295 </span><span class="lineCov">          1 :   if( ret != MS_SUCCESS )</span>
+<span class="lineNum">     296 </span>            :       return ret;
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     299 </span>            :   /*      Create document.                                                */
+<span class="lineNum">     300 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     301 </span><span class="lineCov">          1 :   psDoc = xmlNewDoc(BAD_CAST &quot;1.0&quot;);</span>
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span><span class="lineCov">          1 :   psRootNode = xmlNewNode(NULL, BAD_CAST &quot;WFS_Capabilities&quot;);</span>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span><span class="lineCov">          1 :   xmlDocSetRootElement(psDoc, psRootNode);</span>
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     308 </span>            :   /*      Name spaces                                                     */
+<span class="lineNum">     309 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     310 </span>            :   /*default name space*/
+<span class="lineNum">     311 </span><span class="lineCov">          1 :   xmlNewProp(psRootNode, BAD_CAST &quot;xmlns&quot;, BAD_CAST &quot;http://www.opengis.net/wfs&quot;);</span>
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span><span class="lineCov">          1 :   xmlSetNs(psRootNode, xmlNewNs(psRootNode, BAD_CAST &quot;http://www.opengis.net/gml&quot;, BAD_CAST &quot;gml&quot;));</span>
+<span class="lineNum">     314 </span><span class="lineCov">          1 :   xmlSetNs(psRootNode, xmlNewNs(psRootNode, BAD_CAST &quot;http://www.opengis.net/wfs&quot;, BAD_CAST &quot;wfs&quot;));</span>
+<span class="lineNum">     315 </span>            : 
+<span class="lineNum">     316 </span><span class="lineCov">          1 :   psNsOws = xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_OWS_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_OWS_NAMESPACE_PREFIX);</span>
+<span class="lineNum">     317 </span><span class="lineCov">          1 :   psNsXLink = xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_W3C_XLINK_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_W3C_XLINK_NAMESPACE_PREFIX);</span>
+<span class="lineNum">     318 </span><span class="lineCov">          1 :   xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_W3C_XSI_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_W3C_XSI_NAMESPACE_PREFIX);</span>
+<span class="lineNum">     319 </span><span class="lineCov">          1 :   xmlNewNs(psRootNode, BAD_CAST MS_OWSCOMMON_OGC_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_OGC_NAMESPACE_PREFIX );</span>
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span><span class="lineCov">          1 :   value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;namespace_uri&quot;);</span>
+<span class="lineNum">     322 </span><span class="lineCov">          1 :   if(value) user_namespace_uri = value;</span>
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span><span class="lineCov">          1 :   value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;namespace_prefix&quot;);</span>
+<span class="lineNum">     325 </span><span class="lineCov">          1 :   if(value) user_namespace_prefix = value;</span>
+<span class="lineNum">     326 </span><span class="lineCov">          1 :   if(user_namespace_prefix != NULL &amp;&amp; msIsXMLTagValid(user_namespace_prefix) == MS_FALSE)</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :     msIO_printf(&quot;&lt;!-- WARNING: The value '%s' is not valid XML namespace. --&gt;\n&quot;, user_namespace_prefix);</span>
+<span class="lineNum">     328 </span>            :   else
+<span class="lineNum">     329 </span><span class="lineCov">          1 :     xmlNewNs(psRootNode, BAD_CAST user_namespace_uri, BAD_CAST user_namespace_prefix);</span>
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span>            :   /* any additional namespaces */
+<span class="lineNum">     332 </span><span class="lineCov">          1 :   namespaceList = msGMLGetNamespaces(&amp;(map-&gt;web), &quot;G&quot;);</span>
+<span class="lineNum">     333 </span><span class="lineCov">          1 :   for(i=0; i&lt;namespaceList-&gt;numnamespaces; i++) {</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :     if(namespaceList-&gt;namespaces[i].uri) {</span>
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :       xmlNewNs(psRootNode, BAD_CAST namespaceList-&gt;namespaces[i].uri, BAD_CAST namespaceList-&gt;namespaces[i].prefix);</span>
+<span class="lineNum">     336 </span>            :     }
+<span class="lineNum">     337 </span>            :   }
+<span class="lineNum">     338 </span><span class="lineCov">          1 :   msGMLFreeNamespaces(namespaceList);</span>
+<span class="lineNum">     339 </span>            :   
+<span class="lineNum">     340 </span>            : 
+<span class="lineNum">     341 </span><span class="lineCov">          1 :   xmlNewProp(psRootNode, BAD_CAST &quot;version&quot;, BAD_CAST params-&gt;pszVersion );</span>
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span><span class="lineCov">          1 :   updatesequence = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;updatesequence&quot;);</span>
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span><span class="lineCov">          1 :   if (updatesequence)</span>
+<span class="lineNum">     346 </span><span class="lineCov">          1 :     xmlNewProp(psRootNode, BAD_CAST &quot;updateSequence&quot;, BAD_CAST updatesequence);</span>
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span>            :   /*schema*/
+<span class="lineNum">     349 </span><span class="lineCov">          1 :   schemalocation = msEncodeHTMLEntities( msOWSGetSchemasLocation(map) );</span>
+<span class="lineNum">     350 </span><span class="lineCov">          1 :   xsi_schemaLocation = msStrdup(&quot;http://www.opengis.net/wfs&quot;);</span>
+<span class="lineNum">     351 </span><span class="lineCov">          1 :   xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, &quot; &quot;);</span>
+<span class="lineNum">     352 </span><span class="lineCov">          1 :   xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, schemalocation);</span>
+<span class="lineNum">     353 </span><span class="lineCov">          1 :   xsi_schemaLocation = msStringConcatenate(xsi_schemaLocation, &quot;/wfs/1.1.0/wfs.xsd&quot;);</span>
+<span class="lineNum">     354 </span><span class="lineCov">          1 :   xmlNewNsProp(psRootNode, NULL, BAD_CAST &quot;xsi:schemaLocation&quot;, BAD_CAST xsi_schemaLocation);</span>
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     357 </span>            :   /*      Service metadata.                                               */
+<span class="lineNum">     358 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span><span class="lineCov">          1 :   xmlAddChild(psRootNode,</span>
+<span class="lineNum">     361 </span><span class="lineCov">          1 :                           msOWSCommonServiceIdentification(psNsOws, map, &quot;OGC WFS&quot;, params-&gt;pszVersion, &quot;FO&quot;, NULL));</span>
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span>            :   /*service provider*/
+<span class="lineNum">     364 </span><span class="lineCov">          1 :   xmlAddChild(psRootNode, msOWSCommonServiceProvider(</span>
+<span class="lineNum">     365 </span>            :                             psNsOws, psNsXLink, map, &quot;FO&quot;, NULL));
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span>            :   /*operation metadata */
+<span class="lineNum">     368 </span><span class="lineCov">          1 :   if ((script_url=msOWSGetOnlineResource(map, &quot;FO&quot;, &quot;onlineresource&quot;, req)) == NULL) {</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSERR, &quot;Server URL not found&quot;, &quot;msWFSGetCapabilities11()&quot;);</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :     return msWFSException11(map, &quot;mapserv&quot;, MS_OWS_ERROR_NO_APPLICABLE_CODE, params-&gt;pszVersion);</span>
+<span class="lineNum">     371 </span>            :   }
+<span class="lineNum">     372 </span>            : 
+<span class="lineNum">     373 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     374 </span>            :   /*      Operations metadata.                                            */
+<span class="lineNum">     375 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     376 </span><span class="lineCov">          1 :   psMainNode= xmlAddChild(psRootNode,msOWSCommonOperationsMetadata(psNsOws));</span>
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     379 </span>            :   /*      GetCapabilities                                                 */
+<span class="lineNum">     380 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     381 </span><span class="lineCov">          1 :   psNode = xmlAddChild(psMainNode,</span>
+<span class="lineNum">     382 </span>            :                        msOWSCommonOperationsMetadataOperation(psNsOws,psNsXLink,&quot;GetCapabilities&quot;,
+<span class="lineNum">     383 </span>            :                            OWS_METHOD_GETPOST, script_url));
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span><span class="lineCov">          1 :   xmlAddChild(psMainNode, psNode);</span>
+<span class="lineNum">     386 </span><span class="lineCov">          1 :   xmlAddChild(psNode, msOWSCommonOperationsMetadataDomainType(</span>
+<span class="lineNum">     387 </span>            :                 ows_version, psNsOws, &quot;Parameter&quot;, &quot;service&quot;, &quot;WFS&quot;));
+<span class="lineNum">     388 </span>            :   /*accept version*/
+<span class="lineNum">     389 </span><span class="lineCov">          1 :   xmlAddChild(psNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     390 </span>            :               &quot;Parameter&quot;, &quot;AcceptVersions&quot;,
+<span class="lineNum">     391 </span>            :               &quot;1.0.0,1.1.0&quot;));
+<span class="lineNum">     392 </span>            :   /*format*/
+<span class="lineNum">     393 </span><span class="lineCov">          1 :   xmlAddChild(psNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     394 </span>            :               &quot;Parameter&quot;, &quot;AcceptFormats&quot;,
+<span class="lineNum">     395 </span>            :               &quot;text/xml&quot;));
+<span class="lineNum">     396 </span>            : 
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     399 </span>            :   /*      DescribeFeatureType                                             */
+<span class="lineNum">     400 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     401 </span><span class="lineCov">          1 :   if (msOWSRequestIsEnabled(map, NULL, &quot;F&quot;, &quot;DescribeFeatureType&quot;, MS_TRUE)) {</span>
+<span class="lineNum">     402 </span><span class="lineCov">          1 :     psNode = xmlAddChild(psMainNode,</span>
+<span class="lineNum">     403 </span>            :                          msOWSCommonOperationsMetadataOperation(psNsOws,psNsXLink,&quot;DescribeFeatureType&quot;,
+<span class="lineNum">     404 </span>            :                              OWS_METHOD_GETPOST, script_url));
+<span class="lineNum">     405 </span><span class="lineCov">          1 :     xmlAddChild(psMainNode, psNode);</span>
+<span class="lineNum">     406 </span>            : 
+<span class="lineNum">     407 </span>            :     /*output format*/
+<span class="lineNum">     408 </span><span class="lineCov">          1 :     xmlAddChild(psNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     409 </span>            :                 &quot;Parameter&quot;, &quot;outputFormat&quot;,
+<span class="lineNum">     410 </span>            :                 &quot;XMLSCHEMA,text/xml; subtype=gml/2.1.2,text/xml; subtype=gml/3.1.1&quot;));
+<span class="lineNum">     411 </span>            :   }
+<span class="lineNum">     412 </span>            : 
+<span class="lineNum">     413 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     414 </span>            :   /*      GetFeature                                                      */
+<span class="lineNum">     415 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     416 </span><span class="lineCov">          1 :   if (msOWSRequestIsEnabled(map, NULL, &quot;F&quot;, &quot;GetFeature&quot;, MS_TRUE)) {</span>
+<span class="lineNum">     417 </span>            : 
+<span class="lineNum">     418 </span><span class="lineCov">          1 :     psNode = xmlAddChild(psMainNode,</span>
+<span class="lineNum">     419 </span>            :                          msOWSCommonOperationsMetadataOperation(psNsOws,psNsXLink,&quot;GetFeature&quot;,
+<span class="lineNum">     420 </span>            :                              OWS_METHOD_GETPOST, script_url));
+<span class="lineNum">     421 </span><span class="lineCov">          1 :     xmlAddChild(psMainNode, psNode);</span>
+<span class="lineNum">     422 </span>            : 
+<span class="lineNum">     423 </span><span class="lineCov">          1 :     xmlAddChild(psNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     424 </span>            :                 &quot;Parameter&quot;, &quot;resultType&quot;,
+<span class="lineNum">     425 </span>            :                 &quot;results,hits&quot;));
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span><span class="lineCov">          1 :     formats_list = msWFSGetOutputFormatList( map, NULL, OWS_1_1_0 );</span>
+<span class="lineNum">     428 </span><span class="lineCov">          1 :     xmlAddChild(psNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     429 </span>            :                 &quot;Parameter&quot;, &quot;outputFormat&quot;,
+<span class="lineNum">     430 </span>            :                 formats_list));
+<span class="lineNum">     431 </span><span class="lineCov">          1 :     msFree( formats_list );</span>
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span><span class="lineCov">          1 :     value = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;FO&quot;, &quot;maxfeatures&quot;);</span>
+<span class="lineNum">     434 </span>            : 
+<span class="lineNum">     435 </span><span class="lineCov">          1 :     if (value) {</span>
+<span class="lineNum">     436 </span><span class="lineCov">          1 :       xmlAddChild(psMainNode, msOWSCommonOperationsMetadataDomainType(ows_version, psNsOws,</span>
+<span class="lineNum">     437 </span>            :                   &quot;Constraint&quot;, &quot;DefaultMaxFeatures&quot;,
+<span class="lineNum">     438 </span>            :                   (char *)value));
+<span class="lineNum">     439 </span>            :     }
+<span class="lineNum">     440 </span>            :   }
+<span class="lineNum">     441 </span>            : 
+<span class="lineNum">     442 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     443 </span>            :   /*      FeatureTypeList                                                 */
+<span class="lineNum">     444 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     445 </span>            : 
+<span class="lineNum">     446 </span><span class="lineCov">          1 :   psFtNode = xmlNewNode(NULL, BAD_CAST &quot;FeatureTypeList&quot;);</span>
+<span class="lineNum">     447 </span><span class="lineCov">          1 :   xmlAddChild(psRootNode, psFtNode);</span>
+<span class="lineNum">     448 </span><span class="lineCov">          1 :   psNode = xmlNewChild(psFtNode, NULL, BAD_CAST &quot;Operations&quot;, NULL);</span>
+<span class="lineNum">     449 </span><span class="lineCov">          1 :   xmlNewChild(psNode, NULL, BAD_CAST &quot;Operation&quot;, BAD_CAST &quot;Query&quot;);</span>
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span><span class="lineCov">          1 :   for(i=0; i&lt;map-&gt;numlayers; i++) {</span>
+<span class="lineNum">     452 </span>            :     layerObj *lp;
+<span class="lineNum">     453 </span><span class="lineCov">          1 :     lp = GET_LAYER(map, i);</span>
+<span class="lineNum">     454 </span>            : 
+<span class="lineNum">     455 </span><span class="lineCov">          1 :     if (!msIntegerInArray(lp-&gt;index, ows_request-&gt;enabled_layers, ows_request-&gt;numlayers))</span>
+<span class="lineNum">     456 </span><span class="lineCov">          1 :       continue;</span>
+<span class="lineNum">     457 </span>            : 
+<span class="lineNum">     458 </span>            :     /* List only vector layers in which DUMP=TRUE */
+<span class="lineNum">     459 </span><span class="lineCov">          1 :     if (msWFSIsLayerSupported(lp))</span>
+<span class="lineNum">     460 </span><span class="lineCov">          1 :       xmlAddChild(psFtNode, msWFSDumpLayer11(map, lp, psNsOws, OWS_1_1_0, NULL, script_url));</span>
+<span class="lineNum">     461 </span>            :   }
+<span class="lineNum">     462 </span>            : 
+<span class="lineNum">     463 </span>            : 
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span>            : 
+<span class="lineNum">     467 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     468 </span>            :   /*      Filter capabilities.                                            */
+<span class="lineNum">     469 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     470 </span>            : 
+<span class="lineNum">     471 </span><span class="lineCov">          1 :   psNsOgc = xmlNewNs(NULL, BAD_CAST MS_OWSCOMMON_OGC_NAMESPACE_URI, BAD_CAST MS_OWSCOMMON_OGC_NAMESPACE_PREFIX);</span>
+<span class="lineNum">     472 </span><span class="lineCov">          1 :   xmlAddChild(psRootNode, FLTGetCapabilities(psNsOgc, psNsOgc, MS_FALSE));</span>
+<span class="lineNum">     473 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     474 </span>            :   /*      Write out the document.                                         */
+<span class="lineNum">     475 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span><span class="lineCov">          1 :   if( msIO_needBinaryStdout() == MS_FAILURE )</span>
+<span class="lineNum">     478 </span>            :     return MS_FAILURE;
+<span class="lineNum">     479 </span>            : 
+<span class="lineNum">     480 </span><span class="lineCov">          1 :   msIO_setHeader(&quot;Content-Type&quot;,&quot;text/xml; charset=UTF-8&quot;);</span>
+<span class="lineNum">     481 </span><span class="lineCov">          1 :   msIO_sendHeaders();</span>
+<span class="lineNum">     482 </span>            : 
+<span class="lineNum">     483 </span><span class="lineCov">          1 :   context = msIO_getHandler(stdout);</span>
+<span class="lineNum">     484 </span>            : 
+<span class="lineNum">     485 </span><span class="lineCov">          1 :   xmlDocDumpFormatMemoryEnc(psDoc, &amp;buffer, &amp;size, (&quot;UTF-8&quot;), 1);</span>
+<span class="lineNum">     486 </span><span class="lineCov">          1 :   msIO_contextWrite(context, buffer, size);</span>
+<span class="lineNum">     487 </span><span class="lineCov">          1 :   xmlFree(buffer);</span>
+<span class="lineNum">     488 </span>            : 
+<span class="lineNum">     489 </span>            :   /*free buffer and the document */
+<span class="lineNum">     490 </span>            :   /*xmlFree(buffer);*/
+<span class="lineNum">     491 </span><span class="lineCov">          1 :   xmlFreeDoc(psDoc);</span>
+<span class="lineNum">     492 </span><span class="lineCov">          1 :   xmlFreeNs(psNsOgc);</span>
+<span class="lineNum">     493 </span>            : 
+<span class="lineNum">     494 </span><span class="lineCov">          1 :   free(script_url);</span>
+<span class="lineNum">     495 </span><span class="lineCov">          1 :   free(xsi_schemaLocation);</span>
+<span class="lineNum">     496 </span><span class="lineCov">          1 :   free(schemalocation);</span>
+<span class="lineNum">     497 </span>            : 
+<span class="lineNum">     498 </span><span class="lineCov">          1 :   xmlCleanupParser();</span>
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span><span class="lineCov">          1 :   return(MS_SUCCESS);</span>
+<span class="lineNum">     501 </span>            : }
+<span class="lineNum">     502 </span>            : 
+<span class="lineNum">     503 </span>            : 
+<span class="lineNum">     504 </span>            : #endif /*defined(USE_WFS_SVR) &amp;&amp; defined(USE_LIBXML2)*/
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span>            : #if defined(USE_WFS_SVR) &amp;&amp; !defined(USE_LIBXML2)
+<span class="lineNum">     507 </span>            : 
+<span class="lineNum">     508 </span>            : 
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span>            : int msWFSGetCapabilities11(mapObj *map, wfsParamsObj *params,
+<span class="lineNum">     511 </span>            :                            cgiRequestObj *req, owsRequestObj *ows_request)
+<span class="lineNum">     512 </span>            : 
+<span class="lineNum">     513 </span>            : {
+<span class="lineNum">     514 </span>            :   msSetError( MS_WFSERR,
+<span class="lineNum">     515 </span>            :               &quot;WFS 1.1 request made, but mapserver requires libxml2 for WFS 1.1 services and this is not configured.&quot;,
+<span class="lineNum">     516 </span>            :               &quot;msWFSGetCapabilities11()&quot; );
+<span class="lineNum">     517 </span>            : 
+<span class="lineNum">     518 </span>            :   return msWFSException11(map, &quot;mapserv&quot;, MS_OWS_ERROR_NO_APPLICABLE_CODE, params-&gt;pszVersion);
+<span class="lineNum">     519 </span>            : }
+<span class="lineNum">     520 </span>            : 
+<span class="lineNum">     521 </span>            : int msWFSException11(mapObj *map, const char *locator, const char *exceptionCode, const char *version)
+<span class="lineNum">     522 </span>            : {
+<span class="lineNum">     523 </span>            :   /* fallback to reporting using 1.0 style exceptions. */
+<span class="lineNum">     524 </span>            :   return msWFSException( map, locator, exceptionCode, &quot;1.0.0&quot; );
+<span class="lineNum">     525 </span>            : }
+<span class="lineNum">     526 </span>            : 
+<span class="lineNum">     527 </span>            : #endif /* defined(USE_WFS_SVR) &amp;&amp; !defined(USE_LIBXML2) */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,928 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - mapserver/renderers/agg/include/agg_renderer_scanline.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">mapserver/renderers/agg/include</a> - agg_renderer_scanline.h<span style="font-size: 80%;"> (source / <a href="agg_renderer_scanline.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">48</td>
+            <td class="headerCovTableEntry">49</td>
+            <td class="headerCovTableEntryHi">98.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryMed">83.3 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>            : // Anti-Grain Geometry - Version 2.4
+<span class="lineNum">       3 </span>            : // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : // Permission to copy, use, modify, sell and distribute this software 
+<span class="lineNum">       6 </span>            : // is granted provided this copyright notice appears in all copies. 
+<span class="lineNum">       7 </span>            : // This software is provided &quot;as is&quot; without express or implied
+<span class="lineNum">       8 </span>            : // warranty, and with no claim as to its suitability for any purpose.
+<span class="lineNum">       9 </span>            : //
+<span class="lineNum">      10 </span>            : //----------------------------------------------------------------------------
+<span class="lineNum">      11 </span>            : // Contact: mcseem@antigrain.com
+<span class="lineNum">      12 </span>            : //          mcseemagg@yahoo.com
+<span class="lineNum">      13 </span>            : //          http://www.antigrain.com
+<span class="lineNum">      14 </span>            : //----------------------------------------------------------------------------
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #ifndef AGG_RENDERER_SCANLINE_INCLUDED
+<span class="lineNum">      17 </span>            : #define AGG_RENDERER_SCANLINE_INCLUDED
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : #include &quot;agg_basics.h&quot;
+<span class="lineNum">      20 </span>            : #include &quot;agg_renderer_base.h&quot;
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : namespace mapserver
+<span class="lineNum">      23 </span>            : {
+<span class="lineNum">      24 </span>            : 
+<a name="25"><span class="lineNum">      25 </span>            :     //================================================render_scanline_aa_solid</a>
+<span class="lineNum">      26 </span>            :     template&lt;class Scanline, class BaseRenderer, class ColorT&gt; 
+<span class="lineNum">      27 </span><span class="lineCov">          1 :     void render_scanline_aa_solid(const Scanline&amp; sl, </span>
+<span class="lineNum">      28 </span>            :                                   BaseRenderer&amp; ren, 
+<span class="lineNum">      29 </span>            :                                   const ColorT&amp; color)
+<span class="lineNum">      30 </span>            :     {
+<span class="lineNum">      31 </span>            :         int y = sl.y();
+<span class="lineNum">      32 </span>            :         unsigned num_spans = sl.num_spans();
+<span class="lineNum">      33 </span><span class="lineCov">          1 :         typename Scanline::const_iterator span = sl.begin();</span>
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span><span class="lineCov">          1 :         for(;;)</span>
+<span class="lineNum">      36 </span>            :         {
+<span class="lineNum">      37 </span><span class="lineCov">          1 :             int x = span-&gt;x;</span>
+<span class="lineNum">      38 </span><span class="lineCov">          1 :             if(span-&gt;len &gt; 0)</span>
+<span class="lineNum">      39 </span>            :             {
+<span class="lineNum">      40 </span><span class="lineCov">          1 :                 ren.blend_solid_hspan(x, y, (unsigned)span-&gt;len, </span>
+<span class="lineNum">      41 </span>            :                                       color, 
+<span class="lineNum">      42 </span>            :                                       span-&gt;covers);
+<span class="lineNum">      43 </span>            :             }
+<span class="lineNum">      44 </span>            :             else
+<span class="lineNum">      45 </span>            :             {
+<span class="lineNum">      46 </span><span class="lineCov">          1 :                 ren.blend_hline(x, y, (unsigned)(x - span-&gt;len - 1), </span>
+<span class="lineNum">      47 </span>            :                                 color, 
+<span class="lineNum">      48 </span>            :                                 *(span-&gt;covers));
+<span class="lineNum">      49 </span>            :             }
+<span class="lineNum">      50 </span><span class="lineCov">          1 :             if(--num_spans == 0) break;</span>
+<span class="lineNum">      51 </span><span class="lineCov">          1 :             ++span;</span>
+<span class="lineNum">      52 </span>            :         }
+<span class="lineNum">      53 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            :     //===============================================render_scanlines_aa_solid
+<span class="lineNum">      56 </span>            :     template&lt;class Rasterizer, class Scanline, 
+<span class="lineNum">      57 </span>            :              class BaseRenderer, class ColorT&gt;
+<span class="lineNum">      58 </span>            :     void render_scanlines_aa_solid(Rasterizer&amp; ras, Scanline&amp; sl, 
+<span class="lineNum">      59 </span>            :                                    BaseRenderer&amp; ren, const ColorT&amp; color)
+<span class="lineNum">      60 </span>            :     {
+<span class="lineNum">      61 </span>            :         if(ras.rewind_scanlines())
+<span class="lineNum">      62 </span>            :         {
+<span class="lineNum">      63 </span>            :             // Explicitly convert &quot;color&quot; to the BaseRenderer color type.
+<span class="lineNum">      64 </span>            :             // For example, it can be called with color type &quot;rgba&quot;, while
+<span class="lineNum">      65 </span>            :             // &quot;rgba8&quot; is needed. Otherwise it will be implicitly 
+<span class="lineNum">      66 </span>            :             // converted in the loop many times.
+<span class="lineNum">      67 </span>            :             //----------------------
+<span class="lineNum">      68 </span>            :             typename BaseRenderer::color_type ren_color(color);
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            :             sl.reset(ras.min_x(), ras.max_x());
+<span class="lineNum">      71 </span>            :             while(ras.sweep_scanline(sl))
+<span class="lineNum">      72 </span>            :             {
+<span class="lineNum">      73 </span>            :                 //render_scanline_aa_solid(sl, ren, ren_color);
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            :                 // This code is equivalent to the above call (copy/paste). 
+<span class="lineNum">      76 </span>            :                 // It's just a &quot;manual&quot; optimization for old compilers,
+<span class="lineNum">      77 </span>            :                 // like Microsoft Visual C++ v6.0
+<span class="lineNum">      78 </span>            :                 //-------------------------------
+<span class="lineNum">      79 </span>            :                 int y = sl.y();
+<span class="lineNum">      80 </span>            :                 unsigned num_spans = sl.num_spans();
+<span class="lineNum">      81 </span>            :                 typename Scanline::const_iterator span = sl.begin();
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            :                 for(;;)
+<span class="lineNum">      84 </span>            :                 {
+<span class="lineNum">      85 </span>            :                     int x = span-&gt;x;
+<span class="lineNum">      86 </span>            :                     if(span-&gt;len &gt; 0)
+<span class="lineNum">      87 </span>            :                     {
+<span class="lineNum">      88 </span>            :                         ren.blend_solid_hspan(x, y, (unsigned)span-&gt;len, 
+<span class="lineNum">      89 </span>            :                                               ren_color, 
+<span class="lineNum">      90 </span>            :                                               span-&gt;covers);
+<span class="lineNum">      91 </span>            :                     }
+<span class="lineNum">      92 </span>            :                     else
+<span class="lineNum">      93 </span>            :                     {
+<span class="lineNum">      94 </span>            :                         ren.blend_hline(x, y, (unsigned)(x - span-&gt;len - 1), 
+<span class="lineNum">      95 </span>            :                                         ren_color, 
+<span class="lineNum">      96 </span>            :                                         *(span-&gt;covers));
+<span class="lineNum">      97 </span>            :                     }
+<span class="lineNum">      98 </span>            :                     if(--num_spans == 0) break;
+<span class="lineNum">      99 </span>            :                     ++span;
+<span class="lineNum">     100 </span>            :                 }
+<span class="lineNum">     101 </span>            :             }
+<span class="lineNum">     102 </span>            :         }
+<span class="lineNum">     103 </span>            :     }
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            :     //==============================================renderer_scanline_aa_solid
+<span class="lineNum">     106 </span>            :     template&lt;class BaseRenderer&gt; class renderer_scanline_aa_solid
+<span class="lineNum">     107 </span>            :     {
+<span class="lineNum">     108 </span>            :     public:
+<span class="lineNum">     109 </span>            :         typedef BaseRenderer base_ren_type;
+<span class="lineNum">     110 </span>            :         typedef typename base_ren_type::color_type color_type;
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     113 </span><span class="lineCov">          1 :         renderer_scanline_aa_solid() : m_ren(0) {}</span>
+<span class="lineNum">     114 </span>            :         explicit renderer_scanline_aa_solid(base_ren_type&amp; ren) : m_ren(&amp;ren) {}
+<span class="lineNum">     115 </span>            :         void attach(base_ren_type&amp; ren)
+<span class="lineNum">     116 </span>            :         {
+<span class="lineNum">     117 </span><span class="lineCov">          1 :             m_ren = &amp;ren;</span>
+<span class="lineNum">     118 </span>            :         }
+<span class="lineNum">     119 </span>            :         
+<span class="lineNum">     120 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     121 </span><span class="lineCov">          1 :         void color(const color_type&amp; c) { m_color = c; }</span>
+<span class="lineNum">     122 </span>            :         const color_type&amp; color() const { return m_color; }
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     125 </span>            :         void prepare() {}
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span>            :         //--------------------------------------------------------------------
+<a name="128"><span class="lineNum">     128 </span>            :         template&lt;class Scanline&gt; void render(const Scanline&amp; sl)</a>
+<span class="lineNum">     129 </span>            :         {
+<span class="lineNum">     130 </span><span class="lineCov">          1 :             render_scanline_aa_solid(sl, *m_ren, m_color);</span>
+<span class="lineNum">     131 </span>            :         }
+<span class="lineNum">     132 </span>            :         
+<span class="lineNum">     133 </span>            :     private:
+<span class="lineNum">     134 </span>            :         base_ren_type* m_ren;
+<span class="lineNum">     135 </span>            :         color_type m_color;
+<span class="lineNum">     136 </span>            :     };
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :     //======================================================render_scanline_aa
+<a name="151"><span class="lineNum">     151 </span>            :     template&lt;class Scanline, class BaseRenderer, </a>
+<span class="lineNum">     152 </span>            :              class SpanAllocator, class SpanGenerator&gt; 
+<span class="lineNum">     153 </span><span class="lineCov">          1 :     void render_scanline_aa(const Scanline&amp; sl, BaseRenderer&amp; ren, </span>
+<span class="lineNum">     154 </span>            :                             SpanAllocator&amp; alloc, SpanGenerator&amp; span_gen)
+<span class="lineNum">     155 </span>            :     {
+<span class="lineNum">     156 </span>            :         int y = sl.y();
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            :         unsigned num_spans = sl.num_spans();
+<span class="lineNum">     159 </span>            :         typename Scanline::const_iterator span = sl.begin();
+<span class="lineNum">     160 </span><span class="lineCov">          1 :         for(;;)</span>
+<span class="lineNum">     161 </span>            :         {
+<span class="lineNum">     162 </span><span class="lineCov">          1 :             int x = span-&gt;x;</span>
+<span class="lineNum">     163 </span><span class="lineCov">          1 :             int len = span-&gt;len;</span>
+<span class="lineNum">     164 </span><span class="lineCov">          1 :             const typename Scanline::cover_type* covers = span-&gt;covers;</span>
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span><span class="lineCov">          1 :             if(len &lt; 0) len = -len;</span>
+<span class="lineNum">     167 </span><span class="lineCov">          1 :             typename BaseRenderer::color_type* colors = alloc.allocate(len);</span>
+<span class="lineNum">     168 </span><span class="lineCov">          1 :             span_gen.generate(colors, x, y, len);</span>
+<span class="lineNum">     169 </span><span class="lineCov">          1 :             ren.blend_color_hspan(x, y, len, colors, </span>
+<span class="lineNum">     170 </span>            :                                   (span-&gt;len &lt; 0) ? 0 : covers, *covers);
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span><span class="lineCov">          1 :             if(--num_spans == 0) break;</span>
+<span class="lineNum">     173 </span><span class="lineCov">          1 :             ++span;</span>
+<span class="lineNum">     174 </span>            :         }
+<span class="lineNum">     175 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span>            :     //=====================================================render_scanlines_aa
+<a name="178"><span class="lineNum">     178 </span>            :     template&lt;class Rasterizer, class Scanline, class BaseRenderer, </a>
+<span class="lineNum">     179 </span>            :              class SpanAllocator, class SpanGenerator&gt;
+<span class="lineNum">     180 </span><span class="lineCov">          1 :     void render_scanlines_aa(Rasterizer&amp; ras, Scanline&amp; sl, BaseRenderer&amp; ren, </span>
+<span class="lineNum">     181 </span>            :                              SpanAllocator&amp; alloc, SpanGenerator&amp; span_gen)
+<span class="lineNum">     182 </span>            :     {
+<span class="lineNum">     183 </span><span class="lineCov">          1 :         if(ras.rewind_scanlines())</span>
+<span class="lineNum">     184 </span>            :         {
+<span class="lineNum">     185 </span><span class="lineCov">          1 :             sl.reset(ras.min_x(), ras.max_x());</span>
+<span class="lineNum">     186 </span>            :             span_gen.prepare();
+<span class="lineNum">     187 </span><span class="lineCov">          1 :             while(ras.sweep_scanline(sl))</span>
+<span class="lineNum">     188 </span>            :             {
+<span class="lineNum">     189 </span><span class="lineCov">          1 :                 render_scanline_aa(sl, ren, alloc, span_gen);</span>
+<span class="lineNum">     190 </span>            :             }
+<span class="lineNum">     191 </span>            :         }
+<span class="lineNum">     192 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span>            :     //====================================================renderer_scanline_aa
+<span class="lineNum">     195 </span>            :     template&lt;class BaseRenderer, class SpanAllocator, class SpanGenerator&gt; 
+<span class="lineNum">     196 </span>            :     class renderer_scanline_aa
+<span class="lineNum">     197 </span>            :     {
+<span class="lineNum">     198 </span>            :     public:
+<span class="lineNum">     199 </span>            :         typedef BaseRenderer  base_ren_type;
+<span class="lineNum">     200 </span>            :         typedef SpanAllocator alloc_type;
+<span class="lineNum">     201 </span>            :         typedef SpanGenerator span_gen_type;
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     204 </span>            :         renderer_scanline_aa() : m_ren(0), m_alloc(0), m_span_gen(0) {}
+<span class="lineNum">     205 </span>            :         renderer_scanline_aa(base_ren_type&amp; ren, 
+<span class="lineNum">     206 </span>            :                              alloc_type&amp; alloc, 
+<span class="lineNum">     207 </span>            :                              span_gen_type&amp; span_gen) :
+<span class="lineNum">     208 </span>            :             m_ren(&amp;ren),
+<span class="lineNum">     209 </span>            :             m_alloc(&amp;alloc),
+<span class="lineNum">     210 </span>            :             m_span_gen(&amp;span_gen)
+<span class="lineNum">     211 </span>            :         {}
+<span class="lineNum">     212 </span>            :         void attach(base_ren_type&amp; ren, 
+<span class="lineNum">     213 </span>            :                     alloc_type&amp; alloc, 
+<span class="lineNum">     214 </span>            :                     span_gen_type&amp; span_gen)
+<span class="lineNum">     215 </span>            :         {
+<span class="lineNum">     216 </span>            :             m_ren = &amp;ren;
+<span class="lineNum">     217 </span>            :             m_alloc = &amp;alloc;
+<span class="lineNum">     218 </span>            :             m_span_gen = &amp;span_gen;
+<span class="lineNum">     219 </span>            :         }
+<span class="lineNum">     220 </span>            :         
+<span class="lineNum">     221 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     222 </span>            :         void prepare() { m_span_gen-&gt;prepare(); }
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     225 </span>            :         template&lt;class Scanline&gt; void render(const Scanline&amp; sl)
+<span class="lineNum">     226 </span>            :         {
+<span class="lineNum">     227 </span>            :             render_scanline_aa(sl, *m_ren, *m_alloc, *m_span_gen);
+<span class="lineNum">     228 </span>            :         }
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            :     private:
+<span class="lineNum">     231 </span>            :         base_ren_type* m_ren;
+<span class="lineNum">     232 </span>            :         alloc_type*    m_alloc;
+<span class="lineNum">     233 </span>            :         span_gen_type* m_span_gen;
+<span class="lineNum">     234 </span>            :     };
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            : 
+<a name="241"><span class="lineNum">     241 </span>            :     //===============================================render_scanline_bin_solid</a>
+<span class="lineNum">     242 </span>            :     template&lt;class Scanline, class BaseRenderer, class ColorT&gt; 
+<span class="lineNum">     243 </span><span class="lineCov">          1 :     void render_scanline_bin_solid(const Scanline&amp; sl, </span>
+<span class="lineNum">     244 </span>            :                                    BaseRenderer&amp; ren, 
+<span class="lineNum">     245 </span>            :                                    const ColorT&amp; color)
+<span class="lineNum">     246 </span>            :     {
+<span class="lineNum">     247 </span>            :         unsigned num_spans = sl.num_spans();
+<span class="lineNum">     248 </span><span class="lineCov">          1 :         typename Scanline::const_iterator span = sl.begin();</span>
+<span class="lineNum">     249 </span>            :         for(;;)
+<span class="lineNum">     250 </span>            :         {
+<span class="lineNum">     251 </span><span class="lineCov">          1 :             ren.blend_hline(span-&gt;x, </span>
+<span class="lineNum">     252 </span>            :                             sl.y(), 
+<span class="lineNum">     253 </span>            :                             span-&gt;x - 1 + ((span-&gt;len &lt; 0) ? 
+<span class="lineNum">     254 </span>            :                                               -span-&gt;len : 
+<span class="lineNum">     255 </span>            :                                                span-&gt;len), 
+<span class="lineNum">     256 </span>            :                                color, 
+<span class="lineNum">     257 </span>            :                                cover_full);
+<span class="lineNum">     258 </span><span class="lineCov">          1 :             if(--num_spans == 0) break;</span>
+<span class="lineNum">     259 </span><span class="lineCov">          1 :             ++span;</span>
+<span class="lineNum">     260 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     261 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span>            :     //==============================================render_scanlines_bin_solid
+<span class="lineNum">     264 </span>            :     template&lt;class Rasterizer, class Scanline, 
+<span class="lineNum">     265 </span>            :              class BaseRenderer, class ColorT&gt;
+<span class="lineNum">     266 </span>            :     void render_scanlines_bin_solid(Rasterizer&amp; ras, Scanline&amp; sl, 
+<span class="lineNum">     267 </span>            :                                     BaseRenderer&amp; ren, const ColorT&amp; color)
+<span class="lineNum">     268 </span>            :     {
+<span class="lineNum">     269 </span>            :         if(ras.rewind_scanlines())
+<span class="lineNum">     270 </span>            :         {
+<span class="lineNum">     271 </span>            :             // Explicitly convert &quot;color&quot; to the BaseRenderer color type.
+<span class="lineNum">     272 </span>            :             // For example, it can be called with color type &quot;rgba&quot;, while
+<span class="lineNum">     273 </span>            :             // &quot;rgba8&quot; is needed. Otherwise it will be implicitly 
+<span class="lineNum">     274 </span>            :             // converted in the loop many times.
+<span class="lineNum">     275 </span>            :             //----------------------
+<span class="lineNum">     276 </span>            :             typename BaseRenderer::color_type ren_color(color);
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span>            :             sl.reset(ras.min_x(), ras.max_x());
+<span class="lineNum">     279 </span>            :             while(ras.sweep_scanline(sl))
+<span class="lineNum">     280 </span>            :             {
+<span class="lineNum">     281 </span>            :                 //render_scanline_bin_solid(sl, ren, ren_color);
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span>            :                 // This code is equivalent to the above call (copy/paste). 
+<span class="lineNum">     284 </span>            :                 // It's just a &quot;manual&quot; optimization for old compilers,
+<span class="lineNum">     285 </span>            :                 // like Microsoft Visual C++ v6.0
+<span class="lineNum">     286 </span>            :                 //-------------------------------
+<span class="lineNum">     287 </span>            :                 unsigned num_spans = sl.num_spans();
+<span class="lineNum">     288 </span>            :                 typename Scanline::const_iterator span = sl.begin();
+<span class="lineNum">     289 </span>            :                 for(;;)
+<span class="lineNum">     290 </span>            :                 {
+<span class="lineNum">     291 </span>            :                     ren.blend_hline(span-&gt;x, 
+<span class="lineNum">     292 </span>            :                                     sl.y(), 
+<span class="lineNum">     293 </span>            :                                     span-&gt;x - 1 + ((span-&gt;len &lt; 0) ? 
+<span class="lineNum">     294 </span>            :                                                       -span-&gt;len : 
+<span class="lineNum">     295 </span>            :                                                        span-&gt;len), 
+<span class="lineNum">     296 </span>            :                                        ren_color, 
+<span class="lineNum">     297 </span>            :                                        cover_full);
+<span class="lineNum">     298 </span>            :                     if(--num_spans == 0) break;
+<span class="lineNum">     299 </span>            :                     ++span;
+<span class="lineNum">     300 </span>            :                 }
+<span class="lineNum">     301 </span>            :             }
+<span class="lineNum">     302 </span>            :         }
+<span class="lineNum">     303 </span>            :     }
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span>            :     //=============================================renderer_scanline_bin_solid
+<span class="lineNum">     306 </span>            :     template&lt;class BaseRenderer&gt; class renderer_scanline_bin_solid
+<span class="lineNum">     307 </span>            :     {
+<span class="lineNum">     308 </span>            :     public:
+<span class="lineNum">     309 </span>            :         typedef BaseRenderer base_ren_type;
+<span class="lineNum">     310 </span>            :         typedef typename base_ren_type::color_type color_type;
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     313 </span><span class="lineCov">          1 :         renderer_scanline_bin_solid() : m_ren(0) {}</span>
+<span class="lineNum">     314 </span>            :         explicit renderer_scanline_bin_solid(base_ren_type&amp; ren) : m_ren(&amp;ren) {}
+<span class="lineNum">     315 </span>            :         void attach(base_ren_type&amp; ren)
+<span class="lineNum">     316 </span>            :         {
+<span class="lineNum">     317 </span><span class="lineCov">          1 :             m_ren = &amp;ren;</span>
+<span class="lineNum">     318 </span>            :         }
+<span class="lineNum">     319 </span>            :         
+<span class="lineNum">     320 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     321 </span><span class="lineCov">          1 :         void color(const color_type&amp; c) { m_color = c; }</span>
+<span class="lineNum">     322 </span>            :         const color_type&amp; color() const { return m_color; }
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     325 </span>            :         void prepare() {}
+<span class="lineNum">     326 </span>            : 
+<span class="lineNum">     327 </span>            :         //--------------------------------------------------------------------
+<a name="328"><span class="lineNum">     328 </span>            :         template&lt;class Scanline&gt; void render(const Scanline&amp; sl)</a>
+<span class="lineNum">     329 </span>            :         {
+<span class="lineNum">     330 </span><span class="lineCov">          1 :             render_scanline_bin_solid(sl, *m_ren, m_color);</span>
+<span class="lineNum">     331 </span>            :         }
+<span class="lineNum">     332 </span>            :         
+<span class="lineNum">     333 </span>            :     private:
+<span class="lineNum">     334 </span>            :         base_ren_type* m_ren;
+<span class="lineNum">     335 </span>            :         color_type m_color;
+<span class="lineNum">     336 </span>            :     };
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span>            : 
+<span class="lineNum">     340 </span>            : 
+<span class="lineNum">     341 </span>            : 
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span>            : 
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span>            :     //======================================================render_scanline_bin
+<span class="lineNum">     346 </span>            :     template&lt;class Scanline, class BaseRenderer, 
+<span class="lineNum">     347 </span>            :              class SpanAllocator, class SpanGenerator&gt; 
+<span class="lineNum">     348 </span>            :     void render_scanline_bin(const Scanline&amp; sl, BaseRenderer&amp; ren, 
+<span class="lineNum">     349 </span>            :                              SpanAllocator&amp; alloc, SpanGenerator&amp; span_gen)
+<span class="lineNum">     350 </span>            :     {
+<span class="lineNum">     351 </span>            :         int y = sl.y();
+<span class="lineNum">     352 </span>            : 
+<span class="lineNum">     353 </span>            :         unsigned num_spans = sl.num_spans();
+<span class="lineNum">     354 </span>            :         typename Scanline::const_iterator span = sl.begin();
+<span class="lineNum">     355 </span>            :         for(;;)
+<span class="lineNum">     356 </span>            :         {
+<span class="lineNum">     357 </span>            :             int x = span-&gt;x;
+<span class="lineNum">     358 </span>            :             int len = span-&gt;len;
+<span class="lineNum">     359 </span>            :             if(len &lt; 0) len = -len;
+<span class="lineNum">     360 </span>            :             typename BaseRenderer::color_type* colors = alloc.allocate(len);
+<span class="lineNum">     361 </span>            :             span_gen.generate(colors, x, y, len);
+<span class="lineNum">     362 </span>            :             ren.blend_color_hspan(x, y, len, colors, 0, cover_full); 
+<span class="lineNum">     363 </span>            :             if(--num_spans == 0) break;
+<span class="lineNum">     364 </span>            :             ++span;
+<span class="lineNum">     365 </span>            :         }
+<span class="lineNum">     366 </span>            :     }
+<span class="lineNum">     367 </span>            : 
+<span class="lineNum">     368 </span>            :     //=====================================================render_scanlines_bin
+<span class="lineNum">     369 </span>            :     template&lt;class Rasterizer, class Scanline, class BaseRenderer, 
+<span class="lineNum">     370 </span>            :              class SpanAllocator, class SpanGenerator&gt;
+<span class="lineNum">     371 </span>            :     void render_scanlines_bin(Rasterizer&amp; ras, Scanline&amp; sl, BaseRenderer&amp; ren, 
+<span class="lineNum">     372 </span>            :                               SpanAllocator&amp; alloc, SpanGenerator&amp; span_gen)
+<span class="lineNum">     373 </span>            :     {
+<span class="lineNum">     374 </span>            :         if(ras.rewind_scanlines())
+<span class="lineNum">     375 </span>            :         {
+<span class="lineNum">     376 </span>            :             sl.reset(ras.min_x(), ras.max_x());
+<span class="lineNum">     377 </span>            :             span_gen.prepare();
+<span class="lineNum">     378 </span>            :             while(ras.sweep_scanline(sl))
+<span class="lineNum">     379 </span>            :             {
+<span class="lineNum">     380 </span>            :                 render_scanline_bin(sl, ren, alloc, span_gen);
+<span class="lineNum">     381 </span>            :             }
+<span class="lineNum">     382 </span>            :         }
+<span class="lineNum">     383 </span>            :     }
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span>            :     //====================================================renderer_scanline_bin
+<span class="lineNum">     386 </span>            :     template&lt;class BaseRenderer, class SpanAllocator, class SpanGenerator&gt; 
+<span class="lineNum">     387 </span>            :     class renderer_scanline_bin
+<span class="lineNum">     388 </span>            :     {
+<span class="lineNum">     389 </span>            :     public:
+<span class="lineNum">     390 </span>            :         typedef BaseRenderer  base_ren_type;
+<span class="lineNum">     391 </span>            :         typedef SpanAllocator alloc_type;
+<span class="lineNum">     392 </span>            :         typedef SpanGenerator span_gen_type;
+<span class="lineNum">     393 </span>            : 
+<span class="lineNum">     394 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     395 </span>            :         renderer_scanline_bin() : m_ren(0), m_alloc(0), m_span_gen(0) {}
+<span class="lineNum">     396 </span>            :         renderer_scanline_bin(base_ren_type&amp; ren, 
+<span class="lineNum">     397 </span>            :                               alloc_type&amp; alloc, 
+<span class="lineNum">     398 </span>            :                               span_gen_type&amp; span_gen) :
+<span class="lineNum">     399 </span>            :             m_ren(&amp;ren),
+<span class="lineNum">     400 </span>            :             m_alloc(&amp;alloc),
+<span class="lineNum">     401 </span>            :             m_span_gen(&amp;span_gen)
+<span class="lineNum">     402 </span>            :         {}
+<span class="lineNum">     403 </span>            :         void attach(base_ren_type&amp; ren, 
+<span class="lineNum">     404 </span>            :                     alloc_type&amp; alloc, 
+<span class="lineNum">     405 </span>            :                     span_gen_type&amp; span_gen)
+<span class="lineNum">     406 </span>            :         {
+<span class="lineNum">     407 </span>            :             m_ren = &amp;ren;
+<span class="lineNum">     408 </span>            :             m_alloc = &amp;alloc;
+<span class="lineNum">     409 </span>            :             m_span_gen = &amp;span_gen;
+<span class="lineNum">     410 </span>            :         }
+<span class="lineNum">     411 </span>            :         
+<span class="lineNum">     412 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     413 </span>            :         void prepare() { m_span_gen-&gt;prepare(); }
+<span class="lineNum">     414 </span>            : 
+<span class="lineNum">     415 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     416 </span>            :         template&lt;class Scanline&gt; void render(const Scanline&amp; sl)
+<span class="lineNum">     417 </span>            :         {
+<span class="lineNum">     418 </span>            :             render_scanline_bin(sl, *m_ren, *m_alloc, *m_span_gen);
+<span class="lineNum">     419 </span>            :         }
+<span class="lineNum">     420 </span>            : 
+<span class="lineNum">     421 </span>            :     private:
+<span class="lineNum">     422 </span>            :         base_ren_type* m_ren;
+<span class="lineNum">     423 </span>            :         alloc_type*    m_alloc;
+<span class="lineNum">     424 </span>            :         span_gen_type* m_span_gen;
+<span class="lineNum">     425 </span>            :     };
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span>            : 
+<span class="lineNum">     429 </span>            : 
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span>            : 
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span>            :     //========================================================render_scanlines
+<span class="lineNum">     437 </span>            :     template&lt;class Rasterizer, class Scanline, class Renderer&gt;
+<span class="lineNum">     438 </span><span class="lineCov">          1 :     void render_scanlines(Rasterizer&amp; ras, Scanline&amp; sl, Renderer&amp; ren)</span>
+<span class="lineNum">     439 </span>            :     {
+<span class="lineNum">     440 </span><span class="lineCov">          1 :         if(ras.rewind_scanlines())</span>
+<span class="lineNum">     441 </span>            :         {
+<span class="lineNum">     442 </span><span class="lineCov">          1 :             sl.reset(ras.min_x(), ras.max_x());</span>
+<span class="lineNum">     443 </span>            :             ren.prepare();
+<span class="lineNum">     444 </span><span class="lineCov">          1 :             while(ras.sweep_scanline(sl))</span>
+<span class="lineNum">     445 </span>            :             {
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :                 ren.render(sl);</span>
+<span class="lineNum">     447 </span>            :             }
+<span class="lineNum">     448 </span>            :         }
+<span class="lineNum">     449 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span>            :     //========================================================render_all_paths
+<span class="lineNum">     452 </span>            :     template&lt;class Rasterizer, class Scanline, class Renderer, 
+<span class="lineNum">     453 </span>            :              class VertexSource, class ColorStorage, class PathId&gt;
+<span class="lineNum">     454 </span>            :     void render_all_paths(Rasterizer&amp; ras, 
+<span class="lineNum">     455 </span>            :                           Scanline&amp; sl,
+<span class="lineNum">     456 </span>            :                           Renderer&amp; r, 
+<span class="lineNum">     457 </span>            :                           VertexSource&amp; vs, 
+<span class="lineNum">     458 </span>            :                           const ColorStorage&amp; as, 
+<span class="lineNum">     459 </span>            :                           const PathId&amp; path_id,
+<span class="lineNum">     460 </span>            :                           unsigned num_paths)
+<span class="lineNum">     461 </span>            :     {
+<span class="lineNum">     462 </span>            :         for(unsigned i = 0; i &lt; num_paths; i++)
+<span class="lineNum">     463 </span>            :         {
+<span class="lineNum">     464 </span>            :             ras.reset();
+<span class="lineNum">     465 </span>            :             ras.add_path(vs, path_id[i]);
+<span class="lineNum">     466 </span>            :             r.color(as[i]);
+<span class="lineNum">     467 </span>            :             render_scanlines(ras, sl, r);
+<span class="lineNum">     468 </span>            :         }
+<span class="lineNum">     469 </span>            :     }
+<span class="lineNum">     470 </span>            : 
+<span class="lineNum">     471 </span>            : 
+<span class="lineNum">     472 </span>            : 
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span>            : 
+<span class="lineNum">     475 </span>            : 
+<span class="lineNum">     476 </span>            :     //=============================================render_scanlines_compound
+<span class="lineNum">     477 </span>            :     template&lt;class Rasterizer, 
+<span class="lineNum">     478 </span>            :              class ScanlineAA, 
+<span class="lineNum">     479 </span>            :              class ScanlineBin, 
+<span class="lineNum">     480 </span>            :              class BaseRenderer, 
+<span class="lineNum">     481 </span>            :              class SpanAllocator,
+<span class="lineNum">     482 </span>            :              class StyleHandler&gt;
+<span class="lineNum">     483 </span>            :     void render_scanlines_compound(Rasterizer&amp; ras, 
+<span class="lineNum">     484 </span>            :                                    ScanlineAA&amp; sl_aa,
+<span class="lineNum">     485 </span>            :                                    ScanlineBin&amp; sl_bin,
+<span class="lineNum">     486 </span>            :                                    BaseRenderer&amp; ren,
+<span class="lineNum">     487 </span>            :                                    SpanAllocator&amp; alloc,
+<span class="lineNum">     488 </span>            :                                    StyleHandler&amp; sh)
+<span class="lineNum">     489 </span>            :     {
+<span class="lineNum">     490 </span>            :         if(ras.rewind_scanlines())
+<span class="lineNum">     491 </span>            :         {
+<span class="lineNum">     492 </span>            :             int min_x = ras.min_x();
+<span class="lineNum">     493 </span>            :             int len = ras.max_x() - min_x + 2;
+<span class="lineNum">     494 </span>            :             sl_aa.reset(min_x, ras.max_x());
+<span class="lineNum">     495 </span>            :             sl_bin.reset(min_x, ras.max_x());
+<span class="lineNum">     496 </span>            : 
+<span class="lineNum">     497 </span>            :             typedef typename BaseRenderer::color_type color_type;
+<span class="lineNum">     498 </span>            :             color_type* color_span = alloc.allocate(len * 2);
+<span class="lineNum">     499 </span>            :             color_type* mix_buffer = color_span + len;
+<span class="lineNum">     500 </span>            :             unsigned num_spans;
+<span class="lineNum">     501 </span>            : 
+<span class="lineNum">     502 </span>            :             unsigned num_styles;
+<span class="lineNum">     503 </span>            :             unsigned style;
+<span class="lineNum">     504 </span>            :             bool     solid;
+<span class="lineNum">     505 </span>            :             while((num_styles = ras.sweep_styles()) &gt; 0)
+<span class="lineNum">     506 </span>            :             {
+<span class="lineNum">     507 </span>            :                 typename ScanlineAA::const_iterator span_aa;
+<span class="lineNum">     508 </span>            :                 if(num_styles == 1)
+<span class="lineNum">     509 </span>            :                 {
+<span class="lineNum">     510 </span>            :                     // Optimization for a single style. Happens often
+<span class="lineNum">     511 </span>            :                     //-------------------------
+<span class="lineNum">     512 </span>            :                     if(ras.sweep_scanline(sl_aa, 0))
+<span class="lineNum">     513 </span>            :                     {
+<span class="lineNum">     514 </span>            :                         style = ras.style(0);
+<span class="lineNum">     515 </span>            :                         if(sh.is_solid(style))
+<span class="lineNum">     516 </span>            :                         {
+<span class="lineNum">     517 </span>            :                             // Just solid fill
+<span class="lineNum">     518 </span>            :                             //-----------------------
+<span class="lineNum">     519 </span>            :                             render_scanline_aa_solid(sl_aa, ren, sh.color(style));
+<span class="lineNum">     520 </span>            :                         }
+<span class="lineNum">     521 </span>            :                         else
+<span class="lineNum">     522 </span>            :                         {
+<span class="lineNum">     523 </span>            :                             // Arbitrary span generator
+<span class="lineNum">     524 </span>            :                             //-----------------------
+<span class="lineNum">     525 </span>            :                             span_aa   = sl_aa.begin();
+<span class="lineNum">     526 </span>            :                             num_spans = sl_aa.num_spans();
+<span class="lineNum">     527 </span>            :                             for(;;)
+<span class="lineNum">     528 </span>            :                             {
+<span class="lineNum">     529 </span>            :                                 len = span_aa-&gt;len;
+<span class="lineNum">     530 </span>            :                                 sh.generate_span(color_span, 
+<span class="lineNum">     531 </span>            :                                                  span_aa-&gt;x, 
+<span class="lineNum">     532 </span>            :                                                  sl_aa.y(), 
+<span class="lineNum">     533 </span>            :                                                  len, 
+<span class="lineNum">     534 </span>            :                                                  style);
+<span class="lineNum">     535 </span>            : 
+<span class="lineNum">     536 </span>            :                                 ren.blend_color_hspan(span_aa-&gt;x, 
+<span class="lineNum">     537 </span>            :                                                       sl_aa.y(), 
+<span class="lineNum">     538 </span>            :                                                       span_aa-&gt;len,
+<span class="lineNum">     539 </span>            :                                                       color_span,
+<span class="lineNum">     540 </span>            :                                                       span_aa-&gt;covers);
+<span class="lineNum">     541 </span>            :                                 if(--num_spans == 0) break;
+<span class="lineNum">     542 </span>            :                                 ++span_aa;
+<span class="lineNum">     543 </span>            :                             }
+<span class="lineNum">     544 </span>            :                         }
+<span class="lineNum">     545 </span>            :                     }
+<span class="lineNum">     546 </span>            :                 }
+<span class="lineNum">     547 </span>            :                 else
+<span class="lineNum">     548 </span>            :                 {
+<span class="lineNum">     549 </span>            :                     if(ras.sweep_scanline(sl_bin, -1))
+<span class="lineNum">     550 </span>            :                     {
+<span class="lineNum">     551 </span>            :                         // Clear the spans of the mix_buffer
+<span class="lineNum">     552 </span>            :                         //--------------------
+<span class="lineNum">     553 </span>            :                         typename ScanlineBin::const_iterator span_bin = sl_bin.begin();
+<span class="lineNum">     554 </span>            :                         num_spans = sl_bin.num_spans();
+<span class="lineNum">     555 </span>            :                         for(;;)
+<span class="lineNum">     556 </span>            :                         {
+<span class="lineNum">     557 </span>            :                             memset(mix_buffer + span_bin-&gt;x - min_x, 
+<span class="lineNum">     558 </span>            :                                    0, 
+<span class="lineNum">     559 </span>            :                                    span_bin-&gt;len * sizeof(color_type));
+<span class="lineNum">     560 </span>            : 
+<span class="lineNum">     561 </span>            :                             if(--num_spans == 0) break;
+<span class="lineNum">     562 </span>            :                             ++span_bin;
+<span class="lineNum">     563 </span>            :                         }
+<span class="lineNum">     564 </span>            : 
+<span class="lineNum">     565 </span>            :                         unsigned i;
+<span class="lineNum">     566 </span>            :                         for(i = 0; i &lt; num_styles; i++)
+<span class="lineNum">     567 </span>            :                         {
+<span class="lineNum">     568 </span>            :                             style = ras.style(i);
+<span class="lineNum">     569 </span>            :                             solid = sh.is_solid(style);
+<span class="lineNum">     570 </span>            : 
+<span class="lineNum">     571 </span>            :                             if(ras.sweep_scanline(sl_aa, i))
+<span class="lineNum">     572 </span>            :                             {
+<span class="lineNum">     573 </span>            :                                 color_type* colors;
+<span class="lineNum">     574 </span>            :                                 color_type* cspan;
+<span class="lineNum">     575 </span>            :                                 typename ScanlineAA::cover_type* covers;
+<span class="lineNum">     576 </span>            :                                 span_aa   = sl_aa.begin();
+<span class="lineNum">     577 </span>            :                                 num_spans = sl_aa.num_spans();
+<span class="lineNum">     578 </span>            :                                 if(solid)
+<span class="lineNum">     579 </span>            :                                 {
+<span class="lineNum">     580 </span>            :                                     // Just solid fill
+<span class="lineNum">     581 </span>            :                                     //-----------------------
+<span class="lineNum">     582 </span>            :                                     for(;;)
+<span class="lineNum">     583 </span>            :                                     {
+<span class="lineNum">     584 </span>            :                                         color_type c = sh.color(style);
+<span class="lineNum">     585 </span>            :                                         len    = span_aa-&gt;len;
+<span class="lineNum">     586 </span>            :                                         colors = mix_buffer + span_aa-&gt;x - min_x;
+<span class="lineNum">     587 </span>            :                                         covers = span_aa-&gt;covers;
+<span class="lineNum">     588 </span>            :                                         do
+<span class="lineNum">     589 </span>            :                                         {
+<span class="lineNum">     590 </span>            :                                             if(*covers == cover_full) 
+<span class="lineNum">     591 </span>            :                                             {
+<span class="lineNum">     592 </span>            :                                                 *colors = c;
+<span class="lineNum">     593 </span>            :                                             }
+<span class="lineNum">     594 </span>            :                                             else
+<span class="lineNum">     595 </span>            :                                             {
+<span class="lineNum">     596 </span>            :                                                 colors-&gt;add(c, *covers);
+<span class="lineNum">     597 </span>            :                                             }
+<span class="lineNum">     598 </span>            :                                             ++colors;
+<span class="lineNum">     599 </span>            :                                             ++covers;
+<span class="lineNum">     600 </span>            :                                         }
+<span class="lineNum">     601 </span>            :                                         while(--len);
+<span class="lineNum">     602 </span>            :                                         if(--num_spans == 0) break;
+<span class="lineNum">     603 </span>            :                                         ++span_aa;
+<span class="lineNum">     604 </span>            :                                     }
+<span class="lineNum">     605 </span>            :                                 }
+<span class="lineNum">     606 </span>            :                                 else
+<span class="lineNum">     607 </span>            :                                 {
+<span class="lineNum">     608 </span>            :                                     // Arbitrary span generator
+<span class="lineNum">     609 </span>            :                                     //-----------------------
+<span class="lineNum">     610 </span>            :                                     for(;;)
+<span class="lineNum">     611 </span>            :                                     {
+<span class="lineNum">     612 </span>            :                                         len = span_aa-&gt;len;
+<span class="lineNum">     613 </span>            :                                         colors = mix_buffer + span_aa-&gt;x - min_x;
+<span class="lineNum">     614 </span>            :                                         cspan  = color_span;
+<span class="lineNum">     615 </span>            :                                         sh.generate_span(cspan, 
+<span class="lineNum">     616 </span>            :                                                          span_aa-&gt;x, 
+<span class="lineNum">     617 </span>            :                                                          sl_aa.y(), 
+<span class="lineNum">     618 </span>            :                                                          len, 
+<span class="lineNum">     619 </span>            :                                                          style);
+<span class="lineNum">     620 </span>            :                                         covers = span_aa-&gt;covers;
+<span class="lineNum">     621 </span>            :                                         do
+<span class="lineNum">     622 </span>            :                                         {
+<span class="lineNum">     623 </span>            :                                             if(*covers == cover_full) 
+<span class="lineNum">     624 </span>            :                                             {
+<span class="lineNum">     625 </span>            :                                                 *colors = *cspan;
+<span class="lineNum">     626 </span>            :                                             }
+<span class="lineNum">     627 </span>            :                                             else
+<span class="lineNum">     628 </span>            :                                             {
+<span class="lineNum">     629 </span>            :                                                 colors-&gt;add(*cspan, *covers);
+<span class="lineNum">     630 </span>            :                                             }
+<span class="lineNum">     631 </span>            :                                             ++cspan;
+<span class="lineNum">     632 </span>            :                                             ++colors;
+<span class="lineNum">     633 </span>            :                                             ++covers;
+<span class="lineNum">     634 </span>            :                                         }
+<span class="lineNum">     635 </span>            :                                         while(--len);
+<span class="lineNum">     636 </span>            :                                         if(--num_spans == 0) break;
+<span class="lineNum">     637 </span>            :                                         ++span_aa;
+<span class="lineNum">     638 </span>            :                                     }
+<span class="lineNum">     639 </span>            :                                 }
+<span class="lineNum">     640 </span>            :                             }
+<span class="lineNum">     641 </span>            :                         }
+<span class="lineNum">     642 </span>            : 
+<span class="lineNum">     643 </span>            :                         // Emit the blended result as a color hspan
+<span class="lineNum">     644 </span>            :                         //-------------------------
+<span class="lineNum">     645 </span>            :                         span_bin = sl_bin.begin();
+<span class="lineNum">     646 </span>            :                         num_spans = sl_bin.num_spans();
+<span class="lineNum">     647 </span>            :                         for(;;)
+<span class="lineNum">     648 </span>            :                         {
+<span class="lineNum">     649 </span>            :                             ren.blend_color_hspan(span_bin-&gt;x, 
+<span class="lineNum">     650 </span>            :                                                   sl_bin.y(), 
+<span class="lineNum">     651 </span>            :                                                   span_bin-&gt;len,
+<span class="lineNum">     652 </span>            :                                                   mix_buffer + span_bin-&gt;x - min_x,
+<span class="lineNum">     653 </span>            :                                                   0,
+<span class="lineNum">     654 </span>            :                                                   cover_full);
+<span class="lineNum">     655 </span>            :                             if(--num_spans == 0) break;
+<span class="lineNum">     656 </span>            :                             ++span_bin;
+<span class="lineNum">     657 </span>            :                         }
+<span class="lineNum">     658 </span>            :                     } // if(ras.sweep_scanline(sl_bin, -1))
+<span class="lineNum">     659 </span>            :                 } // if(num_styles == 1) ... else
+<span class="lineNum">     660 </span>            :             } // while((num_styles = ras.sweep_styles()) &gt; 0)
+<span class="lineNum">     661 </span>            :         } // if(ras.rewind_scanlines())
+<span class="lineNum">     662 </span>            :     }
+<span class="lineNum">     663 </span>            : 
+<span class="lineNum">     664 </span>            :     //=======================================render_scanlines_compound_layered
+<span class="lineNum">     665 </span>            :     template&lt;class Rasterizer, 
+<span class="lineNum">     666 </span>            :              class ScanlineAA, 
+<span class="lineNum">     667 </span>            :              class BaseRenderer, 
+<span class="lineNum">     668 </span>            :              class SpanAllocator,
+<span class="lineNum">     669 </span>            :              class StyleHandler&gt;
+<span class="lineNum">     670 </span>            :     void render_scanlines_compound_layered(Rasterizer&amp; ras, 
+<span class="lineNum">     671 </span>            :                                            ScanlineAA&amp; sl_aa,
+<span class="lineNum">     672 </span>            :                                            BaseRenderer&amp; ren,
+<span class="lineNum">     673 </span>            :                                            SpanAllocator&amp; alloc,
+<span class="lineNum">     674 </span>            :                                            StyleHandler&amp; sh)
+<span class="lineNum">     675 </span>            :     {
+<span class="lineNum">     676 </span>            :         if(ras.rewind_scanlines())
+<span class="lineNum">     677 </span>            :         {
+<span class="lineNum">     678 </span>            :             int min_x = ras.min_x();
+<span class="lineNum">     679 </span>            :             int len = ras.max_x() - min_x + 2;
+<span class="lineNum">     680 </span>            :             sl_aa.reset(min_x, ras.max_x());
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span>            :             typedef typename BaseRenderer::color_type color_type;
+<span class="lineNum">     683 </span>            :             color_type* color_span   = alloc.allocate(len * 2);
+<span class="lineNum">     684 </span>            :             color_type* mix_buffer   = color_span + len;
+<span class="lineNum">     685 </span>            :             cover_type* cover_buffer = ras.allocate_cover_buffer(len);
+<span class="lineNum">     686 </span>            :             unsigned num_spans;
+<span class="lineNum">     687 </span>            : 
+<span class="lineNum">     688 </span>            :             unsigned num_styles;
+<span class="lineNum">     689 </span>            :             unsigned style;
+<span class="lineNum">     690 </span>            :             bool     solid;
+<span class="lineNum">     691 </span>            :             while((num_styles = ras.sweep_styles()) &gt; 0)
+<span class="lineNum">     692 </span>            :             {
+<span class="lineNum">     693 </span>            :                 typename ScanlineAA::const_iterator span_aa;
+<span class="lineNum">     694 </span>            :                 if(num_styles == 1)
+<span class="lineNum">     695 </span>            :                 {
+<span class="lineNum">     696 </span>            :                     // Optimization for a single style. Happens often
+<span class="lineNum">     697 </span>            :                     //-------------------------
+<span class="lineNum">     698 </span>            :                     if(ras.sweep_scanline(sl_aa, 0))
+<span class="lineNum">     699 </span>            :                     {
+<span class="lineNum">     700 </span>            :                         style = ras.style(0);
+<span class="lineNum">     701 </span>            :                         if(sh.is_solid(style))
+<span class="lineNum">     702 </span>            :                         {
+<span class="lineNum">     703 </span>            :                             // Just solid fill
+<span class="lineNum">     704 </span>            :                             //-----------------------
+<span class="lineNum">     705 </span>            :                             render_scanline_aa_solid(sl_aa, ren, sh.color(style));
+<span class="lineNum">     706 </span>            :                         }
+<span class="lineNum">     707 </span>            :                         else
+<span class="lineNum">     708 </span>            :                         {
+<span class="lineNum">     709 </span>            :                             // Arbitrary span generator
+<span class="lineNum">     710 </span>            :                             //-----------------------
+<span class="lineNum">     711 </span>            :                             span_aa   = sl_aa.begin();
+<span class="lineNum">     712 </span>            :                             num_spans = sl_aa.num_spans();
+<span class="lineNum">     713 </span>            :                             for(;;)
+<span class="lineNum">     714 </span>            :                             {
+<span class="lineNum">     715 </span>            :                                 len = span_aa-&gt;len;
+<span class="lineNum">     716 </span>            :                                 sh.generate_span(color_span, 
+<span class="lineNum">     717 </span>            :                                                  span_aa-&gt;x, 
+<span class="lineNum">     718 </span>            :                                                  sl_aa.y(), 
+<span class="lineNum">     719 </span>            :                                                  len, 
+<span class="lineNum">     720 </span>            :                                                  style);
+<span class="lineNum">     721 </span>            : 
+<span class="lineNum">     722 </span>            :                                 ren.blend_color_hspan(span_aa-&gt;x, 
+<span class="lineNum">     723 </span>            :                                                       sl_aa.y(), 
+<span class="lineNum">     724 </span>            :                                                       span_aa-&gt;len,
+<span class="lineNum">     725 </span>            :                                                       color_span,
+<span class="lineNum">     726 </span>            :                                                       span_aa-&gt;covers);
+<span class="lineNum">     727 </span>            :                                 if(--num_spans == 0) break;
+<span class="lineNum">     728 </span>            :                                 ++span_aa;
+<span class="lineNum">     729 </span>            :                             }
+<span class="lineNum">     730 </span>            :                         }
+<span class="lineNum">     731 </span>            :                     }
+<span class="lineNum">     732 </span>            :                 }
+<span class="lineNum">     733 </span>            :                 else
+<span class="lineNum">     734 </span>            :                 {
+<span class="lineNum">     735 </span>            :                     int      sl_start = ras.scanline_start();
+<span class="lineNum">     736 </span>            :                     unsigned sl_len   = ras.scanline_length();
+<span class="lineNum">     737 </span>            : 
+<span class="lineNum">     738 </span>            :                     if(sl_len)
+<span class="lineNum">     739 </span>            :                     {
+<span class="lineNum">     740 </span>            :                         memset(mix_buffer + sl_start - min_x, 
+<span class="lineNum">     741 </span>            :                                0, 
+<span class="lineNum">     742 </span>            :                                sl_len * sizeof(color_type));
+<span class="lineNum">     743 </span>            : 
+<span class="lineNum">     744 </span>            :                         memset(cover_buffer + sl_start - min_x, 
+<span class="lineNum">     745 </span>            :                                0, 
+<span class="lineNum">     746 </span>            :                                sl_len * sizeof(cover_type));
+<span class="lineNum">     747 </span>            : 
+<span class="lineNum">     748 </span>            :                         int sl_y = 0x7FFFFFFF;
+<span class="lineNum">     749 </span>            :                         unsigned i;
+<span class="lineNum">     750 </span>            :                         for(i = 0; i &lt; num_styles; i++)
+<span class="lineNum">     751 </span>            :                         {
+<span class="lineNum">     752 </span>            :                             style = ras.style(i);
+<span class="lineNum">     753 </span>            :                             solid = sh.is_solid(style);
+<span class="lineNum">     754 </span>            : 
+<span class="lineNum">     755 </span>            :                             if(ras.sweep_scanline(sl_aa, i))
+<span class="lineNum">     756 </span>            :                             {
+<span class="lineNum">     757 </span>            :                                 unsigned    cover;
+<span class="lineNum">     758 </span>            :                                 color_type* colors;
+<span class="lineNum">     759 </span>            :                                 color_type* cspan;
+<span class="lineNum">     760 </span>            :                                 cover_type* src_covers;
+<span class="lineNum">     761 </span>            :                                 cover_type* dst_covers;
+<span class="lineNum">     762 </span>            :                                 span_aa   = sl_aa.begin();
+<span class="lineNum">     763 </span>            :                                 num_spans = sl_aa.num_spans();
+<span class="lineNum">     764 </span>            :                                 sl_y      = sl_aa.y();
+<span class="lineNum">     765 </span>            :                                 if(solid)
+<span class="lineNum">     766 </span>            :                                 {
+<span class="lineNum">     767 </span>            :                                     // Just solid fill
+<span class="lineNum">     768 </span>            :                                     //-----------------------
+<span class="lineNum">     769 </span>            :                                     for(;;)
+<span class="lineNum">     770 </span>            :                                     {
+<span class="lineNum">     771 </span>            :                                         color_type c = sh.color(style);
+<span class="lineNum">     772 </span>            :                                         len    = span_aa-&gt;len;
+<span class="lineNum">     773 </span>            :                                         colors = mix_buffer + span_aa-&gt;x - min_x;
+<span class="lineNum">     774 </span>            :                                         src_covers = span_aa-&gt;covers;
+<span class="lineNum">     775 </span>            :                                         dst_covers = cover_buffer + span_aa-&gt;x - min_x;
+<span class="lineNum">     776 </span>            :                                         do
+<span class="lineNum">     777 </span>            :                                         {
+<span class="lineNum">     778 </span>            :                                             cover = *src_covers;
+<span class="lineNum">     779 </span>            :                                             if(*dst_covers + cover &gt; cover_full)
+<span class="lineNum">     780 </span>            :                                             {
+<span class="lineNum">     781 </span>            :                                                 cover = cover_full - *dst_covers;
+<span class="lineNum">     782 </span>            :                                             }
+<span class="lineNum">     783 </span>            :                                             if(cover)
+<span class="lineNum">     784 </span>            :                                             {
+<span class="lineNum">     785 </span>            :                                                 colors-&gt;add(c, cover);
+<span class="lineNum">     786 </span>            :                                                 *dst_covers += cover;
+<span class="lineNum">     787 </span>            :                                             }
+<span class="lineNum">     788 </span>            :                                             ++colors;
+<span class="lineNum">     789 </span>            :                                             ++src_covers;
+<span class="lineNum">     790 </span>            :                                             ++dst_covers;
+<span class="lineNum">     791 </span>            :                                         }
+<span class="lineNum">     792 </span>            :                                         while(--len);
+<span class="lineNum">     793 </span>            :                                         if(--num_spans == 0) break;
+<span class="lineNum">     794 </span>            :                                         ++span_aa;
+<span class="lineNum">     795 </span>            :                                     }
+<span class="lineNum">     796 </span>            :                                 }
+<span class="lineNum">     797 </span>            :                                 else
+<span class="lineNum">     798 </span>            :                                 {
+<span class="lineNum">     799 </span>            :                                     // Arbitrary span generator
+<span class="lineNum">     800 </span>            :                                     //-----------------------
+<span class="lineNum">     801 </span>            :                                     for(;;)
+<span class="lineNum">     802 </span>            :                                     {
+<span class="lineNum">     803 </span>            :                                         len = span_aa-&gt;len;
+<span class="lineNum">     804 </span>            :                                         colors = mix_buffer + span_aa-&gt;x - min_x;
+<span class="lineNum">     805 </span>            :                                         cspan  = color_span;
+<span class="lineNum">     806 </span>            :                                         sh.generate_span(cspan, 
+<span class="lineNum">     807 </span>            :                                                          span_aa-&gt;x, 
+<span class="lineNum">     808 </span>            :                                                          sl_aa.y(), 
+<span class="lineNum">     809 </span>            :                                                          len, 
+<span class="lineNum">     810 </span>            :                                                          style);
+<span class="lineNum">     811 </span>            :                                         src_covers = span_aa-&gt;covers;
+<span class="lineNum">     812 </span>            :                                         dst_covers = cover_buffer + span_aa-&gt;x - min_x;
+<span class="lineNum">     813 </span>            :                                         do
+<span class="lineNum">     814 </span>            :                                         {
+<span class="lineNum">     815 </span>            :                                             cover = *src_covers;
+<span class="lineNum">     816 </span>            :                                             if(*dst_covers + cover &gt; cover_full)
+<span class="lineNum">     817 </span>            :                                             {
+<span class="lineNum">     818 </span>            :                                                 cover = cover_full - *dst_covers;
+<span class="lineNum">     819 </span>            :                                             }
+<span class="lineNum">     820 </span>            :                                             if(cover)
+<span class="lineNum">     821 </span>            :                                             {
+<span class="lineNum">     822 </span>            :                                                 colors-&gt;add(*cspan, cover);
+<span class="lineNum">     823 </span>            :                                                 *dst_covers += cover;
+<span class="lineNum">     824 </span>            :                                             }
+<span class="lineNum">     825 </span>            :                                             ++cspan;
+<span class="lineNum">     826 </span>            :                                             ++colors;
+<span class="lineNum">     827 </span>            :                                             ++src_covers;
+<span class="lineNum">     828 </span>            :                                             ++dst_covers;
+<span class="lineNum">     829 </span>            :                                         }
+<span class="lineNum">     830 </span>            :                                         while(--len);
+<span class="lineNum">     831 </span>            :                                         if(--num_spans == 0) break;
+<span class="lineNum">     832 </span>            :                                         ++span_aa;
+<span class="lineNum">     833 </span>            :                                     }
+<span class="lineNum">     834 </span>            :                                 }
+<span class="lineNum">     835 </span>            :                             }
+<span class="lineNum">     836 </span>            :                         }
+<span class="lineNum">     837 </span>            :                         ren.blend_color_hspan(sl_start, 
+<span class="lineNum">     838 </span>            :                                               sl_y, 
+<span class="lineNum">     839 </span>            :                                               sl_len,
+<span class="lineNum">     840 </span>            :                                               mix_buffer + sl_start - min_x,
+<span class="lineNum">     841 </span>            :                                               0,
+<span class="lineNum">     842 </span>            :                                               cover_full);
+<span class="lineNum">     843 </span>            :                     } //if(sl_len)
+<span class="lineNum">     844 </span>            :                 } //if(num_styles == 1) ... else
+<span class="lineNum">     845 </span>            :             } //while((num_styles = ras.sweep_styles()) &gt; 0)
+<span class="lineNum">     846 </span>            :         } //if(ras.rewind_scanlines())
+<span class="lineNum">     847 </span>            :     }
+<span class="lineNum">     848 </span>            : 
+<span class="lineNum">     849 </span>            : 
+<span class="lineNum">     850 </span>            : }
+<span class="lineNum">     851 </span>            : 
+<span class="lineNum">     852 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,794 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - mapserver/renderers/agg/include/agg_renderer_base.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">mapserver/renderers/agg/include</a> - agg_renderer_base.h<span style="font-size: 80%;"> (source / <a href="agg_renderer_base.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">93</td>
+            <td class="headerCovTableEntry">114</td>
+            <td class="headerCovTableEntryMed">81.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryHi">90.9 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>            : // Anti-Grain Geometry - Version 2.4
+<span class="lineNum">       3 </span>            : // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : // Permission to copy, use, modify, sell and distribute this software 
+<span class="lineNum">       6 </span>            : // is granted provided this copyright notice appears in all copies. 
+<span class="lineNum">       7 </span>            : // This software is provided &quot;as is&quot; without express or implied
+<span class="lineNum">       8 </span>            : // warranty, and with no claim as to its suitability for any purpose.
+<span class="lineNum">       9 </span>            : //
+<span class="lineNum">      10 </span>            : //----------------------------------------------------------------------------
+<span class="lineNum">      11 </span>            : // Contact: mcseem@antigrain.com
+<span class="lineNum">      12 </span>            : //          mcseemagg@yahoo.com
+<span class="lineNum">      13 </span>            : //          http://www.antigrain.com
+<span class="lineNum">      14 </span>            : //----------------------------------------------------------------------------
+<span class="lineNum">      15 </span>            : //
+<span class="lineNum">      16 </span>            : // class renderer_base
+<span class="lineNum">      17 </span>            : //
+<span class="lineNum">      18 </span>            : //----------------------------------------------------------------------------
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef AGG_RENDERER_BASE_INCLUDED
+<span class="lineNum">      21 </span>            : #define AGG_RENDERER_BASE_INCLUDED
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &quot;agg_basics.h&quot;
+<span class="lineNum">      24 </span>            : #include &quot;agg_rendering_buffer.h&quot;
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : namespace mapserver
+<span class="lineNum">      27 </span>            : {
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            :     //-----------------------------------------------------------renderer_base
+<span class="lineNum">      30 </span>            :     template&lt;class PixelFormat&gt; class renderer_base
+<span class="lineNum">      31 </span>            :     {
+<span class="lineNum">      32 </span>            :     public:
+<span class="lineNum">      33 </span>            :         typedef PixelFormat pixfmt_type;
+<span class="lineNum">      34 </span>            :         typedef typename pixfmt_type::color_type color_type;
+<span class="lineNum">      35 </span>            :         typedef typename pixfmt_type::row_data row_data;
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">      38 </span><span class="lineCov">          1 :         renderer_base() : m_ren(0), m_clip_box(1, 1, 0, 0) {}</span>
+<span class="lineNum">      39 </span>            :         explicit renderer_base(pixfmt_type&amp; ren) :
+<span class="lineNum">      40 </span>            :             m_ren(&amp;ren),
+<span class="lineNum">      41 </span><span class="lineCov">          1 :             m_clip_box(0, 0, ren.width() - 1, ren.height() - 1)</span>
+<span class="lineNum">      42 </span>            :         {}
+<span class="lineNum">      43 </span>            :         void attach(pixfmt_type&amp; ren)
+<span class="lineNum">      44 </span>            :         {
+<span class="lineNum">      45 </span><span class="lineCov">          1 :             m_ren = &amp;ren;</span>
+<span class="lineNum">      46 </span><span class="lineCov">          1 :             m_clip_box = rect_i(0, 0, ren.width() - 1, ren.height() - 1);</span>
+<span class="lineNum">      47 </span>            :         }
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">      50 </span>            :         const pixfmt_type&amp; ren() const { return *m_ren;  }
+<span class="lineNum">      51 </span>            :         pixfmt_type&amp; ren() { return *m_ren;  }
+<span class="lineNum">      52 </span>            :           
+<span class="lineNum">      53 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">      54 </span>            :         unsigned width()  const { return m_ren-&gt;width();  }
+<span class="lineNum">      55 </span>            :         unsigned height() const { return m_ren-&gt;height(); }
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">      58 </span>            :         bool clip_box(int x1, int y1, int x2, int y2)
+<span class="lineNum">      59 </span>            :         {
+<span class="lineNum">      60 </span>            :             rect_i cb(x1, y1, x2, y2);
+<span class="lineNum">      61 </span>            :             cb.normalize();
+<span class="lineNum">      62 </span>            :             if(cb.clip(rect_i(0, 0, width() - 1, height() - 1)))
+<span class="lineNum">      63 </span>            :             {
+<span class="lineNum">      64 </span>            :                 m_clip_box = cb;
+<span class="lineNum">      65 </span>            :                 return true;
+<span class="lineNum">      66 </span>            :             }
+<span class="lineNum">      67 </span>            :             m_clip_box.x1 = 1;
+<span class="lineNum">      68 </span>            :             m_clip_box.y1 = 1;
+<span class="lineNum">      69 </span>            :             m_clip_box.x2 = 0;
+<span class="lineNum">      70 </span>            :             m_clip_box.y2 = 0;
+<span class="lineNum">      71 </span>            :             return false;
+<span class="lineNum">      72 </span>            :         }
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">      75 </span>            :         void reset_clipping(bool visibility)
+<span class="lineNum">      76 </span>            :         {
+<span class="lineNum">      77 </span>            :             if(visibility)
+<span class="lineNum">      78 </span>            :             {
+<span class="lineNum">      79 </span>            :                 m_clip_box.x1 = 0;
+<span class="lineNum">      80 </span>            :                 m_clip_box.y1 = 0;
+<span class="lineNum">      81 </span>            :                 m_clip_box.x2 = width() - 1;
+<span class="lineNum">      82 </span>            :                 m_clip_box.y2 = height() - 1;
+<span class="lineNum">      83 </span>            :             }
+<span class="lineNum">      84 </span>            :             else
+<span class="lineNum">      85 </span>            :             {
+<span class="lineNum">      86 </span>            :                 m_clip_box.x1 = 1;
+<span class="lineNum">      87 </span>            :                 m_clip_box.y1 = 1;
+<span class="lineNum">      88 </span>            :                 m_clip_box.x2 = 0;
+<span class="lineNum">      89 </span>            :                 m_clip_box.y2 = 0;
+<span class="lineNum">      90 </span>            :             }
+<span class="lineNum">      91 </span>            :         }
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">      94 </span>            :         void clip_box_naked(int x1, int y1, int x2, int y2)
+<span class="lineNum">      95 </span>            :         {
+<span class="lineNum">      96 </span>            :             m_clip_box.x1 = x1;
+<span class="lineNum">      97 </span>            :             m_clip_box.y1 = y1;
+<span class="lineNum">      98 </span>            :             m_clip_box.x2 = x2;
+<span class="lineNum">      99 </span>            :             m_clip_box.y2 = y2;
+<span class="lineNum">     100 </span>            :         }
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     103 </span>            :         bool inbox(int x, int y) const
+<span class="lineNum">     104 </span>            :         {
+<span class="lineNum">     105 </span>            :             return x &gt;= m_clip_box.x1 &amp;&amp; y &gt;= m_clip_box.y1 &amp;&amp;
+<span class="lineNum">     106 </span>            :                    x &lt;= m_clip_box.x2 &amp;&amp; y &lt;= m_clip_box.y2;
+<span class="lineNum">     107 </span>            :         }
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     110 </span>            :         const rect_i&amp; clip_box() const { return m_clip_box;    }
+<span class="lineNum">     111 </span>            :         int           xmin()     const { return m_clip_box.x1; }
+<span class="lineNum">     112 </span>            :         int           ymin()     const { return m_clip_box.y1; }
+<span class="lineNum">     113 </span>            :         int           xmax()     const { return m_clip_box.x2; }
+<span class="lineNum">     114 </span>            :         int           ymax()     const { return m_clip_box.y2; }
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     117 </span>            :         const rect_i&amp; bounding_clip_box() const { return m_clip_box;    }
+<span class="lineNum">     118 </span>            :         int           bounding_xmin()     const { return m_clip_box.x1; }
+<span class="lineNum">     119 </span>            :         int           bounding_ymin()     const { return m_clip_box.y1; }
+<span class="lineNum">     120 </span>            :         int           bounding_xmax()     const { return m_clip_box.x2; }
+<span class="lineNum">     121 </span>            :         int           bounding_ymax()     const { return m_clip_box.y2; }
+<a name="122"><span class="lineNum">     122 </span>            : </a>
+<span class="lineNum">     123 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     124 </span><span class="lineCov">          1 :         void clear(const color_type&amp; c)</span>
+<span class="lineNum">     125 </span>            :         {
+<span class="lineNum">     126 </span>            :             unsigned y;
+<span class="lineNum">     127 </span><span class="lineCov">          1 :             if(width())</span>
+<span class="lineNum">     128 </span>            :             {
+<span class="lineNum">     129 </span><span class="lineCov">          1 :                 for(y = 0; y &lt; height(); y++)</span>
+<span class="lineNum">     130 </span>            :                 {
+<span class="lineNum">     131 </span><span class="lineCov">          1 :                     m_ren-&gt;copy_hline(0, y, width(), c);</span>
+<span class="lineNum">     132 </span>            :                 }
+<span class="lineNum">     133 </span>            :             }
+<span class="lineNum">     134 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     135 </span>            :           
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     138 </span>            :         void copy_pixel(int x, int y, const color_type&amp; c)
+<span class="lineNum">     139 </span>            :         {
+<span class="lineNum">     140 </span>            :             if(inbox(x, y))
+<span class="lineNum">     141 </span>            :             {
+<span class="lineNum">     142 </span>            :                 m_ren-&gt;copy_pixel(x, y, c);
+<span class="lineNum">     143 </span>            :             }
+<span class="lineNum">     144 </span>            :         }
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     147 </span>            :         void blend_pixel(int x, int y, const color_type&amp; c, cover_type cover)
+<span class="lineNum">     148 </span>            :         {
+<span class="lineNum">     149 </span>            :             if(inbox(x, y))
+<span class="lineNum">     150 </span>            :             {
+<span class="lineNum">     151 </span>            :                 m_ren-&gt;blend_pixel(x, y, c, cover);
+<span class="lineNum">     152 </span>            :             }
+<span class="lineNum">     153 </span>            :         }
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     156 </span>            :         color_type pixel(int x, int y) const
+<span class="lineNum">     157 </span>            :         {
+<span class="lineNum">     158 </span>            :             return inbox(x, y) ? 
+<span class="lineNum">     159 </span>            :                    m_ren-&gt;pixel(x, y) :
+<span class="lineNum">     160 </span>            :                    color_type::no_color();
+<span class="lineNum">     161 </span>            :         }
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     164 </span>            :         void copy_hline(int x1, int y, int x2, const color_type&amp; c)
+<span class="lineNum">     165 </span>            :         {
+<span class="lineNum">     166 </span>            :             if(x1 &gt; x2) { int t = x2; x2 = x1; x1 = t; }
+<span class="lineNum">     167 </span>            :             if(y  &gt; ymax()) return;
+<span class="lineNum">     168 </span>            :             if(y  &lt; ymin()) return;
+<span class="lineNum">     169 </span>            :             if(x1 &gt; xmax()) return;
+<span class="lineNum">     170 </span>            :             if(x2 &lt; xmin()) return;
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            :             if(x1 &lt; xmin()) x1 = xmin();
+<span class="lineNum">     173 </span>            :             if(x2 &gt; xmax()) x2 = xmax();
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            :             m_ren-&gt;copy_hline(x1, y, x2 - x1 + 1, c);
+<span class="lineNum">     176 </span>            :         }
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     179 </span>            :         void copy_vline(int x, int y1, int y2, const color_type&amp; c)
+<span class="lineNum">     180 </span>            :         {
+<span class="lineNum">     181 </span>            :             if(y1 &gt; y2) { int t = y2; y2 = y1; y1 = t; }
+<span class="lineNum">     182 </span>            :             if(x  &gt; xmax()) return;
+<span class="lineNum">     183 </span>            :             if(x  &lt; xmin()) return;
+<span class="lineNum">     184 </span>            :             if(y1 &gt; ymax()) return;
+<span class="lineNum">     185 </span>            :             if(y2 &lt; ymin()) return;
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            :             if(y1 &lt; ymin()) y1 = ymin();
+<span class="lineNum">     188 </span>            :             if(y2 &gt; ymax()) y2 = ymax();
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span>            :             m_ren-&gt;copy_vline(x, y1, y2 - y1 + 1, c);
+<span class="lineNum">     191 </span>            :         }
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<span class="lineNum">     193 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     194 </span><span class="lineCov">          1 :         void blend_hline(int x1, int y, int x2, </span>
+<span class="lineNum">     195 </span><span class="lineCov">          1 :                          const color_type&amp; c, cover_type cover)</span>
+<span class="lineNum">     196 </span>            :         {
+<span class="lineNum">     197 </span><span class="lineCov">          1 :             if(x1 &gt; x2) { int t = x2; x2 = x1; x1 = t; }</span>
+<span class="lineNum">     198 </span><span class="lineCov">          1 :             if(y  &gt; ymax()) return;</span>
+<span class="lineNum">     199 </span><span class="lineCov">          1 :             if(y  &lt; ymin()) return;</span>
+<span class="lineNum">     200 </span><span class="lineCov">          1 :             if(x1 &gt; xmax()) return;</span>
+<span class="lineNum">     201 </span><span class="lineCov">          1 :             if(x2 &lt; xmin()) return;</span>
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span><span class="lineCov">          1 :             if(x1 &lt; xmin()) x1 = xmin();</span>
+<span class="lineNum">     204 </span><span class="lineCov">          1 :             if(x2 &gt; xmax()) x2 = xmax();</span>
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span><span class="lineCov">          1 :             m_ren-&gt;blend_hline(x1, y, x2 - x1 + 1, c, cover);</span>
+<span class="lineNum">     207 </span>            :         }
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     210 </span>            :         void blend_vline(int x, int y1, int y2, 
+<span class="lineNum">     211 </span>            :                          const color_type&amp; c, cover_type cover)
+<span class="lineNum">     212 </span>            :         {
+<span class="lineNum">     213 </span>            :             if(y1 &gt; y2) { int t = y2; y2 = y1; y1 = t; }
+<span class="lineNum">     214 </span>            :             if(x  &gt; xmax()) return;
+<span class="lineNum">     215 </span>            :             if(x  &lt; xmin()) return;
+<span class="lineNum">     216 </span>            :             if(y1 &gt; ymax()) return;
+<span class="lineNum">     217 </span>            :             if(y2 &lt; ymin()) return;
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span>            :             if(y1 &lt; ymin()) y1 = ymin();
+<span class="lineNum">     220 </span>            :             if(y2 &gt; ymax()) y2 = ymax();
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span>            :             m_ren-&gt;blend_vline(x, y1, y2 - y1 + 1, c, cover);
+<span class="lineNum">     223 </span>            :         }
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     227 </span>            :         void copy_bar(int x1, int y1, int x2, int y2, const color_type&amp; c)
+<span class="lineNum">     228 </span>            :         {
+<span class="lineNum">     229 </span>            :             rect_i rc(x1, y1, x2, y2);
+<span class="lineNum">     230 </span>            :             rc.normalize();
+<span class="lineNum">     231 </span>            :             if(rc.clip(clip_box()))
+<span class="lineNum">     232 </span>            :             {
+<span class="lineNum">     233 </span>            :                 int y;
+<span class="lineNum">     234 </span>            :                 for(y = rc.y1; y &lt;= rc.y2; y++)
+<span class="lineNum">     235 </span>            :                 {
+<span class="lineNum">     236 </span>            :                     m_ren-&gt;copy_hline(rc.x1, y, unsigned(rc.x2 - rc.x1 + 1), c);
+<span class="lineNum">     237 </span>            :                 }
+<span class="lineNum">     238 </span>            :             }
+<span class="lineNum">     239 </span>            :         }
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     242 </span>            :         void blend_bar(int x1, int y1, int x2, int y2, 
+<span class="lineNum">     243 </span>            :                        const color_type&amp; c, cover_type cover)
+<span class="lineNum">     244 </span>            :         {
+<span class="lineNum">     245 </span>            :             rect_i rc(x1, y1, x2, y2);
+<span class="lineNum">     246 </span>            :             rc.normalize();
+<span class="lineNum">     247 </span>            :             if(rc.clip(clip_box()))
+<span class="lineNum">     248 </span>            :             {
+<span class="lineNum">     249 </span>            :                 int y;
+<span class="lineNum">     250 </span>            :                 for(y = rc.y1; y &lt;= rc.y2; y++)
+<span class="lineNum">     251 </span>            :                 {
+<span class="lineNum">     252 </span>            :                     m_ren-&gt;blend_hline(rc.x1,
+<span class="lineNum">     253 </span>            :                                        y,
+<span class="lineNum">     254 </span>            :                                        unsigned(rc.x2 - rc.x1 + 1), 
+<span class="lineNum">     255 </span>            :                                        c, 
+<span class="lineNum">     256 </span>            :                                        cover);
+<span class="lineNum">     257 </span>            :                 }
+<span class="lineNum">     258 </span>            :             }
+<span class="lineNum">     259 </span>            :         }
+<a name="260"><span class="lineNum">     260 </span>            : </a>
+<span class="lineNum">     261 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     262 </span><span class="lineCov">          1 :         void blend_solid_hspan(int x, int y, int len, </span>
+<span class="lineNum">     263 </span>            :                                const color_type&amp; c, 
+<span class="lineNum">     264 </span><span class="lineCov">          1 :                                const cover_type* covers)</span>
+<span class="lineNum">     265 </span>            :         {
+<span class="lineNum">     266 </span><span class="lineCov">          1 :             if(y &gt; ymax()) return;</span>
+<span class="lineNum">     267 </span><span class="lineCov">          1 :             if(y &lt; ymin()) return;</span>
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span><span class="lineCov">          1 :             if(x &lt; xmin())</span>
+<span class="lineNum">     270 </span>            :             {
+<span class="lineNum">     271 </span><span class="lineCov">          1 :                 len -= xmin() - x;</span>
+<span class="lineNum">     272 </span><span class="lineCov">          1 :                 if(len &lt;= 0) return;</span>
+<span class="lineNum">     273 </span><span class="lineCov">          1 :                 covers += xmin() - x;</span>
+<span class="lineNum">     274 </span>            :                 x = xmin();
+<span class="lineNum">     275 </span>            :             }
+<span class="lineNum">     276 </span><span class="lineCov">          1 :             if(x + len &gt; xmax())</span>
+<span class="lineNum">     277 </span>            :             {
+<span class="lineNum">     278 </span><span class="lineCov">          1 :                 len = xmax() - x + 1;</span>
+<span class="lineNum">     279 </span><span class="lineCov">          1 :                 if(len &lt;= 0) return;</span>
+<span class="lineNum">     280 </span>            :             }
+<span class="lineNum">     281 </span><span class="lineCov">          1 :             m_ren-&gt;blend_solid_hspan(x, y, len, c, covers);</span>
+<span class="lineNum">     282 </span>            :         }
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     285 </span>            :         void blend_solid_vspan(int x, int y, int len, 
+<span class="lineNum">     286 </span>            :                                const color_type&amp; c, 
+<span class="lineNum">     287 </span>            :                                const cover_type* covers)
+<span class="lineNum">     288 </span>            :         {
+<span class="lineNum">     289 </span>            :             if(x &gt; xmax()) return;
+<span class="lineNum">     290 </span>            :             if(x &lt; xmin()) return;
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span>            :             if(y &lt; ymin())
+<span class="lineNum">     293 </span>            :             {
+<span class="lineNum">     294 </span>            :                 len -= ymin() - y;
+<span class="lineNum">     295 </span>            :                 if(len &lt;= 0) return;
+<span class="lineNum">     296 </span>            :                 covers += ymin() - y;
+<span class="lineNum">     297 </span>            :                 y = ymin();
+<span class="lineNum">     298 </span>            :             }
+<span class="lineNum">     299 </span>            :             if(y + len &gt; ymax())
+<span class="lineNum">     300 </span>            :             {
+<span class="lineNum">     301 </span>            :                 len = ymax() - y + 1;
+<span class="lineNum">     302 </span>            :                 if(len &lt;= 0) return;
+<span class="lineNum">     303 </span>            :             }
+<span class="lineNum">     304 </span>            :             m_ren-&gt;blend_solid_vspan(x, y, len, c, covers);
+<span class="lineNum">     305 </span>            :         }
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     309 </span>            :         void copy_color_hspan(int x, int y, int len, const color_type* colors)
+<span class="lineNum">     310 </span>            :         {
+<span class="lineNum">     311 </span>            :             if(y &gt; ymax()) return;
+<span class="lineNum">     312 </span>            :             if(y &lt; ymin()) return;
+<span class="lineNum">     313 </span>            : 
+<span class="lineNum">     314 </span>            :             if(x &lt; xmin())
+<span class="lineNum">     315 </span>            :             {
+<span class="lineNum">     316 </span>            :                 int d = xmin() - x;
+<span class="lineNum">     317 </span>            :                 len -= d;
+<span class="lineNum">     318 </span>            :                 if(len &lt;= 0) return;
+<span class="lineNum">     319 </span>            :                 colors += d;
+<span class="lineNum">     320 </span>            :                 x = xmin();
+<span class="lineNum">     321 </span>            :             }
+<span class="lineNum">     322 </span>            :             if(x + len &gt; xmax())
+<span class="lineNum">     323 </span>            :             {
+<span class="lineNum">     324 </span>            :                 len = xmax() - x + 1;
+<span class="lineNum">     325 </span>            :                 if(len &lt;= 0) return;
+<span class="lineNum">     326 </span>            :             }
+<span class="lineNum">     327 </span>            :             m_ren-&gt;copy_color_hspan(x, y, len, colors);
+<span class="lineNum">     328 </span>            :         }
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     332 </span>            :         void copy_color_vspan(int x, int y, int len, const color_type* colors)
+<span class="lineNum">     333 </span>            :         {
+<span class="lineNum">     334 </span>            :             if(x &gt; xmax()) return;
+<span class="lineNum">     335 </span>            :             if(x &lt; xmin()) return;
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span>            :             if(y &lt; ymin())
+<span class="lineNum">     338 </span>            :             {
+<span class="lineNum">     339 </span>            :                 int d = ymin() - y;
+<span class="lineNum">     340 </span>            :                 len -= d;
+<span class="lineNum">     341 </span>            :                 if(len &lt;= 0) return;
+<span class="lineNum">     342 </span>            :                 colors += d;
+<span class="lineNum">     343 </span>            :                 y = ymin();
+<span class="lineNum">     344 </span>            :             }
+<span class="lineNum">     345 </span>            :             if(y + len &gt; ymax())
+<span class="lineNum">     346 </span>            :             {
+<span class="lineNum">     347 </span>            :                 len = ymax() - y + 1;
+<span class="lineNum">     348 </span>            :                 if(len &lt;= 0) return;
+<span class="lineNum">     349 </span>            :             }
+<span class="lineNum">     350 </span>            :             m_ren-&gt;copy_color_vspan(x, y, len, colors);
+<span class="lineNum">     351 </span>            :         }
+<span class="lineNum">     352 </span>            : 
+<a name="353"><span class="lineNum">     353 </span>            : </a>
+<span class="lineNum">     354 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     355 </span><span class="lineCov">          1 :         void blend_color_hspan(int x, int y, int len, </span>
+<span class="lineNum">     356 </span>            :                                const color_type* colors, 
+<span class="lineNum">     357 </span>            :                                const cover_type* covers,
+<span class="lineNum">     358 </span><span class="lineCov">          1 :                                cover_type cover = mapserver::cover_full)</span>
+<span class="lineNum">     359 </span>            :         {
+<span class="lineNum">     360 </span><span class="lineCov">          1 :             if(y &gt; ymax()) return;</span>
+<span class="lineNum">     361 </span><span class="lineCov">          1 :             if(y &lt; ymin()) return;</span>
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span><span class="lineCov">          1 :             if(x &lt; xmin())</span>
+<span class="lineNum">     364 </span>            :             {
+<span class="lineNum">     365 </span><span class="lineCov">          1 :                 int d = xmin() - x;</span>
+<span class="lineNum">     366 </span><span class="lineCov">          1 :                 len -= d;</span>
+<span class="lineNum">     367 </span><span class="lineCov">          1 :                 if(len &lt;= 0) return;</span>
+<span class="lineNum">     368 </span><span class="lineCov">          1 :                 if(covers) covers += d;</span>
+<span class="lineNum">     369 </span><span class="lineCov">          1 :                 colors += d;</span>
+<span class="lineNum">     370 </span>            :                 x = xmin();
+<span class="lineNum">     371 </span>            :             }
+<span class="lineNum">     372 </span><span class="lineCov">          1 :             if(x + len &gt; xmax())</span>
+<span class="lineNum">     373 </span>            :             {
+<span class="lineNum">     374 </span><span class="lineCov">          1 :                 len = xmax() - x + 1;</span>
+<span class="lineNum">     375 </span><span class="lineCov">          1 :                 if(len &lt;= 0) return;</span>
+<span class="lineNum">     376 </span>            :             }
+<span class="lineNum">     377 </span><span class="lineCov">          1 :             m_ren-&gt;blend_color_hspan(x, y, len, colors, covers, cover);</span>
+<span class="lineNum">     378 </span>            :         }
+<a name="379"><span class="lineNum">     379 </span>            : </a>
+<span class="lineNum">     380 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :         void blend_color_vspan(int x, int y, int len, </span>
+<span class="lineNum">     382 </span>            :                                const color_type* colors, 
+<span class="lineNum">     383 </span>            :                                const cover_type* covers,
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                                cover_type cover = mapserver::cover_full)</span>
+<span class="lineNum">     385 </span>            :         {
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :             if(x &gt; xmax()) return;</span>
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :             if(x &lt; xmin()) return;</span>
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :             if(y &lt; ymin())</span>
+<span class="lineNum">     390 </span>            :             {
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                 int d = ymin() - y;</span>
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :                 len -= d;</span>
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :                 if(len &lt;= 0) return;</span>
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :                 if(covers) covers += d;</span>
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :                 colors += d;</span>
+<span class="lineNum">     396 </span>            :                 y = ymin();
+<span class="lineNum">     397 </span>            :             }
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :             if(y + len &gt; ymax())</span>
+<span class="lineNum">     399 </span>            :             {
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :                 len = ymax() - y + 1;</span>
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :                 if(len &lt;= 0) return;</span>
+<span class="lineNum">     402 </span>            :             }
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :             m_ren-&gt;blend_color_vspan(x, y, len, colors, covers, cover);</span>
+<span class="lineNum">     404 </span>            :         }
+<a name="405"><span class="lineNum">     405 </span>            : </a>
+<span class="lineNum">     406 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     407 </span><span class="lineCov">          1 :         rect_i clip_rect_area(rect_i&amp; dst, rect_i&amp; src, int wsrc, int hsrc) const</span>
+<span class="lineNum">     408 </span>            :         {
+<span class="lineNum">     409 </span>            :             rect_i rc(0,0,0,0);
+<span class="lineNum">     410 </span><span class="lineCov">          1 :             rect_i cb = clip_box();</span>
+<span class="lineNum">     411 </span><span class="lineCov">          1 :             ++cb.x2;</span>
+<span class="lineNum">     412 </span><span class="lineCov">          1 :             ++cb.y2;</span>
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span><span class="lineCov">          1 :             if(src.x1 &lt; 0)</span>
+<span class="lineNum">     415 </span>            :             {
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :                 dst.x1 -= src.x1;</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :                 src.x1 = 0;</span>
+<span class="lineNum">     418 </span>            :             }
+<span class="lineNum">     419 </span><span class="lineCov">          1 :             if(src.y1 &lt; 0)</span>
+<span class="lineNum">     420 </span>            :             {
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :                 dst.y1 -= src.y1;</span>
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :                 src.y1 = 0;</span>
+<span class="lineNum">     423 </span>            :             }
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span><span class="lineCov">          1 :             if(src.x2 &gt; wsrc) src.x2 = wsrc;</span>
+<span class="lineNum">     426 </span><span class="lineCov">          1 :             if(src.y2 &gt; hsrc) src.y2 = hsrc;</span>
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span><span class="lineCov">          1 :             if(dst.x1 &lt; cb.x1)</span>
+<span class="lineNum">     429 </span>            :             {
+<span class="lineNum">     430 </span><span class="lineCov">          1 :                 src.x1 += cb.x1 - dst.x1;</span>
+<span class="lineNum">     431 </span><span class="lineCov">          1 :                 dst.x1 = cb.x1;</span>
+<span class="lineNum">     432 </span>            :             }
+<span class="lineNum">     433 </span><span class="lineCov">          1 :             if(dst.y1 &lt; cb.y1)</span>
+<span class="lineNum">     434 </span>            :             {
+<span class="lineNum">     435 </span><span class="lineCov">          1 :                 src.y1 += cb.y1 - dst.y1;</span>
+<span class="lineNum">     436 </span><span class="lineCov">          1 :                 dst.y1 = cb.y1;</span>
+<span class="lineNum">     437 </span>            :             }
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span><span class="lineCov">          1 :             if(dst.x2 &gt; cb.x2) dst.x2 = cb.x2;</span>
+<span class="lineNum">     440 </span><span class="lineCov">          1 :             if(dst.y2 &gt; cb.y2) dst.y2 = cb.y2;</span>
+<span class="lineNum">     441 </span>            : 
+<span class="lineNum">     442 </span><span class="lineCov">          1 :             rc.x2 = dst.x2 - dst.x1;</span>
+<span class="lineNum">     443 </span><span class="lineCov">          1 :             rc.y2 = dst.y2 - dst.y1;</span>
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span><span class="lineCov">          1 :             if(rc.x2 &gt; src.x2 - src.x1) rc.x2 = src.x2 - src.x1;</span>
+<span class="lineNum">     446 </span><span class="lineCov">          1 :             if(rc.y2 &gt; src.y2 - src.y1) rc.y2 = src.y2 - src.y1;</span>
+<span class="lineNum">     447 </span><span class="lineCov">          1 :             return rc;</span>
+<span class="lineNum">     448 </span>            :         }
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     451 </span>            :         template&lt;class RenBuf&gt;
+<span class="lineNum">     452 </span>            :         void copy_from(const RenBuf&amp; src, 
+<span class="lineNum">     453 </span>            :                        const rect_i* rect_src_ptr = 0, 
+<span class="lineNum">     454 </span>            :                        int dx = 0, 
+<span class="lineNum">     455 </span>            :                        int dy = 0)
+<span class="lineNum">     456 </span>            :         {
+<span class="lineNum">     457 </span>            :             rect_i rsrc(0, 0, src.width(), src.height());
+<span class="lineNum">     458 </span>            :             if(rect_src_ptr)
+<span class="lineNum">     459 </span>            :             {
+<span class="lineNum">     460 </span>            :                 rsrc.x1 = rect_src_ptr-&gt;x1; 
+<span class="lineNum">     461 </span>            :                 rsrc.y1 = rect_src_ptr-&gt;y1;
+<span class="lineNum">     462 </span>            :                 rsrc.x2 = rect_src_ptr-&gt;x2 + 1;
+<span class="lineNum">     463 </span>            :                 rsrc.y2 = rect_src_ptr-&gt;y2 + 1;
+<span class="lineNum">     464 </span>            :             }
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span>            :             // Version with xdst, ydst (absolute positioning)
+<span class="lineNum">     467 </span>            :             //rect_i rdst(xdst, ydst, xdst + rsrc.x2 - rsrc.x1, ydst + rsrc.y2 - rsrc.y1);
+<span class="lineNum">     468 </span>            : 
+<span class="lineNum">     469 </span>            :             // Version with dx, dy (relative positioning)
+<span class="lineNum">     470 </span>            :             rect_i rdst(rsrc.x1 + dx, rsrc.y1 + dy, rsrc.x2 + dx, rsrc.y2 + dy);
+<span class="lineNum">     471 </span>            : 
+<span class="lineNum">     472 </span>            :             rect_i rc = clip_rect_area(rdst, rsrc, src.width(), src.height());
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span>            :             if(rc.x2 &gt; 0)
+<span class="lineNum">     475 </span>            :             {
+<span class="lineNum">     476 </span>            :                 int incy = 1;
+<span class="lineNum">     477 </span>            :                 if(rdst.y1 &gt; rsrc.y1)
+<span class="lineNum">     478 </span>            :                 {
+<span class="lineNum">     479 </span>            :                     rsrc.y1 += rc.y2 - 1;
+<span class="lineNum">     480 </span>            :                     rdst.y1 += rc.y2 - 1;
+<span class="lineNum">     481 </span>            :                     incy = -1;
+<span class="lineNum">     482 </span>            :                 }
+<span class="lineNum">     483 </span>            :                 while(rc.y2 &gt; 0)
+<span class="lineNum">     484 </span>            :                 {
+<span class="lineNum">     485 </span>            :                     m_ren-&gt;copy_from(src, 
+<span class="lineNum">     486 </span>            :                                      rdst.x1, rdst.y1,
+<span class="lineNum">     487 </span>            :                                      rsrc.x1, rsrc.y1,
+<span class="lineNum">     488 </span>            :                                      rc.x2);
+<span class="lineNum">     489 </span>            :                     rdst.y1 += incy;
+<span class="lineNum">     490 </span>            :                     rsrc.y1 += incy;
+<span class="lineNum">     491 </span>            :                     --rc.y2;
+<span class="lineNum">     492 </span>            :                 }
+<span class="lineNum">     493 </span>            :             }
+<span class="lineNum">     494 </span>            :         }
+<span class="lineNum">     495 </span>            : 
+<a name="496"><span class="lineNum">     496 </span>            :         //--------------------------------------------------------------------</a>
+<span class="lineNum">     497 </span>            :         template&lt;class SrcPixelFormatRenderer&gt;
+<span class="lineNum">     498 </span><span class="lineCov">          1 :         void blend_from(const SrcPixelFormatRenderer&amp; src, </span>
+<span class="lineNum">     499 </span>            :                         const rect_i* rect_src_ptr = 0, 
+<span class="lineNum">     500 </span>            :                         int dx = 0, 
+<span class="lineNum">     501 </span>            :                         int dy = 0,
+<span class="lineNum">     502 </span>            :                         cover_type cover = mapserver::cover_full)
+<span class="lineNum">     503 </span>            :         {
+<span class="lineNum">     504 </span><span class="lineCov">          1 :             rect_i rsrc(0, 0, src.width(), src.height());</span>
+<span class="lineNum">     505 </span><span class="lineCov">          1 :             if(rect_src_ptr)</span>
+<span class="lineNum">     506 </span>            :             {
+<span class="lineNum">     507 </span><span class="lineCov">          1 :                 rsrc.x1 = rect_src_ptr-&gt;x1; </span>
+<span class="lineNum">     508 </span><span class="lineCov">          1 :                 rsrc.y1 = rect_src_ptr-&gt;y1;</span>
+<span class="lineNum">     509 </span><span class="lineCov">          1 :                 rsrc.x2 = rect_src_ptr-&gt;x2 + 1;</span>
+<span class="lineNum">     510 </span><span class="lineCov">          1 :                 rsrc.y2 = rect_src_ptr-&gt;y2 + 1;</span>
+<span class="lineNum">     511 </span>            :             }
+<span class="lineNum">     512 </span>            : 
+<span class="lineNum">     513 </span>            :             // Version with xdst, ydst (absolute positioning)
+<span class="lineNum">     514 </span>            :             //rect_i rdst(xdst, ydst, xdst + rsrc.x2 - rsrc.x1, ydst + rsrc.y2 - rsrc.y1);
+<span class="lineNum">     515 </span>            : 
+<span class="lineNum">     516 </span>            :             // Version with dx, dy (relative positioning)
+<span class="lineNum">     517 </span><span class="lineCov">          1 :             rect_i rdst(rsrc.x1 + dx, rsrc.y1 + dy, rsrc.x2 + dx, rsrc.y2 + dy);</span>
+<span class="lineNum">     518 </span><span class="lineCov">          1 :             rect_i rc = clip_rect_area(rdst, rsrc, src.width(), src.height());</span>
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span><span class="lineCov">          1 :             if(rc.x2 &gt; 0)</span>
+<span class="lineNum">     521 </span>            :             {
+<span class="lineNum">     522 </span>            :                 int incy = 1;
+<span class="lineNum">     523 </span><span class="lineCov">          1 :                 if(rdst.y1 &gt; rsrc.y1)</span>
+<span class="lineNum">     524 </span>            :                 {
+<span class="lineNum">     525 </span><span class="lineCov">          1 :                     rsrc.y1 += rc.y2 - 1;</span>
+<span class="lineNum">     526 </span><span class="lineCov">          1 :                     rdst.y1 += rc.y2 - 1;</span>
+<span class="lineNum">     527 </span>            :                     incy = -1;
+<span class="lineNum">     528 </span>            :                 }
+<span class="lineNum">     529 </span><span class="lineCov">          1 :                 while(rc.y2 &gt; 0)</span>
+<span class="lineNum">     530 </span>            :                 {
+<span class="lineNum">     531 </span><span class="lineCov">          1 :                     typename SrcPixelFormatRenderer::row_data rw = src.row(rsrc.y1);</span>
+<span class="lineNum">     532 </span><span class="lineCov">          1 :                     if(rw.ptr)</span>
+<span class="lineNum">     533 </span>            :                     {
+<span class="lineNum">     534 </span><span class="lineCov">          1 :                         int x1src = rsrc.x1;</span>
+<span class="lineNum">     535 </span><span class="lineCov">          1 :                         int x1dst = rdst.x1;</span>
+<span class="lineNum">     536 </span>            :                         int len   = rc.x2;
+<span class="lineNum">     537 </span><span class="lineCov">          1 :                         if(rw.x1 &gt; x1src)</span>
+<span class="lineNum">     538 </span>            :                         {
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                             x1dst += rw.x1 - x1src;</span>
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :                             len   -= rw.x1 - x1src;</span>
+<span class="lineNum">     541 </span>            :                             x1src  = rw.x1;
+<span class="lineNum">     542 </span>            :                         }
+<span class="lineNum">     543 </span><span class="lineCov">          1 :                         if(len &gt; 0)</span>
+<span class="lineNum">     544 </span>            :                         {
+<span class="lineNum">     545 </span><span class="lineCov">          1 :                             if(x1src + len-1 &gt; rw.x2)</span>
+<span class="lineNum">     546 </span>            :                             {
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :                                 len -= x1src + len - rw.x2 - 1;</span>
+<span class="lineNum">     548 </span>            :                             }
+<span class="lineNum">     549 </span><span class="lineCov">          1 :                             if(len &gt; 0)</span>
+<span class="lineNum">     550 </span>            :                             {
+<span class="lineNum">     551 </span><span class="lineCov">          1 :                                 m_ren-&gt;blend_from(src,</span>
+<span class="lineNum">     552 </span>            :                                                   x1dst, rdst.y1,
+<span class="lineNum">     553 </span>            :                                                   x1src, rsrc.y1,
+<span class="lineNum">     554 </span>            :                                                   len,
+<span class="lineNum">     555 </span>            :                                                   cover);
+<span class="lineNum">     556 </span>            :                             }
+<span class="lineNum">     557 </span>            :                         }
+<span class="lineNum">     558 </span>            :                     }
+<span class="lineNum">     559 </span><span class="lineCov">          1 :                     rdst.y1 += incy;</span>
+<span class="lineNum">     560 </span><span class="lineCov">          1 :                     rsrc.y1 += incy;</span>
+<span class="lineNum">     561 </span><span class="lineCov">          1 :                     --rc.y2;</span>
+<span class="lineNum">     562 </span>            :                 }
+<span class="lineNum">     563 </span>            :             }
+<span class="lineNum">     564 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     565 </span>            : 
+<span class="lineNum">     566 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     567 </span>            :         template&lt;class SrcPixelFormatRenderer&gt;
+<span class="lineNum">     568 </span>            :         void blend_from_color(const SrcPixelFormatRenderer&amp; src, 
+<span class="lineNum">     569 </span>            :                               const color_type&amp; color,
+<span class="lineNum">     570 </span>            :                               const rect_i* rect_src_ptr = 0, 
+<span class="lineNum">     571 </span>            :                               int dx = 0, 
+<span class="lineNum">     572 </span>            :                               int dy = 0,
+<span class="lineNum">     573 </span>            :                               cover_type cover = mapserver::cover_full)
+<span class="lineNum">     574 </span>            :         {
+<span class="lineNum">     575 </span>            :             rect_i rsrc(0, 0, src.width(), src.height());
+<span class="lineNum">     576 </span>            :             if(rect_src_ptr)
+<span class="lineNum">     577 </span>            :             {
+<span class="lineNum">     578 </span>            :                 rsrc.x1 = rect_src_ptr-&gt;x1; 
+<span class="lineNum">     579 </span>            :                 rsrc.y1 = rect_src_ptr-&gt;y1;
+<span class="lineNum">     580 </span>            :                 rsrc.x2 = rect_src_ptr-&gt;x2 + 1;
+<span class="lineNum">     581 </span>            :                 rsrc.y2 = rect_src_ptr-&gt;y2 + 1;
+<span class="lineNum">     582 </span>            :             }
+<span class="lineNum">     583 </span>            : 
+<span class="lineNum">     584 </span>            :             // Version with xdst, ydst (absolute positioning)
+<span class="lineNum">     585 </span>            :             //rect_i rdst(xdst, ydst, xdst + rsrc.x2 - rsrc.x1, ydst + rsrc.y2 - rsrc.y1);
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span>            :             // Version with dx, dy (relative positioning)
+<span class="lineNum">     588 </span>            :             rect_i rdst(rsrc.x1 + dx, rsrc.y1 + dy, rsrc.x2 + dx, rsrc.y2 + dy);
+<span class="lineNum">     589 </span>            :             rect_i rc = clip_rect_area(rdst, rsrc, src.width(), src.height());
+<span class="lineNum">     590 </span>            : 
+<span class="lineNum">     591 </span>            :             if(rc.x2 &gt; 0)
+<span class="lineNum">     592 </span>            :             {
+<span class="lineNum">     593 </span>            :                 int incy = 1;
+<span class="lineNum">     594 </span>            :                 if(rdst.y1 &gt; rsrc.y1)
+<span class="lineNum">     595 </span>            :                 {
+<span class="lineNum">     596 </span>            :                     rsrc.y1 += rc.y2 - 1;
+<span class="lineNum">     597 </span>            :                     rdst.y1 += rc.y2 - 1;
+<span class="lineNum">     598 </span>            :                     incy = -1;
+<span class="lineNum">     599 </span>            :                 }
+<span class="lineNum">     600 </span>            :                 while(rc.y2 &gt; 0)
+<span class="lineNum">     601 </span>            :                 {
+<span class="lineNum">     602 </span>            :                     typename SrcPixelFormatRenderer::row_data rw = src.row(rsrc.y1);
+<span class="lineNum">     603 </span>            :                     if(rw.ptr)
+<span class="lineNum">     604 </span>            :                     {
+<span class="lineNum">     605 </span>            :                         int x1src = rsrc.x1;
+<span class="lineNum">     606 </span>            :                         int x1dst = rdst.x1;
+<span class="lineNum">     607 </span>            :                         int len   = rc.x2;
+<span class="lineNum">     608 </span>            :                         if(rw.x1 &gt; x1src)
+<span class="lineNum">     609 </span>            :                         {
+<span class="lineNum">     610 </span>            :                             x1dst += rw.x1 - x1src;
+<span class="lineNum">     611 </span>            :                             len   -= rw.x1 - x1src;
+<span class="lineNum">     612 </span>            :                             x1src  = rw.x1;
+<span class="lineNum">     613 </span>            :                         }
+<span class="lineNum">     614 </span>            :                         if(len &gt; 0)
+<span class="lineNum">     615 </span>            :                         {
+<span class="lineNum">     616 </span>            :                             if(x1src + len-1 &gt; rw.x2)
+<span class="lineNum">     617 </span>            :                             {
+<span class="lineNum">     618 </span>            :                                 len -= x1src + len - rw.x2 - 1;
+<span class="lineNum">     619 </span>            :                             }
+<span class="lineNum">     620 </span>            :                             if(len &gt; 0)
+<span class="lineNum">     621 </span>            :                             {
+<span class="lineNum">     622 </span>            :                                 m_ren-&gt;blend_from_color(src,
+<span class="lineNum">     623 </span>            :                                                         color,
+<span class="lineNum">     624 </span>            :                                                         x1dst, rdst.y1,
+<span class="lineNum">     625 </span>            :                                                         x1src, rsrc.y1,
+<span class="lineNum">     626 </span>            :                                                         len,
+<span class="lineNum">     627 </span>            :                                                         cover);
+<span class="lineNum">     628 </span>            :                             }
+<span class="lineNum">     629 </span>            :                         }
+<span class="lineNum">     630 </span>            :                     }
+<span class="lineNum">     631 </span>            :                     rdst.y1 += incy;
+<span class="lineNum">     632 </span>            :                     rsrc.y1 += incy;
+<span class="lineNum">     633 </span>            :                     --rc.y2;
+<span class="lineNum">     634 </span>            :                 }
+<span class="lineNum">     635 </span>            :             }
+<span class="lineNum">     636 </span>            :         }
+<span class="lineNum">     637 </span>            : 
+<span class="lineNum">     638 </span>            :         //--------------------------------------------------------------------
+<span class="lineNum">     639 </span>            :         template&lt;class SrcPixelFormatRenderer&gt;
+<span class="lineNum">     640 </span>            :         void blend_from_lut(const SrcPixelFormatRenderer&amp; src, 
+<span class="lineNum">     641 </span>            :                             const color_type* color_lut,
+<span class="lineNum">     642 </span>            :                             const rect_i* rect_src_ptr = 0, 
+<span class="lineNum">     643 </span>            :                             int dx = 0, 
+<span class="lineNum">     644 </span>            :                             int dy = 0,
+<span class="lineNum">     645 </span>            :                             cover_type cover = mapserver::cover_full)
+<span class="lineNum">     646 </span>            :         {
+<span class="lineNum">     647 </span>            :             rect_i rsrc(0, 0, src.width(), src.height());
+<span class="lineNum">     648 </span>            :             if(rect_src_ptr)
+<span class="lineNum">     649 </span>            :             {
+<span class="lineNum">     650 </span>            :                 rsrc.x1 = rect_src_ptr-&gt;x1; 
+<span class="lineNum">     651 </span>            :                 rsrc.y1 = rect_src_ptr-&gt;y1;
+<span class="lineNum">     652 </span>            :                 rsrc.x2 = rect_src_ptr-&gt;x2 + 1;
+<span class="lineNum">     653 </span>            :                 rsrc.y2 = rect_src_ptr-&gt;y2 + 1;
+<span class="lineNum">     654 </span>            :             }
+<span class="lineNum">     655 </span>            : 
+<span class="lineNum">     656 </span>            :             // Version with xdst, ydst (absolute positioning)
+<span class="lineNum">     657 </span>            :             //rect_i rdst(xdst, ydst, xdst + rsrc.x2 - rsrc.x1, ydst + rsrc.y2 - rsrc.y1);
+<span class="lineNum">     658 </span>            : 
+<span class="lineNum">     659 </span>            :             // Version with dx, dy (relative positioning)
+<span class="lineNum">     660 </span>            :             rect_i rdst(rsrc.x1 + dx, rsrc.y1 + dy, rsrc.x2 + dx, rsrc.y2 + dy);
+<span class="lineNum">     661 </span>            :             rect_i rc = clip_rect_area(rdst, rsrc, src.width(), src.height());
+<span class="lineNum">     662 </span>            : 
+<span class="lineNum">     663 </span>            :             if(rc.x2 &gt; 0)
+<span class="lineNum">     664 </span>            :             {
+<span class="lineNum">     665 </span>            :                 int incy = 1;
+<span class="lineNum">     666 </span>            :                 if(rdst.y1 &gt; rsrc.y1)
+<span class="lineNum">     667 </span>            :                 {
+<span class="lineNum">     668 </span>            :                     rsrc.y1 += rc.y2 - 1;
+<span class="lineNum">     669 </span>            :                     rdst.y1 += rc.y2 - 1;
+<span class="lineNum">     670 </span>            :                     incy = -1;
+<span class="lineNum">     671 </span>            :                 }
+<span class="lineNum">     672 </span>            :                 while(rc.y2 &gt; 0)
+<span class="lineNum">     673 </span>            :                 {
+<span class="lineNum">     674 </span>            :                     typename SrcPixelFormatRenderer::row_data rw = src.row(rsrc.y1);
+<span class="lineNum">     675 </span>            :                     if(rw.ptr)
+<span class="lineNum">     676 </span>            :                     {
+<span class="lineNum">     677 </span>            :                         int x1src = rsrc.x1;
+<span class="lineNum">     678 </span>            :                         int x1dst = rdst.x1;
+<span class="lineNum">     679 </span>            :                         int len   = rc.x2;
+<span class="lineNum">     680 </span>            :                         if(rw.x1 &gt; x1src)
+<span class="lineNum">     681 </span>            :                         {
+<span class="lineNum">     682 </span>            :                             x1dst += rw.x1 - x1src;
+<span class="lineNum">     683 </span>            :                             len   -= rw.x1 - x1src;
+<span class="lineNum">     684 </span>            :                             x1src  = rw.x1;
+<span class="lineNum">     685 </span>            :                         }
+<span class="lineNum">     686 </span>            :                         if(len &gt; 0)
+<span class="lineNum">     687 </span>            :                         {
+<span class="lineNum">     688 </span>            :                             if(x1src + len-1 &gt; rw.x2)
+<span class="lineNum">     689 </span>            :                             {
+<span class="lineNum">     690 </span>            :                                 len -= x1src + len - rw.x2 - 1;
+<span class="lineNum">     691 </span>            :                             }
+<span class="lineNum">     692 </span>            :                             if(len &gt; 0)
+<span class="lineNum">     693 </span>            :                             {
+<span class="lineNum">     694 </span>            :                                 m_ren-&gt;blend_from_lut(src,
+<span class="lineNum">     695 </span>            :                                                       color_lut,
+<span class="lineNum">     696 </span>            :                                                       x1dst, rdst.y1,
+<span class="lineNum">     697 </span>            :                                                       x1src, rsrc.y1,
+<span class="lineNum">     698 </span>            :                                                       len,
+<span class="lineNum">     699 </span>            :                                                       cover);
+<span class="lineNum">     700 </span>            :                             }
+<span class="lineNum">     701 </span>            :                         }
+<span class="lineNum">     702 </span>            :                     }
+<span class="lineNum">     703 </span>            :                     rdst.y1 += incy;
+<span class="lineNum">     704 </span>            :                     rsrc.y1 += incy;
+<span class="lineNum">     705 </span>            :                     --rc.y2;
+<span class="lineNum">     706 </span>            :                 }
+<span class="lineNum">     707 </span>            :             }
+<span class="lineNum">     708 </span>            :         }
+<span class="lineNum">     709 </span>            : 
+<span class="lineNum">     710 </span>            :     private:
+<span class="lineNum">     711 </span>            :         pixfmt_type* m_ren;
+<span class="lineNum">     712 </span>            :         rect_i       m_clip_box;
+<span class="lineNum">     713 </span>            :     };
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span>            : 
+<span class="lineNum">     716 </span>            : }
+<span class="lineNum">     717 </span>            : 
+<span class="lineNum">     718 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

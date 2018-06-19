@@ -1,0 +1,1174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - mapserver/mapio.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">mapserver</a> - mapio.c<span style="font-size: 80%;"> (source / <a href="mapio.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">215</td>
+            <td class="headerCovTableEntry">346</td>
+            <td class="headerCovTableEntryLo">62.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntryMed">80.6 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>            :  * $Id$
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * Project:  MapServer
+<span class="lineNum">       5 </span>            :  * Purpose:  Implementations for MapServer IO redirection capability.
+<span class="lineNum">       6 </span>            :  * Author:   Frank Warmerdam, warmerdam@pobox.com
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  ******************************************************************************
+<span class="lineNum">       9 </span>            :  * Copyright (c) 2004, Frank Warmerdam &lt;warmerdam@pobox.com&gt;
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      12 </span>            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      13 </span>            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      14 </span>            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      15 </span>            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      16 </span>            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      17 </span>            :  *
+<span class="lineNum">      18 </span>            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      19 </span>            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      20 </span>            :  *
+<span class="lineNum">      21 </span>            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+<span class="lineNum">      22 </span>            :  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      23 </span>            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+<span class="lineNum">      24 </span>            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      25 </span>            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      26 </span>            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      27 </span>            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      28 </span>            :  ****************************************************************************/
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #include &lt;stdarg.h&gt;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #include &quot;mapserver.h&quot;
+<span class="lineNum">      33 </span>            : #include &quot;mapthread.h&quot;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #ifdef _WIN32
+<span class="lineNum">      36 </span>            : #include &lt;fcntl.h&gt;
+<span class="lineNum">      37 </span>            : #include &lt;io.h&gt;
+<span class="lineNum">      38 </span>            : #endif
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : #ifdef MOD_WMS_ENABLED
+<span class="lineNum">      41 </span>            : #  include &quot;httpd.h&quot;
+<span class="lineNum">      42 </span>            : #  include &quot;apr_strings.h&quot;
+<span class="lineNum">      43 </span>            : #endif
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            : static int is_msIO_initialized = MS_FALSE;
+<span class="lineNum">      49 </span>            : static int is_msIO_header_enabled = MS_TRUE;
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : typedef struct msIOContextGroup_t {
+<span class="lineNum">      52 </span>            :   msIOContext stdin_context;
+<span class="lineNum">      53 </span>            :   msIOContext stdout_context;
+<span class="lineNum">      54 </span>            :   msIOContext stderr_context;
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            :   void*    thread_id;
+<span class="lineNum">      57 </span>            :   struct msIOContextGroup_t *next;
+<span class="lineNum">      58 </span>            : } msIOContextGroup;
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            : static msIOContextGroup default_contexts;
+<span class="lineNum">      61 </span>            : static msIOContextGroup *io_context_list = NULL;
+<span class="lineNum">      62 </span>            : static void msIO_Initialize( void );
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            : #ifdef msIO_printf
+<span class="lineNum">      65 </span>            : #  undef msIO_printf
+<span class="lineNum">      66 </span>            : #  undef msIO_fprintf
+<span class="lineNum">      67 </span>            : #  undef msIO_fwrite
+<span class="lineNum">      68 </span>            : #  undef msIO_fread
+<span class="lineNum">      69 </span>            : #  undef msIO_vfprintf
+<span class="lineNum">      70 </span>            : #endif
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            : /************************************************************************/
+<span class="lineNum">      73 </span>            : /*                            msIO_Cleanup()                            */
+<a name="74"><span class="lineNum">      74 </span>            : /************************************************************************/</a>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineCov">          1 : void msIO_Cleanup()</span>
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            : {
+<span class="lineNum">      79 </span><span class="lineCov">          1 :   if( is_msIO_initialized )</span>
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            :   {
+<span class="lineNum">      82 </span><span class="lineCov">          1 :     is_msIO_initialized = MS_FALSE;</span>
+<span class="lineNum">      83 </span><span class="lineCov">          1 :     while( io_context_list != NULL ) {</span>
+<span class="lineNum">      84 </span>            :       msIOContextGroup *last = io_context_list;
+<span class="lineNum">      85 </span><span class="lineCov">          1 :       io_context_list = io_context_list-&gt;next;</span>
+<span class="lineNum">      86 </span><span class="lineCov">          1 :       free( last );</span>
+<span class="lineNum">      87 </span>            :     }
+<span class="lineNum">      88 </span>            :   }
+<span class="lineNum">      89 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            : /************************************************************************/
+<span class="lineNum">      92 </span>            : /*                        msIO_GetContextGroup()                        */
+<a name="93"><span class="lineNum">      93 </span>            : /************************************************************************/</a>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineCov">          1 : static msIOContextGroup *msIO_GetContextGroup()</span>
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            : {
+<span class="lineNum">      98 </span><span class="lineCov">          1 :   void* nThreadId = msGetThreadId();</span>
+<span class="lineNum">      99 </span><span class="lineCov">          1 :   msIOContextGroup *prev = NULL, *group = io_context_list;</span>
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span><span class="lineCov">          1 :   if( group != NULL &amp;&amp; group-&gt;thread_id == nThreadId )</span>
+<span class="lineNum">     102 </span>            :     return group;
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     105 </span>            :   /*      Search for group for this thread                                */
+<span class="lineNum">     106 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     107 </span><span class="lineCov">          1 :   msAcquireLock( TLOCK_IOCONTEXT );</span>
+<span class="lineNum">     108 </span><span class="lineCov">          1 :   msIO_Initialize();</span>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineCov">          1 :   group = io_context_list;</span>
+<span class="lineNum">     111 </span><span class="lineCov">          1 :   while( group != NULL &amp;&amp; group-&gt;thread_id != nThreadId ) {</span>
+<span class="lineNum">     112 </span>            :     prev = group;
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :     group = group-&gt;next;</span>
+<span class="lineNum">     114 </span>            :   }
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     117 </span>            :   /*      If we found it, make sure it is pushed to the front of the      */
+<span class="lineNum">     118 </span>            :   /*      link for faster finding next time, and return it.               */
+<span class="lineNum">     119 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     120 </span><span class="lineCov">          1 :   if( group != NULL ) {</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :     if( prev != NULL ) {</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :       prev-&gt;next = group-&gt;next;</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :       group-&gt;next = io_context_list;</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :       io_context_list = group;</span>
+<span class="lineNum">     125 </span>            :     }
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :     msReleaseLock( TLOCK_IOCONTEXT );</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :     return group;</span>
+<span class="lineNum">     129 </span>            :   }
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     132 </span>            :   /*      Create a new context group for this thread.                     */
+<span class="lineNum">     133 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     134 </span><span class="lineCov">          1 :   group = (msIOContextGroup *) calloc(sizeof(msIOContextGroup),1);</span>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">          1 :   group-&gt;stdin_context = default_contexts.stdin_context;</span>
+<span class="lineNum">     137 </span><span class="lineCov">          1 :   group-&gt;stdout_context = default_contexts.stdout_context;</span>
+<span class="lineNum">     138 </span><span class="lineCov">          1 :   group-&gt;stderr_context = default_contexts.stderr_context;</span>
+<span class="lineNum">     139 </span><span class="lineCov">          1 :   group-&gt;thread_id = nThreadId;</span>
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span><span class="lineCov">          1 :   group-&gt;next = io_context_list;</span>
+<span class="lineNum">     142 </span><span class="lineCov">          1 :   io_context_list = group;</span>
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span><span class="lineCov">          1 :   msReleaseLock( TLOCK_IOCONTEXT );</span>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineCov">          1 :   return group;</span>
+<span class="lineNum">     147 </span>            : }
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<span class="lineNum">     149 </span>            : /* returns MS_TRUE if the msIO standard output hasn't been redirected */
+<span class="lineNum">     150 </span><span class="lineCov">          1 : int msIO_isStdContext() {</span>
+<span class="lineNum">     151 </span><span class="lineCov">          1 :   msIOContextGroup *group = io_context_list;</span>
+<span class="lineNum">     152 </span><span class="lineCov">          1 :   void* nThreadId = msGetThreadId();</span>
+<span class="lineNum">     153 </span><span class="lineCov">          1 :   if(!group || group-&gt;thread_id != nThreadId) {</span>
+<span class="lineNum">     154 </span><span class="lineCov">          1 :     group = msIO_GetContextGroup();</span>
+<span class="lineNum">     155 </span><span class="lineCov">          1 :     if(!group) {</span>
+<span class="lineNum">     156 </span>            :       return MS_FALSE; /* probably a bug */
+<span class="lineNum">     157 </span>            :     }
+<span class="lineNum">     158 </span>            :   }
+<span class="lineNum">     159 </span><span class="lineCov">          1 :   if(group-&gt;stderr_context.cbData == (void*)stderr &amp;&amp;</span>
+<span class="lineNum">     160 </span><span class="lineCov">          1 :       group-&gt;stdin_context.cbData == (void*)stdin &amp;&amp;</span>
+<span class="lineNum">     161 </span><span class="lineCov">          1 :       group-&gt;stdout_context.cbData == (void*)stdout)</span>
+<span class="lineNum">     162 </span>            :     return MS_TRUE;
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :   return MS_FALSE;</span>
+<span class="lineNum">     164 </span>            : }
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span>            : /************************************************************************/
+<span class="lineNum">     167 </span>            : /*                          msIO_getHandler()                           */
+<a name="168"><span class="lineNum">     168 </span>            : /************************************************************************/</a>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span><span class="lineCov">          1 : msIOContext *msIO_getHandler( FILE * fp )</span>
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            : {
+<span class="lineNum">     173 </span><span class="lineCov">          1 :   void* nThreadId = msGetThreadId();</span>
+<span class="lineNum">     174 </span><span class="lineCov">          1 :   msIOContextGroup *group = io_context_list;</span>
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineCov">          1 :   msIO_Initialize();</span>
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span><span class="lineCov">          1 :   if( group == NULL || group-&gt;thread_id != nThreadId ) {</span>
+<span class="lineNum">     179 </span><span class="lineCov">          1 :     group = msIO_GetContextGroup();</span>
+<span class="lineNum">     180 </span><span class="lineCov">          1 :     if( group == NULL )</span>
+<span class="lineNum">     181 </span>            :       return NULL;
+<span class="lineNum">     182 </span>            :   }
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span><span class="lineCov">          1 :   if( fp == stdin || fp == NULL || strcmp((const char *)fp,&quot;stdin&quot;) == 0 )</span>
+<span class="lineNum">     185 </span><span class="lineCov">          1 :     return &amp;(group-&gt;stdin_context);</span>
+<span class="lineNum">     186 </span><span class="lineCov">          1 :   else if( fp == stdout || strcmp((const char *)fp,&quot;stdout&quot;) == 0 )</span>
+<span class="lineNum">     187 </span><span class="lineCov">          1 :     return &amp;(group-&gt;stdout_context);</span>
+<span class="lineNum">     188 </span><span class="lineCov">          1 :   else if( fp == stderr || strcmp((const char *)fp,&quot;stderr&quot;) == 0 )</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :     return &amp;(group-&gt;stderr_context);</span>
+<span class="lineNum">     190 </span>            :   else
+<span class="lineNum">     191 </span>            :     return NULL;
+<span class="lineNum">     192 </span>            : }
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span>            : /************************************************************************/
+<span class="lineNum">     195 </span>            : /*                      msIO_setHeaderEnabled()                         */
+<a name="196"><span class="lineNum">     196 </span>            : /************************************************************************/</a>
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 : void msIO_setHeaderEnabled(int bFlag)</span>
+<span class="lineNum">     199 </span>            : {
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :     is_msIO_header_enabled = bFlag;</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span>            : /************************************************************************/
+<span class="lineNum">     204 </span>            : /*                           msIO_setHeader()                           */
+<a name="205"><span class="lineNum">     205 </span>            : /************************************************************************/</a>
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span><span class="lineCov">          1 : void msIO_setHeader (const char *header, const char* value, ...)</span>
+<span class="lineNum">     208 </span>            : {
+<span class="lineNum">     209 </span>            :   va_list args;
+<span class="lineNum">     210 </span><span class="lineCov">          1 :   va_start( args, value );</span>
+<span class="lineNum">     211 </span>            : #ifdef MOD_WMS_ENABLED
+<span class="lineNum">     212 </span>            :   msIOContext *ioctx = msIO_getHandler (stdout);
+<span class="lineNum">     213 </span>            :   if(ioctx &amp;&amp; !strcmp(ioctx-&gt;label,&quot;apache&quot;)) {
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            :     request_rec *r = (request_rec*) (ioctx-&gt;cbData);
+<span class="lineNum">     216 </span>            :     char *fullvalue = apr_pvsprintf(r-&gt;pool, value,args);
+<span class="lineNum">     217 </span>            :     if (strcasecmp (header, &quot;Content-Type&quot;) == 0) {
+<span class="lineNum">     218 </span>            :       r-&gt;content_type = fullvalue;
+<span class="lineNum">     219 </span>            :     } else if (strcasecmp (header, &quot;Status&quot;) == 0) {
+<span class="lineNum">     220 </span>            :       r-&gt;status = atoi (fullvalue);
+<span class="lineNum">     221 </span>            :     } else {
+<span class="lineNum">     222 </span>            :       apr_table_setn (r-&gt;headers_out,
+<span class="lineNum">     223 </span>            :                       apr_pstrdup (r-&gt;pool, header),
+<span class="lineNum">     224 </span>            :                       fullvalue
+<span class="lineNum">     225 </span>            :                      );
+<span class="lineNum">     226 </span>            :     }
+<span class="lineNum">     227 </span>            :   } else {
+<span class="lineNum">     228 </span>            : #endif // MOD_WMS_ENABLED
+<span class="lineNum">     229 </span><span class="lineCov">          1 :    if( is_msIO_header_enabled ) {</span>
+<span class="lineNum">     230 </span><span class="lineCov">          1 :       msIO_fprintf(stdout,&quot;%s: &quot;,header);</span>
+<span class="lineNum">     231 </span><span class="lineCov">          1 :       msIO_vfprintf(stdout,value,args);</span>
+<span class="lineNum">     232 </span><span class="lineCov">          1 :       msIO_fprintf(stdout,&quot;\r\n&quot;);</span>
+<span class="lineNum">     233 </span>            :    }
+<span class="lineNum">     234 </span>            : #ifdef MOD_WMS_ENABLED
+<span class="lineNum">     235 </span>            :   }
+<span class="lineNum">     236 </span>            : #endif
+<span class="lineNum">     237 </span><span class="lineCov">          1 :   va_end( args );</span>
+<a name="238"><span class="lineNum">     238 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span><span class="lineCov">          1 : void msIO_sendHeaders ()</span>
+<span class="lineNum">     241 </span>            : {
+<span class="lineNum">     242 </span>            : #ifdef MOD_WMS_ENABLED
+<span class="lineNum">     243 </span>            :   msIOContext *ioctx = msIO_getHandler (stdout);
+<span class="lineNum">     244 </span>            :   if(ioctx &amp;&amp; !strcmp(ioctx-&gt;label,&quot;apache&quot;)) return;
+<span class="lineNum">     245 </span>            : #endif // !MOD_WMS_ENABLED
+<span class="lineNum">     246 </span><span class="lineCov">          1 :   if( is_msIO_header_enabled ) {</span>
+<span class="lineNum">     247 </span><span class="lineCov">          1 :     msIO_printf (&quot;\r\n&quot;);</span>
+<span class="lineNum">     248 </span><span class="lineCov">          1 :     fflush (stdout);</span>
+<span class="lineNum">     249 </span>            :   }
+<span class="lineNum">     250 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     251 </span>            : 
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            : /************************************************************************/
+<span class="lineNum">     254 </span>            : /*                        msIO_installHandlers()                        */
+<a name="255"><span class="lineNum">     255 </span>            : /************************************************************************/</a>
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span><span class="lineCov">          1 : int msIO_installHandlers( msIOContext *stdin_context,</span>
+<span class="lineNum">     258 </span>            :                           msIOContext *stdout_context,
+<span class="lineNum">     259 </span>            :                           msIOContext *stderr_context )
+<span class="lineNum">     260 </span>            : 
+<span class="lineNum">     261 </span>            : {
+<span class="lineNum">     262 </span>            :   msIOContextGroup *group;
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span><span class="lineCov">          1 :   msIO_Initialize();</span>
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span><span class="lineCov">          1 :   group = msIO_GetContextGroup();</span>
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span><span class="lineCov">          1 :   if( stdin_context == NULL )</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :     group-&gt;stdin_context = default_contexts.stdin_context;</span>
+<span class="lineNum">     270 </span><span class="lineCov">          1 :   else if( stdin_context != &amp;group-&gt;stdin_context )</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :     group-&gt;stdin_context = *stdin_context;</span>
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span><span class="lineCov">          1 :   if( stdout_context == NULL )</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :     group-&gt;stdout_context = default_contexts.stdout_context;</span>
+<span class="lineNum">     275 </span><span class="lineCov">          1 :   else if( stdout_context != &amp;group-&gt;stdout_context )</span>
+<span class="lineNum">     276 </span><span class="lineCov">          1 :     group-&gt;stdout_context = *stdout_context;</span>
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span><span class="lineCov">          1 :   if( stderr_context == NULL )</span>
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :     group-&gt;stderr_context = default_contexts.stderr_context;</span>
+<span class="lineNum">     280 </span><span class="lineCov">          1 :   else if( stderr_context != &amp;group-&gt;stderr_context )</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :     group-&gt;stderr_context = *stderr_context;</span>
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span><span class="lineCov">          1 :   return MS_TRUE;</span>
+<span class="lineNum">     284 </span>            : }
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span>            : /************************************************************************/
+<span class="lineNum">     287 </span>            : /*                          msIO_contextRead()                          */
+<a name="288"><span class="lineNum">     288 </span>            : /************************************************************************/</a>
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span><span class="lineCov">          1 : int msIO_contextRead( msIOContext *context, void *data, int byteCount )</span>
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span>            : {
+<span class="lineNum">     293 </span><span class="lineCov">          1 :   if( context-&gt;write_channel == MS_TRUE )</span>
+<span class="lineNum">     294 </span>            :     return 0;
+<span class="lineNum">     295 </span>            :   else
+<span class="lineNum">     296 </span><span class="lineCov">          1 :     return context-&gt;readWriteFunc( context-&gt;cbData, data, byteCount );</span>
+<span class="lineNum">     297 </span>            : }
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span>            : /************************************************************************/
+<span class="lineNum">     300 </span>            : /*                         msIO_contextWrite()                          */
+<a name="301"><span class="lineNum">     301 </span>            : /************************************************************************/</a>
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span><span class="lineCov">          1 : int msIO_contextWrite( msIOContext *context, const void *data, int byteCount )</span>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span>            : {
+<span class="lineNum">     306 </span><span class="lineCov">          1 :   if( context-&gt;write_channel == MS_FALSE )</span>
+<span class="lineNum">     307 </span>            :     return 0;
+<span class="lineNum">     308 </span>            :   else
+<span class="lineNum">     309 </span><span class="lineCov">          1 :     return context-&gt;readWriteFunc( context-&gt;cbData, (void *) data,</span>
+<span class="lineNum">     310 </span>            :                                    byteCount );
+<span class="lineNum">     311 </span>            : }
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span>            : /* ==================================================================== */
+<span class="lineNum">     314 </span>            : /* ==================================================================== */
+<span class="lineNum">     315 </span>            : /*      Stdio-like cover functions.                                     */
+<span class="lineNum">     316 </span>            : /* ==================================================================== */
+<span class="lineNum">     317 </span>            : /* ==================================================================== */
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            : /************************************************************************/
+<span class="lineNum">     320 </span>            : /*                            _ms_vsprintf()                            */
+<a name="321"><span class="lineNum">     321 </span>            : /************************************************************************/</a>
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span><span class="lineCov">          1 : static int _ms_vsprintf(char **workBufPtr, const char *format, va_list ap )</span>
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span>            : {
+<span class="lineNum">     326 </span>            :   int     ret_val;
+<span class="lineNum">     327 </span>            :   int   workBufSize = 16000;
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span><span class="lineCov">          1 :   *workBufPtr = (char*)malloc(workBufSize * sizeof(char));</span>
+<span class="lineNum">     330 </span><span class="lineCov">          1 :   if (*workBufPtr == NULL) {</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :     msSetError( MS_MEMERR, NULL, &quot;_ms_vsprintf()&quot;);</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :     return -1;</span>
+<span class="lineNum">     333 </span>            :   }
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span>            : #if defined(HAVE_VSNPRINTF)
+<span class="lineNum">     336 </span>            :   /* This should grow a big enough buffer to hold any formatted result. */
+<span class="lineNum">     337 </span>            :   {
+<span class="lineNum">     338 </span>            :     va_list wrk_args;
+<span class="lineNum">     339 </span>            : 
+<span class="lineNum">     340 </span>            : #ifdef va_copy
+<span class="lineNum">     341 </span><span class="lineCov">          1 :     va_copy( wrk_args, ap );</span>
+<span class="lineNum">     342 </span>            : #else
+<span class="lineNum">     343 </span>            :     wrk_args = ap;
+<span class="lineNum">     344 </span>            : #endif
+<span class="lineNum">     345 </span>            : 
+<span class="lineNum">     346 </span><span class="lineCov">          1 :     while( (ret_val = vsnprintf( *workBufPtr, workBufSize,</span>
+<span class="lineNum">     347 </span><span class="lineCov">          1 :                                  format, wrk_args)) &gt;= workBufSize-1</span>
+<span class="lineNum">     348 </span><span class="lineCov">          1 :            || ret_val == -1 ) {</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :       workBufSize *= 4;</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :       *workBufPtr = (char *) realloc(*workBufPtr, workBufSize );</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :       if (*workBufPtr == NULL) {</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :         msSetError( MS_MEMERR, NULL, &quot;_ms_vsprintf()&quot;);</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :         va_end( wrk_args );</span>
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     355 </span>            :       }
+<span class="lineNum">     356 </span>            : #ifdef va_copy
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :       va_end( wrk_args );</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :       va_copy( wrk_args, ap );</span>
+<span class="lineNum">     359 </span>            : #else
+<span class="lineNum">     360 </span>            :       wrk_args = ap;
+<span class="lineNum">     361 </span>            : #endif
+<span class="lineNum">     362 </span>            :     }
+<span class="lineNum">     363 </span><span class="lineCov">          1 :     va_end( wrk_args );</span>
+<span class="lineNum">     364 </span>            :   }
+<span class="lineNum">     365 </span>            : #else
+<span class="lineNum">     366 </span>            :   /* We do not have vsnprintf()... there is a risk of buffer overrun */
+<span class="lineNum">     367 </span>            :   ret_val = vsprintf( *workBufPtr, format, ap );
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span>            :   if( ret_val &lt; 0 || ret_val &gt;= workBufSize ) {
+<span class="lineNum">     370 </span>            :     msSetError(MS_MISCERR, &quot;Possible buffer overrun.&quot;, &quot;_ms_vsprintf()&quot;);
+<span class="lineNum">     371 </span>            :     msFree(*workBufPtr);
+<span class="lineNum">     372 </span>            :     *workBufPtr = NULL;
+<span class="lineNum">     373 </span>            :     return -1;
+<span class="lineNum">     374 </span>            :   }
+<span class="lineNum">     375 </span>            : #endif
+<span class="lineNum">     376 </span>            : 
+<span class="lineNum">     377 </span><span class="lineCov">          1 :   return ret_val;</span>
+<span class="lineNum">     378 </span>            : }
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span>            : 
+<span class="lineNum">     381 </span>            : /************************************************************************/
+<span class="lineNum">     382 </span>            : /*                            msIO_printf()                             */
+<a name="383"><span class="lineNum">     383 </span>            : /************************************************************************/</a>
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span><span class="lineCov">          1 : int msIO_printf( const char *format, ... )</span>
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span>            : {
+<span class="lineNum">     388 </span>            :   va_list args;
+<span class="lineNum">     389 </span>            :   int ret;
+<span class="lineNum">     390 </span><span class="lineCov">          1 :   va_start( args, format );</span>
+<span class="lineNum">     391 </span><span class="lineCov">          1 :   ret = msIO_vfprintf(stdout,format,args);</span>
+<span class="lineNum">     392 </span><span class="lineCov">          1 :   va_end(args);</span>
+<span class="lineNum">     393 </span><span class="lineCov">          1 :   return ret;</span>
+<span class="lineNum">     394 </span>            : }
+<span class="lineNum">     395 </span>            : 
+<span class="lineNum">     396 </span>            : /************************************************************************/
+<span class="lineNum">     397 </span>            : /*                            msIO_fprintf()                            */
+<a name="398"><span class="lineNum">     398 </span>            : /************************************************************************/</a>
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span><span class="lineCov">          1 : int msIO_fprintf( FILE *fp, const char *format, ... )</span>
+<span class="lineNum">     401 </span>            : 
+<span class="lineNum">     402 </span>            : {
+<span class="lineNum">     403 </span>            :   va_list args;
+<span class="lineNum">     404 </span>            :   int ret;
+<span class="lineNum">     405 </span><span class="lineCov">          1 :   va_start( args, format );</span>
+<span class="lineNum">     406 </span><span class="lineCov">          1 :   ret = msIO_vfprintf(fp,format,args);</span>
+<span class="lineNum">     407 </span><span class="lineCov">          1 :   va_end(args);</span>
+<span class="lineNum">     408 </span><span class="lineCov">          1 :   return ret;</span>
+<span class="lineNum">     409 </span>            : }
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span>            : /************************************************************************/
+<span class="lineNum">     412 </span>            : /*                            msIO_vfprintf()                           */
+<a name="413"><span class="lineNum">     413 </span>            : /************************************************************************/</a>
+<span class="lineNum">     414 </span>            : 
+<span class="lineNum">     415 </span><span class="lineCov">          1 : int msIO_vfprintf( FILE *fp, const char *format, va_list ap )</span>
+<span class="lineNum">     416 </span>            : 
+<span class="lineNum">     417 </span>            : {
+<span class="lineNum">     418 </span>            :   va_list args_copy;
+<span class="lineNum">     419 </span>            :   int     return_val;
+<span class="lineNum">     420 </span>            :   msIOContext *context;
+<span class="lineNum">     421 </span><span class="lineCov">          1 :   char workBuf[8000], *largerBuf = NULL;</span>
+<span class="lineNum">     422 </span>            : 
+<span class="lineNum">     423 </span>            : #if !defined(HAVE_VSNPRINTF)
+<span class="lineNum">     424 </span>            :   return_val = vsprintf( workBuf, format, ap);
+<span class="lineNum">     425 </span>            : 
+<span class="lineNum">     426 </span>            :   if( return_val &lt; 0 || return_val &gt;= sizeof(workBuf) ) {
+<span class="lineNum">     427 </span>            :     msSetError(MS_MISCERR, &quot;Possible buffer overrun.&quot;, &quot;msIO_vfprintf()&quot;);
+<span class="lineNum">     428 </span>            :     return -1;
+<span class="lineNum">     429 </span>            :   }
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span>            : #else
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span>            : #ifdef va_copy
+<span class="lineNum">     434 </span><span class="lineCov">          1 :   va_copy( args_copy, ap );</span>
+<span class="lineNum">     435 </span>            : #else
+<span class="lineNum">     436 </span>            :   args_copy = ap;
+<span class="lineNum">     437 </span>            : #endif /* va_copy */
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span>            :   return_val = vsnprintf( workBuf, sizeof(workBuf), format, ap );
+<span class="lineNum">     440 </span><span class="lineCov">          1 :   if (return_val == -1 || return_val &gt;= sizeof(workBuf)-1) {</span>
+<span class="lineNum">     441 </span><span class="lineCov">          1 :     return_val = _ms_vsprintf(&amp;largerBuf, format, args_copy );</span>
+<span class="lineNum">     442 </span>            :   }
+<span class="lineNum">     443 </span><span class="lineCov">          1 :   va_end(args_copy);</span>
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span>            : #endif /* HAVE_VSNPRINTF */
+<span class="lineNum">     446 </span>            : 
+<span class="lineNum">     447 </span><span class="lineCov">          1 :   if (return_val &lt; 0)</span>
+<span class="lineNum">     448 </span>            :     return -1;
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span><span class="lineCov">          1 :   context = msIO_getHandler( fp );</span>
+<span class="lineNum">     451 </span><span class="lineCov">          1 :   if( context == NULL )</span>
+<span class="lineNum">     452 </span><span class="lineCov">          1 :     return_val = fwrite( largerBuf?largerBuf:workBuf, 1, return_val, fp );</span>
+<span class="lineNum">     453 </span>            :   else
+<span class="lineNum">     454 </span><span class="lineCov">          1 :     return_val =  msIO_contextWrite( context,</span>
+<span class="lineNum">     455 </span><span class="lineCov">          1 :                                      largerBuf?largerBuf:workBuf,</span>
+<span class="lineNum">     456 </span>            :                                      return_val );
+<span class="lineNum">     457 </span>            : 
+<span class="lineNum">     458 </span><span class="lineCov">          1 :   msFree(largerBuf);</span>
+<span class="lineNum">     459 </span>            : 
+<span class="lineNum">     460 </span><span class="lineCov">          1 :   return return_val;</span>
+<span class="lineNum">     461 </span>            : }
+<span class="lineNum">     462 </span>            : 
+<span class="lineNum">     463 </span>            : /************************************************************************/
+<span class="lineNum">     464 </span>            : /*                            msIO_fwrite()                             */
+<a name="465"><span class="lineNum">     465 </span>            : /************************************************************************/</a>
+<span class="lineNum">     466 </span>            : 
+<span class="lineNum">     467 </span><span class="lineCov">          1 : int msIO_fwrite( const void *data, size_t size, size_t nmemb, FILE *fp )</span>
+<span class="lineNum">     468 </span>            : 
+<span class="lineNum">     469 </span>            : {
+<span class="lineNum">     470 </span>            :   msIOContext *context;
+<span class="lineNum">     471 </span>            : 
+<span class="lineNum">     472 </span><span class="lineCov">          1 :   if( size == 0 || nmemb == 0 )</span>
+<span class="lineNum">     473 </span>            :     return 0;
+<span class="lineNum">     474 </span>            : 
+<span class="lineNum">     475 </span><span class="lineCov">          1 :   context = msIO_getHandler( fp );</span>
+<span class="lineNum">     476 </span><span class="lineCov">          1 :   if( context == NULL )</span>
+<span class="lineNum">     477 </span><span class="lineCov">          1 :     return fwrite( data, size, nmemb, fp );</span>
+<span class="lineNum">     478 </span>            :   else
+<span class="lineNum">     479 </span><span class="lineCov">          1 :     return msIO_contextWrite( context, data, size * nmemb ) / size;</span>
+<span class="lineNum">     480 </span>            : }
+<span class="lineNum">     481 </span>            : 
+<span class="lineNum">     482 </span>            : /************************************************************************/
+<span class="lineNum">     483 </span>            : /*                            msIO_fread()                              */
+<a name="484"><span class="lineNum">     484 </span>            : /************************************************************************/</a>
+<span class="lineNum">     485 </span>            : 
+<span class="lineNum">     486 </span><span class="lineCov">          1 : int msIO_fread( void *data, size_t size, size_t nmemb, FILE *fp )</span>
+<span class="lineNum">     487 </span>            : 
+<span class="lineNum">     488 </span>            : {
+<span class="lineNum">     489 </span>            :   msIOContext *context;
+<span class="lineNum">     490 </span>            : 
+<span class="lineNum">     491 </span><span class="lineCov">          1 :   if( size == 0 || nmemb == 0 )</span>
+<span class="lineNum">     492 </span>            :     return 0;
+<span class="lineNum">     493 </span>            : 
+<span class="lineNum">     494 </span><span class="lineCov">          1 :   context = msIO_getHandler( fp );</span>
+<span class="lineNum">     495 </span><span class="lineCov">          1 :   if( context == NULL )</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :     return fread( data, size, nmemb, fp );</span>
+<span class="lineNum">     497 </span>            :   else
+<span class="lineNum">     498 </span><span class="lineCov">          1 :     return msIO_contextRead( context, data, size * nmemb ) / size;</span>
+<span class="lineNum">     499 </span>            : }
+<span class="lineNum">     500 </span>            : 
+<span class="lineNum">     501 </span>            : /* ==================================================================== */
+<span class="lineNum">     502 </span>            : /* ==================================================================== */
+<span class="lineNum">     503 </span>            : /*      Internal default callbacks implementing stdio reading and       */
+<span class="lineNum">     504 </span>            : /*      writing.                                                        */
+<span class="lineNum">     505 </span>            : /* ==================================================================== */
+<span class="lineNum">     506 </span>            : /* ==================================================================== */
+<span class="lineNum">     507 </span>            : 
+<span class="lineNum">     508 </span>            : /************************************************************************/
+<span class="lineNum">     509 </span>            : /*                           msIO_stdioRead()                           */
+<span class="lineNum">     510 </span>            : /*                                                                      */
+<span class="lineNum">     511 </span>            : /*      This is the default implementation via stdio.                   */
+<a name="512"><span class="lineNum">     512 </span>            : /************************************************************************/</a>
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span><span class="lineCov">          1 : static int msIO_stdioRead( void *cbData, void *data, int byteCount )</span>
+<span class="lineNum">     515 </span>            : 
+<span class="lineNum">     516 </span>            : {
+<span class="lineNum">     517 </span><span class="lineCov">          1 :   return fread( data, 1, byteCount, (FILE *) cbData );</span>
+<span class="lineNum">     518 </span>            : }
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span>            : /************************************************************************/
+<span class="lineNum">     521 </span>            : /*                          msIO_stdioWrite()                           */
+<span class="lineNum">     522 </span>            : /*                                                                      */
+<span class="lineNum">     523 </span>            : /*      This is the default implementation via stdio.                   */
+<a name="524"><span class="lineNum">     524 </span>            : /************************************************************************/</a>
+<span class="lineNum">     525 </span>            : 
+<span class="lineNum">     526 </span><span class="lineCov">          1 : static int msIO_stdioWrite( void *cbData, void *data, int byteCount )</span>
+<span class="lineNum">     527 </span>            : 
+<span class="lineNum">     528 </span>            : {
+<span class="lineNum">     529 </span><span class="lineCov">          1 :   return fwrite( data, 1, byteCount, (FILE *) cbData );</span>
+<span class="lineNum">     530 </span>            : }
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span>            : /************************************************************************/
+<span class="lineNum">     533 </span>            : /*                          msIO_Initialize()                           */
+<a name="534"><span class="lineNum">     534 </span>            : /************************************************************************/</a>
+<span class="lineNum">     535 </span>            : 
+<span class="lineNum">     536 </span><span class="lineCov">          1 : static void msIO_Initialize( void )</span>
+<span class="lineNum">     537 </span>            : 
+<span class="lineNum">     538 </span>            : {
+<span class="lineNum">     539 </span><span class="lineCov">          1 :   if( is_msIO_initialized == MS_TRUE )</span>
+<span class="lineNum">     540 </span><span class="lineCov">          1 :     return;</span>
+<span class="lineNum">     541 </span>            : 
+<span class="lineNum">     542 </span><span class="lineCov">          1 :   default_contexts.stdin_context.label = &quot;stdio&quot;;</span>
+<span class="lineNum">     543 </span><span class="lineCov">          1 :   default_contexts.stdin_context.write_channel = MS_FALSE;</span>
+<span class="lineNum">     544 </span><span class="lineCov">          1 :   default_contexts.stdin_context.readWriteFunc = msIO_stdioRead;</span>
+<span class="lineNum">     545 </span><span class="lineCov">          1 :   default_contexts.stdin_context.cbData = (void *) stdin;</span>
+<span class="lineNum">     546 </span>            : 
+<span class="lineNum">     547 </span><span class="lineCov">          1 :   default_contexts.stdout_context.label = &quot;stdio&quot;;</span>
+<span class="lineNum">     548 </span><span class="lineCov">          1 :   default_contexts.stdout_context.write_channel = MS_TRUE;</span>
+<span class="lineNum">     549 </span><span class="lineCov">          1 :   default_contexts.stdout_context.readWriteFunc = msIO_stdioWrite;</span>
+<span class="lineNum">     550 </span><span class="lineCov">          1 :   default_contexts.stdout_context.cbData = (void *) stdout;</span>
+<span class="lineNum">     551 </span>            : 
+<span class="lineNum">     552 </span><span class="lineCov">          1 :   default_contexts.stderr_context.label = &quot;stdio&quot;;</span>
+<span class="lineNum">     553 </span><span class="lineCov">          1 :   default_contexts.stderr_context.write_channel = MS_TRUE;</span>
+<span class="lineNum">     554 </span><span class="lineCov">          1 :   default_contexts.stderr_context.readWriteFunc = msIO_stdioWrite;</span>
+<span class="lineNum">     555 </span><span class="lineCov">          1 :   default_contexts.stderr_context.cbData = (void *) stderr;</span>
+<span class="lineNum">     556 </span>            : 
+<span class="lineNum">     557 </span><span class="lineCov">          1 :   default_contexts.next = NULL;</span>
+<span class="lineNum">     558 </span><span class="lineCov">          1 :   default_contexts.thread_id = 0;</span>
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span><span class="lineCov">          1 :   is_msIO_initialized = MS_TRUE;</span>
+<span class="lineNum">     561 </span>            : }
+<span class="lineNum">     562 </span>            : 
+<span class="lineNum">     563 </span>            : 
+<span class="lineNum">     564 </span>            : /* ==================================================================== */
+<span class="lineNum">     565 </span>            : /* ==================================================================== */
+<span class="lineNum">     566 </span>            : /*      FastCGI output redirection functions.                           */
+<span class="lineNum">     567 </span>            : /* ==================================================================== */
+<span class="lineNum">     568 </span>            : /* ==================================================================== */
+<span class="lineNum">     569 </span>            : 
+<span class="lineNum">     570 </span>            : 
+<span class="lineNum">     571 </span>            : 
+<span class="lineNum">     572 </span>            : /************************************************************************/
+<span class="lineNum">     573 </span>            : /*                       msIO_needBinaryStdout()                        */
+<span class="lineNum">     574 </span>            : /*                                                                      */
+<span class="lineNum">     575 </span>            : /*      This function is intended to ensure that stdout is in binary    */
+<span class="lineNum">     576 </span>            : /*      mode.                                                           */
+<span class="lineNum">     577 </span>            : /*                                                                      */
+<span class="lineNum">     578 </span>            : /*      But don't do it we are using FastCGI.  We will take care of     */
+<span class="lineNum">     579 </span>            : /*      doing it in the libfcgi library in that case for the normal     */
+<span class="lineNum">     580 </span>            : /*      cgi case, and for the fastcgi case the _setmode() call          */
+<span class="lineNum">     581 </span>            : /*      causes a crash.                                                 */
+<a name="582"><span class="lineNum">     582 </span>            : /************************************************************************/</a>
+<span class="lineNum">     583 </span>            : 
+<span class="lineNum">     584 </span><span class="lineCov">          1 : int msIO_needBinaryStdout()</span>
+<span class="lineNum">     585 </span>            : 
+<span class="lineNum">     586 </span>            : {
+<span class="lineNum">     587 </span>            : #if defined(_WIN32) &amp;&amp; !defined(USE_FASTCGI)
+<span class="lineNum">     588 </span>            :   if(_setmode( _fileno(stdout), _O_BINARY) == -1) {
+<span class="lineNum">     589 </span>            :     msSetError(MS_IOERR,
+<span class="lineNum">     590 </span>            :                &quot;Unable to change stdout to binary mode.&quot;,
+<span class="lineNum">     591 </span>            :                &quot;msIO_needBinaryStdout()&quot; );
+<span class="lineNum">     592 </span>            :     return(MS_FAILURE);
+<span class="lineNum">     593 </span>            :   }
+<span class="lineNum">     594 </span>            : #endif
+<span class="lineNum">     595 </span>            : 
+<span class="lineNum">     596 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     597 </span>            : }
+<span class="lineNum">     598 </span>            : 
+<span class="lineNum">     599 </span>            : /************************************************************************/
+<span class="lineNum">     600 </span>            : /*                        msIO_needBinaryStdin()                        */
+<span class="lineNum">     601 </span>            : /*                                                                      */
+<span class="lineNum">     602 </span>            : /*      This function is intended to ensure that stdin is in binary     */
+<span class="lineNum">     603 </span>            : /*      mode.                                                           */
+<span class="lineNum">     604 </span>            : /*                                                                      */
+<span class="lineNum">     605 </span>            : /*      But don't do it we are using FastCGI.  We will take care of     */
+<span class="lineNum">     606 </span>            : /*      doing it in the libfcgi library in that case for the normal     */
+<span class="lineNum">     607 </span>            : /*      cgi case, and for the fastcgi case the _setmode() call          */
+<span class="lineNum">     608 </span>            : /*      causes a crash.                                                 */
+<a name="609"><span class="lineNum">     609 </span>            : /************************************************************************/</a>
+<span class="lineNum">     610 </span>            : 
+<span class="lineNum">     611 </span><span class="lineCov">          1 : int msIO_needBinaryStdin()</span>
+<span class="lineNum">     612 </span>            : 
+<span class="lineNum">     613 </span>            : {
+<span class="lineNum">     614 </span>            : #if defined(_WIN32) &amp;&amp; !defined(USE_FASTCGI)
+<span class="lineNum">     615 </span>            :   if(_setmode( _fileno(stdin), _O_BINARY) == -1) {
+<span class="lineNum">     616 </span>            :     msSetError(MS_IOERR,
+<span class="lineNum">     617 </span>            :                &quot;Unable to change stdin to binary mode.&quot;,
+<span class="lineNum">     618 </span>            :                &quot;msIO_needBinaryStdin()&quot; );
+<span class="lineNum">     619 </span>            :     return(MS_FAILURE);
+<span class="lineNum">     620 </span>            :   }
+<span class="lineNum">     621 </span>            : #endif
+<span class="lineNum">     622 </span>            : 
+<span class="lineNum">     623 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     624 </span>            : }
+<span class="lineNum">     625 </span>            : 
+<span class="lineNum">     626 </span>            : /* ==================================================================== */
+<span class="lineNum">     627 </span>            : /*      memory buffer io handling functions.                            */
+<span class="lineNum">     628 </span>            : /* ==================================================================== */
+<span class="lineNum">     629 </span>            : 
+<span class="lineNum">     630 </span>            : /************************************************************************/
+<span class="lineNum">     631 </span>            : /*                         msIO_resetHandlers()                         */
+<a name="632"><span class="lineNum">     632 </span>            : /************************************************************************/</a>
+<span class="lineNum">     633 </span>            : 
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 : void msIO_resetHandlers()</span>
+<span class="lineNum">     635 </span>            : 
+<span class="lineNum">     636 </span>            : {
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :   msIOContextGroup *group = msIO_GetContextGroup();</span>
+<span class="lineNum">     638 </span>            : 
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :   if( group == NULL )</span>
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     641 </span>            : 
+<span class="lineNum">     642 </span><span class="lineNoCov">          0 :   if( strcmp(group-&gt;stdin_context.label,&quot;buffer&quot;) == 0 ) {</span>
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :     msIOBuffer *buf = (msIOBuffer *) group-&gt;stdin_context.cbData;</span>
+<span class="lineNum">     644 </span>            : 
+<span class="lineNum">     645 </span><span class="lineNoCov">          0 :     if( buf-&gt;data != NULL )</span>
+<span class="lineNum">     646 </span><span class="lineNoCov">          0 :       free( buf-&gt;data );</span>
+<span class="lineNum">     647 </span><span class="lineNoCov">          0 :     free( buf );</span>
+<span class="lineNum">     648 </span>            :   }
+<span class="lineNum">     649 </span>            : 
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :   if( strcmp(group-&gt;stdout_context.label,&quot;buffer&quot;) == 0 ) {</span>
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :     msIOBuffer *buf = (msIOBuffer *) group-&gt;stdout_context.cbData;</span>
+<span class="lineNum">     652 </span>            : 
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :     if( buf-&gt;data != NULL )</span>
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :       free( buf-&gt;data );</span>
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :     free( buf );</span>
+<span class="lineNum">     656 </span>            :   }
+<span class="lineNum">     657 </span>            : 
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :   if( strcmp(group-&gt;stderr_context.label,&quot;buffer&quot;) == 0 ) {</span>
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :     msIOBuffer *buf = (msIOBuffer *) group-&gt;stderr_context.cbData;</span>
+<span class="lineNum">     660 </span>            : 
+<span class="lineNum">     661 </span><span class="lineNoCov">          0 :     if( buf-&gt;data != NULL )</span>
+<span class="lineNum">     662 </span><span class="lineNoCov">          0 :       free( buf-&gt;data );</span>
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :     free( buf );</span>
+<span class="lineNum">     664 </span>            :   }
+<span class="lineNum">     665 </span>            : 
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 :   msIO_installHandlers( NULL, NULL, NULL );</span>
+<span class="lineNum">     667 </span>            : }
+<span class="lineNum">     668 </span>            : 
+<span class="lineNum">     669 </span>            : /************************************************************************/
+<span class="lineNum">     670 </span>            : /*                     msIO_installStdoutToBuffer()                     */
+<a name="671"><span class="lineNum">     671 </span>            : /************************************************************************/</a>
+<span class="lineNum">     672 </span>            : 
+<span class="lineNum">     673 </span><span class="lineCov">          1 : void msIO_installStdoutToBuffer()</span>
+<span class="lineNum">     674 </span>            : 
+<span class="lineNum">     675 </span>            : {
+<span class="lineNum">     676 </span><span class="lineCov">          1 :   msIOContextGroup *group = msIO_GetContextGroup();</span>
+<span class="lineNum">     677 </span>            :   msIOContext  context;
+<span class="lineNum">     678 </span>            : 
+<span class="lineNum">     679 </span><span class="lineCov">          1 :   context.label = &quot;buffer&quot;;</span>
+<span class="lineNum">     680 </span><span class="lineCov">          1 :   context.write_channel = MS_TRUE;</span>
+<span class="lineNum">     681 </span><span class="lineCov">          1 :   context.readWriteFunc = msIO_bufferWrite;</span>
+<span class="lineNum">     682 </span><span class="lineCov">          1 :   context.cbData = calloc(sizeof(msIOBuffer),1);</span>
+<span class="lineNum">     683 </span>            : 
+<span class="lineNum">     684 </span><span class="lineCov">          1 :   msIO_installHandlers( &amp;group-&gt;stdin_context,</span>
+<span class="lineNum">     685 </span>            :                         &amp;context,
+<span class="lineNum">     686 </span>            :                         &amp;group-&gt;stderr_context );
+<span class="lineNum">     687 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     688 </span>            : 
+<span class="lineNum">     689 </span>            : 
+<span class="lineNum">     690 </span>            : /************************************************************************/
+<span class="lineNum">     691 </span>            : /*               msIO_pushStdoutToBufferAndGetOldContext()              */
+<span class="lineNum">     692 </span>            : /*                                                                      */
+<span class="lineNum">     693 </span>            : /* This function installs a temporary buffer I/O context and returns    */
+<span class="lineNum">     694 </span>            : /* previously installed stdout handler. This previous stdout handler    */
+<span class="lineNum">     695 </span>            : /* should later be restored with msIO_restoreOldStdoutContext().        */
+<span class="lineNum">     696 </span>            : /* This function can be for example used when wanting to ingest into    */
+<span class="lineNum">     697 </span>            : /* libxml objects XML generated by msIO_fprintf()                       */
+<a name="698"><span class="lineNum">     698 </span>            : /************************************************************************/</a>
+<span class="lineNum">     699 </span>            : 
+<span class="lineNum">     700 </span><span class="lineCov">          1 : msIOContext* msIO_pushStdoutToBufferAndGetOldContext()</span>
+<span class="lineNum">     701 </span>            : 
+<span class="lineNum">     702 </span>            : {
+<span class="lineNum">     703 </span><span class="lineCov">          1 :   msIOContextGroup *group = msIO_GetContextGroup();</span>
+<span class="lineNum">     704 </span>            :   msIOContext *old_context;
+<span class="lineNum">     705 </span>            : 
+<span class="lineNum">     706 </span>            :   /* Backup current context */
+<span class="lineNum">     707 </span><span class="lineCov">          1 :   old_context = (msIOContext*) msSmallMalloc(sizeof(msIOContext));</span>
+<span class="lineNum">     708 </span><span class="lineCov">          1 :   memcpy(old_context, &amp;group-&gt;stdout_context, sizeof(msIOContext));</span>
+<span class="lineNum">     709 </span>            : 
+<span class="lineNum">     710 </span><span class="lineCov">          1 :   msIO_installStdoutToBuffer();</span>
+<span class="lineNum">     711 </span>            : 
+<span class="lineNum">     712 </span><span class="lineCov">          1 :   return old_context;</span>
+<span class="lineNum">     713 </span>            : }
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span>            : /************************************************************************/
+<span class="lineNum">     716 </span>            : /*                    msIO_restoreOldStdoutContext()                    */
+<a name="717"><span class="lineNum">     717 </span>            : /************************************************************************/</a>
+<span class="lineNum">     718 </span>            : 
+<span class="lineNum">     719 </span><span class="lineCov">          1 : void msIO_restoreOldStdoutContext(msIOContext *context_to_restore)</span>
+<span class="lineNum">     720 </span>            : {
+<span class="lineNum">     721 </span><span class="lineCov">          1 :   msIOContextGroup *group = msIO_GetContextGroup();</span>
+<span class="lineNum">     722 </span>            :   msIOContext *prev_context = &amp;group-&gt;stdout_context;
+<span class="lineNum">     723 </span>            :   msIOBuffer* buffer;
+<span class="lineNum">     724 </span>            :   
+<span class="lineNum">     725 </span>            :   /* Free memory associated to our temporary context */
+<span class="lineNum">     726 </span>            :   assert( strcmp(prev_context-&gt;label, &quot;buffer&quot;) == 0 );
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span><span class="lineCov">          1 :   buffer = (msIOBuffer* )prev_context-&gt;cbData;</span>
+<span class="lineNum">     729 </span><span class="lineCov">          1 :   msFree(buffer-&gt;data);</span>
+<span class="lineNum">     730 </span><span class="lineCov">          1 :   msFree(buffer);</span>
+<span class="lineNum">     731 </span>            : 
+<span class="lineNum">     732 </span>            :   /* Restore old context */
+<span class="lineNum">     733 </span><span class="lineCov">          1 :   msIO_installHandlers( &amp;group-&gt;stdin_context,</span>
+<span class="lineNum">     734 </span>            :                         context_to_restore,
+<span class="lineNum">     735 </span>            :                         &amp;group-&gt;stderr_context );
+<span class="lineNum">     736 </span>            : 
+<span class="lineNum">     737 </span><span class="lineCov">          1 :   msFree(context_to_restore);</span>
+<span class="lineNum">     738 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     739 </span>            : 
+<span class="lineNum">     740 </span>            : /************************************************************************/
+<span class="lineNum">     741 </span>            : /*                    msIO_installStdinFromBuffer()                     */
+<a name="742"><span class="lineNum">     742 </span>            : /************************************************************************/</a>
+<span class="lineNum">     743 </span>            : 
+<span class="lineNum">     744 </span><span class="lineNoCov">          0 : void msIO_installStdinFromBuffer()</span>
+<span class="lineNum">     745 </span>            : 
+<span class="lineNum">     746 </span>            : {
+<span class="lineNum">     747 </span><span class="lineNoCov">          0 :   msIOContextGroup *group = msIO_GetContextGroup();</span>
+<span class="lineNum">     748 </span>            :   msIOContext  context;
+<span class="lineNum">     749 </span>            : 
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :   context.label = &quot;buffer&quot;;</span>
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :   context.write_channel = MS_FALSE;</span>
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 :   context.readWriteFunc = msIO_bufferRead;</span>
+<span class="lineNum">     753 </span><span class="lineNoCov">          0 :   context.cbData = calloc(sizeof(msIOBuffer),1);</span>
+<span class="lineNum">     754 </span>            : 
+<span class="lineNum">     755 </span><span class="lineNoCov">          0 :   msIO_installHandlers( &amp;context,</span>
+<span class="lineNum">     756 </span>            :                         &amp;group-&gt;stdout_context,
+<span class="lineNum">     757 </span>            :                         &amp;group-&gt;stderr_context );
+<span class="lineNum">     758 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     759 </span>            : 
+<span class="lineNum">     760 </span>            : /************************************************************************/
+<span class="lineNum">     761 </span>            : /*              msIO_getAndStripStdoutBufferMimeHeaders()               */
+<span class="lineNum">     762 </span>            : /*                                                                      */
+<a name="763"><span class="lineNum">     763 </span>            : /************************************************************************/</a>
+<span class="lineNum">     764 </span>            : 
+<span class="lineNum">     765 </span><span class="lineCov">          1 : hashTableObj* msIO_getAndStripStdoutBufferMimeHeaders()</span>
+<span class="lineNum">     766 </span>            : {
+<span class="lineNum">     767 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     768 </span>            :   /*      Find stdout buffer.                                             */
+<span class="lineNum">     769 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     770 </span><span class="lineCov">          1 :   msIOContext *ctx = msIO_getHandler( (FILE *) &quot;stdout&quot; );</span>
+<span class="lineNum">     771 </span>            :   msIOBuffer  *buf;
+<span class="lineNum">     772 </span>            :   int start_of_mime_header, current_pos;
+<span class="lineNum">     773 </span>            :   hashTableObj* hashTable;
+<span class="lineNum">     774 </span>            : 
+<span class="lineNum">     775 </span><span class="lineCov">          1 :   if( ctx == NULL || ctx-&gt;write_channel == MS_FALSE</span>
+<span class="lineNum">     776 </span><span class="lineCov">          1 :       || strcmp(ctx-&gt;label,&quot;buffer&quot;) != 0 ) {</span>
+<span class="lineNum">     777 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Can't identify msIO buffer.&quot;,</span>
+<span class="lineNum">     778 </span>            :                 &quot;msIO_getAndStripStdoutBufferMimeHeaders&quot; );
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">     780 </span>            :   }
+<span class="lineNum">     781 </span>            : 
+<span class="lineNum">     782 </span><span class="lineCov">          1 :   buf = (msIOBuffer *) ctx-&gt;cbData;</span>
+<span class="lineNum">     783 </span>            : 
+<span class="lineNum">     784 </span><span class="lineCov">          1 :   hashTable = msCreateHashTable();</span>
+<span class="lineNum">     785 </span>            : 
+<span class="lineNum">     786 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     787 </span>            :   /*      Loop over all headers.                                          */
+<span class="lineNum">     788 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     789 </span>            :   current_pos = 0;
+<span class="lineNum">     790 </span>            :   while( MS_TRUE ) {
+<span class="lineNum">     791 </span>            :     int pos_of_column = -1;
+<span class="lineNum">     792 </span>            :     char* key, *value;
+<span class="lineNum">     793 </span>            : 
+<span class="lineNum">     794 </span>            :     start_of_mime_header = current_pos;
+<span class="lineNum">     795 </span><span class="lineCov">          1 :     while( current_pos &lt; buf-&gt;data_offset )</span>
+<span class="lineNum">     796 </span>            :     {
+<span class="lineNum">     797 </span><span class="lineCov">          1 :         if( buf-&gt;data[current_pos] == '\r' )</span>
+<span class="lineNum">     798 </span>            :         {
+<span class="lineNum">     799 </span><span class="lineCov">          1 :             if( current_pos + 1 == buf-&gt;data_offset ||</span>
+<span class="lineNum">     800 </span><span class="lineCov">          1 :                 buf-&gt;data[current_pos + 1] != '\n' )</span>
+<span class="lineNum">     801 </span>            :             {
+<span class="lineNum">     802 </span>            :                 pos_of_column = -1;
+<span class="lineNum">     803 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     804 </span>            :             }
+<span class="lineNum">     805 </span>            :             break;
+<span class="lineNum">     806 </span>            :         }
+<span class="lineNum">     807 </span><span class="lineCov">          1 :         if( buf-&gt;data[current_pos] == ':' )</span>
+<span class="lineNum">     808 </span>            :         {
+<span class="lineNum">     809 </span>            :             pos_of_column = current_pos;
+<span class="lineNum">     810 </span><span class="lineCov">          1 :             if( current_pos + 1 == buf-&gt;data_offset ||</span>
+<span class="lineNum">     811 </span><span class="lineCov">          1 :                 buf-&gt;data[current_pos + 1] != ' ' )</span>
+<span class="lineNum">     812 </span>            :             {
+<span class="lineNum">     813 </span>            :                 pos_of_column = -1;
+<span class="lineNum">     814 </span>            :                 break;
+<span class="lineNum">     815 </span>            :             }
+<span class="lineNum">     816 </span>            :         }
+<span class="lineNum">     817 </span><span class="lineCov">          1 :         current_pos++;</span>
+<span class="lineNum">     818 </span>            :     }
+<span class="lineNum">     819 </span>            : 
+<span class="lineNum">     820 </span><span class="lineCov">          1 :     if( pos_of_column &lt; 0 || current_pos == buf-&gt;data_offset ) {</span>
+<span class="lineNum">     821 </span><span class="lineNoCov">          0 :       msSetError( MS_MISCERR, &quot;Corrupt mime headers.&quot;,</span>
+<span class="lineNum">     822 </span>            :                   &quot;msIO_getAndStripStdoutBufferMimeHeaders&quot; );
+<span class="lineNum">     823 </span><span class="lineNoCov">          0 :       msFreeHashTable(hashTable);</span>
+<span class="lineNum">     824 </span><span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">     825 </span>            :     }
+<span class="lineNum">     826 </span>            : 
+<span class="lineNum">     827 </span><span class="lineCov">          1 :     key = (char*) malloc( pos_of_column - start_of_mime_header + 1 );</span>
+<span class="lineNum">     828 </span><span class="lineCov">          1 :     memcpy( key, buf-&gt;data+start_of_mime_header, pos_of_column - start_of_mime_header);</span>
+<span class="lineNum">     829 </span><span class="lineCov">          1 :     key[pos_of_column - start_of_mime_header] = '\0';</span>
+<span class="lineNum">     830 </span>            : 
+<span class="lineNum">     831 </span><span class="lineCov">          1 :     value = (char*) malloc( current_pos - (pos_of_column+2) + 1 );</span>
+<span class="lineNum">     832 </span><span class="lineCov">          1 :     memcpy( value, buf-&gt;data+pos_of_column+2, current_pos - (pos_of_column+2));</span>
+<span class="lineNum">     833 </span><span class="lineCov">          1 :     value[current_pos - (pos_of_column+2)] = '\0';</span>
+<span class="lineNum">     834 </span>            : 
+<span class="lineNum">     835 </span><span class="lineCov">          1 :     msInsertHashTable( hashTable, key, value );</span>
+<span class="lineNum">     836 </span>            : 
+<span class="lineNum">     837 </span><span class="lineCov">          1 :     msFree( key );</span>
+<span class="lineNum">     838 </span><span class="lineCov">          1 :     msFree( value );</span>
+<span class="lineNum">     839 </span>            : 
+<span class="lineNum">     840 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     841 </span>            :     /*      Go to next line.                                                */
+<span class="lineNum">     842 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     843 </span><span class="lineCov">          1 :     current_pos += 2;</span>
+<span class="lineNum">     844 </span><span class="lineCov">          1 :     if( current_pos == buf-&gt;data_offset )</span>
+<span class="lineNum">     845 </span>            :     {
+<span class="lineNum">     846 </span><span class="lineNoCov">          0 :       msSetError( MS_MISCERR, &quot;Corrupt mime headers.&quot;,</span>
+<span class="lineNum">     847 </span>            :                   &quot;msIO_getAndStripStdoutBufferMimeHeaders&quot; );
+<span class="lineNum">     848 </span><span class="lineNoCov">          0 :       msFreeHashTable(hashTable);</span>
+<span class="lineNum">     849 </span><span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">     850 </span>            :     }
+<span class="lineNum">     851 </span>            : 
+<span class="lineNum">     852 </span>            :     /* If next line is a '\r', this is the end of mime headers. */
+<span class="lineNum">     853 </span><span class="lineCov">          1 :     if( buf-&gt;data[current_pos] == '\r' )</span>
+<span class="lineNum">     854 </span>            :     {
+<span class="lineNum">     855 </span><span class="lineCov">          1 :         current_pos ++;</span>
+<span class="lineNum">     856 </span><span class="lineCov">          1 :         if( current_pos == buf-&gt;data_offset ||</span>
+<span class="lineNum">     857 </span><span class="lineCov">          1 :             buf-&gt;data[current_pos] != '\n' )</span>
+<span class="lineNum">     858 </span>            :         {
+<span class="lineNum">     859 </span><span class="lineNoCov">          0 :             msSetError( MS_MISCERR, &quot;Corrupt mime headers.&quot;,</span>
+<span class="lineNum">     860 </span>            :                         &quot;msIO_getAndStripStdoutBufferMimeHeaders&quot; );
+<span class="lineNum">     861 </span><span class="lineNoCov">          0 :             msFreeHashTable(hashTable);</span>
+<span class="lineNum">     862 </span><span class="lineNoCov">          0 :             return NULL;</span>
+<span class="lineNum">     863 </span>            :         }
+<span class="lineNum">     864 </span><span class="lineCov">          1 :         current_pos ++;</span>
+<span class="lineNum">     865 </span>            :         break;
+<span class="lineNum">     866 </span>            :     }
+<span class="lineNum">     867 </span>            :   }
+<span class="lineNum">     868 </span>            : 
+<span class="lineNum">     869 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     870 </span>            :   /*      Move data to front of buffer, and reset length.                 */
+<span class="lineNum">     871 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     872 </span><span class="lineCov">          1 :   memmove( buf-&gt;data, buf-&gt;data+current_pos,</span>
+<span class="lineNum">     873 </span><span class="lineCov">          1 :            buf-&gt;data_offset - current_pos );</span>
+<span class="lineNum">     874 </span><span class="lineCov">          1 :   buf-&gt;data[buf-&gt;data_offset - current_pos] = '\0';</span>
+<span class="lineNum">     875 </span><span class="lineCov">          1 :   buf-&gt;data_offset -= current_pos;</span>
+<span class="lineNum">     876 </span>            : 
+<span class="lineNum">     877 </span><span class="lineCov">          1 :   return hashTable;</span>
+<span class="lineNum">     878 </span>            : }
+<span class="lineNum">     879 </span>            : 
+<span class="lineNum">     880 </span>            : /************************************************************************/
+<span class="lineNum">     881 </span>            : /*                 msIO_stripStdoutBufferContentType()                  */
+<span class="lineNum">     882 </span>            : /*                                                                      */
+<span class="lineNum">     883 </span>            : /*      Strip off Content-Type header from buffer, and return to        */
+<span class="lineNum">     884 </span>            : /*      caller.  Returned string is the callers responsibility to       */
+<span class="lineNum">     885 </span>            : /*      call msFree() on to deallocate.  This function will return      */
+<span class="lineNum">     886 </span>            : /*      NULL if there is no Content-Type header.                        */
+<a name="887"><span class="lineNum">     887 </span>            : /************************************************************************/</a>
+<span class="lineNum">     888 </span>            : 
+<span class="lineNum">     889 </span><span class="lineNoCov">          0 : char *msIO_stripStdoutBufferContentType()</span>
+<span class="lineNum">     890 </span>            : 
+<span class="lineNum">     891 </span>            : {
+<span class="lineNum">     892 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     893 </span>            :   /*      Find stdout buffer.                                             */
+<span class="lineNum">     894 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     895 </span><span class="lineNoCov">          0 :   msIOContext *ctx = msIO_getHandler( (FILE *) &quot;stdout&quot; );</span>
+<span class="lineNum">     896 </span>            :   msIOBuffer  *buf;
+<span class="lineNum">     897 </span>            :   char *content_type = NULL;
+<span class="lineNum">     898 </span>            :   int end_of_ct, start_of_data;
+<span class="lineNum">     899 </span>            : 
+<span class="lineNum">     900 </span><span class="lineNoCov">          0 :   if( ctx == NULL || ctx-&gt;write_channel == MS_FALSE</span>
+<span class="lineNum">     901 </span><span class="lineNoCov">          0 :       || strcmp(ctx-&gt;label,&quot;buffer&quot;) != 0 ) {</span>
+<span class="lineNum">     902 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Can't identify msIO buffer.&quot;,</span>
+<span class="lineNum">     903 </span>            :                 &quot;msIO_stripStdoutBufferContentType&quot; );
+<span class="lineNum">     904 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">     905 </span>            :   }
+<span class="lineNum">     906 </span>            : 
+<span class="lineNum">     907 </span><span class="lineNoCov">          0 :   buf = (msIOBuffer *) ctx-&gt;cbData;</span>
+<span class="lineNum">     908 </span>            : 
+<span class="lineNum">     909 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     910 </span>            :   /*      Return NULL if we don't have a Content-Type header.             */
+<span class="lineNum">     911 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     912 </span><span class="lineNoCov">          0 :   if( buf-&gt;data_offset &lt; 14</span>
+<span class="lineNum">     913 </span><span class="lineNoCov">          0 :       || strncasecmp((const char*) buf-&gt;data,&quot;Content-Type: &quot;,14) != 0 )</span>
+<span class="lineNum">     914 </span>            :     return NULL;
+<span class="lineNum">     915 </span>            : 
+<span class="lineNum">     916 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     917 </span>            :   /*      Find newline marker at end of content type argument.            */
+<span class="lineNum">     918 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     919 </span>            :   end_of_ct = 13;
+<span class="lineNum">     920 </span><span class="lineNoCov">          0 :   while( end_of_ct+1 &lt; buf-&gt;data_offset</span>
+<span class="lineNum">     921 </span><span class="lineNoCov">          0 :          &amp;&amp; buf-&gt;data[end_of_ct+1] != '\r' )</span>
+<span class="lineNum">     922 </span>            :     end_of_ct++;
+<span class="lineNum">     923 </span>            : 
+<span class="lineNum">     924 </span><span class="lineNoCov">          0 :   if( end_of_ct+1 == buf-&gt;data_offset ) {</span>
+<span class="lineNum">     925 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Corrupt Content-Type header.&quot;,</span>
+<span class="lineNum">     926 </span>            :                 &quot;msIO_stripStdoutBufferContentType&quot; );
+<span class="lineNum">     927 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">     928 </span>            :   }
+<span class="lineNum">     929 </span>            : 
+<span class="lineNum">     930 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     931 </span>            :   /*      Continue on to the start of data ...                            */
+<span class="lineNum">     932 </span>            :   /*      Go to next line and skip if empty.                              */
+<span class="lineNum">     933 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     934 </span><span class="lineNoCov">          0 :   start_of_data = end_of_ct+3;</span>
+<span class="lineNum">     935 </span><span class="lineNoCov">          0 :   if( start_of_data  &lt; buf-&gt;data_offset</span>
+<span class="lineNum">     936 </span><span class="lineNoCov">          0 :       &amp;&amp; buf-&gt;data[start_of_data] == '\r' )</span>
+<span class="lineNum">     937 </span><span class="lineNoCov">          0 :     start_of_data +=2;</span>
+<span class="lineNum">     938 </span>            :   
+<span class="lineNum">     939 </span><span class="lineNoCov">          0 :   if( start_of_data == buf-&gt;data_offset ) {</span>
+<span class="lineNum">     940 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Corrupt Content-Type header.&quot;,</span>
+<span class="lineNum">     941 </span>            :                 &quot;msIO_stripStdoutBufferContentType&quot; );
+<span class="lineNum">     942 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">     943 </span>            :   }
+<span class="lineNum">     944 </span>            : 
+<span class="lineNum">     945 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     946 </span>            :   /*      Copy out content type. Note we go against the coding guidelines */
+<span class="lineNum">     947 </span>            :   /*      here and use strncpy() instead of strlcpy() as the source       */
+<span class="lineNum">     948 </span>            :   /*      buffer may not be NULL terminated - strlcpy() requires NULL     */
+<span class="lineNum">     949 </span>            :   /*      terminated sources (see issue #4672).                           */
+<span class="lineNum">     950 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     951 </span><span class="lineNoCov">          0 :   content_type = (char *) malloc(end_of_ct-14+2);</span>
+<span class="lineNum">     952 </span><span class="lineNoCov">          0 :   strncpy( content_type, (const char *) buf-&gt;data + 14, end_of_ct - 14 + 2);</span>
+<span class="lineNum">     953 </span><span class="lineNoCov">          0 :   content_type[end_of_ct-14+1] = '\0';</span>
+<span class="lineNum">     954 </span>            : 
+<span class="lineNum">     955 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     956 </span>            :   /*      Move data to front of buffer, and reset length.                 */
+<span class="lineNum">     957 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     958 </span><span class="lineNoCov">          0 :   memmove( buf-&gt;data, buf-&gt;data+start_of_data,</span>
+<span class="lineNum">     959 </span><span class="lineNoCov">          0 :            buf-&gt;data_offset - start_of_data );</span>
+<span class="lineNum">     960 </span><span class="lineNoCov">          0 :   buf-&gt;data[buf-&gt;data_offset - start_of_data] = '\0';</span>
+<span class="lineNum">     961 </span><span class="lineNoCov">          0 :   buf-&gt;data_offset -= start_of_data;</span>
+<span class="lineNum">     962 </span>            : 
+<span class="lineNum">     963 </span><span class="lineNoCov">          0 :   return content_type;</span>
+<span class="lineNum">     964 </span>            : }
+<span class="lineNum">     965 </span>            : 
+<span class="lineNum">     966 </span>            : /************************************************************************/
+<span class="lineNum">     967 </span>            : /*                 msIO_stripStdoutBufferContentHeaders()               */
+<span class="lineNum">     968 </span>            : /*                                                                      */
+<span class="lineNum">     969 </span>            : /*      Strip off Content-* headers from buffer.                        */
+<a name="970"><span class="lineNum">     970 </span>            : /************************************************************************/</a>
+<span class="lineNum">     971 </span>            : 
+<span class="lineNum">     972 </span><span class="lineNoCov">          0 : void msIO_stripStdoutBufferContentHeaders()</span>
+<span class="lineNum">     973 </span>            : {
+<span class="lineNum">     974 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     975 </span>            :   /*      Find stdout buffer.                                             */
+<span class="lineNum">     976 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     977 </span><span class="lineNoCov">          0 :   msIOContext *ctx = msIO_getHandler( (FILE *) &quot;stdout&quot; );</span>
+<span class="lineNum">     978 </span>            :   msIOBuffer  *buf;
+<span class="lineNum">     979 </span>            :   int start_of_data;
+<span class="lineNum">     980 </span>            : 
+<span class="lineNum">     981 </span><span class="lineNoCov">          0 :   if( ctx == NULL || ctx-&gt;write_channel == MS_FALSE</span>
+<span class="lineNum">     982 </span><span class="lineNoCov">          0 :       || strcmp(ctx-&gt;label,&quot;buffer&quot;) != 0 ) {</span>
+<span class="lineNum">     983 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Can't identify msIO buffer.&quot;,</span>
+<span class="lineNum">     984 </span>            :                 &quot;msIO_stripStdoutBufferContentHeaders&quot; );
+<span class="lineNum">     985 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     986 </span>            :   }
+<span class="lineNum">     987 </span>            : 
+<span class="lineNum">     988 </span><span class="lineNoCov">          0 :   buf = (msIOBuffer *) ctx-&gt;cbData;</span>
+<span class="lineNum">     989 </span>            : 
+<span class="lineNum">     990 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     991 </span>            :   /*      Exit if we don't have any content-* header.                     */
+<span class="lineNum">     992 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     993 </span><span class="lineNoCov">          0 :   if( buf-&gt;data_offset &lt; 8</span>
+<span class="lineNum">     994 </span><span class="lineNoCov">          0 :       || strncasecmp((const char*) buf-&gt;data,&quot;Content-&quot;,8) != 0 )</span>
+<span class="lineNum">     995 </span>            :     return;
+<span class="lineNum">     996 </span>            : 
+<span class="lineNum">     997 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     998 </span>            :   /*      Loop over all content-* headers.                                */
+<span class="lineNum">     999 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1000 </span>            :   start_of_data = 0;
+<span class="lineNum">    1001 </span><span class="lineNoCov">          0 :   while( buf-&gt;data_offset &gt; start_of_data</span>
+<span class="lineNum">    1002 </span><span class="lineNoCov">          0 :          &amp;&amp; strncasecmp((const char*) buf-&gt;data+start_of_data,&quot;Content-&quot;,8) == 0 ) {</span>
+<span class="lineNum">    1003 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1004 </span>            :     /*      Find newline marker at end of content-* header argument.        */
+<span class="lineNum">    1005 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1006 </span><span class="lineNoCov">          0 :     start_of_data +=7;</span>
+<span class="lineNum">    1007 </span><span class="lineNoCov">          0 :     while( start_of_data+1 &lt; buf-&gt;data_offset</span>
+<span class="lineNum">    1008 </span><span class="lineNoCov">          0 :            &amp;&amp; buf-&gt;data[start_of_data+1] != '\r' )</span>
+<span class="lineNum">    1009 </span>            :       start_of_data++;
+<span class="lineNum">    1010 </span>            : 
+<span class="lineNum">    1011 </span><span class="lineNoCov">          0 :     if( start_of_data+1 == buf-&gt;data_offset ) {</span>
+<span class="lineNum">    1012 </span><span class="lineNoCov">          0 :       msSetError( MS_MISCERR, &quot;Corrupt Content-* header.&quot;,</span>
+<span class="lineNum">    1013 </span>            :                   &quot;msIO_stripStdoutBufferContentHeaders&quot; );
+<span class="lineNum">    1014 </span><span class="lineNoCov">          0 :       return;</span>
+<span class="lineNum">    1015 </span>            :     }
+<span class="lineNum">    1016 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1017 </span>            :     /*      Go to next line.                                                */
+<span class="lineNum">    1018 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">    1019 </span><span class="lineNoCov">          0 :     start_of_data +=3;</span>
+<span class="lineNum">    1020 </span>            :   }
+<span class="lineNum">    1021 </span>            : 
+<span class="lineNum">    1022 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1023 </span>            :   /*      Continue on to the start of data ...                            */
+<span class="lineNum">    1024 </span>            :   /*      Skip next line if empty.                                        */
+<span class="lineNum">    1025 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1026 </span><span class="lineNoCov">          0 :   if( start_of_data  &lt; buf-&gt;data_offset</span>
+<span class="lineNum">    1027 </span><span class="lineNoCov">          0 :       &amp;&amp; buf-&gt;data[start_of_data] == '\r' )</span>
+<span class="lineNum">    1028 </span><span class="lineNoCov">          0 :     start_of_data +=2;</span>
+<span class="lineNum">    1029 </span>            : 
+<span class="lineNum">    1030 </span><span class="lineNoCov">          0 :   if( start_of_data == buf-&gt;data_offset ) {</span>
+<span class="lineNum">    1031 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Corrupt Content-* header.&quot;,</span>
+<span class="lineNum">    1032 </span>            :                 &quot;msIO_stripStdoutBufferContentHeaders&quot; );
+<span class="lineNum">    1033 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">    1034 </span>            :   }
+<span class="lineNum">    1035 </span>            : 
+<span class="lineNum">    1036 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1037 </span>            :   /*      Move data to front of buffer, and reset length.                 */
+<span class="lineNum">    1038 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1039 </span><span class="lineNoCov">          0 :   memmove( buf-&gt;data, buf-&gt;data+start_of_data,</span>
+<span class="lineNum">    1040 </span><span class="lineNoCov">          0 :            buf-&gt;data_offset - start_of_data );</span>
+<span class="lineNum">    1041 </span><span class="lineNoCov">          0 :   buf-&gt;data[buf-&gt;data_offset - start_of_data] = '\0';</span>
+<span class="lineNum">    1042 </span><span class="lineNoCov">          0 :   buf-&gt;data_offset -= start_of_data;</span>
+<span class="lineNum">    1043 </span>            : 
+<span class="lineNum">    1044 </span><span class="lineNoCov">          0 :   return;</span>
+<span class="lineNum">    1045 </span>            : }
+<span class="lineNum">    1046 </span>            : 
+<span class="lineNum">    1047 </span>            : /************************************************************************/
+<span class="lineNum">    1048 </span>            : /*                          msIO_bufferWrite()                          */
+<a name="1049"><span class="lineNum">    1049 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1050 </span>            : 
+<span class="lineNum">    1051 </span><span class="lineCov">          1 : int msIO_bufferWrite( void *cbData, void *data, int byteCount )</span>
+<span class="lineNum">    1052 </span>            : 
+<span class="lineNum">    1053 </span>            : {
+<span class="lineNum">    1054 </span>            :   msIOBuffer *buf = (msIOBuffer *) cbData;
+<span class="lineNum">    1055 </span>            : 
+<span class="lineNum">    1056 </span>            :   /*
+<span class="lineNum">    1057 </span>            :   ** Grow buffer if needed (reserve one extra byte to put nul character)
+<span class="lineNum">    1058 </span>            :   */
+<span class="lineNum">    1059 </span><span class="lineCov">          1 :   if( buf-&gt;data_offset + byteCount &gt;= buf-&gt;data_len ) {</span>
+<span class="lineNum">    1060 </span><span class="lineCov">          1 :     buf-&gt;data_len = buf-&gt;data_len * 2 + byteCount + 100;</span>
+<span class="lineNum">    1061 </span><span class="lineCov">          1 :     if( buf-&gt;data == NULL )</span>
+<span class="lineNum">    1062 </span><span class="lineCov">          1 :       buf-&gt;data = (unsigned char *) malloc(buf-&gt;data_len);</span>
+<span class="lineNum">    1063 </span>            :     else
+<span class="lineNum">    1064 </span><span class="lineCov">          1 :       buf-&gt;data = (unsigned char *) realloc(buf-&gt;data, buf-&gt;data_len);</span>
+<span class="lineNum">    1065 </span>            : 
+<span class="lineNum">    1066 </span><span class="lineCov">          1 :     if( buf-&gt;data == NULL ) {</span>
+<span class="lineNum">    1067 </span><span class="lineNoCov">          0 :       msSetError( MS_MEMERR,</span>
+<span class="lineNum">    1068 </span>            :                   &quot;Failed to allocate %d bytes for capture buffer.&quot;,
+<span class="lineNum">    1069 </span>            :                   &quot;msIO_bufferWrite()&quot;, buf-&gt;data_len );
+<span class="lineNum">    1070 </span><span class="lineNoCov">          0 :       buf-&gt;data_len = 0;</span>
+<span class="lineNum">    1071 </span><span class="lineNoCov">          0 :       return 0;</span>
+<span class="lineNum">    1072 </span>            :     }
+<span class="lineNum">    1073 </span>            :   }
+<span class="lineNum">    1074 </span>            : 
+<span class="lineNum">    1075 </span>            :   /*
+<span class="lineNum">    1076 </span>            :   ** Copy result into buffer.
+<span class="lineNum">    1077 </span>            :   */
+<span class="lineNum">    1078 </span>            : 
+<span class="lineNum">    1079 </span><span class="lineCov">          1 :   memcpy( buf-&gt;data + buf-&gt;data_offset, data, byteCount );</span>
+<span class="lineNum">    1080 </span><span class="lineCov">          1 :   buf-&gt;data_offset += byteCount;</span>
+<span class="lineNum">    1081 </span><span class="lineCov">          1 :   buf-&gt;data[buf-&gt;data_offset] = '\0';</span>
+<span class="lineNum">    1082 </span>            : 
+<span class="lineNum">    1083 </span><span class="lineCov">          1 :   return byteCount;</span>
+<span class="lineNum">    1084 </span>            : }
+<span class="lineNum">    1085 </span>            : 
+<span class="lineNum">    1086 </span>            : /************************************************************************/
+<span class="lineNum">    1087 </span>            : /*                          msIO_bufferRead()                           */
+<a name="1088"><span class="lineNum">    1088 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1089 </span>            : 
+<span class="lineNum">    1090 </span><span class="lineNoCov">          0 : int msIO_bufferRead( void *cbData, void *data, int byteCount )</span>
+<span class="lineNum">    1091 </span>            : 
+<span class="lineNum">    1092 </span>            : {
+<span class="lineNum">    1093 </span>            :   /*    msIOBuffer *buf = (msIOBuffer *) cbData; */
+<span class="lineNum">    1094 </span>            : 
+<span class="lineNum">    1095 </span>            :   /* not implemented yet. */
+<span class="lineNum">    1096 </span>            : 
+<span class="lineNum">    1097 </span><span class="lineNoCov">          0 :   return 0;</span>
+<span class="lineNum">    1098 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - mapserver/mapxmp.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">mapserver</a> - mapxmp.c<span style="font-size: 80%;"> (source / <a href="mapxmp.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">72</td>
+            <td class="headerCovTableEntry">92</td>
+            <td class="headerCovTableEntryMed">78.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>            :  * $Id: mapchart.c 11880 2011-07-07 19:51:37Z sdlime $
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * Project:  MapServer
+<span class="lineNum">       5 </span>            :  * Purpose:  XMP embedded image metadata (MS-RFC-7X)
+<span class="lineNum">       6 </span>            :  * Author:   Paul Ramsey &lt;pramsey@opengeo.org&gt;
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  ******************************************************************************
+<span class="lineNum">       9 </span>            :  * Copyright (c) 1996-2007 Regents of the University of Minnesota.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      12 </span>            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      13 </span>            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      14 </span>            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      15 </span>            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      16 </span>            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      17 </span>            :  *
+<span class="lineNum">      18 </span>            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      19 </span>            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      20 </span>            :  *
+<span class="lineNum">      21 </span>            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+<span class="lineNum">      22 </span>            :  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      23 </span>            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+<span class="lineNum">      24 </span>            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      25 </span>            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      26 </span>            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      27 </span>            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      28 </span>            :  ****************************************************************************/
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #include &quot;mapserver.h&quot;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : #ifdef USE_EXEMPI
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : /* To pull parts out of hash keys */
+<span class="lineNum">      36 </span>            : #include &lt;regex.h&gt;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : /* To write the XMP XML into the files */
+<span class="lineNum">      39 </span>            : #include &lt;xmp.h&gt;
+<span class="lineNum">      40 </span>            : #include &lt;xmpconsts.h&gt;
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : /**
+<span class="lineNum">      43 </span>            : * Get standard Exempi namespace URI for a given namespace string
+<a name="44"><span class="lineNum">      44 </span>            : */</a>
+<span class="lineNum">      45 </span>            : static const char*
+<span class="lineNum">      46 </span><span class="lineCov">          1 : msXmpUri(char *ns_name)</span>
+<span class="lineNum">      47 </span>            : {
+<span class="lineNum">      48 </span>            :   /* Creative Commons */
+<span class="lineNum">      49 </span><span class="lineCov">          1 :   if( strcmp(ns_name, &quot;cc&quot;) == 0 )</span>
+<span class="lineNum">      50 </span>            :     return NS_CC;
+<span class="lineNum">      51 </span>            :   /* Dublin Core */
+<span class="lineNum">      52 </span><span class="lineCov">          1 :   else if( strcmp(ns_name, &quot;dc&quot;) == 0 )</span>
+<span class="lineNum">      53 </span>            :     return NS_DC;
+<span class="lineNum">      54 </span>            :   /* XMP Meta */
+<span class="lineNum">      55 </span><span class="lineCov">          1 :   else if( strcmp(ns_name, &quot;meta&quot;) == 0 )</span>
+<span class="lineNum">      56 </span>            :     return NS_XMP_META;
+<span class="lineNum">      57 </span>            :   /* XMP Rights */
+<span class="lineNum">      58 </span><span class="lineCov">          1 :   else if( strcmp(ns_name, &quot;rights&quot;) == 0 )</span>
+<span class="lineNum">      59 </span>            :     return NS_XAP_RIGHTS;
+<span class="lineNum">      60 </span>            :   /* EXIF */
+<span class="lineNum">      61 </span><span class="lineCov">          1 :   else if( strcmp(ns_name, &quot;exif&quot;) == 0 )</span>
+<span class="lineNum">      62 </span>            :     return NS_EXIF;
+<span class="lineNum">      63 </span>            :   /* TIFF */
+<span class="lineNum">      64 </span><span class="lineCov">          1 :   else if( strcmp(ns_name, &quot;tiff&quot;) == 0 )</span>
+<span class="lineNum">      65 </span>            :     return NS_TIFF;
+<span class="lineNum">      66 </span>            :   /* Photoshop Camera Raw Schema */
+<span class="lineNum">      67 </span><span class="lineCov">          1 :   else if( strcmp(ns_name, &quot;crs&quot;) == 0 )</span>
+<span class="lineNum">      68 </span>            :     return NS_CAMERA_RAW_SETTINGS;
+<span class="lineNum">      69 </span>            :   /* Photoshop */
+<span class="lineNum">      70 </span><span class="lineCov">          1 :   else if( strcmp(ns_name, &quot;photoshop&quot;) == 0 )</span>
+<span class="lineNum">      71 </span>            :     return NS_PHOTOSHOP;
+<span class="lineNum">      72 </span>            :   else
+<span class="lineNum">      73 </span><span class="lineCov">          1 :     return NULL;</span>
+<span class="lineNum">      74 </span>            : }
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            : #endif
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            : /**
+<span class="lineNum">      79 </span>            : * Is there any XMP metadata in the map file for us to worry about?
+<a name="80"><span class="lineNum">      80 </span>            : */</a>
+<span class="lineNum">      81 </span>            : int
+<span class="lineNum">      82 </span><span class="lineCov">          1 : msXmpPresent( mapObj *map )</span>
+<span class="lineNum">      83 </span>            : {
+<span class="lineNum">      84 </span>            : #ifdef USE_EXEMPI
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            :   /* Read the WEB.METADATA */
+<span class="lineNum">      87 </span><span class="lineCov">          1 :   hashTableObj hash_metadata = map-&gt;web.metadata;</span>
+<span class="lineNum">      88 </span>            :   const char *key = NULL;
+<span class="lineNum">      89 </span>            :   int rv = MS_FALSE;
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            :   /* Check all the keys for &quot;xmp_&quot; start pattern */
+<span class="lineNum">      92 </span><span class="lineCov">          1 :   key = msFirstKeyFromHashTable(&amp;hash_metadata);</span>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :   /* No first key? No license info. */
+<span class="lineNum">      95 </span><span class="lineCov">          1 :   if ( ! key )</span>
+<span class="lineNum">      96 </span>            :     return MS_FALSE;
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            :   do {
+<span class="lineNum">      99 </span>            :     /* Found one! Break out and return true */
+<span class="lineNum">     100 </span><span class="lineCov">          1 :     if ( strcasestr(key, &quot;xmp_&quot;) == key ) {</span>
+<span class="lineNum">     101 </span>            :       rv = MS_TRUE;
+<span class="lineNum">     102 </span>            :       break;
+<span class="lineNum">     103 </span>            :     }
+<span class="lineNum">     104 </span><span class="lineCov">          1 :   } while( (key = msNextKeyFromHashTable(&amp;hash_metadata, key)) );</span>
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span><span class="lineCov">          1 :   return rv;</span>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            : #else
+<span class="lineNum">     109 </span>            :   return MS_FALSE;
+<span class="lineNum">     110 </span>            : #endif
+<span class="lineNum">     111 </span>            : }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            : /**
+<span class="lineNum">     115 </span>            : * Is there any XMP metadata in the map file for us to worry about?
+<a name="116"><span class="lineNum">     116 </span>            : */</a>
+<span class="lineNum">     117 </span>            : int
+<span class="lineNum">     118 </span><span class="lineCov">          1 : msXmpWrite( mapObj *map, const char *filename )</span>
+<span class="lineNum">     119 </span>            : {
+<span class="lineNum">     120 </span>            : #ifdef USE_EXEMPI
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            :   /* Should hold our keys */
+<span class="lineNum">     123 </span><span class="lineCov">          1 :   hashTableObj hash_metadata = map-&gt;web.metadata;</span>
+<span class="lineNum">     124 </span>            :   /* Temporary place for custom name spaces */
+<span class="lineNum">     125 </span>            :   hashTableObj hash_ns;
+<span class="lineNum">     126 </span>            :   /* We use regex to strip out the namespace and XMP key value from the metadata key */
+<span class="lineNum">     127 </span>            :   regex_t xmp_regex;
+<span class="lineNum">     128 </span>            :   const char *xmp_ns_str = &quot;^xmp_(.+)_namespace$&quot;;
+<span class="lineNum">     129 </span>            :   const char *xmp_tag_str = &quot;^xmp_(.+)_(.+)$&quot;;
+<span class="lineNum">     130 </span>            :   const char *key = NULL;
+<span class="lineNum">     131 </span>            :   static int regflags = REG_ICASE | REG_EXTENDED;
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            :   /* XMP object and file pointers */
+<span class="lineNum">     134 </span>            :   XmpPtr xmp;
+<span class="lineNum">     135 </span>            :   XmpFilePtr f;
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            :   /* Force the hash table to empty */
+<span class="lineNum">     138 </span><span class="lineCov">          1 :   hash_ns.numitems = 0;</span>
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            :   /* Prepare XMP library */
+<span class="lineNum">     141 </span><span class="lineCov">          1 :   xmp_init();</span>
+<span class="lineNum">     142 </span><span class="lineCov">          1 :   f = xmp_files_open_new(filename, XMP_OPEN_FORUPDATE);</span>
+<span class="lineNum">     143 </span><span class="lineCov">          1 :   if ( ! f ) {</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR,</span>
+<span class="lineNum">     145 </span>            :                 &quot;Unable to open temporary file '%s' to write XMP info&quot;,
+<span class="lineNum">     146 </span>            :                 &quot;msXmpWrite()&quot;, filename );
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     148 </span>            :   }
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :   /* Create a new XMP structure if the file doesn't already have one */
+<span class="lineNum">     151 </span><span class="lineCov">          1 :   xmp = xmp_files_get_new_xmp(f);</span>
+<span class="lineNum">     152 </span><span class="lineCov">          1 :   if ( xmp == NULL )</span>
+<span class="lineNum">     153 </span><span class="lineCov">          1 :     xmp = xmp_new_empty();</span>
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            :   /* Check we can write to the file */
+<span class="lineNum">     156 </span><span class="lineCov">          1 :   if ( ! xmp_files_can_put_xmp(f, xmp) ) {</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR,</span>
+<span class="lineNum">     158 </span>            :                 &quot;Unable to write XMP information to '%s'&quot;,
+<span class="lineNum">     159 </span>            :                 &quot;msXmpWrite()&quot;, filename );
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     161 </span>            :   }
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            :   /* Compile our &quot;xmp_*_namespace&quot; regex */
+<span class="lineNum">     164 </span><span class="lineCov">          1 :   if ( regcomp(&amp;xmp_regex, xmp_ns_str, regflags) ) {</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR,</span>
+<span class="lineNum">     166 </span>            :                 &quot;Unable compile regex '%s'&quot;,
+<span class="lineNum">     167 </span>            :                 &quot;msXmpWrite()&quot;, xmp_ns_str );
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     169 </span>            :   }
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            :   /* Check all the keys for &quot;xmp_*_namespace&quot; pattern */
+<span class="lineNum">     172 </span><span class="lineCov">          1 :   initHashTable(&amp;hash_ns);</span>
+<span class="lineNum">     173 </span><span class="lineCov">          1 :   key = msFirstKeyFromHashTable(&amp;hash_metadata);</span>
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            :   /* No first key? No license info. We shouldn't get here. */
+<span class="lineNum">     176 </span><span class="lineCov">          1 :   if ( ! key )</span>
+<span class="lineNum">     177 </span>            :     return MS_SUCCESS;
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            :   do {
+<span class="lineNum">     180 </span>            :     /* Our regex has one match slot */
+<span class="lineNum">     181 </span>            :     regmatch_t matches[2];
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            :     /* Found a custom namespace entry! Store it for later. */
+<span class="lineNum">     184 </span><span class="lineCov">          1 :     if ( 0 == regexec(&amp;xmp_regex, key, 2, matches, 0) ) {</span>
+<span class="lineNum">     185 </span>            :       size_t ns_size = 0;
+<span class="lineNum">     186 </span>            :       char *ns_name = NULL;
+<span class="lineNum">     187 </span>            :       const char *ns_uri;
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            :       /* Copy in the namespace name */
+<span class="lineNum">     190 </span><span class="lineCov">          1 :       ns_size = matches[1].rm_eo - matches[1].rm_so;</span>
+<span class="lineNum">     191 </span><span class="lineCov">          1 :       ns_name = msSmallMalloc(ns_size + 1);</span>
+<span class="lineNum">     192 </span><span class="lineCov">          1 :       memcpy(ns_name, key + matches[1].rm_so, ns_size);</span>
+<span class="lineNum">     193 </span><span class="lineCov">          1 :       ns_name[ns_size] = 0; /* null terminate */</span>
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span>            :       /* Copy in the namespace uri */
+<span class="lineNum">     196 </span><span class="lineCov">          1 :       ns_uri = msLookupHashTable(&amp;hash_metadata, key);</span>
+<span class="lineNum">     197 </span><span class="lineCov">          1 :       msInsertHashTable(&amp;hash_ns, ns_name, ns_uri);</span>
+<span class="lineNum">     198 </span><span class="lineCov">          1 :       xmp_register_namespace(ns_uri, ns_name, NULL);</span>
+<span class="lineNum">     199 </span><span class="lineCov">          1 :       msFree(ns_name);</span>
+<span class="lineNum">     200 </span>            :     }
+<span class="lineNum">     201 </span><span class="lineCov">          1 :   } while( (key = msNextKeyFromHashTable(&amp;hash_metadata, key)) );</span>
+<span class="lineNum">     202 </span>            :   /* Clean up regex */
+<span class="lineNum">     203 </span><span class="lineCov">          1 :   regfree(&amp;xmp_regex);</span>
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            :   /* Compile our &quot;xmp_*_*&quot; regex */
+<span class="lineNum">     207 </span><span class="lineCov">          1 :   if ( regcomp(&amp;xmp_regex, xmp_tag_str, regflags) ) {</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :     msFreeHashItems(&amp;hash_ns);</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR,</span>
+<span class="lineNum">     210 </span>            :                 &quot;Unable compile regex '%s'&quot;,
+<span class="lineNum">     211 </span>            :                 &quot;msXmpWrite()&quot;, xmp_tag_str );
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     213 </span>            :   }
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            :   /* Check all the keys for &quot;xmp_*_*&quot; pattern */
+<span class="lineNum">     216 </span><span class="lineCov">          1 :   key = msFirstKeyFromHashTable(&amp;hash_metadata);</span>
+<span class="lineNum">     217 </span>            :   do {
+<span class="lineNum">     218 </span>            :     /* Our regex has two match slots */
+<span class="lineNum">     219 </span>            :     regmatch_t matches[3];
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span>            :     /* Found a namespace entry! Write it into XMP. */
+<span class="lineNum">     222 </span><span class="lineCov">          1 :     if ( 0 == regexec(&amp;xmp_regex, key, 3, matches, 0) ) {</span>
+<span class="lineNum">     223 </span>            :       /* Get the namespace and tag name */
+<span class="lineNum">     224 </span><span class="lineCov">          1 :       size_t ns_name_size = matches[1].rm_eo - matches[1].rm_so;</span>
+<span class="lineNum">     225 </span><span class="lineCov">          1 :       size_t ns_tag_size = matches[2].rm_eo - matches[2].rm_so;</span>
+<span class="lineNum">     226 </span><span class="lineCov">          1 :       char *ns_name = msSmallMalloc(ns_name_size + 1);</span>
+<span class="lineNum">     227 </span><span class="lineCov">          1 :       char *ns_tag = msSmallMalloc(ns_tag_size + 1);</span>
+<span class="lineNum">     228 </span>            :       const char *ns_uri = NULL;
+<span class="lineNum">     229 </span><span class="lineCov">          1 :       memcpy(ns_name, key + matches[1].rm_so, ns_name_size);</span>
+<span class="lineNum">     230 </span><span class="lineCov">          1 :       memcpy(ns_tag, key + matches[2].rm_so, ns_tag_size);</span>
+<span class="lineNum">     231 </span><span class="lineCov">          1 :       ns_name[ns_name_size] = 0; /* null terminate */</span>
+<span class="lineNum">     232 </span><span class="lineCov">          1 :       ns_tag[ns_tag_size] = 0; /* null terminate */</span>
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span><span class="lineCov">          1 :       if ( strcmp(ns_tag,&quot;namespace&quot;) == 0 ) {</span>
+<span class="lineNum">     235 </span><span class="lineCov">          1 :         msFree(ns_name);</span>
+<span class="lineNum">     236 </span><span class="lineCov">          1 :         msFree(ns_tag);</span>
+<span class="lineNum">     237 </span><span class="lineCov">          1 :         continue;</span>
+<span class="lineNum">     238 </span>            :       }
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            :       /* If this is a default name space?... */
+<span class="lineNum">     241 </span><span class="lineCov">          1 :       if ( (ns_uri = msXmpUri(ns_name)) ) {</span>
+<span class="lineNum">     242 </span><span class="lineCov">          1 :         xmp_register_namespace(ns_uri, ns_name, NULL);</span>
+<span class="lineNum">     243 </span><span class="lineCov">          1 :         xmp_set_property(xmp, ns_uri, ns_tag, msLookupHashTable(&amp;hash_metadata, key), 0);</span>
+<span class="lineNum">     244 </span>            :       }
+<span class="lineNum">     245 </span>            :       /* Or maybe it's a custom one?... */
+<span class="lineNum">     246 </span><span class="lineCov">          1 :       else if ( (ns_uri = msLookupHashTable(&amp;hash_ns, ns_name)) ) {</span>
+<span class="lineNum">     247 </span><span class="lineCov">          1 :         xmp_set_property(xmp, ns_uri, ns_tag, msLookupHashTable(&amp;hash_metadata, key), 0);</span>
+<span class="lineNum">     248 </span>            :       }
+<span class="lineNum">     249 </span>            :       /* Or perhaps we're screwed. */
+<span class="lineNum">     250 </span>            :       else {
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
+<span class="lineNum">     252 </span>            :                     &quot;Unable to identify XMP namespace '%s' in metadata key '%s'&quot;,
+<span class="lineNum">     253 </span>            :                     &quot;msXmpWrite()&quot;, ns_name, key );
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :         msFreeHashItems(&amp;hash_ns);</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :         msFree(ns_name);</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :         msFree(ns_tag);</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">     258 </span>            :       }
+<span class="lineNum">     259 </span><span class="lineCov">          1 :       msFree(ns_name);</span>
+<span class="lineNum">     260 </span><span class="lineCov">          1 :       msFree(ns_tag);</span>
+<span class="lineNum">     261 </span>            :     }
+<span class="lineNum">     262 </span><span class="lineCov">          1 :   } while( (key = msNextKeyFromHashTable(&amp;hash_metadata, key)) );</span>
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span>            :   /* Clean up regex */
+<span class="lineNum">     265 </span><span class="lineCov">          1 :   regfree(&amp;xmp_regex);</span>
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span>            :   /* Write out the XMP */
+<span class="lineNum">     268 </span><span class="lineCov">          1 :   if ( !xmp_files_put_xmp(f, xmp) ) {</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :     msFreeHashItems(&amp;hash_ns);</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR,</span>
+<span class="lineNum">     271 </span>            :                 &quot;Unable to execute '%s' on pointer %p&quot;,
+<span class="lineNum">     272 </span>            :                 &quot;msXmpWrite()&quot;, &quot;xmp_files_put_xmp&quot;, f );
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     274 </span>            :   }
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span>            :   /* Write out the file and flush */
+<span class="lineNum">     277 </span><span class="lineCov">          1 :   if ( !xmp_files_close(f, XMP_CLOSE_SAFEUPDATE) ) {</span>
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :     msFreeHashItems(&amp;hash_ns);</span>
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR,</span>
+<span class="lineNum">     280 </span>            :                 &quot;Unable to execute '%s' on pointer %p&quot;,
+<span class="lineNum">     281 </span>            :                 &quot;msXmpWrite()&quot;, &quot;xmp_files_close&quot;, f );
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     283 </span>            :   }
+<span class="lineNum">     284 </span>            : 
+<span class="lineNum">     285 </span><span class="lineCov">          1 :   msFreeHashItems(&amp;hash_ns);</span>
+<span class="lineNum">     286 </span><span class="lineCov">          1 :   xmp_free(xmp);</span>
+<span class="lineNum">     287 </span><span class="lineCov">          1 :   xmp_terminate();</span>
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span>            : #else
+<span class="lineNum">     292 </span>            :   return MS_FAILURE;
+<span class="lineNum">     293 </span>            : #endif
+<span class="lineNum">     294 </span>            : }
+<span class="lineNum">     295 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

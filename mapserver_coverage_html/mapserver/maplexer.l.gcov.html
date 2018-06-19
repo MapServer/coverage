@@ -1,0 +1,842 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - mapserver/maplexer.l</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">mapserver</a> - maplexer.l<span style="font-size: 80%;"> (source / <a href="maplexer.l.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">381</td>
+            <td class="headerCovTableEntry">517</td>
+            <td class="headerCovTableEntryLo">73.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : %{</a>
+<span class="lineNum">       2 </span>            : /*
+<span class="lineNum">       3 </span>            : ** READ ME FIRST!
+<span class="lineNum">       4 </span>            : **
+<span class="lineNum">       5 </span>            : ** When this file is altered, it is necessary to do &quot;make lexer&quot;.  Due to
+<span class="lineNum">       6 </span>            : ** problems detailed in #2310 the lexer is no longer automatically rebuilt
+<span class="lineNum">       7 </span>            : ** when maplexer.l is altered.
+<span class="lineNum">       8 </span>            : */
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #define YY_NO_INPUT
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : /* C declarations */
+<span class="lineNum">      13 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      14 </span>            : #include &lt;stdio.h&gt;
+<span class="lineNum">      15 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">      16 </span>            : #include &lt;math.h&gt;
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &lt;time.h&gt;
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #include &quot;mapserver.h&quot;
+<span class="lineNum">      21 </span>            : #include &quot;maperror.h&quot;
+<span class="lineNum">      22 </span>            : #include &quot;mapfile.h&quot;
+<span class="lineNum">      23 </span>            : #include &quot;maptime.h&quot;
+<span class="lineNum">      24 </span>            : #include &quot;mapsymbol.h&quot;
+<span class="lineNum">      25 </span>            : #include &quot;mapparser.h&quot;
+<span class="lineNum">      26 </span>            : #include &quot;mapprimitive.h&quot;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : /* msyylineno is required for flex 2.5.4 and older, but is already defined by
+<span class="lineNum">      29 </span>            :  * flex 2.5.31 (bug 975).
+<span class="lineNum">      30 </span>            :  * Unfortunately there is no clean way to differenciate the two versions,
+<span class="lineNum">      31 </span>            :  * so we use the symbol YY_CURRENT_BUFFER_LVALUE to base our test since it
+<span class="lineNum">      32 </span>            :  * was not present in 2.5.4 and is present in 2.5.31. Hopefully that won't
+<span class="lineNum">      33 </span>            :  * put us in trouble with other versions. If that happens then we can
+<span class="lineNum">      34 </span>            :  * switch to using autoconf to detect the version.
+<span class="lineNum">      35 </span>            :  */
+<span class="lineNum">      36 </span>            : #ifndef YY_CURRENT_BUFFER_LVALUE
+<span class="lineNum">      37 </span>            : int msyylineno = 1;
+<span class="lineNum">      38 </span>            : #endif
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : #define YY_NO_INPUT
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : int msyysource=MS_STRING_TOKENS;
+<span class="lineNum">      43 </span>            : double msyynumber;
+<span class="lineNum">      44 </span>            : int msyystate=MS_TOKENIZE_DEFAULT;
+<span class="lineNum">      45 </span>            : char *msyystring=NULL;
+<span class="lineNum">      46 </span>            : char *msyybasepath=NULL;
+<span class="lineNum">      47 </span>            : char *msyystring_buffer_ptr;
+<span class="lineNum">      48 </span>            : int  msyystring_buffer_size = 256;
+<span class="lineNum">      49 </span>            : int  msyystring_size;
+<span class="lineNum">      50 </span>            : char msyystring_begin;
+<span class="lineNum">      51 </span>            : char *msyystring_buffer = NULL;
+<span class="lineNum">      52 </span>            : int  msyystring_icase = MS_FALSE;
+<span class="lineNum">      53 </span>            : int  msyystring_return_state;
+<span class="lineNum">      54 </span>            : int  msyystring_begin_state;
+<span class="lineNum">      55 </span>            : int  msyystring_size_tmp;
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            : int msyyreturncomments = 0;
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            : #define MS_LEXER_STRING_REALLOC(string, string_size, max_size, string_ptr)   \
+<span class="lineNum">      60 </span>            :    if (string_size &gt;= max_size) {         \
+<span class="lineNum">      61 </span>            :        msyystring_size_tmp = max_size;     \
+<span class="lineNum">      62 </span>            :        max_size = ((max_size*2) &gt; string_size) ? max_size*2 : string_size+1;                     \
+<span class="lineNum">      63 </span>            :        string = (char *) msSmallRealloc(string, sizeof(char *) * max_size);  \
+<span class="lineNum">      64 </span>            :        string_ptr = string;    \
+<span class="lineNum">      65 </span>            :        string_ptr += msyystring_size_tmp; \
+<span class="lineNum">      66 </span>            :    }
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            : #define MS_LEXER_RETURN_TOKEN(token) \
+<span class="lineNum">      69 </span>            :    MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext),  \
+<span class="lineNum">      70 </span>            :                            msyystring_buffer_size, msyystring_buffer_ptr); \
+<span class="lineNum">      71 </span>            :    strcpy(msyystring_buffer, msyytext); \
+<span class="lineNum">      72 </span>            :    return(token); 
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            : #define MAX_INCLUDE_DEPTH 5
+<span class="lineNum">      75 </span>            : YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
+<span class="lineNum">      76 </span>            : int include_lineno[MAX_INCLUDE_DEPTH];
+<span class="lineNum">      77 </span>            : int include_stack_ptr = 0;
+<span class="lineNum">      78 </span>            : char path[MS_MAXPATHLEN];
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            : %}
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            : %s URL_VARIABLE
+<span class="lineNum">      83 </span>            : %s URL_STRING
+<span class="lineNum">      84 </span>            : %s EXPRESSION_STRING
+<span class="lineNum">      85 </span>            : %s INCLUDE
+<span class="lineNum">      86 </span>            : %s MSSTRING
+<span class="lineNum">      87 </span>            : %s MULTILINE_COMMENT
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            : %%
+<span class="lineNum">      90 </span><span class="lineCov">          1 :        if (msyystring_buffer == NULL)</span>
+<span class="lineNum">      91 </span><span class="lineCov">          1 :            msyystring_buffer = (char*) msSmallMalloc(sizeof(char) * msyystring_buffer_size);</span>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineCov">          1 :        msyystring_buffer[0] = '\0';</span>
+<span class="lineNum">      94 </span><span class="lineCov">          1 :        msyystring_buffer_size = 0;</span>
+<span class="lineNum">      95 </span><span class="lineCov">          1 :        switch(msyystate) {</span>
+<span class="lineNum">      96 </span>            :        case(MS_TOKENIZE_DEFAULT):
+<span class="lineNum">      97 </span>            :          break;
+<span class="lineNum">      98 </span>            :        case(MS_TOKENIZE_FILE):
+<span class="lineNum">      99 </span><span class="lineCov">          1 :          BEGIN(INITIAL);</span>
+<span class="lineNum">     100 </span><span class="lineCov">          1 :          msyystring_begin_state = INITIAL;</span>
+<span class="lineNum">     101 </span><span class="lineCov">          1 :          msyysource=MS_FILE_TOKENS;</span>
+<span class="lineNum">     102 </span><span class="lineCov">          1 :          msyystate=MS_TOKENIZE_DEFAULT;</span>
+<span class="lineNum">     103 </span><span class="lineCov">          1 :          msyystring=NULL;</span>
+<span class="lineNum">     104 </span><span class="lineCov">          1 :          msyyreturncomments=0;</span>
+<span class="lineNum">     105 </span><span class="lineCov">          1 :          include_stack_ptr=0;</span>
+<span class="lineNum">     106 </span><span class="lineCov">          1 :          return(0);</span>
+<span class="lineNum">     107 </span>            :          break;
+<span class="lineNum">     108 </span>            :        case(MS_TOKENIZE_STRING):
+<span class="lineNum">     109 </span><span class="lineCov">          1 :          BEGIN(INITIAL);</span>
+<span class="lineNum">     110 </span><span class="lineCov">          1 :          msyystring_begin_state = INITIAL;</span>
+<span class="lineNum">     111 </span><span class="lineCov">          1 :          msyy_delete_buffer(YY_CURRENT_BUFFER);</span>
+<span class="lineNum">     112 </span><span class="lineCov">          1 :          msyy_scan_string(msyystring);</span>
+<span class="lineNum">     113 </span><span class="lineCov">          1 :          msyysource=MS_STRING_TOKENS;</span>
+<span class="lineNum">     114 </span><span class="lineCov">          1 :          msyystate=MS_TOKENIZE_DEFAULT;</span>
+<span class="lineNum">     115 </span><span class="lineCov">          1 :          msyyin=NULL;</span>
+<span class="lineNum">     116 </span><span class="lineCov">          1 :          msyyreturncomments=0;</span>
+<span class="lineNum">     117 </span><span class="lineCov">          1 :          include_stack_ptr=0;</span>
+<span class="lineNum">     118 </span><span class="lineCov">          1 :          return(0);</span>
+<span class="lineNum">     119 </span>            :          break;
+<span class="lineNum">     120 </span>            :        case(MS_TOKENIZE_URL_VARIABLE):
+<span class="lineNum">     121 </span><span class="lineCov">          1 :          BEGIN(URL_VARIABLE);</span>
+<span class="lineNum">     122 </span><span class="lineCov">          1 :          msyystring_begin_state = URL_VARIABLE;</span>
+<span class="lineNum">     123 </span><span class="lineCov">          1 :          msyy_delete_buffer(YY_CURRENT_BUFFER);</span>
+<span class="lineNum">     124 </span><span class="lineCov">          1 :          msyy_scan_string(msyystring);</span>
+<span class="lineNum">     125 </span><span class="lineCov">          1 :          msyysource=MS_URL_TOKENS;</span>
+<span class="lineNum">     126 </span><span class="lineCov">          1 :          msyystate=MS_TOKENIZE_DEFAULT;</span>
+<span class="lineNum">     127 </span><span class="lineCov">          1 :          msyyreturncomments=0; </span>
+<span class="lineNum">     128 </span>            :          (void) yyunput; /* just to avoid warning about it being unrefed */
+<span class="lineNum">     129 </span><span class="lineCov">          1 :          break;</span>
+<span class="lineNum">     130 </span>            :        case(MS_TOKENIZE_URL_STRING):
+<span class="lineNum">     131 </span><span class="lineCov">          1 :          BEGIN(URL_STRING);</span>
+<span class="lineNum">     132 </span><span class="lineCov">          1 :          msyystring_begin_state = URL_STRING;</span>
+<span class="lineNum">     133 </span><span class="lineCov">          1 :          msyy_delete_buffer(YY_CURRENT_BUFFER);</span>
+<span class="lineNum">     134 </span><span class="lineCov">          1 :          msyy_scan_string(msyystring);</span>
+<span class="lineNum">     135 </span><span class="lineCov">          1 :          msyysource=MS_URL_TOKENS;</span>
+<span class="lineNum">     136 </span><span class="lineCov">          1 :          msyystate=MS_TOKENIZE_DEFAULT;</span>
+<span class="lineNum">     137 </span><span class="lineCov">          1 :          msyyin=NULL;</span>
+<span class="lineNum">     138 </span><span class="lineCov">          1 :          msyyreturncomments=0; </span>
+<span class="lineNum">     139 </span><span class="lineCov">          1 :          return(0);</span>
+<span class="lineNum">     140 </span>            :          break;
+<span class="lineNum">     141 </span>            :        case(MS_TOKENIZE_EXPRESSION):
+<span class="lineNum">     142 </span><span class="lineCov">          1 :          BEGIN(EXPRESSION_STRING);</span>
+<span class="lineNum">     143 </span><span class="lineCov">          1 :          msyystring_begin_state = EXPRESSION_STRING;</span>
+<span class="lineNum">     144 </span><span class="lineCov">          1 :          msyy_delete_buffer(YY_CURRENT_BUFFER);</span>
+<span class="lineNum">     145 </span><span class="lineCov">          1 :          msyy_scan_string(msyystring);</span>
+<span class="lineNum">     146 </span><span class="lineCov">          1 :          msyystate=MS_TOKENIZE_DEFAULT;</span>
+<span class="lineNum">     147 </span><span class="lineCov">          1 :          msyyreturncomments=0;</span>
+<span class="lineNum">     148 </span><span class="lineCov">          1 :          break;</span>
+<span class="lineNum">     149 </span>            :        case(99):
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :          BEGIN(INITIAL); /* may not need this one */</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :          msyystring_begin_state = INITIAL;</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :          msyy_delete_buffer(YY_CURRENT_BUFFER);</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :          msyystate=MS_TOKENIZE_DEFAULT;</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :          msyystring=NULL;</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :          msyyreturncomments=0; </span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :          return(0);</span>
+<span class="lineNum">     157 </span>            :          break;
+<span class="lineNum">     158 </span>            :        default:
+<span class="lineNum">     159 </span>            :          break;
+<span class="lineNum">     160 </span>            :        }
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            : &lt;INITIAL,URL_STRING,EXPRESSION_STRING,INCLUDE&gt;[ \t\r]+             ;
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span><span class="lineCov">          1 : &lt;INITIAL&gt;(\/\/|#).*                              { if (msyyreturncomments) return(MS_COMMENT); }</span>
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;\/\*                                  { BEGIN(MULTILINE_COMMENT); }</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 : &lt;MULTILINE_COMMENT&gt;\*\/                        { BEGIN(INITIAL); }</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 : &lt;MULTILINE_COMMENT&gt;[^*\n]+                     ;</span>
+<span class="lineNum">     169 </span>            : &lt;MULTILINE_COMMENT&gt;\*                          ;
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 : &lt;MULTILINE_COMMENT&gt;\n                          { msyylineno++; }</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     172 </span>            : &lt;URL_VARIABLE&gt;_|\.                             ;
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;or|\|\|                     { MS_LEXER_RETURN_TOKEN(MS_TOKEN_LOGICAL_OR); }</span>
+<span class="lineNum">     175 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;and|&amp;&amp;                      { MS_LEXER_RETURN_TOKEN(MS_TOKEN_LOGICAL_AND); }</span>
+<span class="lineNum">     176 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;not|!                       { MS_LEXER_RETURN_TOKEN(MS_TOKEN_LOGICAL_NOT); }</span>
+<span class="lineNum">     177 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;eq|=|==                     { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_EQ); }</span>
+<span class="lineNum">     178 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;ne|!=                       { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_NE); }</span>
+<span class="lineNum">     179 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;gt|&gt;                        { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_GT); }</span>
+<span class="lineNum">     180 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;lt|&lt;                        { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_LT); }</span>
+<span class="lineNum">     181 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;ge|&gt;=                       { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_GE); }</span>
+<span class="lineNum">     182 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;le|&lt;=                       { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_LE); }</span>
+<span class="lineNum">     183 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;~                           { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_RE); }</span>
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;=\*                         { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_IEQ); }</span>
+<span class="lineNum">     186 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;~\*                         { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_IRE); }</span>
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;in                          { MS_LEXER_RETURN_TOKEN(IN); }</span>
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;area                        { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_AREA); }</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 : &lt;EXPRESSION_STRING&gt;length                      { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_LENGTH); }</span>
+<span class="lineNum">     192 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;tostring                    { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_TOSTRING); }</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 : &lt;EXPRESSION_STRING&gt;commify                     { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_COMMIFY); }</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 : &lt;EXPRESSION_STRING&gt;round                       { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_ROUND); }</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 : &lt;EXPRESSION_STRING&gt;upper                       { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_UPPER); }</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 : &lt;EXPRESSION_STRING&gt;lower                       { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_LOWER); }</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 : &lt;EXPRESSION_STRING&gt;initcap                     { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_INITCAP); }</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 : &lt;EXPRESSION_STRING&gt;firstcap                    { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_FIRSTCAP); }</span>
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;buffer                      { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_BUFFER); }</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 : &lt;EXPRESSION_STRING&gt;difference                  { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_DIFFERENCE); }</span>
+<span class="lineNum">     202 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;simplify                    { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_SIMPLIFY); }</span>
+<span class="lineNum">     203 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;simplifypt                  { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_SIMPLIFYPT); }</span>
+<span class="lineNum">     204 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;generalize                  { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_GENERALIZE); }</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 : &lt;EXPRESSION_STRING&gt;smoothsia                   { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_SMOOTHSIA); }</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 : &lt;EXPRESSION_STRING&gt;javascript                  { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_JAVASCRIPT); }</span>
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;intersects                  { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_INTERSECTS); }</span>
+<span class="lineNum">     209 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;disjoint                    { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_DISJOINT); }</span>
+<span class="lineNum">     210 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;touches                     { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_TOUCHES); }</span>
+<span class="lineNum">     211 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;overlaps                    { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_OVERLAPS); }</span>
+<span class="lineNum">     212 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;crosses                     { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_CROSSES); }</span>
+<span class="lineNum">     213 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;within                      { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_WITHIN); }</span>
+<span class="lineNum">     214 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;contains                    { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_CONTAINS); }</span>
+<span class="lineNum">     215 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;equals                      { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_EQUALS); }</span>
+<span class="lineNum">     216 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;beyond                      { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_BEYOND); }</span>
+<span class="lineNum">     217 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;dwithin                     { MS_LEXER_RETURN_TOKEN(MS_TOKEN_COMPARISON_DWITHIN); }</span>
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;fromtext                    { MS_LEXER_RETURN_TOKEN(MS_TOKEN_FUNCTION_FROMTEXT); }</span>
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;true                        { msyynumber=MS_TRUE; return(MS_TOKEN_LITERAL_BOOLEAN); }</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 : &lt;EXPRESSION_STRING&gt;false                       { msyynumber=MS_FALSE; return(MS_TOKEN_LITERAL_BOOLEAN); }</span>
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span><span class="lineCov">          1 : &lt;INITIAL&gt;colorrange                            { MS_LEXER_RETURN_TOKEN(COLORRANGE); }</span>
+<span class="lineNum">     225 </span><span class="lineCov">          1 : &lt;INITIAL&gt;datarange                             { MS_LEXER_RETURN_TOKEN(DATARANGE); }</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;rangeitem                             { MS_LEXER_RETURN_TOKEN(RANGEITEM); }</span>
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;align                      { MS_LEXER_RETURN_TOKEN(ALIGN); }</span>
+<span class="lineNum">     229 </span><span class="lineCov">          1 : &lt;INITIAL&gt;anchorpoint                           { MS_LEXER_RETURN_TOKEN(ANCHORPOINT); }</span>
+<span class="lineNum">     230 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE,URL_STRING&gt;angle         { MS_LEXER_RETURN_TOKEN(ANGLE); }</span>
+<span class="lineNum">     231 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;antialias                  { MS_LEXER_RETURN_TOKEN(ANTIALIAS); }</span>
+<span class="lineNum">     232 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;backgroundcolor            { MS_LEXER_RETURN_TOKEN(BACKGROUNDCOLOR); }</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;bandsitem                             { MS_LEXER_RETURN_TOKEN(BANDSITEM); }</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;bindvals                              { MS_LEXER_RETURN_TOKEN(BINDVALS); }</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;\xEF\xBB\xBF                          { MS_LEXER_RETURN_TOKEN(BOM); }</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;browseformat                          { MS_LEXER_RETURN_TOKEN(BROWSEFORMAT); }</span>
+<span class="lineNum">     237 </span><span class="lineCov">          1 : &lt;INITIAL&gt;buffer                                { MS_LEXER_RETURN_TOKEN(BUFFER); }</span>
+<span class="lineNum">     238 </span><span class="lineCov">          1 : &lt;INITIAL&gt;character                             { MS_LEXER_RETURN_TOKEN(CHARACTER); }</span>
+<span class="lineNum">     239 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE&gt;class                    { MS_LEXER_RETURN_TOKEN(CLASS); }</span>
+<span class="lineNum">     240 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;classitem                  { MS_LEXER_RETURN_TOKEN(CLASSITEM); }</span>
+<span class="lineNum">     241 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;classgroup                 { MS_LEXER_RETURN_TOKEN(CLASSGROUP); }</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;cluster                               { MS_LEXER_RETURN_TOKEN(CLUSTER); }</span>
+<span class="lineNum">     243 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;color                      { MS_LEXER_RETURN_TOKEN(COLOR); }</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;compfilter                            { MS_LEXER_RETURN_TOKEN(COMPFILTER); }</span>
+<span class="lineNum">     245 </span><span class="lineCov">          1 : &lt;INITIAL&gt;composite                             { MS_LEXER_RETURN_TOKEN(COMPOSITE); }</span>
+<span class="lineNum">     246 </span><span class="lineCov">          1 : &lt;INITIAL&gt;compop                                { MS_LEXER_RETURN_TOKEN(COMPOP); }</span>
+<span class="lineNum">     247 </span><span class="lineCov">          1 : &lt;INITIAL&gt;config                                { MS_LEXER_RETURN_TOKEN(CONFIG); }</span>
+<span class="lineNum">     248 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;connection                 { MS_LEXER_RETURN_TOKEN(CONNECTION); }</span>
+<span class="lineNum">     249 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;connectiontype             { MS_LEXER_RETURN_TOKEN(CONNECTIONTYPE); }</span>
+<span class="lineNum">     250 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;data                       { MS_LEXER_RETURN_TOKEN(DATA); }</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;datapattern                           { MS_LEXER_RETURN_TOKEN(DATAPATTERN); }</span>
+<span class="lineNum">     252 </span><span class="lineCov">          1 : &lt;INITIAL&gt;debug                                 { MS_LEXER_RETURN_TOKEN(DEBUG); }</span>
+<span class="lineNum">     253 </span><span class="lineCov">          1 : &lt;INITIAL&gt;driver                                { MS_LEXER_RETURN_TOKEN(DRIVER); }</span>
+<span class="lineNum">     254 </span><span class="lineCov">          1 : &lt;INITIAL&gt;dump                                  { MS_LEXER_RETURN_TOKEN(DUMP); }</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;empty                                 { MS_LEXER_RETURN_TOKEN(EMPTY); }</span>
+<span class="lineNum">     256 </span><span class="lineCov">          1 : &lt;INITIAL&gt;encoding                              { MS_LEXER_RETURN_TOKEN(ENCODING); }</span>
+<span class="lineNum">     257 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;end                        { MS_LEXER_RETURN_TOKEN(END); }</span>
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;error                                 { MS_LEXER_RETURN_TOKEN(ERROR); }</span>
+<span class="lineNum">     259 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;expression                 { MS_LEXER_RETURN_TOKEN(EXPRESSION); }</span>
+<span class="lineNum">     260 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE,URL_STRING&gt;extent        { MS_LEXER_RETURN_TOKEN(EXTENT); }</span>
+<span class="lineNum">     261 </span><span class="lineCov">          1 : &lt;INITIAL&gt;extension                             { MS_LEXER_RETURN_TOKEN(EXTENSION); }</span>
+<span class="lineNum">     262 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;feature                    { MS_LEXER_RETURN_TOKEN(FEATURE); }</span>
+<span class="lineNum">     263 </span><span class="lineCov">          1 : &lt;INITIAL&gt;filled                                { MS_LEXER_RETURN_TOKEN(FILLED); }</span>
+<span class="lineNum">     264 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;filter                     { MS_LEXER_RETURN_TOKEN(FILTER); }</span>
+<span class="lineNum">     265 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;filteritem                 { MS_LEXER_RETURN_TOKEN(FILTERITEM); }</span>
+<span class="lineNum">     266 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;footer                     { MS_LEXER_RETURN_TOKEN(FOOTER); }</span>
+<span class="lineNum">     267 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;font                       { MS_LEXER_RETURN_TOKEN(FONT); }</span>
+<span class="lineNum">     268 </span><span class="lineCov">          1 : &lt;INITIAL&gt;fontset                               { MS_LEXER_RETURN_TOKEN(FONTSET); }</span>
+<span class="lineNum">     269 </span><span class="lineCov">          1 : &lt;INITIAL&gt;force                                 { MS_LEXER_RETURN_TOKEN(FORCE); }</span>
+<span class="lineNum">     270 </span><span class="lineCov">          1 : &lt;INITIAL&gt;formatoption                          { MS_LEXER_RETURN_TOKEN(FORMATOPTION); }</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;from                                  { MS_LEXER_RETURN_TOKEN(FROM); }</span>
+<span class="lineNum">     272 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;gap                        { MS_LEXER_RETURN_TOKEN(GAP); }</span>
+<span class="lineNum">     273 </span><span class="lineCov">          1 : &lt;INITIAL&gt;geomtransform                         { MS_LEXER_RETURN_TOKEN(GEOMTRANSFORM); }</span>
+<span class="lineNum">     274 </span><span class="lineCov">          1 : &lt;INITIAL&gt;grid                                  { MS_LEXER_RETURN_TOKEN(GRID); }</span>
+<span class="lineNum">     275 </span><span class="lineCov">          1 : &lt;INITIAL&gt;gridstep                              { MS_LEXER_RETURN_TOKEN(GRIDSTEP); }</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;graticule                             { MS_LEXER_RETURN_TOKEN(GRATICULE); }</span>
+<span class="lineNum">     277 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;group                      { MS_LEXER_RETURN_TOKEN(GROUP); }</span>
+<span class="lineNum">     278 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;header                     { MS_LEXER_RETURN_TOKEN(HEADER); }</span>
+<span class="lineNum">     279 </span><span class="lineCov">          1 : &lt;INITIAL&gt;image                                 { MS_LEXER_RETURN_TOKEN(IMAGE); }</span>
+<span class="lineNum">     280 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE,URL_STRING&gt;imagecolor    { MS_LEXER_RETURN_TOKEN(IMAGECOLOR); }</span>
+<span class="lineNum">     281 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE&gt;imagetype                { MS_LEXER_RETURN_TOKEN(IMAGETYPE); }</span>
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;imagequality                          { MS_LEXER_RETURN_TOKEN(IMAGEQUALITY); }</span>
+<span class="lineNum">     283 </span><span class="lineCov">          1 : &lt;INITIAL&gt;imagemode                             { MS_LEXER_RETURN_TOKEN(IMAGEMODE); }</span>
+<span class="lineNum">     284 </span><span class="lineCov">          1 : &lt;INITIAL&gt;imagepath                             { MS_LEXER_RETURN_TOKEN(IMAGEPATH); }</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;temppath                              { MS_LEXER_RETURN_TOKEN(TEMPPATH); }</span>
+<span class="lineNum">     286 </span><span class="lineCov">          1 : &lt;INITIAL&gt;imageurl                              { MS_LEXER_RETURN_TOKEN(IMAGEURL); }</span>
+<span class="lineNum">     287 </span><span class="lineCov">          1 : &lt;INITIAL&gt;include                               { BEGIN(INCLUDE); }</span>
+<span class="lineNum">     288 </span><span class="lineCov">          1 : &lt;INITIAL&gt;index                                 { MS_LEXER_RETURN_TOKEN(INDEX); }</span>
+<span class="lineNum">     289 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;initialgap                 { MS_LEXER_RETURN_TOKEN(INITIALGAP); }</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;interlace                             { MS_LEXER_RETURN_TOKEN(INTERLACE); }</span>
+<span class="lineNum">     291 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;intervals                  { MS_LEXER_RETURN_TOKEN(INTERVALS); } </span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;join                                  { MS_LEXER_RETURN_TOKEN(JOIN); }</span>
+<span class="lineNum">     293 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;keyimage                   { MS_LEXER_RETURN_TOKEN(KEYIMAGE); }</span>
+<span class="lineNum">     294 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;keysize                    { MS_LEXER_RETURN_TOKEN(KEYSIZE); }</span>
+<span class="lineNum">     295 </span><span class="lineCov">          1 : &lt;INITIAL&gt;keyspacing                            { MS_LEXER_RETURN_TOKEN(KEYSPACING); }</span>
+<span class="lineNum">     296 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE&gt;label                      { MS_LEXER_RETURN_TOKEN(LABEL); }</span>
+<span class="lineNum">     297 </span><span class="lineCov">          1 : &lt;INITIAL&gt;labelcache                            { MS_LEXER_RETURN_TOKEN(LABELCACHE); }</span>
+<span class="lineNum">     298 </span><span class="lineCov">          1 : &lt;INITIAL&gt;labelformat                           { MS_LEXER_RETURN_TOKEN(LABELFORMAT); }</span>
+<span class="lineNum">     299 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;labelitem                  { MS_LEXER_RETURN_TOKEN(LABELITEM); }</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;labelmaxscale                         { MS_LEXER_RETURN_TOKEN(LABELMAXSCALE); }</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;labelmaxscaledenom                    { MS_LEXER_RETURN_TOKEN(LABELMAXSCALEDENOM); }</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;labelminscale                         { MS_LEXER_RETURN_TOKEN(LABELMINSCALE); }</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;labelminscaledenom                    { MS_LEXER_RETURN_TOKEN(LABELMINSCALEDENOM); }</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_STRING&gt;labelrequires              { MS_LEXER_RETURN_TOKEN(LABELREQUIRES); }</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;latlon                                { MS_LEXER_RETURN_TOKEN(LATLON); }</span>
+<span class="lineNum">     306 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE&gt;layer                    { MS_LEXER_RETURN_TOKEN(LAYER); }</span>
+<span class="lineNum">     307 </span><span class="lineCov">          1 : &lt;INITIAL&gt;leader                                { MS_LEXER_RETURN_TOKEN(LEADER); }</span>
+<span class="lineNum">     308 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE&gt;legend                   { MS_LEXER_RETURN_TOKEN(LEGEND); }</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;legendformat                          { MS_LEXER_RETURN_TOKEN(LEGENDFORMAT); }</span>
+<span class="lineNum">     310 </span><span class="lineCov">          1 : &lt;INITIAL&gt;linecap                               { MS_LEXER_RETURN_TOKEN(LINECAP); }</span>
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;linejoin                              { MS_LEXER_RETURN_TOKEN(LINEJOIN); }</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;linejoinmaxsize                       { MS_LEXER_RETURN_TOKEN(LINEJOINMAXSIZE); }</span>
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;log                                   { MS_LEXER_RETURN_TOKEN(LOG); }</span>
+<span class="lineNum">     314 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE&gt;map                      { MS_LEXER_RETURN_TOKEN(MAP); }</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;marker                                { MS_LEXER_RETURN_TOKEN(MARKER); }</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;markersize                            { MS_LEXER_RETURN_TOKEN(MARKERSIZE); }</span>
+<span class="lineNum">     317 </span><span class="lineCov">          1 : &lt;INITIAL&gt;mask                                  { MS_LEXER_RETURN_TOKEN(MASK); }</span>
+<span class="lineNum">     318 </span><span class="lineCov">          1 : &lt;INITIAL&gt;maxarcs                               { MS_LEXER_RETURN_TOKEN(MAXARCS); }</span>
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;maxboxsize                            { MS_LEXER_RETURN_TOKEN(MAXBOXSIZE); }</span>
+<span class="lineNum">     320 </span><span class="lineCov">          1 : &lt;INITIAL&gt;maxdistance                           { MS_LEXER_RETURN_TOKEN(MAXDISTANCE); }</span>
+<span class="lineNum">     321 </span><span class="lineCov">          1 : &lt;INITIAL&gt;maxfeatures                           { MS_LEXER_RETURN_TOKEN(MAXFEATURES); }</span>
+<span class="lineNum">     322 </span><span class="lineCov">          1 : &lt;INITIAL&gt;maxinterval                           { MS_LEXER_RETURN_TOKEN(MAXINTERVAL); }</span>
+<span class="lineNum">     323 </span><span class="lineCov">          1 : &lt;INITIAL&gt;maxscale                              { MS_LEXER_RETURN_TOKEN(MAXSCALE); }</span>
+<span class="lineNum">     324 </span><span class="lineCov">          1 : &lt;INITIAL&gt;maxscaledenom                         { MS_LEXER_RETURN_TOKEN(MAXSCALEDENOM); }</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;maxgeowidth                           { MS_LEXER_RETURN_TOKEN(MAXGEOWIDTH); }</span>
+<span class="lineNum">     326 </span><span class="lineCov">          1 : &lt;INITIAL&gt;maxlength                             { MS_LEXER_RETURN_TOKEN(MAXLENGTH); }</span>
+<span class="lineNum">     327 </span><span class="lineCov">          1 : &lt;INITIAL&gt;maxsize                               { MS_LEXER_RETURN_TOKEN(MAXSIZE); }</span>
+<span class="lineNum">     328 </span><span class="lineCov">          1 : &lt;INITIAL&gt;maxsubdivide                          { MS_LEXER_RETURN_TOKEN(MAXSUBDIVIDE); }</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;maxtemplate                           { MS_LEXER_RETURN_TOKEN(MAXTEMPLATE); }</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;maxwidth                              { MS_LEXER_RETURN_TOKEN(MAXWIDTH); }</span>
+<span class="lineNum">     331 </span><span class="lineCov">          1 : &lt;INITIAL&gt;metadata                              { MS_LEXER_RETURN_TOKEN(METADATA); }</span>
+<span class="lineNum">     332 </span><span class="lineCov">          1 : &lt;INITIAL&gt;mimetype                              { MS_LEXER_RETURN_TOKEN(MIMETYPE); }</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;minarcs                               { MS_LEXER_RETURN_TOKEN(MINARCS); }</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;minboxsize                            { MS_LEXER_RETURN_TOKEN(MINBOXSIZE); }</span>
+<span class="lineNum">     335 </span><span class="lineCov">          1 : &lt;INITIAL&gt;mindistance                           { MS_LEXER_RETURN_TOKEN(MINDISTANCE); }</span>
+<span class="lineNum">     336 </span><span class="lineCov">          1 : &lt;INITIAL&gt;repeatdistance                        { MS_LEXER_RETURN_TOKEN(REPEATDISTANCE); }</span>
+<span class="lineNum">     337 </span><span class="lineCov">          1 : &lt;INITIAL&gt;maxoverlapangle                       { MS_LEXER_RETURN_TOKEN(MAXOVERLAPANGLE); } </span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;minfeaturesize                        { MS_LEXER_RETURN_TOKEN(MINFEATURESIZE); }</span>
+<span class="lineNum">     339 </span><span class="lineCov">          1 : &lt;INITIAL&gt;mininterval                           { MS_LEXER_RETURN_TOKEN(MININTERVAL); }</span>
+<span class="lineNum">     340 </span><span class="lineCov">          1 : &lt;INITIAL&gt;minscale                              { MS_LEXER_RETURN_TOKEN(MINSCALE); }</span>
+<span class="lineNum">     341 </span><span class="lineCov">          1 : &lt;INITIAL&gt;minscaledenom                         { MS_LEXER_RETURN_TOKEN(MINSCALEDENOM); }</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;mingeowidth                           { MS_LEXER_RETURN_TOKEN(MINGEOWIDTH); }</span>
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;minlength                             { MS_LEXER_RETURN_TOKEN(MINLENGTH); }</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;minsize                               { MS_LEXER_RETURN_TOKEN(MINSIZE); }</span>
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;minsubdivide                          { MS_LEXER_RETURN_TOKEN(MINSUBDIVIDE); }</span>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;mintemplate                           { MS_LEXER_RETURN_TOKEN(MINTEMPLATE); }</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;minwidth                              { MS_LEXER_RETURN_TOKEN(MINWIDTH); }</span>
+<span class="lineNum">     348 </span><span class="lineCov">          1 : &lt;INITIAL&gt;name                                  { MS_LEXER_RETURN_TOKEN(NAME); }</span>
+<span class="lineNum">     349 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;offset                     { MS_LEXER_RETURN_TOKEN(OFFSET); }</span>
+<span class="lineNum">     350 </span><span class="lineCov">          1 : &lt;INITIAL&gt;offsite                               { MS_LEXER_RETURN_TOKEN(OFFSITE); }</span>
+<span class="lineNum">     351 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;opacity                    { MS_LEXER_RETURN_TOKEN(OPACITY); }</span>
+<span class="lineNum">     352 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;outlinecolor               { MS_LEXER_RETURN_TOKEN(OUTLINECOLOR); }</span>
+<span class="lineNum">     353 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;outlinewidth               { MS_LEXER_RETURN_TOKEN(OUTLINEWIDTH); }</span>
+<span class="lineNum">     354 </span><span class="lineCov">          1 : &lt;INITIAL&gt;outputformat                          { MS_LEXER_RETURN_TOKEN(OUTPUTFORMAT); }</span>
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_STRING&gt;overlaybackgroundcolor     { MS_LEXER_RETURN_TOKEN(OVERLAYBACKGROUNDCOLOR); }</span>
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_STRING&gt;overlaycolor               { MS_LEXER_RETURN_TOKEN(OVERLAYCOLOR); }</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;overlaymaxsize                        { MS_LEXER_RETURN_TOKEN(OVERLAYMAXSIZE); }</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;overlayminsize                        { MS_LEXER_RETURN_TOKEN(OVERLAYMINSIZE); }</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_STRING&gt;overlayoutlinecolor        { MS_LEXER_RETURN_TOKEN(OVERLAYOUTLINECOLOR); }</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_STRING&gt;overlaysize                { MS_LEXER_RETURN_TOKEN(OVERLAYSIZE); }</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_STRING&gt;overlaysymbol              { MS_LEXER_RETURN_TOKEN(OVERLAYSYMBOL); }</span>
+<span class="lineNum">     362 </span><span class="lineCov">          1 : &lt;INITIAL&gt;partials                              { MS_LEXER_RETURN_TOKEN(PARTIALS); }</span>
+<span class="lineNum">     363 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;pattern                    { MS_LEXER_RETURN_TOKEN(PATTERN); }</span>
+<span class="lineNum">     364 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;points                     { MS_LEXER_RETURN_TOKEN(POINTS); }</span>
+<span class="lineNum">     365 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;items                      { MS_LEXER_RETURN_TOKEN(ITEMS); }</span>
+<span class="lineNum">     366 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;position                   { MS_LEXER_RETURN_TOKEN(POSITION); }</span>
+<span class="lineNum">     367 </span><span class="lineCov">          1 : &lt;INITIAL&gt;postlabelcache                        { MS_LEXER_RETURN_TOKEN(POSTLABELCACHE); }</span>
+<span class="lineNum">     368 </span><span class="lineCov">          1 : &lt;INITIAL&gt;priority                              { MS_LEXER_RETURN_TOKEN(PRIORITY); }</span>
+<span class="lineNum">     369 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;processing                 { MS_LEXER_RETURN_TOKEN(PROCESSING); }</span>
+<span class="lineNum">     370 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE,URL_STRING&gt;projection    { MS_LEXER_RETURN_TOKEN(PROJECTION); }</span>
+<span class="lineNum">     371 </span><span class="lineCov">          1 : &lt;INITIAL&gt;queryformat                           { MS_LEXER_RETURN_TOKEN(QUERYFORMAT); }</span>
+<span class="lineNum">     372 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE&gt;querymap                 { MS_LEXER_RETURN_TOKEN(QUERYMAP); }</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_VARIABLE&gt;reference                { MS_LEXER_RETURN_TOKEN(REFERENCE); }</span>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;region                                { MS_LEXER_RETURN_TOKEN(REGION); }</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;relativeto                            { MS_LEXER_RETURN_TOKEN(RELATIVETO); }</span>
+<span class="lineNum">     376 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;requires                   { MS_LEXER_RETURN_TOKEN(REQUIRES); }</span>
+<span class="lineNum">     377 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE&gt;resolution               { MS_LEXER_RETURN_TOKEN(RESOLUTION); }</span>
+<span class="lineNum">     378 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE&gt;defresolution            { MS_LEXER_RETURN_TOKEN(DEFRESOLUTION); }</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;scale                                 { MS_LEXER_RETURN_TOKEN(SCALE); }</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;scaledenom                            { MS_LEXER_RETURN_TOKEN(SCALEDENOM); }</span>
+<span class="lineNum">     381 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE&gt;scalebar                 { MS_LEXER_RETURN_TOKEN(SCALEBAR); }</span>
+<span class="lineNum">     382 </span><span class="lineCov">          1 : &lt;INITIAL&gt;scaletoken                            { MS_LEXER_RETURN_TOKEN(SCALETOKEN); }</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_STRING&gt;shadowcolor                { MS_LEXER_RETURN_TOKEN(SHADOWCOLOR); }</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_STRING&gt;shadowsize                 { MS_LEXER_RETURN_TOKEN(SHADOWSIZE); }</span>
+<span class="lineNum">     385 </span><span class="lineCov">          1 : &lt;INITIAL&gt;shapepath                             { MS_LEXER_RETURN_TOKEN(SHAPEPATH); }</span>
+<span class="lineNum">     386 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE,URL_STRING&gt;size          { MS_LEXER_RETURN_TOKEN(SIZE); }</span>
+<span class="lineNum">     387 </span><span class="lineCov">          1 : &lt;INITIAL&gt;sizeunits                             { MS_LEXER_RETURN_TOKEN(SIZEUNITS); }</span>
+<span class="lineNum">     388 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;status                     { MS_LEXER_RETURN_TOKEN(STATUS); }</span>
+<span class="lineNum">     389 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE&gt;style                    { MS_LEXER_RETURN_TOKEN(STYLE); }</span>
+<span class="lineNum">     390 </span><span class="lineCov">          1 : &lt;INITIAL&gt;styleitem                             { MS_LEXER_RETURN_TOKEN(STYLEITEM); }</span>
+<span class="lineNum">     391 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;symbol                     { MS_LEXER_RETURN_TOKEN(SYMBOL); }</span>
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;symbolscale                           { MS_LEXER_RETURN_TOKEN(SYMBOLSCALE); }</span>
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;symbolscaledenom                      { MS_LEXER_RETURN_TOKEN(SYMBOLSCALEDENOM); }</span>
+<span class="lineNum">     394 </span><span class="lineCov">          1 : &lt;INITIAL&gt;symbolset                             { MS_LEXER_RETURN_TOKEN(SYMBOLSET); }</span>
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;table                                 { MS_LEXER_RETURN_TOKEN(TABLE); }</span>
+<span class="lineNum">     396 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;template                   { MS_LEXER_RETURN_TOKEN(TEMPLATE); }</span>
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;templatepattern                       { MS_LEXER_RETURN_TOKEN(TEMPLATEPATTERN); }</span>
+<span class="lineNum">     398 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;text                       { MS_LEXER_RETURN_TOKEN(TEXT); }</span>
+<span class="lineNum">     399 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;tileindex                  { MS_LEXER_RETURN_TOKEN(TILEINDEX); }</span>
+<span class="lineNum">     400 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;tileitem                   { MS_LEXER_RETURN_TOKEN(TILEITEM); }</span>
+<span class="lineNum">     401 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;tilesrs                    { MS_LEXER_RETURN_TOKEN(TILESRS); }</span>
+<span class="lineNum">     402 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;title                      { MS_LEXER_RETURN_TOKEN(TITLE); }</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;to                                    { MS_LEXER_RETURN_TOKEN(TO); }</span>
+<span class="lineNum">     404 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;tolerance                  { MS_LEXER_RETURN_TOKEN(TOLERANCE); }</span>
+<span class="lineNum">     405 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;toleranceunits             { MS_LEXER_RETURN_TOKEN(TOLERANCEUNITS); }</span>
+<span class="lineNum">     406 </span><span class="lineCov">          1 : &lt;INITIAL&gt;transparency                          { MS_LEXER_RETURN_TOKEN(TRANSPARENCY); }</span>
+<span class="lineNum">     407 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE&gt;transparent              { MS_LEXER_RETURN_TOKEN(TRANSPARENT); }</span>
+<span class="lineNum">     408 </span><span class="lineCov">          1 : &lt;INITIAL&gt;transform                             { MS_LEXER_RETURN_TOKEN(TRANSFORM); }</span>
+<span class="lineNum">     409 </span><span class="lineCov">          1 : &lt;INITIAL&gt;type                                  { MS_LEXER_RETURN_TOKEN(TYPE); }</span>
+<span class="lineNum">     410 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE,URL_STRING&gt;units         { MS_LEXER_RETURN_TOKEN(UNITS); }</span>
+<span class="lineNum">     411 </span><span class="lineCov">          1 : &lt;INITIAL&gt;utfdata                               { MS_LEXER_RETURN_TOKEN(UTFDATA); }</span>
+<span class="lineNum">     412 </span><span class="lineCov">          1 : &lt;INITIAL&gt;utfitem                               { MS_LEXER_RETURN_TOKEN(UTFITEM); }</span>
+<span class="lineNum">     413 </span><span class="lineCov">          1 : &lt;INITIAL&gt;validation                            { MS_LEXER_RETURN_TOKEN(VALIDATION); }</span>
+<span class="lineNum">     414 </span><span class="lineCov">          1 : &lt;INITIAL&gt;values                                { MS_LEXER_RETURN_TOKEN(VALUES); }</span>
+<span class="lineNum">     415 </span><span class="lineCov">          1 : &lt;INITIAL,URL_VARIABLE&gt;web                      { MS_LEXER_RETURN_TOKEN(WEB); }</span>
+<span class="lineNum">     416 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;width                      { MS_LEXER_RETURN_TOKEN(WIDTH); }</span>
+<span class="lineNum">     417 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;wkt                        { MS_LEXER_RETURN_TOKEN(WKT); }</span>
+<span class="lineNum">     418 </span><span class="lineCov">          1 : &lt;INITIAL&gt;wrap                                  { MS_LEXER_RETURN_TOKEN(WRAP); }</span>
+<span class="lineNum">     419 </span>            : 
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_STRING&gt;annotation                 { MS_LEXER_RETURN_TOKEN(MS_LAYER_ANNOTATION); }</span>
+<span class="lineNum">     421 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;auto                       { MS_LEXER_RETURN_TOKEN(MS_AUTO); }</span>
+<span class="lineNum">     422 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;auto2                      { MS_LEXER_RETURN_TOKEN(MS_AUTO2); }</span>
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;bevel                                 { MS_LEXER_RETURN_TOKEN(MS_CJC_BEVEL); }</span>
+<span class="lineNum">     424 </span><span class="lineCov">          1 : &lt;INITIAL&gt;bitmap                                { MS_LEXER_RETURN_TOKEN(MS_BITMAP); }</span>
+<span class="lineNum">     425 </span><span class="lineCov">          1 : &lt;INITIAL&gt;butt                                  { MS_LEXER_RETURN_TOKEN(MS_CJC_BUTT); }</span>
+<span class="lineNum">     426 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;cc                         { MS_LEXER_RETURN_TOKEN(MS_CC); }</span>
+<span class="lineNum">     427 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;center                     { MS_LEXER_RETURN_TOKEN(MS_ALIGN_CENTER); }</span>
+<span class="lineNum">     428 </span><span class="lineCov">          1 : &lt;INITIAL&gt;chart                                 { MS_LEXER_RETURN_TOKEN(MS_LAYER_CHART); }</span>
+<span class="lineNum">     429 </span><span class="lineCov">          1 : &lt;INITIAL&gt;circle                                { MS_LEXER_RETURN_TOKEN(MS_LAYER_CIRCLE); }</span>
+<span class="lineNum">     430 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;cl                         { MS_LEXER_RETURN_TOKEN(MS_CL); }</span>
+<span class="lineNum">     431 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;cr                         { MS_LEXER_RETURN_TOKEN(MS_CR); }</span>
+<span class="lineNum">     432 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;csv                                   { MS_LEXER_RETURN_TOKEN(MS_DB_CSV); }</span>
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;postgresql                            { MS_LEXER_RETURN_TOKEN(MS_DB_POSTGRES); }</span>
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;mysql                                 { MS_LEXER_RETURN_TOKEN(MS_DB_MYSQL); }</span>
+<span class="lineNum">     435 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;default                    { MS_LEXER_RETURN_TOKEN(MS_DEFAULT); }</span>
+<span class="lineNum">     436 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;dd                         { MS_LEXER_RETURN_TOKEN(MS_DD); }</span>
+<span class="lineNum">     437 </span><span class="lineCov">          1 : &lt;INITIAL&gt;ellipse                               { MS_LEXER_RETURN_TOKEN(MS_SYMBOL_ELLIPSE); }</span>
+<span class="lineNum">     438 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;embed                      { MS_LEXER_RETURN_TOKEN(MS_EMBED); }</span>
+<span class="lineNum">     439 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;false                      { MS_LEXER_RETURN_TOKEN(MS_FALSE); }</span>
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_STRING&gt;feet                       { MS_LEXER_RETURN_TOKEN(MS_FEET); }</span>
+<span class="lineNum">     441 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;follow                     { MS_LEXER_RETURN_TOKEN(MS_FOLLOW); }</span>
+<span class="lineNum">     442 </span><span class="lineCov">          1 : &lt;INITIAL&gt;giant                                 { MS_LEXER_RETURN_TOKEN(MS_GIANT); }</span>
+<span class="lineNum">     443 </span><span class="lineCov">          1 : &lt;INITIAL&gt;hatch                                 { MS_LEXER_RETURN_TOKEN(MS_SYMBOL_HATCH); }</span>
+<span class="lineNum">     444 </span><span class="lineCov">          1 : &lt;INITIAL&gt;kerneldensity                         { MS_LEXER_RETURN_TOKEN(MS_KERNELDENSITY); }</span>
+<span class="lineNum">     445 </span><span class="lineCov">          1 : &lt;INITIAL&gt;hilite                                { MS_LEXER_RETURN_TOKEN(MS_HILITE); }</span>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_STRING&gt;inches                     { MS_LEXER_RETURN_TOKEN(MS_INCHES); }</span>
+<span class="lineNum">     447 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;kilometers                 { MS_LEXER_RETURN_TOKEN(MS_KILOMETERS); }</span>
+<span class="lineNum">     448 </span><span class="lineCov">          1 : &lt;INITIAL&gt;large                                 { MS_LEXER_RETURN_TOKEN(MS_LARGE); }</span>
+<span class="lineNum">     449 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;lc                         { MS_LEXER_RETURN_TOKEN(MS_LC); }</span>
+<span class="lineNum">     450 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;left                       { MS_LEXER_RETURN_TOKEN(MS_ALIGN_LEFT); }</span>
+<span class="lineNum">     451 </span><span class="lineCov">          1 : &lt;INITIAL&gt;line                                  { MS_LEXER_RETURN_TOKEN(MS_LAYER_LINE); }</span>
+<span class="lineNum">     452 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;ll                         { MS_LEXER_RETURN_TOKEN(MS_LL); }</span>
+<span class="lineNum">     453 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;lr                         { MS_LEXER_RETURN_TOKEN(MS_LR); }</span>
+<span class="lineNum">     454 </span><span class="lineCov">          1 : &lt;INITIAL&gt;medium                                { MS_LEXER_RETURN_TOKEN(MS_MEDIUM); }</span>
+<span class="lineNum">     455 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;meters                     { MS_LEXER_RETURN_TOKEN(MS_METERS); }</span>
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_STRING&gt;nauticalmiles              { MS_LEXER_RETURN_TOKEN(MS_NAUTICALMILES); }</span>
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 : &lt;INITIAL,URL_STRING&gt;miles                      { MS_LEXER_RETURN_TOKEN(MS_MILES); }</span>
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;miter                                 { MS_LEXER_RETURN_TOKEN(MS_CJC_MITER); }</span>
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;multiple                              { MS_LEXER_RETURN_TOKEN(MS_MULTIPLE); }</span>
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;none                                  { MS_LEXER_RETURN_TOKEN(MS_CJC_NONE); }</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;normal                                { MS_LEXER_RETURN_TOKEN(MS_NORMAL); }</span>
+<span class="lineNum">     462 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;off                        { MS_LEXER_RETURN_TOKEN(MS_OFF); }</span>
+<span class="lineNum">     463 </span><span class="lineCov">          1 : &lt;INITIAL&gt;ogr                                   { MS_LEXER_RETURN_TOKEN(MS_OGR); }</span>
+<span class="lineNum">     464 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;on                         { MS_LEXER_RETURN_TOKEN(MS_ON); }</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;one-to-one                            { MS_LEXER_RETURN_TOKEN(MS_JOIN_ONE_TO_ONE); }</span>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;one-to-many                           { MS_LEXER_RETURN_TOKEN(MS_JOIN_ONE_TO_MANY); }</span>
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;oraclespatial                         { MS_LEXER_RETURN_TOKEN(MS_ORACLESPATIAL); }</span>
+<span class="lineNum">     468 </span><span class="lineCov">          1 : &lt;INITIAL&gt;percentages                           { MS_LEXER_RETURN_TOKEN(MS_PERCENTAGES); }</span>
+<span class="lineNum">     469 </span><span class="lineCov">          1 : &lt;INITIAL&gt;pixmap                                { MS_LEXER_RETURN_TOKEN(MS_SYMBOL_PIXMAP); }</span>
+<span class="lineNum">     470 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;pixels                     { MS_LEXER_RETURN_TOKEN(MS_PIXELS); }</span>
+<span class="lineNum">     471 </span><span class="lineCov">          1 : &lt;INITIAL&gt;point                                 { MS_LEXER_RETURN_TOKEN(MS_LAYER_POINT); }</span>
+<span class="lineNum">     472 </span><span class="lineCov">          1 : &lt;INITIAL&gt;polygon                               { MS_LEXER_RETURN_TOKEN(MS_LAYER_POLYGON); }</span>
+<span class="lineNum">     473 </span><span class="lineCov">          1 : &lt;INITIAL&gt;postgis                               { MS_LEXER_RETURN_TOKEN(MS_POSTGIS); }</span>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;plugin                                { MS_LEXER_RETURN_TOKEN(MS_PLUGIN); }</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;query                                 { MS_LEXER_RETURN_TOKEN(MS_LAYER_QUERY); }</span>
+<span class="lineNum">     476 </span><span class="lineCov">          1 : &lt;INITIAL&gt;raster                                { MS_LEXER_RETURN_TOKEN(MS_LAYER_RASTER); }</span>
+<span class="lineNum">     477 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;right                      { MS_LEXER_RETURN_TOKEN(MS_ALIGN_RIGHT); }</span>
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;round                                 { MS_LEXER_RETURN_TOKEN(MS_CJC_ROUND); }</span>
+<span class="lineNum">     479 </span><span class="lineCov">          1 : &lt;INITIAL&gt;selected                              { MS_LEXER_RETURN_TOKEN(MS_SELECTED); }</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;simple                                { MS_LEXER_RETURN_TOKEN(MS_SYMBOL_SIMPLE); }</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;single                                { MS_LEXER_RETURN_TOKEN(MS_SINGLE); }</span>
+<span class="lineNum">     482 </span><span class="lineCov">          1 : &lt;INITIAL&gt;small                                 { MS_LEXER_RETURN_TOKEN(MS_SMALL); }</span>
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;square                                { MS_LEXER_RETURN_TOKEN(MS_CJC_SQUARE); }</span>
+<span class="lineNum">     484 </span><span class="lineCov">          1 : &lt;INITIAL&gt;svg                                   { MS_LEXER_RETURN_TOKEN(MS_SYMBOL_SVG); }</span>
+<span class="lineNum">     485 </span><span class="lineCov">          1 : &lt;INITIAL&gt;polaroffset                           { MS_LEXER_RETURN_TOKEN(POLAROFFSET); }</span>
+<span class="lineNum">     486 </span><span class="lineCov">          1 : &lt;INITIAL&gt;tiny                                  { MS_LEXER_RETURN_TOKEN(MS_TINY); }</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;triangle                              { MS_LEXER_RETURN_TOKEN(MS_CJC_TRIANGLE); }</span>
+<span class="lineNum">     488 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;true                       { MS_LEXER_RETURN_TOKEN(MS_TRUE); }</span>
+<span class="lineNum">     489 </span><span class="lineCov">          1 : &lt;INITIAL&gt;truetype                              { MS_LEXER_RETURN_TOKEN(MS_TRUETYPE); }</span>
+<span class="lineNum">     490 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;uc                         { MS_LEXER_RETURN_TOKEN(MS_UC); }</span>
+<span class="lineNum">     491 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;ul                         { MS_LEXER_RETURN_TOKEN(MS_UL); }</span>
+<span class="lineNum">     492 </span><span class="lineCov">          1 : &lt;INITIAL,URL_STRING&gt;ur                         { MS_LEXER_RETURN_TOKEN(MS_UR); }</span>
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;union                                 { MS_LEXER_RETURN_TOKEN(MS_UNION); }</span>
+<span class="lineNum">     494 </span><span class="lineCov">          1 : &lt;INITIAL&gt;uvraster                              { MS_LEXER_RETURN_TOKEN(MS_UVRASTER); }</span>
+<span class="lineNum">     495 </span><span class="lineCov">          1 : &lt;INITIAL&gt;contour                               { MS_LEXER_RETURN_TOKEN(MS_CONTOUR); }</span>
+<span class="lineNum">     496 </span><span class="lineCov">          1 : &lt;INITIAL&gt;vector                                { MS_LEXER_RETURN_TOKEN(MS_SYMBOL_VECTOR); }</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 : &lt;INITIAL&gt;wfs                                   { MS_LEXER_RETURN_TOKEN(MS_WFS); }</span>
+<span class="lineNum">     498 </span><span class="lineCov">          1 : &lt;INITIAL&gt;wms                                   { MS_LEXER_RETURN_TOKEN(MS_WMS); }</span>
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span>            : &lt;URL_VARIABLE&gt;\[[a-z/\.][a-z0-9/:\.\-\=_ ]*\]  {
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :                                                  msyytext++;</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :                                                  msyytext[strlen(msyytext)-1] = '\0';</span>
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :                                                  MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     504 </span>            :                                                                          msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :                                                  strcpy(msyystring_buffer,msyytext);</span>
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :                                                  return(MS_STRING);</span>
+<span class="lineNum">     507 </span>            :                                                }
+<span class="lineNum">     508 </span>            : &lt;URL_VARIABLE&gt;\[[0-9]*\]                       {
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :                                                  msyytext++;</span>
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :                                                  msyytext[strlen(msyytext)-1] = '\0';</span>
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :                                                  MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     512 </span>            :                                                                          msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                                                  strcpy(msyystring_buffer,msyytext);                                                 </span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :                                                  msyynumber = atof(msyytext);</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :                                                  return(MS_NUMBER);</span>
+<span class="lineNum">     516 </span>            :                                                }
+<span class="lineNum">     517 </span>            : 
+<span class="lineNum">     518 </span>            : &lt;INITIAL&gt;\[[^\]]*\]                            {
+<span class="lineNum">     519 </span><span class="lineCov">          1 :                                                  msyytext++;</span>
+<span class="lineNum">     520 </span><span class="lineCov">          1 :                                                  msyytext[strlen(msyytext)-1] = '\0';</span>
+<span class="lineNum">     521 </span><span class="lineCov">          1 :                                                  MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     522 </span>            :                                                                          msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     523 </span><span class="lineCov">          1 :                                                  strcpy(msyystring_buffer,msyytext);</span>
+<span class="lineNum">     524 </span><span class="lineCov">          1 :                                                  return(MS_BINDING);</span>
+<span class="lineNum">     525 </span>            :                                                }
+<span class="lineNum">     526 </span>            : 
+<span class="lineNum">     527 </span>            : &lt;EXPRESSION_STRING&gt;\[shape\] { 
+<span class="lineNum">     528 </span>            :   /* attribute binding - shape (fixed value) */
+<span class="lineNum">     529 </span>            :   return(MS_TOKEN_BINDING_SHAPE);
+<span class="lineNum">     530 </span>            : }
+<span class="lineNum">     531 </span>            : &lt;EXPRESSION_STRING&gt;\[map_cellsize\] { 
+<span class="lineNum">     532 </span>            :   /* attribute binding - map cellsize */
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :   return(MS_TOKEN_BINDING_MAP_CELLSIZE);</span>
+<span class="lineNum">     534 </span>            : }
+<span class="lineNum">     535 </span>            : &lt;EXPRESSION_STRING&gt;\[data_cellsize\] { 
+<span class="lineNum">     536 </span>            :   /* attribute binding - data cellsize */
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :   return(MS_TOKEN_BINDING_DATA_CELLSIZE);</span>
+<span class="lineNum">     538 </span>            : }
+<span class="lineNum">     539 </span>            : &lt;EXPRESSION_STRING&gt;\[[^\]]*\] {
+<span class="lineNum">     540 </span>            :   /* attribute binding - numeric (no quotes) */
+<span class="lineNum">     541 </span><span class="lineCov">          1 :   msyytext++;</span>
+<span class="lineNum">     542 </span><span class="lineCov">          1 :   msyytext[strlen(msyytext)-1] = '\0';</span>
+<span class="lineNum">     543 </span><span class="lineCov">          1 :   MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     544 </span>            :                           msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     545 </span><span class="lineCov">          1 :   strcpy(msyystring_buffer, msyytext);</span>
+<span class="lineNum">     546 </span><span class="lineCov">          1 :   return(MS_TOKEN_BINDING_DOUBLE);</span>
+<span class="lineNum">     547 </span>            : }
+<span class="lineNum">     548 </span>            : &lt;EXPRESSION_STRING&gt;\&quot;\[[^\&quot;]*\]\&quot;|\'\[[^\']*\]\' {
+<span class="lineNum">     549 </span>            :   /* attribute binding - string (single or double quotes) */
+<span class="lineNum">     550 </span><span class="lineCov">          1 :   msyytext+=2;</span>
+<span class="lineNum">     551 </span><span class="lineCov">          1 :   msyytext[strlen(msyytext)-2] = '\0';</span>
+<span class="lineNum">     552 </span><span class="lineCov">          1 :   MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     553 </span>            :                           msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     554 </span><span class="lineCov">          1 :   strcpy(msyystring_buffer, msyytext);</span>
+<span class="lineNum">     555 </span><span class="lineCov">          1 :   return(MS_TOKEN_BINDING_STRING);</span>
+<span class="lineNum">     556 </span>            : }
+<span class="lineNum">     557 </span>            : &lt;EXPRESSION_STRING&gt;\`\[[^\`]*\]\` {
+<span class="lineNum">     558 </span>            :   /* attribute binding - time */
+<span class="lineNum">     559 </span><span class="lineCov">          1 :   msyytext+=2;</span>
+<span class="lineNum">     560 </span><span class="lineCov">          1 :   msyytext[strlen(msyytext)-2] = '\0';</span>
+<span class="lineNum">     561 </span><span class="lineCov">          1 :   MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext),</span>
+<span class="lineNum">     562 </span>            :                           msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     563 </span><span class="lineCov">          1 :   strcpy(msyystring_buffer, msyytext);</span>
+<span class="lineNum">     564 </span><span class="lineCov">          1 :   return(MS_TOKEN_BINDING_TIME);</span>
+<span class="lineNum">     565 </span>            : }
+<span class="lineNum">     566 </span>            : 
+<span class="lineNum">     567 </span>            : &lt;INITIAL,URL_STRING&gt;-?[0-9]+|-?[0-9]+\.[0-9]*|-?\.[0-9]*|-?[0-9]+[eE][+-]?[0-9]+|-?[0-9]+\.[0-9]*[eE][+-]?[0-9]+|-?\.[0-9]*[eE][+-]?[0-9]+ {
+<span class="lineNum">     568 </span><span class="lineCov">          1 :   MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     569 </span>            :                           msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     570 </span><span class="lineCov">          1 :   strcpy(msyystring_buffer,msyytext);</span>
+<span class="lineNum">     571 </span><span class="lineCov">          1 :   msyynumber = atof(msyytext);</span>
+<span class="lineNum">     572 </span><span class="lineCov">          1 :   return(MS_NUMBER); </span>
+<span class="lineNum">     573 </span>            : }
+<span class="lineNum">     574 </span>            : 
+<span class="lineNum">     575 </span>            : &lt;EXPRESSION_STRING&gt;-?[0-9]+|-?[0-9]+\.[0-9]*|-?\.[0-9]*|-?[0-9]+[eE][+-]?[0-9]+|-?[0-9]+\.[0-9]*[eE][+-]?[0-9]+|-?\.[0-9]*[eE][+-]?[0-9]+ {
+<span class="lineNum">     576 </span><span class="lineCov">          1 :   MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     577 </span>            :                           msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     578 </span><span class="lineCov">          1 :   strcpy(msyystring_buffer,msyytext);</span>
+<span class="lineNum">     579 </span><span class="lineCov">          1 :   msyynumber = atof(msyytext);</span>
+<span class="lineNum">     580 </span><span class="lineCov">          1 :   return(MS_TOKEN_LITERAL_NUMBER);</span>
+<span class="lineNum">     581 </span>            : }
+<span class="lineNum">     582 </span>            : 
+<span class="lineNum">     583 </span>            : &lt;EXPRESSION_STRING&gt;\`[^\`]*\` {
+<span class="lineNum">     584 </span><span class="lineCov">          1 :   msyytext++;</span>
+<span class="lineNum">     585 </span><span class="lineCov">          1 :   msyytext[strlen(msyytext)-1] = '\0';</span>
+<span class="lineNum">     586 </span><span class="lineCov">          1 :   MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     587 </span>            :                           msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     588 </span><span class="lineCov">          1 :   strcpy(msyystring_buffer, msyytext);</span>
+<span class="lineNum">     589 </span><span class="lineCov">          1 :   return(MS_TOKEN_LITERAL_TIME);</span>
+<span class="lineNum">     590 </span>            : }
+<span class="lineNum">     591 </span>            : 
+<span class="lineNum">     592 </span>            : &lt;INITIAL,URL_STRING&gt;\/[^\/*]*\/i               {
+<span class="lineNum">     593 </span><span class="lineCov">          1 :                                                  msyytext++;</span>
+<span class="lineNum">     594 </span><span class="lineCov">          1 :                                                  msyytext[strlen(msyytext)-2] = '\0';</span>
+<span class="lineNum">     595 </span><span class="lineCov">          1 :                                                  MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     596 </span>            :                                                                          msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     597 </span><span class="lineCov">          1 :                                                  strcpy(msyystring_buffer, msyytext);</span>
+<span class="lineNum">     598 </span><span class="lineCov">          1 :                                                  return(MS_IREGEX);</span>
+<span class="lineNum">     599 </span>            :                                                }
+<span class="lineNum">     600 </span>            : 
+<span class="lineNum">     601 </span>            : &lt;INITIAL,URL_STRING&gt;\/[^\/*]*\/                {
+<span class="lineNum">     602 </span><span class="lineCov">          1 :                                                  msyytext++;</span>
+<span class="lineNum">     603 </span><span class="lineCov">          1 :                                                  msyytext[strlen(msyytext)-1] = '\0';</span>
+<span class="lineNum">     604 </span><span class="lineCov">          1 :                                                  MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     605 </span>            :                                                                          msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     606 </span><span class="lineCov">          1 :                                                  strcpy(msyystring_buffer, msyytext);</span>
+<span class="lineNum">     607 </span><span class="lineCov">          1 :                                                  return(MS_REGEX);</span>
+<span class="lineNum">     608 </span>            :                                                }
+<span class="lineNum">     609 </span>            : 
+<span class="lineNum">     610 </span>            : &lt;INITIAL,URL_STRING&gt;\(.*\)                     {
+<span class="lineNum">     611 </span><span class="lineCov">          1 :                                                  msyytext++;</span>
+<span class="lineNum">     612 </span><span class="lineCov">          1 :                                                  msyytext[strlen(msyytext)-1] = '\0';</span>
+<span class="lineNum">     613 </span><span class="lineCov">          1 :                                                  MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     614 </span>            :                                                                          msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     615 </span><span class="lineCov">          1 :                                                  strcpy(msyystring_buffer, msyytext);</span>
+<span class="lineNum">     616 </span><span class="lineCov">          1 :                                                  return(MS_EXPRESSION);</span>
+<span class="lineNum">     617 </span>            :                                                }
+<span class="lineNum">     618 </span>            : 
+<span class="lineNum">     619 </span>            : &lt;INITIAL,URL_STRING&gt;\{.*\}                     {
+<span class="lineNum">     620 </span><span class="lineCov">          1 :                                                  msyytext++;</span>
+<span class="lineNum">     621 </span><span class="lineCov">          1 :                                                  msyytext[strlen(msyytext)-1] = '\0';</span>
+<span class="lineNum">     622 </span><span class="lineCov">          1 :                                                  MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     623 </span>            :                                                                          msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     624 </span><span class="lineCov">          1 :                                                  strcpy(msyystring_buffer, msyytext);</span>
+<span class="lineNum">     625 </span><span class="lineCov">          1 :                                                  return(MS_LIST);</span>
+<span class="lineNum">     626 </span>            :                                                }
+<span class="lineNum">     627 </span>            : 
+<span class="lineNum">     628 </span>            : &lt;INITIAL,URL_STRING&gt;\'|\&quot;                     {
+<span class="lineNum">     629 </span><span class="lineCov">          1 :                                                  msyystring_return_state = MS_STRING;</span>
+<span class="lineNum">     630 </span><span class="lineCov">          1 :                                                  msyystring_begin = msyytext[0]; </span>
+<span class="lineNum">     631 </span><span class="lineCov">          1 :                                                  msyystring_size = 0;</span>
+<span class="lineNum">     632 </span><span class="lineCov">          1 :                                                  msyystring_buffer_ptr = msyystring_buffer;</span>
+<span class="lineNum">     633 </span><span class="lineCov">          1 :                                                  BEGIN(MSSTRING);</span>
+<span class="lineNum">     634 </span>            :                                               }
+<span class="lineNum">     635 </span><span class="lineCov">          1 : </span>
+<span class="lineNum">     636 </span>            : &lt;MSSTRING&gt;\'|\&quot;|\&quot;i|\'i                       {
+<span class="lineNum">     637 </span><span class="lineCov">          1 :                                                 MS_LEXER_STRING_REALLOC(msyystring_buffer, msyystring_size, </span>
+<span class="lineNum">     638 </span>            :                                                                                            msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     639 </span><span class="lineCov">          1 :                                                 if (msyystring_begin == msyytext[0]) {</span>
+<span class="lineNum">     640 </span><span class="lineCov">          1 :                                                    BEGIN(msyystring_begin_state);</span>
+<span class="lineNum">     641 </span>            : 
+<span class="lineNum">     642 </span><span class="lineCov">          1 :                                                    *msyystring_buffer_ptr = '\0';</span>
+<span class="lineNum">     643 </span>            : 
+<span class="lineNum">     644 </span><span class="lineCov">          1 :                                                    if (msyystring_return_state == MS_STRING) {</span>
+<span class="lineNum">     645 </span><span class="lineCov">          1 :                                                       if (msyystring_icase &amp;&amp; strlen(msyytext)==2) {</span>
+<span class="lineNum">     646 </span><span class="lineCov">          1 :                                                          msyystring_icase = MS_FALSE; // reset</span>
+<span class="lineNum">     647 </span><span class="lineCov">          1 :                                                          return MS_ISTRING;</span>
+<span class="lineNum">     648 </span>            :                                                       } else
+<span class="lineNum">     649 </span>            :                                                         return MS_STRING;
+<span class="lineNum">     650 </span>            :                                                    }
+<span class="lineNum">     651 </span>            :                                                    return msyystring_return_state;
+<span class="lineNum">     652 </span>            : 
+<span class="lineNum">     653 </span>            :                                                 }
+<span class="lineNum">     654 </span>            :                                                 else {
+<span class="lineNum">     655 </span><span class="lineCov">          1 :                                                   ++msyystring_size;</span>
+<span class="lineNum">     656 </span><span class="lineCov">          1 :                                                   *msyystring_buffer_ptr++ = *msyytext;</span>
+<span class="lineNum">     657 </span><span class="lineCov">          1 :                                                   if (strlen(msyytext)==2) {</span>
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :                                                       MS_LEXER_STRING_REALLOC(msyystring_buffer, msyystring_size, </span>
+<span class="lineNum">     659 </span>            :                                                                               msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     660 </span><span class="lineNoCov">          0 :                                                      ++msyystring_size;</span>
+<span class="lineNum">     661 </span><span class="lineNoCov">          0 :                                                      *msyystring_buffer_ptr++ = msyytext[1];</span>
+<span class="lineNum">     662 </span>            :                                                   }
+<span class="lineNum">     663 </span>            :                                                 }
+<span class="lineNum">     664 </span>            :                                               }
+<span class="lineNum">     665 </span>            : 
+<span class="lineNum">     666 </span>            : &lt;MSSTRING&gt;\\\'|\\\&quot;|\\\\|\\                  { 
+<span class="lineNum">     667 </span><span class="lineCov">          1 :                                                 MS_LEXER_STRING_REALLOC(msyystring_buffer, msyystring_size, </span>
+<span class="lineNum">     668 </span>            :                                                                                            msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     669 </span>            : 
+<span class="lineNum">     670 </span><span class="lineCov">          1 :                                                 ++msyystring_size;</span>
+<span class="lineNum">     671 </span><span class="lineCov">          1 :                                                 if (strlen(msyytext) == 2)</span>
+<span class="lineNum">     672 </span><span class="lineCov">          1 :                                                     *msyystring_buffer_ptr++ = msyytext[1]; </span>
+<span class="lineNum">     673 </span>            :                                                 else
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 :                                                     *msyystring_buffer_ptr++ = msyytext[0];</span>
+<span class="lineNum">     675 </span>            :                                              }
+<span class="lineNum">     676 </span>            : 
+<span class="lineNum">     677 </span>            : &lt;MSSTRING&gt;[^\\\'\\\&quot;]+                       {
+<span class="lineNum">     678 </span><span class="lineCov">          1 :                                                  char *yptr = msyytext;</span>
+<span class="lineNum">     679 </span><span class="lineCov">          1 :                                                  while ( *yptr ) { </span>
+<span class="lineNum">     680 </span><span class="lineCov">          1 :                                                    MS_LEXER_STRING_REALLOC(msyystring_buffer, msyystring_size, </span>
+<span class="lineNum">     681 </span>            :                                                                            msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     682 </span><span class="lineCov">          1 :                                                    ++msyystring_size;</span>
+<span class="lineNum">     683 </span><span class="lineCov">          1 :                                                    *msyystring_buffer_ptr++ = *yptr++;</span>
+<span class="lineNum">     684 </span>            :                                                  }
+<span class="lineNum">     685 </span>            :                                              }
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span>            : &lt;INCLUDE&gt;\&quot;[^\&quot;]*\&quot;|\'[^\']*\'                 {
+<span class="lineNum">     688 </span><span class="lineCov">          1 :                                                  msyytext++;</span>
+<span class="lineNum">     689 </span><span class="lineCov">          1 :                                                  msyytext[strlen(msyytext)-1] = '\0';</span>
+<span class="lineNum">     690 </span>            : 
+<span class="lineNum">     691 </span><span class="lineCov">          1 :                                                  if(include_stack_ptr &gt;= MAX_INCLUDE_DEPTH) {</span>
+<span class="lineNum">     692 </span><span class="lineNoCov">          0 :                                                    msSetError(MS_IOERR, &quot;Includes nested to deeply.&quot;, &quot;msyylex()&quot;);</span>
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :                                                    return(-1);</span>
+<span class="lineNum">     694 </span>            :                                                  }
+<span class="lineNum">     695 </span>            : 
+<span class="lineNum">     696 </span><span class="lineCov">          1 :                                                  include_stack[include_stack_ptr] = YY_CURRENT_BUFFER; /* save state */</span>
+<span class="lineNum">     697 </span><span class="lineCov">          1 :                                                  include_lineno[include_stack_ptr] = msyylineno;</span>
+<span class="lineNum">     698 </span><span class="lineCov">          1 :                                                  include_stack_ptr++;</span>
+<span class="lineNum">     699 </span>            : 
+<span class="lineNum">     700 </span><span class="lineCov">          1 :                                                  msyyin = fopen(msBuildPath(path, msyybasepath, msyytext), &quot;r&quot;);</span>
+<span class="lineNum">     701 </span><span class="lineCov">          1 :                                                  if(!msyyin) {</span>
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :                                                    msSetError(MS_IOERR, &quot;Error opening included file \&quot;%s\&quot;.&quot;, &quot;msyylex()&quot;, msyytext);</span>
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :                                                    msyyin = YY_CURRENT_BUFFER-&gt;yy_input_file;</span>
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 :                                                    return(-1);</span>
+<span class="lineNum">     705 </span>            :                                                  }
+<span class="lineNum">     706 </span>            : 
+<span class="lineNum">     707 </span><span class="lineCov">          1 :                                                  msyy_switch_to_buffer( msyy_create_buffer(msyyin, YY_BUF_SIZE) );</span>
+<span class="lineNum">     708 </span><span class="lineCov">          1 :                                                  msyylineno = 1;</span>
+<span class="lineNum">     709 </span>            : 
+<span class="lineNum">     710 </span><span class="lineCov">          1 :                                                  BEGIN(INITIAL);</span>
+<span class="lineNum">     711 </span>            :                                                }
+<span class="lineNum">     712 </span><span class="lineCov">          1 : </span>
+<span class="lineNum">     713 </span>            : &lt;EXPRESSION_STRING&gt;\'|\&quot;                      {
+<span class="lineNum">     714 </span><span class="lineCov">          1 :                                                  msyystring_return_state = MS_TOKEN_LITERAL_STRING;</span>
+<span class="lineNum">     715 </span><span class="lineCov">          1 :                                                  msyystring_begin = msyytext[0]; </span>
+<span class="lineNum">     716 </span><span class="lineCov">          1 :                                                  msyystring_size = 0;</span>
+<span class="lineNum">     717 </span><span class="lineCov">          1 :                                                  msyystring_buffer_ptr = msyystring_buffer;</span>
+<span class="lineNum">     718 </span><span class="lineCov">          1 :                                                  BEGIN(MSSTRING);</span>
+<span class="lineNum">     719 </span>            :                                               }
+<span class="lineNum">     720 </span><span class="lineCov">          1 : </span>
+<span class="lineNum">     721 </span>            : &lt;INITIAL,URL_STRING&gt;[a-z/\.][a-z0-9/\._\-\=]*   { 
+<span class="lineNum">     722 </span><span class="lineCov">          1 :                                                     MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     723 </span>            :                                                                             msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     724 </span><span class="lineCov">          1 :                                                     strcpy(msyystring_buffer, msyytext); </span>
+<span class="lineNum">     725 </span><span class="lineCov">          1 :                                                     return(MS_STRING); </span>
+<span class="lineNum">     726 </span>            :                                                 }
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span><span class="lineCov">          1 : &lt;INITIAL&gt;\n                                     { msyylineno++; }</span>
+<span class="lineNum">     729 </span><span class="lineCov">          1 : </span>
+<span class="lineNum">     730 </span>            : &lt;INITIAL&gt;&lt;&lt;EOF&gt;&gt;                                {
+<span class="lineNum">     731 </span><span class="lineCov">          1 :                                                   if( --include_stack_ptr &lt; 0 )</span>
+<span class="lineNum">     732 </span>            :                                                     return(EOF); /* end of main file */
+<span class="lineNum">     733 </span>            :                                                   else {
+<span class="lineNum">     734 </span><span class="lineCov">          1 :                                                     fclose(YY_CURRENT_BUFFER-&gt;yy_input_file);</span>
+<span class="lineNum">     735 </span><span class="lineCov">          1 :                                                     msyy_delete_buffer( YY_CURRENT_BUFFER );</span>
+<span class="lineNum">     736 </span><span class="lineCov">          1 :                                                     msyy_switch_to_buffer(include_stack[include_stack_ptr]);</span>
+<span class="lineNum">     737 </span><span class="lineCov">          1 :                                                     msyylineno = include_lineno[include_stack_ptr];</span>
+<span class="lineNum">     738 </span>            :                                                   }
+<span class="lineNum">     739 </span>            :                                                 }
+<span class="lineNum">     740 </span><span class="lineCov">          1 : </span>
+<span class="lineNum">     741 </span>            : &lt;EXPRESSION_STRING,URL_VARIABLE,URL_STRING&gt;[\r|\n|\0] {
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 :   return(0); </span>
+<span class="lineNum">     743 </span>            : }
+<span class="lineNum">     744 </span>            : 
+<span class="lineNum">     745 </span>            : &lt;INITIAL,URL_VARIABLE,URL_STRING&gt;.              { 
+<span class="lineNum">     746 </span><span class="lineCov">          1 :                                                   MS_LEXER_STRING_REALLOC(msyystring_buffer, strlen(msyytext), </span>
+<span class="lineNum">     747 </span>            :                                                                           msyystring_buffer_size, msyystring_buffer_ptr);
+<span class="lineNum">     748 </span><span class="lineCov">          1 :                                                   strcpy(msyystring_buffer, msyytext); </span>
+<span class="lineNum">     749 </span><span class="lineCov">          1 :                                                   return(0); </span>
+<span class="lineNum">     750 </span>            :                                                 }
+<span class="lineNum">     751 </span><span class="lineCov">          1 : &lt;EXPRESSION_STRING&gt;.                            { return(msyytext[0]); }</span>
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 : %%</span>
+<span class="lineNum">     753 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     754 </span>            : /*
+<span class="lineNum">     755 </span>            : ** Any extra C functions
+<span class="lineNum">     756 </span>            : */
+<a name="757"><span class="lineNum">     757 </span>            : </a>
+<span class="lineNum">     758 </span>            : int msyywrap() /* override */
+<span class="lineNum">     759 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     760 </span>            :   return(1);
+<span class="lineNum">     761 </span><span class="lineCov">          1 : }</span>
+<a name="762"><span class="lineNum">     762 </span>            : </a>
+<span class="lineNum">     763 </span>            : int msyyerror(char *s) {
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :   msSetError(MS_PARSEERR, &quot;%s&quot;, &quot;msyyparse()&quot;, s);</span>
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :   return(0);</span>
+<span class="lineNum">     766 </span><span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

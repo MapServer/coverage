@@ -1,0 +1,453 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - mapserver/mapdebug.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">mapserver</a> - mapdebug.c<span style="font-size: 80%;"> (source / <a href="mapdebug.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">63</td>
+            <td class="headerCovTableEntry">109</td>
+            <td class="headerCovTableEntryLo">57.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryLo">70.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>            :  * $Id$
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * Project:  MapServer
+<span class="lineNum">       5 </span>            :  * Purpose:  Implementation of debug/logging, msDebug() and related functions.
+<span class="lineNum">       6 </span>            :  * Author:   Daniel Morissette
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  ******************************************************************************
+<span class="lineNum">       9 </span>            :  * Copyright (c) 1996-2007 Regents of the University of Minnesota.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      12 </span>            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      13 </span>            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      14 </span>            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      15 </span>            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      16 </span>            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      17 </span>            :  *
+<span class="lineNum">      18 </span>            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      19 </span>            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      20 </span>            :  *
+<span class="lineNum">      21 </span>            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+<span class="lineNum">      22 </span>            :  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      23 </span>            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+<span class="lineNum">      24 </span>            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      25 </span>            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      26 </span>            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      27 </span>            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      28 </span>            :  ****************************************************************************/
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #include &quot;mapserver.h&quot;
+<span class="lineNum">      32 </span>            : #include &quot;maperror.h&quot;
+<span class="lineNum">      33 </span>            : #include &quot;mapthread.h&quot;
+<span class="lineNum">      34 </span>            : #include &quot;maptime.h&quot;
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : #include &lt;time.h&gt;
+<span class="lineNum">      37 </span>            : #ifndef _WIN32
+<span class="lineNum">      38 </span>            : #include &lt;sys/time.h&gt;
+<span class="lineNum">      39 </span>            : #include &lt;unistd.h&gt;
+<span class="lineNum">      40 </span>            : #endif
+<span class="lineNum">      41 </span>            : #include &lt;stdarg.h&gt;
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : #ifdef NEED_NONBLOCKING_STDERR
+<span class="lineNum">      44 </span>            : #include &lt;fcntl.h&gt;
+<span class="lineNum">      45 </span>            : #endif
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : #ifdef _WIN32
+<span class="lineNum">      48 </span>            : #include &lt;windows.h&gt; /* OutputDebugStringA() */
+<span class="lineNum">      49 </span>            : #endif
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            : #ifndef USE_THREAD
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : debugInfoObj *msGetDebugInfoObj()
+<span class="lineNum">      57 </span>            : {
+<span class="lineNum">      58 </span>            :   static debugInfoObj debuginfo = {MS_DEBUGLEVEL_ERRORSONLY,
+<span class="lineNum">      59 </span>            :                                    MS_DEBUGMODE_OFF, NULL, NULL
+<span class="lineNum">      60 </span>            :                                   };
+<span class="lineNum">      61 </span>            :   return &amp;debuginfo;
+<span class="lineNum">      62 </span>            : }
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            : #else
+<span class="lineNum">      65 </span>            : 
+<a name="66"><span class="lineNum">      66 </span>            : static debugInfoObj *debuginfo_list = NULL;</a>
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span><span class="lineCov">          1 : debugInfoObj *msGetDebugInfoObj()</span>
+<span class="lineNum">      69 </span>            : {
+<span class="lineNum">      70 </span>            :   debugInfoObj *link;
+<span class="lineNum">      71 </span>            :   void* thread_id;
+<span class="lineNum">      72 </span>            :   debugInfoObj *ret_obj;
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span><span class="lineCov">          1 :   msAcquireLock( TLOCK_DEBUGOBJ );</span>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineCov">          1 :   thread_id = msGetThreadId();</span>
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            :   /* find link for this thread */
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span><span class="lineCov">          1 :   for( link = debuginfo_list;</span>
+<span class="lineNum">      81 </span><span class="lineCov">          1 :        link != NULL &amp;&amp; link-&gt;thread_id != thread_id</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :        &amp;&amp; link-&gt;next != NULL &amp;&amp; link-&gt;next-&gt;thread_id != thread_id;</span>
+<span class="lineNum">      83 </span>            :        link = link-&gt;next ) {}
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :   /* If the target thread link is already at the head of the list were ok */
+<span class="lineNum">      86 </span><span class="lineCov">          1 :   if( debuginfo_list != NULL &amp;&amp; debuginfo_list-&gt;thread_id == thread_id ) {</span>
+<span class="lineNum">      87 </span>            :   }
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            :   /* We don't have one ... initialize one. */
+<span class="lineNum">      90 </span><span class="lineCov">          1 :   else if( link == NULL || link-&gt;next == NULL ) {</span>
+<span class="lineNum">      91 </span>            :     debugInfoObj *new_link;
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineCov">          1 :     new_link = (debugInfoObj *) msSmallMalloc(sizeof(debugInfoObj));</span>
+<span class="lineNum">      94 </span><span class="lineCov">          1 :     new_link-&gt;next = debuginfo_list;</span>
+<span class="lineNum">      95 </span><span class="lineCov">          1 :     new_link-&gt;thread_id = thread_id;</span>
+<span class="lineNum">      96 </span><span class="lineCov">          1 :     new_link-&gt;global_debug_level = MS_DEBUGLEVEL_ERRORSONLY;</span>
+<span class="lineNum">      97 </span><span class="lineCov">          1 :     new_link-&gt;debug_mode = MS_DEBUGMODE_OFF;</span>
+<span class="lineNum">      98 </span><span class="lineCov">          1 :     new_link-&gt;errorfile = NULL;</span>
+<span class="lineNum">      99 </span><span class="lineCov">          1 :     new_link-&gt;fp = NULL;</span>
+<span class="lineNum">     100 </span><span class="lineCov">          1 :     debuginfo_list = new_link;</span>
+<span class="lineNum">     101 </span>            :   }
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            :   /* If the link is not already at the head of the list, promote it */
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :   else if( link != NULL &amp;&amp; link-&gt;next != NULL ) {</span>
+<span class="lineNum">     105 </span>            :     debugInfoObj *target = link-&gt;next;
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :     link-&gt;next = link-&gt;next-&gt;next;</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :     target-&gt;next = debuginfo_list;</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :     debuginfo_list = target;</span>
+<span class="lineNum">     110 </span>            :   }
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span><span class="lineCov">          1 :   ret_obj = debuginfo_list;</span>
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span><span class="lineCov">          1 :   msReleaseLock( TLOCK_DEBUGOBJ );</span>
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span><span class="lineCov">          1 :   return ret_obj;</span>
+<span class="lineNum">     117 </span>            : }
+<span class="lineNum">     118 </span>            : #endif
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            : /* msSetErrorFile()
+<span class="lineNum">     122 </span>            : **
+<span class="lineNum">     123 </span>            : ** Set output target, ready to write to it, open file if necessary
+<span class="lineNum">     124 </span>            : **
+<span class="lineNum">     125 </span>            : ** If pszRelToPath != NULL then we will try to make the value relative to
+<span class="lineNum">     126 </span>            : ** this path if it is not absolute already and it's not one of the special
+<span class="lineNum">     127 </span>            : ** values (stderr, stdout, windowsdebug)
+<span class="lineNum">     128 </span>            : **
+<a name="129"><span class="lineNum">     129 </span>            : ** Returns MS_SUCCESS/MS_FAILURE</a>
+<span class="lineNum">     130 </span>            : */
+<span class="lineNum">     131 </span><span class="lineCov">          1 : int msSetErrorFile(const char *pszErrorFile, const char *pszRelToPath)</span>
+<span class="lineNum">     132 </span>            : {
+<span class="lineNum">     133 </span>            :   char extended_path[MS_MAXPATHLEN];
+<span class="lineNum">     134 </span><span class="lineCov">          1 :   debugInfoObj *debuginfo = msGetDebugInfoObj();</span>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">          1 :   if (strcmp(pszErrorFile, &quot;stderr&quot;) != 0 &amp;&amp;</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :       strcmp(pszErrorFile, &quot;stdout&quot;) != 0 &amp;&amp;</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :       strcmp(pszErrorFile, &quot;windowsdebug&quot;) != 0) {</span>
+<span class="lineNum">     139 </span>            :     /* Try to make the path relative */
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :     if(msBuildPath(extended_path, pszRelToPath, pszErrorFile) == NULL)</span>
+<span class="lineNum">     141 </span>            :       return MS_FAILURE;
+<span class="lineNum">     142 </span>            :     pszErrorFile = extended_path;
+<span class="lineNum">     143 </span>            :   }
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span><span class="lineCov">          1 :   if (debuginfo-&gt;errorfile &amp;&amp; pszErrorFile &amp;&amp;</span>
+<span class="lineNum">     146 </span><span class="lineCov">          1 :       strcmp(debuginfo-&gt;errorfile, pszErrorFile) == 0) {</span>
+<span class="lineNum">     147 </span>            :     /* Nothing to do, already writing to the right place */
+<span class="lineNum">     148 </span>            :     return MS_SUCCESS;
+<span class="lineNum">     149 </span>            :   }
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span>            :   /* Close current output file if any */
+<span class="lineNum">     152 </span><span class="lineCov">          1 :   msCloseErrorFile();</span>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            :   /* NULL or empty target will just close current output and return */
+<span class="lineNum">     155 </span><span class="lineCov">          1 :   if (pszErrorFile == NULL || *pszErrorFile == '\0')</span>
+<span class="lineNum">     156 </span>            :     return MS_SUCCESS;
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span><span class="lineCov">          1 :   if (strcmp(pszErrorFile, &quot;stderr&quot;) == 0) {</span>
+<span class="lineNum">     159 </span><span class="lineCov">          1 :     debuginfo-&gt;fp = stderr;</span>
+<span class="lineNum">     160 </span><span class="lineCov">          1 :     debuginfo-&gt;errorfile = msStrdup(pszErrorFile);</span>
+<span class="lineNum">     161 </span><span class="lineCov">          1 :     debuginfo-&gt;debug_mode = MS_DEBUGMODE_STDERR;</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :   } else if (strcmp(pszErrorFile, &quot;stdout&quot;) == 0) {</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :     debuginfo-&gt;fp = stdout;</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :     debuginfo-&gt;errorfile = msStrdup(pszErrorFile);</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :     debuginfo-&gt;debug_mode = MS_DEBUGMODE_STDOUT;</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :   } else if (strcmp(pszErrorFile, &quot;windowsdebug&quot;) == 0) {</span>
+<span class="lineNum">     167 </span>            : #ifdef _WIN32
+<span class="lineNum">     168 </span>            :     debuginfo-&gt;errorfile = msStrdup(pszErrorFile);
+<span class="lineNum">     169 </span>            :     debuginfo-&gt;fp = NULL;
+<span class="lineNum">     170 </span>            :     debuginfo-&gt;debug_mode = MS_DEBUGMODE_WINDOWSDEBUG;
+<span class="lineNum">     171 </span>            : #else
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;'MS_ERRORFILE windowsdebug' is available only on Windows platforms.&quot;, &quot;msSetErrorFile()&quot;);</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     174 </span>            : #endif
+<span class="lineNum">     175 </span>            :   } else {
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :     debuginfo-&gt;fp = fopen(pszErrorFile, &quot;a&quot;);</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :     if (debuginfo-&gt;fp == NULL) {</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Failed to open MS_ERRORFILE %s&quot;, &quot;msSetErrorFile()&quot;, pszErrorFile);</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     180 </span>            :     }
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :     debuginfo-&gt;errorfile = msStrdup(pszErrorFile);</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :     debuginfo-&gt;debug_mode = MS_DEBUGMODE_FILE;</span>
+<span class="lineNum">     183 </span>            :   }
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span>            :   return MS_SUCCESS;
+<span class="lineNum">     186 </span>            : }
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            : /* msCloseErrorFile()
+<span class="lineNum">     189 </span>            : **
+<a name="190"><span class="lineNum">     190 </span>            : ** Close current output file (if one is open) and reset related members</a>
+<span class="lineNum">     191 </span>            : */
+<span class="lineNum">     192 </span><span class="lineCov">          1 : void msCloseErrorFile()</span>
+<span class="lineNum">     193 </span>            : {
+<span class="lineNum">     194 </span><span class="lineCov">          1 :   debugInfoObj *debuginfo = msGetDebugInfoObj();</span>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineCov">          1 :   if (debuginfo &amp;&amp; debuginfo-&gt;debug_mode != MS_DEBUGMODE_OFF) {</span>
+<span class="lineNum">     197 </span><span class="lineCov">          1 :     if (debuginfo-&gt;fp &amp;&amp; debuginfo-&gt;debug_mode == MS_DEBUGMODE_FILE)</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :       fclose(debuginfo-&gt;fp);</span>
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span><span class="lineCov">          1 :     if (debuginfo-&gt;fp &amp;&amp; (debuginfo-&gt;debug_mode == MS_DEBUGMODE_STDERR ||</span>
+<span class="lineNum">     201 </span>            :                           debuginfo-&gt;debug_mode == MS_DEBUGMODE_STDOUT))
+<span class="lineNum">     202 </span><span class="lineCov">          1 :       fflush(debuginfo-&gt;fp); /* just flush stderr or stdout */</span>
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span><span class="lineCov">          1 :     debuginfo-&gt;fp = NULL;</span>
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span><span class="lineCov">          1 :     msFree(debuginfo-&gt;errorfile);</span>
+<span class="lineNum">     207 </span><span class="lineCov">          1 :     debuginfo-&gt;errorfile = NULL;</span>
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span><span class="lineCov">          1 :     debuginfo-&gt;debug_mode = MS_DEBUGMODE_OFF;</span>
+<span class="lineNum">     210 </span>            :   }
+<span class="lineNum">     211 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     212 </span>            : 
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            : /* msGetErrorFile()
+<span class="lineNum">     216 </span>            : **
+<span class="lineNum">     217 </span>            : ** Returns name of current error file
+<span class="lineNum">     218 </span>            : **
+<a name="219"><span class="lineNum">     219 </span>            : ** Returns NULL if not set.</a>
+<span class="lineNum">     220 </span>            : */
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 : const char *msGetErrorFile()</span>
+<span class="lineNum">     222 </span>            : {
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :   debugInfoObj *debuginfo = msGetDebugInfoObj();</span>
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :   if (debuginfo)</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :     return debuginfo-&gt;errorfile;</span>
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span>            :   return NULL;
+<span class="lineNum">     229 </span>            : }
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span>            : /* Set/Get the current global debug level value, used as default value for
+<span class="lineNum">     232 </span>            : ** new map and layer objects and to control msDebug() calls outside of
+<span class="lineNum">     233 </span>            : ** the context of mapObj or layerObj.
+<a name="234"><span class="lineNum">     234 </span>            : **</a>
+<span class="lineNum">     235 </span>            : */
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 : void msSetGlobalDebugLevel(int level)</span>
+<span class="lineNum">     237 </span>            : {
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :   debugInfoObj *debuginfo = msGetDebugInfoObj();</span>
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :   if (debuginfo)</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :     debuginfo-&gt;global_debug_level = (debugLevel)level;</span>
+<a name="242"><span class="lineNum">     242 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span><span class="lineCov">          1 : debugLevel msGetGlobalDebugLevel()</span>
+<span class="lineNum">     245 </span>            : {
+<span class="lineNum">     246 </span><span class="lineCov">          1 :   debugInfoObj *debuginfo = msGetDebugInfoObj();</span>
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span><span class="lineCov">          1 :   if (debuginfo)</span>
+<span class="lineNum">     249 </span><span class="lineCov">          1 :     return debuginfo-&gt;global_debug_level;</span>
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            :   return MS_DEBUGLEVEL_ERRORSONLY;
+<span class="lineNum">     252 </span>            : }
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            : /* msDebugInitFromEnv()
+<span class="lineNum">     256 </span>            : **
+<span class="lineNum">     257 </span>            : ** Init debug state from MS_ERRORFILE and MS_DEBUGLEVEL env vars if set
+<span class="lineNum">     258 </span>            : **
+<a name="259"><span class="lineNum">     259 </span>            : ** Returns MS_SUCCESS/MS_FAILURE</a>
+<span class="lineNum">     260 </span>            : */
+<span class="lineNum">     261 </span><span class="lineCov">          1 : int msDebugInitFromEnv()</span>
+<span class="lineNum">     262 </span>            : {
+<span class="lineNum">     263 </span>            :   const char *val;
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span><span class="lineCov">          1 :   if( (val=getenv( &quot;MS_ERRORFILE&quot; )) != NULL ) {</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :     if ( msSetErrorFile(val, NULL) != MS_SUCCESS )</span>
+<span class="lineNum">     267 </span>            :       return MS_FAILURE;
+<span class="lineNum">     268 </span>            :   }
+<span class="lineNum">     269 </span>            : 
+<span class="lineNum">     270 </span><span class="lineCov">          1 :   if( (val=getenv( &quot;MS_DEBUGLEVEL&quot; )) != NULL )</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :     msSetGlobalDebugLevel(atoi(val));</span>
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span>            :   return MS_SUCCESS;
+<span class="lineNum">     274 </span>            : }
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span>            : /* msDebugCleanup()
+<span class="lineNum">     278 </span>            : **
+<a name="279"><span class="lineNum">     279 </span>            : ** Called by msCleanup to remove info related to this thread.</a>
+<span class="lineNum">     280 </span>            : */
+<span class="lineNum">     281 </span><span class="lineCov">          1 : void msDebugCleanup()</span>
+<span class="lineNum">     282 </span>            : {
+<span class="lineNum">     283 </span>            :   /* make sure file is closed */
+<span class="lineNum">     284 </span><span class="lineCov">          1 :   msCloseErrorFile();</span>
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span>            : #ifdef USE_THREAD
+<span class="lineNum">     287 </span>            :   {
+<span class="lineNum">     288 </span><span class="lineCov">          1 :     void*  thread_id = msGetThreadId();</span>
+<span class="lineNum">     289 </span>            :     debugInfoObj *link;
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span><span class="lineCov">          1 :     msAcquireLock( TLOCK_DEBUGOBJ );</span>
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span>            :     /* find link for this thread */
+<span class="lineNum">     294 </span>            : 
+<span class="lineNum">     295 </span><span class="lineCov">          1 :     for( link = debuginfo_list;</span>
+<span class="lineNum">     296 </span><span class="lineCov">          1 :          link != NULL &amp;&amp; link-&gt;thread_id != thread_id</span>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :          &amp;&amp; link-&gt;next != NULL &amp;&amp; link-&gt;next-&gt;thread_id != thread_id;</span>
+<span class="lineNum">     298 </span>            :          link = link-&gt;next ) {}
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span><span class="lineCov">          1 :     if( link-&gt;thread_id == thread_id ) {</span>
+<span class="lineNum">     301 </span>            :       /* presumably link is at head of list.  */
+<span class="lineNum">     302 </span><span class="lineCov">          1 :       if( debuginfo_list == link )</span>
+<span class="lineNum">     303 </span><span class="lineCov">          1 :         debuginfo_list = link-&gt;next;</span>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span><span class="lineCov">          1 :       free( link );</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :     } else if( link-&gt;next != NULL &amp;&amp; link-&gt;next-&gt;thread_id == thread_id ) {</span>
+<span class="lineNum">     307 </span>            :       debugInfoObj *next_link = link-&gt;next;
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :       link-&gt;next = link-&gt;next-&gt;next;</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :       free( next_link );</span>
+<span class="lineNum">     310 </span>            :     }
+<span class="lineNum">     311 </span><span class="lineCov">          1 :     msReleaseLock( TLOCK_DEBUGOBJ );</span>
+<span class="lineNum">     312 </span>            :   }
+<span class="lineNum">     313 </span>            : #endif
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span>            : /* msDebug()
+<span class="lineNum">     318 </span>            : **
+<span class="lineNum">     319 </span>            : ** Outputs/logs messages to the MS_ERRORFILE if one is set
+<span class="lineNum">     320 </span>            : ** (see msSetErrorFile())
+<a name="321"><span class="lineNum">     321 </span>            : **</a>
+<span class="lineNum">     322 </span>            : */
+<span class="lineNum">     323 </span><span class="lineCov">          1 : void msDebug( const char * pszFormat, ... )</span>
+<span class="lineNum">     324 </span>            : {
+<span class="lineNum">     325 </span>            :   va_list args;
+<span class="lineNum">     326 </span><span class="lineCov">          1 :   debugInfoObj *debuginfo = msGetDebugInfoObj();</span>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span><span class="lineCov">          1 :   if (debuginfo == NULL || debuginfo-&gt;debug_mode == MS_DEBUGMODE_OFF)</span>
+<span class="lineNum">     329 </span><span class="lineCov">          1 :     return;  /* Don't waste time here! */</span>
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :   if (debuginfo-&gt;fp) {</span>
+<span class="lineNum">     332 </span>            :     /* Writing to a stdio file handle */
+<span class="lineNum">     333 </span>            : 
+<span class="lineNum">     334 </span>            : #if defined(USE_FASTCGI)
+<span class="lineNum">     335 </span>            :     /* It seems the FastCGI stuff inserts a timestamp anyways, so  */
+<span class="lineNum">     336 </span>            :     /* we might as well skip this one if writing to stderr w/ FastCGI. */
+<span class="lineNum">     337 </span>            :     if (debuginfo-&gt;debug_mode != MS_DEBUGMODE_STDERR)
+<span class="lineNum">     338 </span>            : #endif
+<span class="lineNum">     339 </span>            :     {
+<span class="lineNum">     340 </span>            :       struct mstimeval tv;
+<span class="lineNum">     341 </span>            :       time_t t;
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :       msGettimeofday(&amp;tv, NULL);</span>
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :       t = tv.tv_sec;</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :       msIO_fprintf(debuginfo-&gt;fp, &quot;[%s].%ld &quot;,</span>
+<span class="lineNum">     345 </span>            :                    msStringChop(ctime(&amp;t)), (long)tv.tv_usec);
+<span class="lineNum">     346 </span>            :     }
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :     va_start(args, pszFormat);</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :     msIO_vfprintf(debuginfo-&gt;fp, pszFormat, args);</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :     va_end(args);</span>
+<span class="lineNum">     351 </span>            :   }
+<span class="lineNum">     352 </span>            : #ifdef _WIN32
+<span class="lineNum">     353 </span>            :   else if (debuginfo-&gt;debug_mode == MS_DEBUGMODE_WINDOWSDEBUG) {
+<span class="lineNum">     354 </span>            :     /* Writing to Windows Debug Console */
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span>            :     char szMessage[MESSAGELENGTH];
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span>            :     va_start(args, pszFormat);
+<span class="lineNum">     359 </span>            :     vsnprintf( szMessage, MESSAGELENGTH, pszFormat, args );
+<span class="lineNum">     360 </span>            :     va_end(args);
+<span class="lineNum">     361 </span>            : 
+<span class="lineNum">     362 </span>            :     szMessage[MESSAGELENGTH-1] = '\0';
+<span class="lineNum">     363 </span>            :     OutputDebugStringA(szMessage);
+<span class="lineNum">     364 </span>            :   }
+<span class="lineNum">     365 </span>            : #endif
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span>            : }
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span>            : /* msDebug2()
+<span class="lineNum">     371 </span>            : **
+<span class="lineNum">     372 </span>            : ** Variadic function with no operation
+<a name="373"><span class="lineNum">     373 </span>            : **</a>
+<span class="lineNum">     374 </span>            : */
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 : void msDebug2( int level, ... )</span>
+<span class="lineNum">     376 </span>            : {
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

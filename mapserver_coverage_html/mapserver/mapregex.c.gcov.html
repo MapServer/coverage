@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - mapserver/mapregex.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">mapserver</a> - mapregex.c<span style="font-size: 80%;"> (source / <a href="mapregex.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryMed">83.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryMed">75.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>            :  * $Id$
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * Project:  MapServer
+<span class="lineNum">       5 </span>            :  * Purpose:  Regex wrapper
+<span class="lineNum">       6 </span>            :  * Author:   Bill Binko
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  ******************************************************************************
+<span class="lineNum">       9 </span>            :  * Copyright (c) 1996-2005 Regents of the University of Minnesota.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      12 </span>            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      13 </span>            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      14 </span>            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      15 </span>            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      16 </span>            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      17 </span>            :  *
+<span class="lineNum">      18 </span>            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      19 </span>            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      20 </span>            :  *
+<span class="lineNum">      21 </span>            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+<span class="lineNum">      22 </span>            :  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      23 </span>            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+<span class="lineNum">      24 </span>            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      25 </span>            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      26 </span>            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      27 </span>            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      28 </span>            :  ****************************************************************************/
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : /* we can't include mapserver.h, so we need our own basics */
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #include &lt;stdio.h&gt;
+<span class="lineNum">      33 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      34 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">      35 </span>            : #include &lt;math.h&gt;
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : #if defined(_WIN32) &amp;&amp; !defined(__CYGWIN__)
+<span class="lineNum">      38 </span>            : #include &lt;direct.h&gt;
+<span class="lineNum">      39 </span>            : #include &lt;memory.h&gt;
+<span class="lineNum">      40 </span>            : #include &lt;malloc.h&gt;
+<span class="lineNum">      41 </span>            : #else
+<span class="lineNum">      42 </span>            : #include &lt;unistd.h&gt;
+<span class="lineNum">      43 </span>            : #endif
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : /*Need to specify this so that mapregex.h doesn't defined constants and
+<span class="lineNum">      46 </span>            :   doesn't #define away our ms_*/
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            : #if defined(_WIN32) &amp;&amp; !defined(__CYGWIN__) &amp;&amp; _MSC_VER &lt; 1900
+<span class="lineNum">      49 </span>            : #define off_t  long
+<span class="lineNum">      50 </span>            : #endif
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : #include &quot;mapserver.h&quot;
+<span class="lineNum">      53 </span>            : #include &quot;mapregex.h&quot;
+<a name="54"><span class="lineNum">      54 </span>            : #include &lt;regex.h&gt;</a>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span><span class="lineCov">          1 : MS_API_EXPORT(int) ms_regcomp(ms_regex_t *regex, const char *expr, int cflags)</span>
+<span class="lineNum">      57 </span>            : {
+<span class="lineNum">      58 </span>            :   /* Must free in regfree() */
+<span class="lineNum">      59 </span><span class="lineCov">          1 :   regex_t* sys_regex = (regex_t*) msSmallMalloc(sizeof(regex_t));</span>
+<span class="lineNum">      60 </span><span class="lineCov">          1 :   regex-&gt;sys_regex = (void*) sys_regex;</span>
+<span class="lineNum">      61 </span><span class="lineCov">          1 :   return regcomp(sys_regex, expr, cflags);</span>
+<a name="62"><span class="lineNum">      62 </span>            : }</a>
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 : MS_API_EXPORT(size_t) ms_regerror(int errcode, const ms_regex_t *regex, char *errbuf, size_t errbuf_size)</span>
+<span class="lineNum">      65 </span>            : {
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :   return regerror(errcode, (regex_t*)(regex-&gt;sys_regex), errbuf, errbuf_size);</span>
+<a name="67"><span class="lineNum">      67 </span>            : }</a>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span><span class="lineCov">          1 : MS_API_EXPORT(int) ms_regexec(const ms_regex_t *regex, const char *string, size_t nmatch, ms_regmatch_t pmatch[], int eflags)</span>
+<span class="lineNum">      70 </span>            : {
+<span class="lineNum">      71 </span>            :   /*This next line only works because we know that regmatch_t
+<span class="lineNum">      72 </span>            :     and ms_regmatch_t are exactly alike (POSIX STANDARD)*/
+<span class="lineNum">      73 </span><span class="lineCov">          1 :   return regexec((const regex_t*)(regex-&gt;sys_regex),</span>
+<span class="lineNum">      74 </span>            :                  string, nmatch,
+<span class="lineNum">      75 </span>            :                  (regmatch_t*) pmatch, eflags);
+<a name="76"><span class="lineNum">      76 </span>            : }</a>
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span><span class="lineCov">          1 : MS_API_EXPORT(void) ms_regfree(ms_regex_t *regex)</span>
+<span class="lineNum">      79 </span>            : {
+<span class="lineNum">      80 </span><span class="lineCov">          1 :   regfree((regex_t*)(regex-&gt;sys_regex));</span>
+<span class="lineNum">      81 </span><span class="lineCov">          1 :   free(regex-&gt;sys_regex);</span>
+<span class="lineNum">      82 </span><span class="lineCov">          1 :   return;</span>
+<span class="lineNum">      83 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

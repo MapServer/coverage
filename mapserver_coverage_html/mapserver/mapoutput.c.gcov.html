@@ -1,0 +1,1298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - mapserver/mapoutput.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">mapserver</a> - mapoutput.c<span style="font-size: 80%;"> (source / <a href="mapoutput.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">391</td>
+            <td class="headerCovTableEntry">472</td>
+            <td class="headerCovTableEntryMed">82.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntryHi">94.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>            :  * $Id$
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * Project:  MapServer
+<span class="lineNum">       5 </span>            :  * Purpose:  Various support code related to the outputFormatObj.
+<span class="lineNum">       6 </span>            :  * Author:   Frank Warmerdam, warmerdam@pobox.com
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  ******************************************************************************
+<span class="lineNum">       9 </span>            :  * Copyright (c) 2002, Frank Warmerdam
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      12 </span>            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      13 </span>            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      14 </span>            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      15 </span>            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      16 </span>            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      17 </span>            :  *
+<span class="lineNum">      18 </span>            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      19 </span>            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      20 </span>            :  *
+<span class="lineNum">      21 </span>            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+<span class="lineNum">      22 </span>            :  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      23 </span>            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+<span class="lineNum">      24 </span>            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      25 </span>            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      26 </span>            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      27 </span>            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      28 </span>            :  *****************************************************************************/
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #include &lt;assert.h&gt;
+<span class="lineNum">      31 </span>            : #include &quot;mapserver.h&quot;
+<span class="lineNum">      32 </span>            : #include &quot;mapows.h&quot;
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : static outputFormatObj *msAllocOutputFormat( mapObj *map, const char *name,
+<span class="lineNum">      37 </span>            :     const char *driver );
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : /*************************************************************************
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : NOTES on outputFormatObj:
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : typedef struct {
+<span class="lineNum">      44 </span>            :   char *name;
+<span class="lineNum">      45 </span>            :   char *mimetype;
+<span class="lineNum">      46 </span>            :   char *driver;
+<span class="lineNum">      47 </span>            :   int  imagemode; // MS_IMAGEMODE_* value.
+<span class="lineNum">      48 </span>            :   int  transparent;
+<span class="lineNum">      49 </span>            :   int  numformatoptions;
+<span class="lineNum">      50 </span>            :   char **formatoptions;
+<span class="lineNum">      51 </span>            : } outputFormatObj;
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            :  NAME - Associates an internal name with the declaration.  The value used
+<span class="lineNum">      54 </span>            :         has not intrinsic meaning and is just used to associate with the
+<span class="lineNum">      55 </span>            :         MAP level IMAGETYPE.  It is also the &quot;name&quot; used for the format
+<span class="lineNum">      56 </span>            :         in WMS capabilities documents, and FORMAT= requests. (required)
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            :  MIMETYPE - The mime type to use for this format.  If omitted, the value
+<span class="lineNum">      59 </span>            :             will be derived from the DRIVER or default to the value for
+<span class="lineNum">      60 </span>            :             untyped binary data will be used.  (optional - may be NULL)
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            :  DRIVER - This indicates which internal driver mechanism is to be used.
+<span class="lineNum">      63 </span>            :           Anything prefixed by &quot;GDAL/&quot; will be handled by the GDAL driver, with
+<span class="lineNum">      64 </span>            :           the remainder taken as the GDAL format name. (required)
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            :  IMAGEMODE - Has one of &quot;PC256&quot;, &quot;RGB&quot;, or &quot;RGBA&quot; indicating whether
+<span class="lineNum">      67 </span>            :              the imaging should be done to a 256 pseudo-colored, 24bit RGB, or
+<span class="lineNum">      68 </span>            :              32bit RGBA (A=alpha/transparency) result image.  Note that the
+<span class="lineNum">      69 </span>            :              IMAGEMODE actually affects how all the rendering for the map is
+<span class="lineNum">      70 </span>            :              done, long before it is output to a particular output format.
+<span class="lineNum">      71 </span>            :              The default value is the traditional &quot;PC256&quot;.  Some output
+<span class="lineNum">      72 </span>            :              formats can only support some IMAGEMODE values. (optional)
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            :              Translate as MS_IMAGEMODE_PC256, MS_IMAGEMODE_RGB and
+<span class="lineNum">      75 </span>            :              MS_IMAGEMODE_RGBA.
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span>            :              For &quot;GDAL/&quot; drivers, the following extra imagemodes are supported:
+<span class="lineNum">      78 </span>            :                 &quot;BYTE&quot; / MS_IMAGEMODE_BYTE
+<span class="lineNum">      79 </span>            :                 &quot;INT16&quot; / MS_IMAGEMODE_INT16
+<span class="lineNum">      80 </span>            :                 &quot;FLOAT32&quot; / MS_IMAGEMODE_FLOAT32
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            :              Not too sure what this should be set to for output formats like
+<span class="lineNum">      83 </span>            :              flash and SVG.
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :  TRANSPARENT - A value of &quot;ON&quot; or &quot;OFF&quot; indicating whether transparency
+<span class="lineNum">      86 </span>            :                support should be enabled.  Same as the old TRANSPARENT flag
+<span class="lineNum">      87 </span>            :                at the MAP level.
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            :  FORMATOPTION - Contains an argument for the specific driver used.  There may
+<span class="lineNum">      90 </span>            :                 be any number of format options for a given OUTPUTFORMAT
+<span class="lineNum">      91 </span>            :                 declaration.  FORMATOPTION will be used to encode the older
+<span class="lineNum">      92 </span>            :                 INTERLACE, and QUALITY values.
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :                 Handled as a MapServer style CharArray.
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            :  *************************************************************************/
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            : struct defaultOutputFormatEntry {
+<span class="lineNum">     100 </span>            :   const char *name;
+<span class="lineNum">     101 </span>            :   const char *driver;
+<span class="lineNum">     102 </span>            :   const char *mimetype;
+<span class="lineNum">     103 </span>            : } ;
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            : struct defaultOutputFormatEntry defaultoutputformats[] = {
+<span class="lineNum">     106 </span>            :   {&quot;png&quot;,&quot;AGG/PNG&quot;,&quot;image/png&quot;},
+<span class="lineNum">     107 </span>            :   {&quot;jpeg&quot;,&quot;AGG/JPEG&quot;,&quot;image/jpeg&quot;},
+<span class="lineNum">     108 </span>            :   {&quot;png8&quot;,&quot;AGG/PNG8&quot;,&quot;image/png; mode=8bit&quot;},
+<span class="lineNum">     109 </span>            :   {&quot;png24&quot;,&quot;AGG/PNG&quot;,&quot;image/png; mode=24bit&quot;},
+<span class="lineNum">     110 </span>            :   {&quot;jpegpng&quot;, &quot;AGG/MIXED&quot;, &quot;image/vnd.jpeg-png&quot;},
+<span class="lineNum">     111 </span>            :   {&quot;jpegpng8&quot;, &quot;AGG/MIXED&quot;, &quot;image/vnd.jpeg-png8&quot;},
+<span class="lineNum">     112 </span>            : #ifdef USE_CAIRO
+<span class="lineNum">     113 </span>            :   {&quot;pdf&quot;,&quot;CAIRO/PDF&quot;,&quot;application/x-pdf&quot;},
+<span class="lineNum">     114 </span>            :   {&quot;svg&quot;,&quot;CAIRO/SVG&quot;,&quot;image/svg+xml&quot;},
+<span class="lineNum">     115 </span>            :   {&quot;cairopng&quot;,&quot;CAIRO/PNG&quot;,&quot;image/png&quot;},
+<span class="lineNum">     116 </span>            : #endif
+<span class="lineNum">     117 </span>            : #ifdef USE_GDAL
+<span class="lineNum">     118 </span>            :   {&quot;GTiff&quot;,&quot;GDAL/GTiff&quot;,&quot;image/tiff&quot;},
+<span class="lineNum">     119 </span>            : #endif
+<span class="lineNum">     120 </span>            : #ifdef USE_KML
+<span class="lineNum">     121 </span>            :   {&quot;kml&quot;,&quot;KML&quot;,&quot;application/vnd.google-earth.kml+xml&quot;},
+<span class="lineNum">     122 </span>            :   {&quot;kmz&quot;,&quot;KMZ&quot;,&quot;application/vnd.google-earth.kmz&quot;},
+<span class="lineNum">     123 </span>            : #endif
+<span class="lineNum">     124 </span>            : #ifdef USE_PBF
+<span class="lineNum">     125 </span>            :   {&quot;mvt&quot;,&quot;MVT&quot;,&quot;application/vnd.mapbox-vector-tile&quot;},
+<span class="lineNum">     126 </span>            : #endif
+<span class="lineNum">     127 </span>            :   {&quot;json&quot;,&quot;UTFGrid&quot;,&quot;application/json&quot;},
+<span class="lineNum">     128 </span>            :   {NULL,NULL,NULL}
+<span class="lineNum">     129 </span>            : };
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            : /************************************************************************/
+<span class="lineNum">     132 </span>            : /*                  msPostMapParseOutputFormatSetup()                   */
+<a name="133"><span class="lineNum">     133 </span>            : /************************************************************************/</a>
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span><span class="lineCov">          1 : int msPostMapParseOutputFormatSetup( mapObj *map )</span>
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            : {
+<span class="lineNum">     138 </span>            :   outputFormatObj *format;
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            :   /* If IMAGETYPE not set use the first user defined OUTPUTFORMAT.
+<span class="lineNum">     141 </span>            :      If none, use the first default format. */
+<span class="lineNum">     142 </span><span class="lineCov">          1 :   if( map-&gt;imagetype == NULL &amp;&amp; map-&gt;numoutputformats &gt; 0 )</span>
+<span class="lineNum">     143 </span><span class="lineCov">          1 :     map-&gt;imagetype = msStrdup(map-&gt;outputformatlist[0]-&gt;name);</span>
+<span class="lineNum">     144 </span><span class="lineCov">          1 :   if( map-&gt;imagetype == NULL)</span>
+<span class="lineNum">     145 </span><span class="lineCov">          1 :     map-&gt;imagetype = msStrdup(defaultoutputformats[0].name);</span>
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            :   /* select the current outputformat into map-&gt;outputformat */
+<span class="lineNum">     148 </span><span class="lineCov">          1 :   format = msSelectOutputFormat( map, map-&gt;imagetype );</span>
+<span class="lineNum">     149 </span><span class="lineCov">          1 :   if( format == NULL ) {</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :     msSetError(MS_MISCERR,</span>
+<span class="lineNum">     151 </span>            :                &quot;Unable to select IMAGETYPE `%s'.&quot;,
+<span class="lineNum">     152 </span>            :                &quot;msPostMapParseOutputFormatSetup()&quot;,
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                map-&gt;imagetype ? map-&gt;imagetype : &quot;(null)&quot; );</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     155 </span>            :   }
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span><span class="lineCov">          1 :   msApplyOutputFormat( &amp;(map-&gt;outputformat), format,</span>
+<span class="lineNum">     158 </span>            :                        map-&gt;transparent, map-&gt;interlace, map-&gt;imagequality );
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     161 </span>            : }
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            : /************************************************************************/
+<span class="lineNum">     164 </span>            : /*                    msCreateDefaultOutputFormat()                     */
+<a name="165"><span class="lineNum">     165 </span>            : /************************************************************************/</a>
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span><span class="lineCov">          1 : outputFormatObj *msCreateDefaultOutputFormat( mapObj *map,</span>
+<span class="lineNum">     168 </span>            :     const char *driver,
+<span class="lineNum">     169 </span>            :     const char *name )
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            : {
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            :   outputFormatObj *format = NULL;
+<span class="lineNum">     174 </span><span class="lineCov">          1 :   if( strncasecmp(driver,&quot;GD/&quot;,3) == 0 ) {</span>
+<span class="lineNum">     175 </span>            :     return msCreateDefaultOutputFormat( map, &quot;AGG/PNG8&quot;, name );
+<span class="lineNum">     176 </span>            :   }
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span><span class="lineCov">          1 :   if( strcasecmp(driver,&quot;UTFGRID&quot;) == 0 ) {</span>
+<span class="lineNum">     179 </span><span class="lineCov">          1 :     if(!name) name=&quot;utfgrid&quot;;</span>
+<span class="lineNum">     180 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     181 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;application/json&quot;);</span>
+<span class="lineNum">     182 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_RGB;</span>
+<span class="lineNum">     183 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;json&quot;);</span>
+<span class="lineNum">     184 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_UTFGRID;</span>
+<span class="lineNum">     185 </span>            :   }
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;AGG/PNG&quot;) == 0 ) {</span>
+<span class="lineNum">     188 </span><span class="lineCov">          1 :     if(!name) name=&quot;png24&quot;;</span>
+<span class="lineNum">     189 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     190 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;image/png&quot;);</span>
+<span class="lineNum">     191 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_RGB;</span>
+<span class="lineNum">     192 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;png&quot;);</span>
+<span class="lineNum">     193 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_AGG;</span>
+<span class="lineNum">     194 </span>            :   }
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;AGG/PNG8&quot;) == 0 ) {</span>
+<span class="lineNum">     197 </span><span class="lineCov">          1 :     if(!name) name=&quot;png8&quot;;</span>
+<span class="lineNum">     198 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     199 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;image/png; mode=8bit&quot;);</span>
+<span class="lineNum">     200 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_RGB;</span>
+<span class="lineNum">     201 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;png&quot;);</span>
+<span class="lineNum">     202 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_AGG;</span>
+<span class="lineNum">     203 </span><span class="lineCov">          1 :     msSetOutputFormatOption( format, &quot;QUANTIZE_FORCE&quot;, &quot;on&quot;);</span>
+<span class="lineNum">     204 </span><span class="lineCov">          1 :     msSetOutputFormatOption( format, &quot;QUANTIZE_COLORS&quot;, &quot;256&quot;);</span>
+<span class="lineNum">     205 </span>            :   }
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;AGG/JPEG&quot;) == 0 ) {</span>
+<span class="lineNum">     208 </span><span class="lineCov">          1 :     if(!name) name=&quot;jpeg&quot;;</span>
+<span class="lineNum">     209 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     210 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;image/jpeg&quot;);</span>
+<span class="lineNum">     211 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_RGB;</span>
+<span class="lineNum">     212 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;jpg&quot;);</span>
+<span class="lineNum">     213 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_AGG;</span>
+<span class="lineNum">     214 </span>            :   }
+<span class="lineNum">     215 </span>            : #if defined(USE_PBF)
+<span class="lineNum">     216 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;MVT&quot;) == 0 ) {</span>
+<span class="lineNum">     217 </span><span class="lineCov">          1 :     if(!name) name=&quot;mvt&quot;;</span>
+<span class="lineNum">     218 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     219 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;application/x-protobuf&quot;);</span>
+<span class="lineNum">     220 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_FEATURE;</span>
+<span class="lineNum">     221 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;pbf&quot;);</span>
+<span class="lineNum">     222 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_MVT;</span>
+<span class="lineNum">     223 </span>            :   }
+<span class="lineNum">     224 </span>            : #endif
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;AGG/MIXED&quot;) == 0 &amp;&amp;</span>
+<span class="lineNum">     227 </span><span class="lineCov">          1 :            name != NULL &amp;&amp; strcasecmp(name,&quot;jpegpng&quot;) == 0 ) {</span>
+<span class="lineNum">     228 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     229 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;image/vnd.jpeg-png&quot;);</span>
+<span class="lineNum">     230 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_RGBA;</span>
+<span class="lineNum">     231 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;XXX&quot;);</span>
+<span class="lineNum">     232 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_AGG;</span>
+<span class="lineNum">     233 </span><span class="lineCov">          1 :     msSetOutputFormatOption( format, &quot;OPAQUE_FORMAT&quot;, &quot;jpeg&quot;);</span>
+<span class="lineNum">     234 </span><span class="lineCov">          1 :     msSetOutputFormatOption( format, &quot;TRANSPARENT_FORMAT&quot;, &quot;png24&quot;);</span>
+<span class="lineNum">     235 </span>            :   }
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;AGG/MIXED&quot;) == 0 &amp;&amp;</span>
+<span class="lineNum">     238 </span><span class="lineCov">          1 :            name != NULL &amp;&amp; strcasecmp(name,&quot;jpegpng8&quot;) == 0 ) {</span>
+<span class="lineNum">     239 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     240 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;image/vnd.jpeg-png8&quot;);</span>
+<span class="lineNum">     241 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_RGBA;</span>
+<span class="lineNum">     242 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;XXX&quot;);</span>
+<span class="lineNum">     243 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_AGG;</span>
+<span class="lineNum">     244 </span><span class="lineCov">          1 :     msSetOutputFormatOption( format, &quot;OPAQUE_FORMAT&quot;, &quot;jpeg&quot;);</span>
+<span class="lineNum">     245 </span><span class="lineCov">          1 :     msSetOutputFormatOption( format, &quot;TRANSPARENT_FORMAT&quot;, &quot;png8&quot;);</span>
+<span class="lineNum">     246 </span>            :   }
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;AGG/MIXED&quot;) == 0 ) {</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :     if(!name) name=&quot;mixed&quot;;</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :     format-&gt;mimetype = msStrdup(&quot;image/mixed&quot;);</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :     format-&gt;imagemode = MS_IMAGEMODE_RGBA;</span>
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :     format-&gt;extension = msStrdup(&quot;XXX&quot;);</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :     format-&gt;renderer = MS_RENDER_WITH_AGG;</span>
+<span class="lineNum">     255 </span>            :   }
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            : #if defined(USE_CAIRO)
+<span class="lineNum">     258 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;CAIRO/PNG&quot;) == 0 ) {</span>
+<span class="lineNum">     259 </span><span class="lineCov">          1 :     if(!name) name=&quot;cairopng&quot;;</span>
+<span class="lineNum">     260 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     261 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;image/png; mode=24bit&quot;);</span>
+<span class="lineNum">     262 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_RGB;</span>
+<span class="lineNum">     263 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;png&quot;);</span>
+<span class="lineNum">     264 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_CAIRO_RASTER;</span>
+<span class="lineNum">     265 </span>            :   }
+<span class="lineNum">     266 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;CAIRO/JPEG&quot;) == 0 ) {</span>
+<span class="lineNum">     267 </span><span class="lineCov">          1 :     if(!name) name=&quot;cairojpeg&quot;;</span>
+<span class="lineNum">     268 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     269 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;image/jpeg&quot;);</span>
+<span class="lineNum">     270 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_RGB;</span>
+<span class="lineNum">     271 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;jpg&quot;);</span>
+<span class="lineNum">     272 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_CAIRO_RASTER;</span>
+<span class="lineNum">     273 </span>            :   }
+<span class="lineNum">     274 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;CAIRO/PDF&quot;) == 0 ) {</span>
+<span class="lineNum">     275 </span><span class="lineCov">          1 :     if(!name) name=&quot;pdf&quot;;</span>
+<span class="lineNum">     276 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     277 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;application/x-pdf&quot;);</span>
+<span class="lineNum">     278 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_RGB;</span>
+<span class="lineNum">     279 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;pdf&quot;);</span>
+<span class="lineNum">     280 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_CAIRO_PDF;</span>
+<span class="lineNum">     281 </span>            :   }
+<span class="lineNum">     282 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;CAIRO/SVG&quot;) == 0 ) {</span>
+<span class="lineNum">     283 </span><span class="lineCov">          1 :     if(!name) name=&quot;svg&quot;;</span>
+<span class="lineNum">     284 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     285 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;image/svg+xml&quot;);</span>
+<span class="lineNum">     286 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_RGB;</span>
+<span class="lineNum">     287 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;svg&quot;);</span>
+<span class="lineNum">     288 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_CAIRO_SVG;</span>
+<span class="lineNum">     289 </span>            :   }
+<span class="lineNum">     290 </span>            : #ifdef _WIN32
+<span class="lineNum">     291 </span>            :   else if( strcasecmp(driver,&quot;CAIRO/WINGDI&quot;) == 0 ) {
+<span class="lineNum">     292 </span>            :     if(!name) name=&quot;cairowinGDI&quot;;
+<span class="lineNum">     293 </span>            :     format = msAllocOutputFormat( map, name, driver );
+<span class="lineNum">     294 </span>            :     format-&gt;mimetype = msStrdup(&quot;&quot;);
+<span class="lineNum">     295 </span>            :     format-&gt;imagemode = MS_IMAGEMODE_RGB;
+<span class="lineNum">     296 </span>            :     format-&gt;extension = msStrdup(&quot;&quot;);
+<span class="lineNum">     297 </span>            :     format-&gt;renderer = MS_RENDER_WITH_CAIRO_RASTER;
+<span class="lineNum">     298 </span>            :   }
+<span class="lineNum">     299 </span>            :   else if( strcasecmp(driver,&quot;CAIRO/WINGDIPRINT&quot;) == 0 ) {
+<span class="lineNum">     300 </span>            :     if(!name) name=&quot;cairowinGDIPrint&quot;;
+<span class="lineNum">     301 </span>            :     format = msAllocOutputFormat( map, name, driver );
+<span class="lineNum">     302 </span>            :     format-&gt;mimetype = msStrdup(&quot;&quot;);
+<span class="lineNum">     303 </span>            :     format-&gt;imagemode = MS_IMAGEMODE_RGB;
+<span class="lineNum">     304 </span>            :     format-&gt;extension = msStrdup(&quot;&quot;);
+<span class="lineNum">     305 </span>            :     format-&gt;renderer = MS_RENDER_WITH_CAIRO_RASTER;
+<span class="lineNum">     306 </span>            :   }
+<span class="lineNum">     307 </span>            : #endif
+<span class="lineNum">     308 </span>            : #endif
+<span class="lineNum">     309 </span>            : 
+<span class="lineNum">     310 </span>            : #if defined(USE_OGL)
+<span class="lineNum">     311 </span>            :   else if( strcasecmp(driver,&quot;OGL/PNG&quot;) == 0 ) {
+<span class="lineNum">     312 </span>            :     if(!name) name=&quot;oglpng24&quot;;
+<span class="lineNum">     313 </span>            :     format = msAllocOutputFormat( map, name, driver );
+<span class="lineNum">     314 </span>            :     format-&gt;mimetype = msStrdup(&quot;image/png; mode=24bit&quot;);
+<span class="lineNum">     315 </span>            :     format-&gt;imagemode = MS_IMAGEMODE_RGB;
+<span class="lineNum">     316 </span>            :     format-&gt;extension = msStrdup(&quot;png&quot;);
+<span class="lineNum">     317 </span>            :     format-&gt;renderer = MS_RENDER_WITH_OGL;
+<span class="lineNum">     318 </span>            :   }
+<span class="lineNum">     319 </span>            : #endif
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span>            : #if defined(USE_KML)
+<span class="lineNum">     322 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;KML&quot;) == 0 ) {</span>
+<span class="lineNum">     323 </span><span class="lineCov">          1 :     if(!name) name=&quot;kml&quot;;</span>
+<span class="lineNum">     324 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     325 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;application/vnd.google-earth.kml+xml&quot;);</span>
+<span class="lineNum">     326 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_RGB;</span>
+<span class="lineNum">     327 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;kml&quot;);</span>
+<span class="lineNum">     328 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_KML;</span>
+<span class="lineNum">     329 </span><span class="lineCov">          1 :     msSetOutputFormatOption( format, &quot;ATTACHMENT&quot;, &quot;mapserver.kml&quot;);</span>
+<span class="lineNum">     330 </span>            :   }
+<span class="lineNum">     331 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;KMZ&quot;) == 0 ) {</span>
+<span class="lineNum">     332 </span><span class="lineCov">          1 :     if(!name) name=&quot;kmz&quot;;</span>
+<span class="lineNum">     333 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     334 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;application/vnd.google-earth.kmz&quot;);</span>
+<span class="lineNum">     335 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_RGB;</span>
+<span class="lineNum">     336 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;kmz&quot;);</span>
+<span class="lineNum">     337 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_KML;</span>
+<span class="lineNum">     338 </span><span class="lineCov">          1 :     msSetOutputFormatOption( format, &quot;ATTACHMENT&quot;, &quot;mapserver.kmz&quot;);</span>
+<span class="lineNum">     339 </span>            :   }
+<span class="lineNum">     340 </span>            : #endif
+<span class="lineNum">     341 </span>            : 
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span>            : 
+<span class="lineNum">     344 </span>            : #ifdef USE_GDAL
+<span class="lineNum">     345 </span><span class="lineCov">          1 :   else if( strncasecmp(driver,&quot;gdal/&quot;,5) == 0 ) {</span>
+<span class="lineNum">     346 </span><span class="lineCov">          1 :     if(!name) name=driver+5;</span>
+<span class="lineNum">     347 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     348 </span><span class="lineCov">          1 :     if( msInitDefaultGDALOutputFormat( format ) == MS_FAILURE ) {</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :       if( map != NULL ) {</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :         map-&gt;numoutputformats--;</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :         map-&gt;outputformatlist[map-&gt;numoutputformats] = NULL;</span>
+<span class="lineNum">     352 </span>            :       }
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :       msFreeOutputFormat( format );</span>
+<span class="lineNum">     355 </span>            :       format = NULL;
+<span class="lineNum">     356 </span>            :     }
+<span class="lineNum">     357 </span>            :   }
+<span class="lineNum">     358 </span>            : #endif
+<span class="lineNum">     359 </span>            : #ifdef USE_OGR
+<span class="lineNum">     360 </span><span class="lineCov">          1 :   else if( strncasecmp(driver,&quot;ogr/&quot;,4) == 0 ) {</span>
+<span class="lineNum">     361 </span><span class="lineCov">          1 :     if(!name) name=driver+4;</span>
+<span class="lineNum">     362 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     363 </span><span class="lineCov">          1 :     if( msInitDefaultOGROutputFormat( format ) == MS_FAILURE ) {</span>
+<span class="lineNum">     364 </span><span class="lineCov">          1 :       if( map != NULL ) {</span>
+<span class="lineNum">     365 </span><span class="lineCov">          1 :         map-&gt;numoutputformats--;</span>
+<span class="lineNum">     366 </span><span class="lineCov">          1 :         map-&gt;outputformatlist[map-&gt;numoutputformats] = NULL;</span>
+<span class="lineNum">     367 </span>            :       }
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span><span class="lineCov">          1 :       msFreeOutputFormat( format );</span>
+<span class="lineNum">     370 </span>            :       format = NULL;
+<span class="lineNum">     371 </span>            :     }
+<span class="lineNum">     372 </span>            :   }
+<span class="lineNum">     373 </span>            : #endif
+<span class="lineNum">     374 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;imagemap&quot;) == 0 ) {</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :     if(!name) name=&quot;imagemap&quot;;</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :     format-&gt;mimetype = msStrdup(&quot;text/html; driver=imagemap&quot;);</span>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :     format-&gt;extension = msStrdup(&quot;html&quot;);</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :     format-&gt;imagemode = MS_IMAGEMODE_NULL;</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :     format-&gt;renderer = MS_RENDER_WITH_IMAGEMAP;</span>
+<span class="lineNum">     381 </span>            :   }
+<span class="lineNum">     382 </span>            : 
+<span class="lineNum">     383 </span><span class="lineCov">          1 :   else if( strcasecmp(driver,&quot;template&quot;) == 0 ) {</span>
+<span class="lineNum">     384 </span><span class="lineCov">          1 :     if(!name) name=&quot;template&quot;;</span>
+<span class="lineNum">     385 </span><span class="lineCov">          1 :     format = msAllocOutputFormat( map, name, driver );</span>
+<span class="lineNum">     386 </span><span class="lineCov">          1 :     format-&gt;mimetype = msStrdup(&quot;text/html&quot;);</span>
+<span class="lineNum">     387 </span><span class="lineCov">          1 :     format-&gt;extension = msStrdup(&quot;html&quot;);</span>
+<span class="lineNum">     388 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_FEATURE;</span>
+<span class="lineNum">     389 </span><span class="lineCov">          1 :     format-&gt;renderer = MS_RENDER_WITH_TEMPLATE;</span>
+<span class="lineNum">     390 </span>            :   }
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span><span class="lineCov">          1 :   if( format != NULL )</span>
+<span class="lineNum">     393 </span><span class="lineCov">          1 :     format-&gt;inmapfile = MS_FALSE;</span>
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span>            : 
+<span class="lineNum">     396 </span>            :   return format;
+<span class="lineNum">     397 </span>            : }
+<span class="lineNum">     398 </span>            : 
+<span class="lineNum">     399 </span>            : /************************************************************************/
+<span class="lineNum">     400 </span>            : /*                    msApplyDefaultOutputFormats()                     */
+<span class="lineNum">     401 </span>            : /************************************************************************/
+<a name="402"><span class="lineNum">     402 </span>            : </a>
+<span class="lineNum">     403 </span>            : 
+<span class="lineNum">     404 </span><span class="lineCov">          1 : void msApplyDefaultOutputFormats( mapObj *map )</span>
+<span class="lineNum">     405 </span>            : {
+<span class="lineNum">     406 </span>            :   char *saved_imagetype;
+<span class="lineNum">     407 </span>            :   struct defaultOutputFormatEntry *defEntry;
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span><span class="lineCov">          1 :   if( map-&gt;imagetype == NULL )</span>
+<span class="lineNum">     410 </span>            :     saved_imagetype = NULL;
+<span class="lineNum">     411 </span>            :   else
+<span class="lineNum">     412 </span><span class="lineCov">          1 :     saved_imagetype = msStrdup(map-&gt;imagetype);</span>
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span>            :   defEntry = defaultoutputformats;
+<span class="lineNum">     415 </span><span class="lineCov">          1 :   while(defEntry-&gt;name) {</span>
+<span class="lineNum">     416 </span><span class="lineCov">          1 :     if( msSelectOutputFormat( map, defEntry-&gt;name ) == NULL )</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :       msCreateDefaultOutputFormat( map, defEntry-&gt;driver, defEntry-&gt;name );</span>
+<span class="lineNum">     418 </span><span class="lineCov">          1 :     defEntry++;</span>
+<span class="lineNum">     419 </span>            :   }
+<span class="lineNum">     420 </span><span class="lineCov">          1 :   if( map-&gt;imagetype != NULL )</span>
+<span class="lineNum">     421 </span><span class="lineCov">          1 :     free( map-&gt;imagetype );</span>
+<span class="lineNum">     422 </span><span class="lineCov">          1 :   map-&gt;imagetype = saved_imagetype;</span>
+<span class="lineNum">     423 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            : /************************************************************************/
+<span class="lineNum">     426 </span>            : /*                         msFreeOutputFormat()                         */
+<a name="427"><span class="lineNum">     427 </span>            : /************************************************************************/</a>
+<span class="lineNum">     428 </span>            : 
+<span class="lineNum">     429 </span><span class="lineCov">          1 : void msFreeOutputFormat( outputFormatObj *format )</span>
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span>            : {
+<span class="lineNum">     432 </span><span class="lineCov">          1 :   if( format == NULL )</span>
+<span class="lineNum">     433 </span>            :     return;
+<span class="lineNum">     434 </span><span class="lineCov">          1 :   if( MS_REFCNT_DECR_IS_NOT_ZERO(format) ) {</span>
+<span class="lineNum">     435 </span>            :     return;
+<span class="lineNum">     436 </span>            :   }
+<span class="lineNum">     437 </span>            : 
+<span class="lineNum">     438 </span><span class="lineCov">          1 :   if(MS_RENDERER_PLUGIN(format) &amp;&amp; format-&gt;vtable) {</span>
+<span class="lineNum">     439 </span><span class="lineCov">          1 :     format-&gt;vtable-&gt;cleanup(MS_RENDERER_CACHE(format-&gt;vtable));</span>
+<span class="lineNum">     440 </span><span class="lineCov">          1 :     free( format-&gt;vtable );</span>
+<span class="lineNum">     441 </span>            :   }
+<span class="lineNum">     442 </span><span class="lineCov">          1 :   msFree( format-&gt;name );</span>
+<span class="lineNum">     443 </span><span class="lineCov">          1 :   msFree( format-&gt;mimetype );</span>
+<span class="lineNum">     444 </span><span class="lineCov">          1 :   msFree( format-&gt;driver );</span>
+<span class="lineNum">     445 </span><span class="lineCov">          1 :   msFree( format-&gt;extension );</span>
+<span class="lineNum">     446 </span><span class="lineCov">          1 :   msFreeCharArray( format-&gt;formatoptions, format-&gt;numformatoptions );</span>
+<span class="lineNum">     447 </span><span class="lineCov">          1 :   msFree( format );</span>
+<span class="lineNum">     448 </span>            : }
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span>            : /************************************************************************/
+<span class="lineNum">     451 </span>            : /*                        msAllocOutputFormat()                         */
+<a name="452"><span class="lineNum">     452 </span>            : /************************************************************************/</a>
+<span class="lineNum">     453 </span>            : 
+<span class="lineNum">     454 </span><span class="lineCov">          1 : static outputFormatObj *msAllocOutputFormat( mapObj *map, const char *name,</span>
+<span class="lineNum">     455 </span>            :     const char *driver )
+<span class="lineNum">     456 </span>            : 
+<span class="lineNum">     457 </span>            : {
+<span class="lineNum">     458 </span>            :   outputFormatObj *format;
+<span class="lineNum">     459 </span>            : 
+<span class="lineNum">     460 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     461 </span>            :   /*      Allocate the format object.                                     */
+<span class="lineNum">     462 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     463 </span><span class="lineCov">          1 :   format = (outputFormatObj *) calloc(1,sizeof(outputFormatObj));</span>
+<span class="lineNum">     464 </span><span class="lineCov">          1 :   if( format == NULL ) {</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :     msSetError( MS_MEMERR, NULL, &quot;msAllocOutputFormat()&quot; );</span>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">     467 </span>            :   }
+<span class="lineNum">     468 </span>            : 
+<span class="lineNum">     469 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     470 </span>            :   /*      Initialize various fields.                                      */
+<span class="lineNum">     471 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     472 </span><span class="lineCov">          1 :   format-&gt;bands = 1;</span>
+<span class="lineNum">     473 </span><span class="lineCov">          1 :   format-&gt;name = msStrdup(name);</span>
+<span class="lineNum">     474 </span><span class="lineCov">          1 :   format-&gt;driver = msStrdup(driver);</span>
+<span class="lineNum">     475 </span><span class="lineCov">          1 :   format-&gt;refcount = 0;</span>
+<span class="lineNum">     476 </span><span class="lineCov">          1 :   format-&gt;vtable = NULL;</span>
+<span class="lineNum">     477 </span><span class="lineCov">          1 :   format-&gt;device = NULL;</span>
+<span class="lineNum">     478 </span><span class="lineCov">          1 :   format-&gt;imagemode = MS_IMAGEMODE_RGB;</span>
+<span class="lineNum">     479 </span>            : 
+<span class="lineNum">     480 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     481 </span>            :   /*      Attach to map.                                                  */
+<span class="lineNum">     482 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     483 </span><span class="lineCov">          1 :   if( map != NULL ) {</span>
+<span class="lineNum">     484 </span><span class="lineCov">          1 :     map-&gt;numoutputformats++;</span>
+<span class="lineNum">     485 </span><span class="lineCov">          1 :     if( map-&gt;outputformatlist == NULL )</span>
+<span class="lineNum">     486 </span><span class="lineCov">          1 :       map-&gt;outputformatlist = (outputFormatObj **) malloc(sizeof(void*));</span>
+<span class="lineNum">     487 </span>            :     else
+<span class="lineNum">     488 </span><span class="lineCov">          1 :       map-&gt;outputformatlist = (outputFormatObj **)</span>
+<span class="lineNum">     489 </span><span class="lineCov">          1 :                               realloc(map-&gt;outputformatlist,</span>
+<span class="lineNum">     490 </span>            :                                       sizeof(void*) * map-&gt;numoutputformats );
+<span class="lineNum">     491 </span>            : 
+<span class="lineNum">     492 </span><span class="lineCov">          1 :     map-&gt;outputformatlist[map-&gt;numoutputformats-1] = format;</span>
+<span class="lineNum">     493 </span><span class="lineCov">          1 :     format-&gt;refcount++;</span>
+<span class="lineNum">     494 </span>            :   }
+<span class="lineNum">     495 </span>            : 
+<span class="lineNum">     496 </span><span class="lineCov">          1 :   return format;</span>
+<span class="lineNum">     497 </span>            : }
+<span class="lineNum">     498 </span>            : 
+<span class="lineNum">     499 </span>            : /************************************************************************/
+<span class="lineNum">     500 </span>            : /*                        msAppendOutputFormat()                        */
+<span class="lineNum">     501 </span>            : /*                                                                      */
+<span class="lineNum">     502 </span>            : /*      Add an output format  .                                         */
+<a name="503"><span class="lineNum">     503 </span>            : /*      http://mapserver.gis.umn.edu/bugs/show_bug.cgi?id=511           */</a>
+<span class="lineNum">     504 </span>            : /************************************************************************/
+<span class="lineNum">     505 </span><span class="lineCov">          1 : int msAppendOutputFormat(mapObj *map, outputFormatObj *format)</span>
+<span class="lineNum">     506 </span>            : {
+<span class="lineNum">     507 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     508 </span>            :   /*      Attach to map.                                                  */
+<span class="lineNum">     509 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     510 </span>            :   assert(map);
+<span class="lineNum">     511 </span><span class="lineCov">          1 :   map-&gt;numoutputformats++;</span>
+<span class="lineNum">     512 </span><span class="lineCov">          1 :   if (map-&gt;outputformatlist == NULL)</span>
+<span class="lineNum">     513 </span><span class="lineCov">          1 :     map-&gt;outputformatlist = (outputFormatObj **) malloc(sizeof(void*));</span>
+<span class="lineNum">     514 </span>            :   else
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :     map-&gt;outputformatlist = (outputFormatObj **)</span>
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :                             realloc(map-&gt;outputformatlist,</span>
+<span class="lineNum">     517 </span>            :                                     sizeof(void*) * map-&gt;numoutputformats );
+<span class="lineNum">     518 </span>            : 
+<span class="lineNum">     519 </span><span class="lineCov">          1 :   map-&gt;outputformatlist[map-&gt;numoutputformats-1] = format;</span>
+<span class="lineNum">     520 </span><span class="lineCov">          1 :   MS_REFCNT_INCR(format);</span>
+<span class="lineNum">     521 </span>            : 
+<span class="lineNum">     522 </span><span class="lineCov">          1 :   return map-&gt;numoutputformats;</span>
+<span class="lineNum">     523 </span>            : }
+<span class="lineNum">     524 </span>            : 
+<span class="lineNum">     525 </span>            : /************************************************************************/
+<span class="lineNum">     526 </span>            : /*                        msRemoveOutputFormat()                        */
+<span class="lineNum">     527 </span>            : /*                                                                      */
+<span class="lineNum">     528 </span>            : /*      Remove an output format (by name).                              */
+<a name="529"><span class="lineNum">     529 </span>            : /*      http://mapserver.gis.umn.edu/bugs/show_bug.cgi?id=511           */</a>
+<span class="lineNum">     530 </span>            : /************************************************************************/
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 : int msRemoveOutputFormat(mapObj *map, const char *name)</span>
+<span class="lineNum">     532 </span>            : {
+<span class="lineNum">     533 </span>            :   int i, j;
+<span class="lineNum">     534 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     535 </span>            :   /*      Detach from map.                                                */
+<span class="lineNum">     536 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :   if (map != NULL) {</span>
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :     if (map-&gt;outputformatlist == NULL) {</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :       msSetError(MS_CHILDERR, &quot;Can't remove format from empty outputformatlist&quot;, &quot;msRemoveOutputFormat()&quot;);</span>
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     541 </span>            :     } else {
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :       i = msGetOutputFormatIndex(map, name);</span>
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :       if (i &gt;= 0) {</span>
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :         map-&gt;numoutputformats--;</span>
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :   if(MS_REFCNT_DECR_IS_ZERO(map-&gt;outputformatlist[i]))</span>
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :            msFreeOutputFormat( map-&gt;outputformatlist[i] );</span>
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span><span class="lineNoCov">          0 :         for (j=i; j&lt;map-&gt;numoutputformats-1; j++) {</span>
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :           map-&gt;outputformatlist[j] = map-&gt;outputformatlist[j+1];</span>
+<span class="lineNum">     550 </span>            :         }
+<span class="lineNum">     551 </span>            :       }
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :       map-&gt;outputformatlist = (outputFormatObj **)</span>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :                               realloc(map-&gt;outputformatlist,</span>
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :                                       sizeof(void*) * (map-&gt;numoutputformats) );</span>
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :       return MS_SUCCESS;</span>
+<span class="lineNum">     556 </span>            :     }
+<span class="lineNum">     557 </span>            :   }
+<span class="lineNum">     558 </span>            :   return MS_FAILURE;
+<span class="lineNum">     559 </span>            : }
+<span class="lineNum">     560 </span>            : 
+<span class="lineNum">     561 </span>            : /************************************************************************/
+<span class="lineNum">     562 </span>            : /*                       msGetOutputFormatIndex()                       */
+<span class="lineNum">     563 </span>            : /*                                                                      */
+<span class="lineNum">     564 </span>            : /*      Pulled this out of msSelectOutputFormat for use in other cases. */
+<a name="565"><span class="lineNum">     565 </span>            : /************************************************************************/</a>
+<span class="lineNum">     566 </span>            : 
+<span class="lineNum">     567 </span><span class="lineCov">          1 : int msGetOutputFormatIndex(mapObj *map, const char *imagetype)</span>
+<span class="lineNum">     568 </span>            : {
+<span class="lineNum">     569 </span>            :   int i;
+<span class="lineNum">     570 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     571 </span>            :   /*      Try to find the format in the maps list of formats, first by    */
+<span class="lineNum">     572 </span>            :   /*      mime type, and then by output format name.                      */
+<span class="lineNum">     573 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     574 </span><span class="lineCov">          1 :   for (i = 0; i &lt; map-&gt;numoutputformats; i++) {</span>
+<span class="lineNum">     575 </span><span class="lineCov">          1 :     if (map-&gt;outputformatlist[i]-&gt;mimetype != NULL</span>
+<span class="lineNum">     576 </span><span class="lineCov">          1 :         &amp;&amp; strcasecmp(imagetype,</span>
+<span class="lineNum">     577 </span>            :                       map-&gt;outputformatlist[i]-&gt;mimetype) == 0 )
+<span class="lineNum">     578 </span>            :       return i;
+<span class="lineNum">     579 </span>            :   }
+<span class="lineNum">     580 </span>            : 
+<span class="lineNum">     581 </span><span class="lineCov">          1 :   for( i = 0; i &lt; map-&gt;numoutputformats; i++ ) {</span>
+<span class="lineNum">     582 </span><span class="lineCov">          1 :     if( strcasecmp(imagetype,map-&gt;outputformatlist[i]-&gt;name) == 0 )</span>
+<span class="lineNum">     583 </span>            :       return i;
+<span class="lineNum">     584 </span>            :   }
+<span class="lineNum">     585 </span>            : 
+<span class="lineNum">     586 </span>            :   return -1;
+<span class="lineNum">     587 </span>            : }
+<span class="lineNum">     588 </span>            : 
+<span class="lineNum">     589 </span>            : /************************************************************************/
+<span class="lineNum">     590 </span>            : /*                        msSelectOutputFormat()                        */
+<span class="lineNum">     591 </span>            : /************************************************************************/
+<span class="lineNum">     592 </span>            : 
+<a name="593"><span class="lineNum">     593 </span>            : </a>
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span><span class="lineCov">          1 : outputFormatObj *msSelectOutputFormat( mapObj *map,</span>
+<span class="lineNum">     596 </span>            :                                        const char *imagetype )
+<span class="lineNum">     597 </span>            : 
+<span class="lineNum">     598 </span>            : {
+<span class="lineNum">     599 </span>            :   int index;
+<span class="lineNum">     600 </span>            :   outputFormatObj *format = NULL;
+<span class="lineNum">     601 </span>            : 
+<span class="lineNum">     602 </span><span class="lineCov">          1 :   if( map == NULL || imagetype == NULL || strlen(imagetype) == 0 )</span>
+<span class="lineNum">     603 </span>            :     return NULL;
+<span class="lineNum">     604 </span>            : 
+<span class="lineNum">     605 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     606 </span>            :   /*      Try to find the format in the maps list of formats, first by    */
+<span class="lineNum">     607 </span>            :   /*      mime type, and then by output format name.                      */
+<span class="lineNum">     608 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     609 </span><span class="lineCov">          1 :   index = msGetOutputFormatIndex(map, imagetype);</span>
+<span class="lineNum">     610 </span><span class="lineCov">          1 :   if (index &gt;= 0) {</span>
+<span class="lineNum">     611 </span><span class="lineCov">          1 :     format = map-&gt;outputformatlist[index];</span>
+<span class="lineNum">     612 </span>            :   } else {
+<span class="lineNum">     613 </span>            :     struct defaultOutputFormatEntry *formatEntry = defaultoutputformats;
+<span class="lineNum">     614 </span><span class="lineCov">          1 :     while(formatEntry-&gt;name) {</span>
+<span class="lineNum">     615 </span><span class="lineCov">          1 :       if(!strcasecmp(imagetype,formatEntry-&gt;name) || !strcasecmp(imagetype,formatEntry-&gt;mimetype)) {</span>
+<span class="lineNum">     616 </span><span class="lineCov">          1 :         format = msCreateDefaultOutputFormat( map, formatEntry-&gt;driver, formatEntry-&gt;name );</span>
+<span class="lineNum">     617 </span><span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     618 </span>            :       }
+<span class="lineNum">     619 </span><span class="lineCov">          1 :       formatEntry++;</span>
+<span class="lineNum">     620 </span>            :     }
+<span class="lineNum">     621 </span>            : 
+<span class="lineNum">     622 </span>            :   }
+<span class="lineNum">     623 </span>            : 
+<span class="lineNum">     624 </span><span class="lineCov">          1 :   if (format) {</span>
+<span class="lineNum">     625 </span><span class="lineCov">          1 :     if (map-&gt;imagetype)</span>
+<span class="lineNum">     626 </span><span class="lineCov">          1 :       free(map-&gt;imagetype);</span>
+<span class="lineNum">     627 </span><span class="lineCov">          1 :     map-&gt;imagetype = msStrdup(format-&gt;name);</span>
+<span class="lineNum">     628 </span>            :   }
+<span class="lineNum">     629 </span>            : 
+<span class="lineNum">     630 </span><span class="lineCov">          1 :   if( format != NULL )</span>
+<span class="lineNum">     631 </span><span class="lineCov">          1 :     msOutputFormatValidate( format, MS_FALSE );</span>
+<span class="lineNum">     632 </span>            : 
+<span class="lineNum">     633 </span><span class="lineCov">          1 :   return format;</span>
+<span class="lineNum">     634 </span>            : }
+<span class="lineNum">     635 </span>            : 
+<span class="lineNum">     636 </span>            : /************************************************************************/
+<span class="lineNum">     637 </span>            : /*                        msApplyOutputFormat()                         */
+<a name="638"><span class="lineNum">     638 </span>            : /************************************************************************/</a>
+<span class="lineNum">     639 </span>            : 
+<span class="lineNum">     640 </span><span class="lineCov">          1 : void msApplyOutputFormat( outputFormatObj **target,</span>
+<span class="lineNum">     641 </span>            :                           outputFormatObj *format,
+<span class="lineNum">     642 </span>            :                           int transparent,
+<span class="lineNum">     643 </span>            :                           int interlaced,
+<span class="lineNum">     644 </span>            :                           int imagequality )
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span>            : {
+<span class="lineNum">     647 </span>            :   int       change_needed = MS_FALSE;
+<span class="lineNum">     648 </span>            :   int       old_imagequality, old_interlaced;
+<span class="lineNum">     649 </span>            :   outputFormatObj *formatToFree = NULL;
+<span class="lineNum">     650 </span>            : 
+<span class="lineNum">     651 </span>            :   assert( target != NULL );
+<span class="lineNum">     652 </span>            : 
+<span class="lineNum">     653 </span><span class="lineCov">          1 :   if( *target != NULL &amp;&amp; MS_REFCNT_DECR_IS_ZERO( (*target) ) ) {</span>
+<span class="lineNum">     654 </span><span class="lineCov">          1 :     formatToFree = *target;</span>
+<span class="lineNum">     655 </span><span class="lineCov">          1 :     *target = NULL;</span>
+<span class="lineNum">     656 </span>            :   }
+<span class="lineNum">     657 </span>            : 
+<span class="lineNum">     658 </span><span class="lineCov">          1 :   if( format == NULL ) {</span>
+<span class="lineNum">     659 </span><span class="lineCov">          1 :     if( formatToFree )</span>
+<span class="lineNum">     660 </span><span class="lineCov">          1 :       msFreeOutputFormat( formatToFree );</span>
+<span class="lineNum">     661 </span><span class="lineCov">          1 :     *target = NULL;</span>
+<span class="lineNum">     662 </span><span class="lineCov">          1 :     return;</span>
+<span class="lineNum">     663 </span>            :   }
+<span class="lineNum">     664 </span>            : 
+<span class="lineNum">     665 </span><span class="lineCov">          1 :   msOutputFormatValidate( format, MS_FALSE );</span>
+<span class="lineNum">     666 </span>            : 
+<span class="lineNum">     667 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     668 </span>            :   /*      Do we need to change any values?  If not, then just apply       */
+<span class="lineNum">     669 </span>            :   /*      and return.                                                     */
+<span class="lineNum">     670 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     671 </span><span class="lineCov">          1 :   if( transparent != MS_NOOVERRIDE &amp;&amp; !format-&gt;transparent != !transparent )</span>
+<span class="lineNum">     672 </span>            :     change_needed = MS_TRUE;
+<span class="lineNum">     673 </span>            : 
+<span class="lineNum">     674 </span><span class="lineCov">          1 :   old_imagequality = atoi(msGetOutputFormatOption( format, &quot;QUALITY&quot;, &quot;75&quot;));</span>
+<span class="lineNum">     675 </span><span class="lineCov">          1 :   if( imagequality != MS_NOOVERRIDE &amp;&amp; old_imagequality != imagequality )</span>
+<span class="lineNum">     676 </span>            :     change_needed = MS_TRUE;
+<span class="lineNum">     677 </span>            : 
+<span class="lineNum">     678 </span><span class="lineCov">          1 :   old_interlaced =</span>
+<span class="lineNum">     679 </span><span class="lineCov">          1 :     strcasecmp(msGetOutputFormatOption( format, &quot;INTERLACE&quot;, &quot;ON&quot;),</span>
+<span class="lineNum">     680 </span><span class="lineCov">          1 :                &quot;OFF&quot;) != 0;</span>
+<span class="lineNum">     681 </span><span class="lineCov">          1 :   if( interlaced != MS_NOOVERRIDE &amp;&amp; !interlaced != !old_interlaced )</span>
+<span class="lineNum">     682 </span>            :     change_needed = MS_TRUE;
+<span class="lineNum">     683 </span>            : 
+<span class="lineNum">     684 </span><span class="lineCov">          1 :   if( change_needed ) {</span>
+<span class="lineNum">     685 </span>            :     char new_value[128];
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span><span class="lineCov">          1 :     if( format-&gt;refcount &gt; 0 )</span>
+<span class="lineNum">     688 </span><span class="lineCov">          1 :       format = msCloneOutputFormat( format );</span>
+<span class="lineNum">     689 </span>            : 
+<span class="lineNum">     690 </span><span class="lineCov">          1 :     if( transparent != MS_NOOVERRIDE ) {</span>
+<span class="lineNum">     691 </span><span class="lineCov">          1 :       format-&gt;transparent = transparent;</span>
+<span class="lineNum">     692 </span><span class="lineCov">          1 :       if( format-&gt;imagemode == MS_IMAGEMODE_RGB )</span>
+<span class="lineNum">     693 </span><span class="lineCov">          1 :         format-&gt;imagemode = MS_IMAGEMODE_RGBA;</span>
+<span class="lineNum">     694 </span>            :     }
+<span class="lineNum">     695 </span>            : 
+<span class="lineNum">     696 </span><span class="lineCov">          1 :     if( imagequality != MS_NOOVERRIDE &amp;&amp; imagequality != old_imagequality ) {</span>
+<span class="lineNum">     697 </span>            :       snprintf( new_value, sizeof(new_value), &quot;%d&quot;, imagequality );
+<span class="lineNum">     698 </span><span class="lineNoCov">          0 :       msSetOutputFormatOption( format, &quot;QUALITY&quot;, new_value );</span>
+<span class="lineNum">     699 </span>            :     }
+<span class="lineNum">     700 </span>            : 
+<span class="lineNum">     701 </span><span class="lineCov">          1 :     if( interlaced != MS_NOOVERRIDE &amp;&amp; !interlaced != !old_interlaced ) {</span>
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :       if( interlaced )</span>
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :         msSetOutputFormatOption( format, &quot;INTERLACE&quot;, &quot;ON&quot; );</span>
+<span class="lineNum">     704 </span>            :       else
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 :         msSetOutputFormatOption( format, &quot;INTERLACE&quot;, &quot;OFF&quot; );</span>
+<span class="lineNum">     706 </span>            :     }
+<span class="lineNum">     707 </span>            :   }
+<span class="lineNum">     708 </span>            : 
+<span class="lineNum">     709 </span><span class="lineCov">          1 :   *target = format;</span>
+<span class="lineNum">     710 </span><span class="lineCov">          1 :   format-&gt;refcount++;</span>
+<span class="lineNum">     711 </span><span class="lineCov">          1 :   if( MS_RENDERER_PLUGIN(format) ) {</span>
+<span class="lineNum">     712 </span><span class="lineCov">          1 :     msInitializeRendererVTable(format);</span>
+<span class="lineNum">     713 </span>            :   }
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span>            : 
+<span class="lineNum">     716 </span><span class="lineCov">          1 :   if( formatToFree )</span>
+<span class="lineNum">     717 </span><span class="lineCov">          1 :     msFreeOutputFormat( formatToFree );</span>
+<span class="lineNum">     718 </span>            : }
+<span class="lineNum">     719 </span>            : 
+<span class="lineNum">     720 </span>            : /************************************************************************/
+<span class="lineNum">     721 </span>            : /*                        msCloneOutputFormat()                         */
+<a name="722"><span class="lineNum">     722 </span>            : /************************************************************************/</a>
+<span class="lineNum">     723 </span>            : 
+<span class="lineNum">     724 </span><span class="lineCov">          1 : outputFormatObj *msCloneOutputFormat( outputFormatObj *src )</span>
+<span class="lineNum">     725 </span>            : 
+<span class="lineNum">     726 </span>            : {
+<span class="lineNum">     727 </span>            :   outputFormatObj *dst;
+<span class="lineNum">     728 </span>            :   int             i;
+<span class="lineNum">     729 </span>            : 
+<span class="lineNum">     730 </span><span class="lineCov">          1 :   dst = msAllocOutputFormat( NULL, src-&gt;name, src-&gt;driver );</span>
+<span class="lineNum">     731 </span>            : 
+<span class="lineNum">     732 </span><span class="lineCov">          1 :   msFree( dst-&gt;mimetype );</span>
+<span class="lineNum">     733 </span><span class="lineCov">          1 :   if( src-&gt;mimetype )</span>
+<span class="lineNum">     734 </span><span class="lineCov">          1 :     dst-&gt;mimetype = msStrdup( src-&gt;mimetype );</span>
+<span class="lineNum">     735 </span>            :   else
+<span class="lineNum">     736 </span><span class="lineCov">          1 :     dst-&gt;mimetype = NULL;</span>
+<span class="lineNum">     737 </span>            : 
+<span class="lineNum">     738 </span><span class="lineCov">          1 :   msFree( dst-&gt;extension );</span>
+<span class="lineNum">     739 </span><span class="lineCov">          1 :   if( src-&gt;extension )</span>
+<span class="lineNum">     740 </span><span class="lineCov">          1 :     dst-&gt;extension = msStrdup( src-&gt;extension );</span>
+<span class="lineNum">     741 </span>            :   else
+<span class="lineNum">     742 </span><span class="lineCov">          1 :     dst-&gt;extension = NULL;</span>
+<span class="lineNum">     743 </span>            : 
+<span class="lineNum">     744 </span><span class="lineCov">          1 :   dst-&gt;imagemode = src-&gt;imagemode;</span>
+<span class="lineNum">     745 </span><span class="lineCov">          1 :   dst-&gt;renderer = src-&gt;renderer;</span>
+<span class="lineNum">     746 </span>            : 
+<span class="lineNum">     747 </span><span class="lineCov">          1 :   dst-&gt;transparent = src-&gt;transparent;</span>
+<span class="lineNum">     748 </span><span class="lineCov">          1 :   dst-&gt;bands = src-&gt;bands;</span>
+<span class="lineNum">     749 </span>            : 
+<span class="lineNum">     750 </span><span class="lineCov">          1 :   dst-&gt;numformatoptions = src-&gt;numformatoptions;</span>
+<span class="lineNum">     751 </span><span class="lineCov">          1 :   dst-&gt;formatoptions = (char **)</span>
+<span class="lineNum">     752 </span><span class="lineCov">          1 :                        malloc(sizeof(char *) * src-&gt;numformatoptions );</span>
+<span class="lineNum">     753 </span>            : 
+<span class="lineNum">     754 </span><span class="lineCov">          1 :   for( i = 0; i &lt; src-&gt;numformatoptions; i++ )</span>
+<span class="lineNum">     755 </span><span class="lineCov">          1 :     dst-&gt;formatoptions[i] = msStrdup(src-&gt;formatoptions[i]);</span>
+<span class="lineNum">     756 </span>            : 
+<span class="lineNum">     757 </span><span class="lineCov">          1 :   dst-&gt;inmapfile = src-&gt;inmapfile;</span>
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span><span class="lineCov">          1 :   return dst;</span>
+<span class="lineNum">     760 </span>            : }
+<span class="lineNum">     761 </span>            : 
+<span class="lineNum">     762 </span>            : /************************************************************************/
+<span class="lineNum">     763 </span>            : /*                      msGetOutputFormatOption()                       */
+<span class="lineNum">     764 </span>            : /*                                                                      */
+<span class="lineNum">     765 </span>            : /*      Fetch the value of a particular option.  It is assumed the      */
+<span class="lineNum">     766 </span>            : /*      options are in &quot;KEY=VALUE&quot; format.                              */
+<a name="767"><span class="lineNum">     767 </span>            : /************************************************************************/</a>
+<span class="lineNum">     768 </span>            : 
+<span class="lineNum">     769 </span><span class="lineCov">          1 : const char *msGetOutputFormatOption( outputFormatObj *format,</span>
+<span class="lineNum">     770 </span>            :                                      const char *optionkey,
+<span class="lineNum">     771 </span>            :                                      const char *defaultresult )
+<span class="lineNum">     772 </span>            : 
+<span class="lineNum">     773 </span>            : {
+<span class="lineNum">     774 </span><span class="lineCov">          1 :   int    i, len = strlen(optionkey);</span>
+<span class="lineNum">     775 </span>            : 
+<span class="lineNum">     776 </span><span class="lineCov">          1 :   for( i = 0; i &lt; format-&gt;numformatoptions; i++ ) {</span>
+<span class="lineNum">     777 </span><span class="lineCov">          1 :     if( strncasecmp(format-&gt;formatoptions[i],optionkey,len) == 0</span>
+<span class="lineNum">     778 </span><span class="lineCov">          1 :         &amp;&amp; format-&gt;formatoptions[i][len] == '=' )</span>
+<span class="lineNum">     779 </span><span class="lineCov">          1 :       return format-&gt;formatoptions[i] + len + 1;</span>
+<span class="lineNum">     780 </span>            :   }
+<span class="lineNum">     781 </span>            : 
+<span class="lineNum">     782 </span>            :   return defaultresult;
+<span class="lineNum">     783 </span>            : }
+<span class="lineNum">     784 </span>            : 
+<span class="lineNum">     785 </span>            : /************************************************************************/
+<span class="lineNum">     786 </span>            : /*                      msSetOutputFormatOption()                       */
+<a name="787"><span class="lineNum">     787 </span>            : /************************************************************************/</a>
+<span class="lineNum">     788 </span>            : 
+<span class="lineNum">     789 </span><span class="lineCov">          1 : void msSetOutputFormatOption( outputFormatObj *format,</span>
+<span class="lineNum">     790 </span>            :                               const char *key, const char *value )
+<span class="lineNum">     791 </span>            : 
+<span class="lineNum">     792 </span>            : {
+<span class="lineNum">     793 </span>            :   char *newline;
+<span class="lineNum">     794 </span>            :   int   i, len;
+<span class="lineNum">     795 </span>            : 
+<span class="lineNum">     796 </span><span class="lineCov">          1 :   if( value == NULL )</span>
+<span class="lineNum">     797 </span>            :     return;
+<span class="lineNum">     798 </span>            : 
+<span class="lineNum">     799 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     800 </span>            :   /*      Format the name=value pair into a newly allocated string.       */
+<span class="lineNum">     801 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     802 </span><span class="lineCov">          1 :   newline = (char *) malloc(strlen(key)+strlen(value)+2);</span>
+<span class="lineNum">     803 </span><span class="lineCov">          1 :   if( newline == NULL ) {</span>
+<span class="lineNum">     804 </span>            :     assert( newline != NULL );
+<span class="lineNum">     805 </span>            :     return;
+<span class="lineNum">     806 </span>            :   }
+<span class="lineNum">     807 </span>            : 
+<span class="lineNum">     808 </span>            :   sprintf( newline, &quot;%s=%s&quot;, key, value );
+<span class="lineNum">     809 </span>            : 
+<span class="lineNum">     810 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     811 </span>            :   /*      Does this key already occur?  If so replace it.                 */
+<span class="lineNum">     812 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     813 </span><span class="lineCov">          1 :   len = strlen(key);</span>
+<span class="lineNum">     814 </span>            : 
+<span class="lineNum">     815 </span><span class="lineCov">          1 :   for( i = 0; i &lt; format-&gt;numformatoptions; i++ ) {</span>
+<span class="lineNum">     816 </span><span class="lineCov">          1 :     if( strncasecmp(format-&gt;formatoptions[i],key,len) == 0</span>
+<span class="lineNum">     817 </span><span class="lineCov">          1 :         &amp;&amp; format-&gt;formatoptions[i][len] == '=' ) {</span>
+<span class="lineNum">     818 </span><span class="lineCov">          1 :       free( format-&gt;formatoptions[i] );</span>
+<span class="lineNum">     819 </span><span class="lineCov">          1 :       format-&gt;formatoptions[i] = newline;</span>
+<span class="lineNum">     820 </span><span class="lineCov">          1 :       return;</span>
+<span class="lineNum">     821 </span>            :     }
+<span class="lineNum">     822 </span>            :   }
+<span class="lineNum">     823 </span>            : 
+<span class="lineNum">     824 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     825 </span>            :   /*      otherwise, we need to grow the list.                            */
+<span class="lineNum">     826 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     827 </span><span class="lineCov">          1 :   format-&gt;numformatoptions++;</span>
+<span class="lineNum">     828 </span><span class="lineCov">          1 :   format-&gt;formatoptions = (char **)</span>
+<span class="lineNum">     829 </span><span class="lineCov">          1 :                           realloc( format-&gt;formatoptions,</span>
+<span class="lineNum">     830 </span>            :                                    sizeof(char*) * format-&gt;numformatoptions );
+<span class="lineNum">     831 </span>            : 
+<span class="lineNum">     832 </span><span class="lineCov">          1 :   format-&gt;formatoptions[format-&gt;numformatoptions-1] = newline;</span>
+<span class="lineNum">     833 </span>            : 
+<span class="lineNum">     834 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     835 </span>            :   /*      Capture generic value(s) we are interested in.                  */
+<span class="lineNum">     836 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     837 </span><span class="lineCov">          1 :   if( strcasecmp(key,&quot;BAND_COUNT&quot;) == 0 )</span>
+<span class="lineNum">     838 </span><span class="lineCov">          1 :     format-&gt;bands = atoi(value);</span>
+<span class="lineNum">     839 </span>            : }
+<span class="lineNum">     840 </span>            : 
+<span class="lineNum">     841 </span>            : /************************************************************************/
+<span class="lineNum">     842 </span>            : /*                     msGetOutputFormatMimeList()                      */
+<a name="843"><span class="lineNum">     843 </span>            : /************************************************************************/</a>
+<span class="lineNum">     844 </span>            : 
+<span class="lineNum">     845 </span><span class="lineCov">          1 : void msGetOutputFormatMimeList( mapObj *map, char **mime_list, int max_mime )</span>
+<span class="lineNum">     846 </span>            : 
+<span class="lineNum">     847 </span>            : {
+<span class="lineNum">     848 </span>            :   int mime_count = 0, i;
+<span class="lineNum">     849 </span>            : 
+<span class="lineNum">     850 </span><span class="lineCov">          1 :   msApplyDefaultOutputFormats(map);</span>
+<span class="lineNum">     851 </span><span class="lineCov">          1 :   for( i = 0; i &lt; map-&gt;numoutputformats &amp;&amp; mime_count &lt; max_mime; i++ ) {</span>
+<span class="lineNum">     852 </span>            :     int  j;
+<span class="lineNum">     853 </span>            : 
+<span class="lineNum">     854 </span><span class="lineCov">          1 :     if( map-&gt;outputformatlist[i]-&gt;mimetype == NULL )</span>
+<span class="lineNum">     855 </span><span class="lineNoCov">          0 :       continue;</span>
+<span class="lineNum">     856 </span>            : 
+<span class="lineNum">     857 </span><span class="lineCov">          1 :     for( j = 0; j &lt; mime_count; j++ ) {</span>
+<span class="lineNum">     858 </span><span class="lineCov">          1 :       if( strcasecmp(mime_list[j],</span>
+<span class="lineNum">     859 </span>            :                      map-&gt;outputformatlist[i]-&gt;mimetype) == 0 )
+<span class="lineNum">     860 </span>            :         break;
+<span class="lineNum">     861 </span>            :     }
+<span class="lineNum">     862 </span>            : 
+<span class="lineNum">     863 </span><span class="lineCov">          1 :     if( j == mime_count )</span>
+<span class="lineNum">     864 </span><span class="lineCov">          1 :       mime_list[mime_count++] = map-&gt;outputformatlist[i]-&gt;mimetype;</span>
+<span class="lineNum">     865 </span>            :   }
+<span class="lineNum">     866 </span>            : 
+<span class="lineNum">     867 </span><span class="lineCov">          1 :   if( mime_count &lt; max_mime )</span>
+<span class="lineNum">     868 </span><span class="lineCov">          1 :     mime_list[mime_count] = NULL;</span>
+<span class="lineNum">     869 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     870 </span>            : 
+<span class="lineNum">     871 </span>            : /************************************************************************/
+<a name="872"><span class="lineNum">     872 </span>            : /*                     msGetOutputFormatMimeList()                      */</a>
+<span class="lineNum">     873 </span>            : /************************************************************************/
+<span class="lineNum">     874 </span><span class="lineCov">          1 : void msGetOutputFormatMimeListImg( mapObj *map, char **mime_list, int max_mime )</span>
+<span class="lineNum">     875 </span>            : 
+<span class="lineNum">     876 </span>            : {
+<span class="lineNum">     877 </span>            :   int mime_count = 0, i,j;
+<span class="lineNum">     878 </span>            :   const char *format_list = NULL;
+<span class="lineNum">     879 </span>            :   char **tokens = NULL;
+<span class="lineNum">     880 </span><span class="lineCov">          1 :   int numtokens = 0;</span>
+<span class="lineNum">     881 </span>            :   outputFormatObj *format;
+<span class="lineNum">     882 </span>            : 
+<span class="lineNum">     883 </span><span class="lineCov">          1 :   msApplyDefaultOutputFormats(map);</span>
+<span class="lineNum">     884 </span><span class="lineCov">          1 :   format_list = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;M&quot;,&quot;getlegendgraphic_formatlist&quot;);</span>
+<span class="lineNum">     885 </span><span class="lineCov">          1 :   if ( format_list &amp;&amp; strlen(format_list) &gt; 0)</span>
+<span class="lineNum">     886 </span><span class="lineNoCov">          0 :     tokens = msStringSplit(format_list,  ',', &amp;numtokens);</span>
+<span class="lineNum">     887 </span>            : 
+<span class="lineNum">     888 </span><span class="lineCov">          1 :   if (tokens &amp;&amp; numtokens &gt; 0) {</span>
+<span class="lineNum">     889 </span><span class="lineNoCov">          0 :     for(j = 0; j &lt; numtokens; j++ ) {</span>
+<span class="lineNum">     890 </span><span class="lineNoCov">          0 :       format = msSelectOutputFormat(map, tokens[j]);</span>
+<span class="lineNum">     891 </span><span class="lineNoCov">          0 :       if (format != NULL) {</span>
+<span class="lineNum">     892 </span><span class="lineNoCov">          0 :         mime_list[mime_count++] = format-&gt;mimetype;</span>
+<span class="lineNum">     893 </span>            :       }
+<span class="lineNum">     894 </span>            :     }
+<span class="lineNum">     895 </span>            :   } else
+<span class="lineNum">     896 </span><span class="lineCov">          1 :     for( i = 0; i &lt; map-&gt;numoutputformats &amp;&amp; mime_count &lt; max_mime; i++ ) {</span>
+<span class="lineNum">     897 </span>            :       int  j;
+<span class="lineNum">     898 </span>            : 
+<span class="lineNum">     899 </span><span class="lineCov">          1 :       if( map-&gt;outputformatlist[i]-&gt;mimetype == NULL )</span>
+<span class="lineNum">     900 </span><span class="lineNoCov">          0 :         continue;</span>
+<span class="lineNum">     901 </span>            : 
+<span class="lineNum">     902 </span><span class="lineCov">          1 :       for( j = 0; j &lt; mime_count; j++ ) {</span>
+<span class="lineNum">     903 </span><span class="lineCov">          1 :         if( strcasecmp(mime_list[j],</span>
+<span class="lineNum">     904 </span>            :                        map-&gt;outputformatlist[i]-&gt;mimetype) == 0 )
+<span class="lineNum">     905 </span>            :           break;
+<span class="lineNum">     906 </span>            :       }
+<span class="lineNum">     907 </span>            : 
+<span class="lineNum">     908 </span><span class="lineCov">          1 :       if( j == mime_count &amp;&amp; map-&gt;outputformatlist[i]-&gt;driver &amp;&amp;</span>
+<span class="lineNum">     909 </span><span class="lineCov">          1 :           strncasecmp(map-&gt;outputformatlist[i]-&gt;driver, &quot;AGG/&quot;, 4)==0)</span>
+<span class="lineNum">     910 </span><span class="lineCov">          1 :         mime_list[mime_count++] = map-&gt;outputformatlist[i]-&gt;mimetype;</span>
+<span class="lineNum">     911 </span>            :     }
+<span class="lineNum">     912 </span>            : 
+<span class="lineNum">     913 </span><span class="lineCov">          1 :   if( mime_count &lt; max_mime )</span>
+<span class="lineNum">     914 </span><span class="lineCov">          1 :     mime_list[mime_count] = NULL;</span>
+<span class="lineNum">     915 </span><span class="lineCov">          1 :   if(tokens)</span>
+<span class="lineNum">     916 </span><span class="lineNoCov">          0 :     msFreeCharArray(tokens, numtokens);</span>
+<span class="lineNum">     917 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     918 </span>            : 
+<span class="lineNum">     919 </span>            : /************************************************************************/
+<span class="lineNum">     920 </span>            : /*                  msGetOutputFormatMimeListWMS()                      */
+<a name="921"><span class="lineNum">     921 </span>            : /************************************************************************/</a>
+<span class="lineNum">     922 </span>            : 
+<span class="lineNum">     923 </span><span class="lineCov">          1 : void msGetOutputFormatMimeListWMS( mapObj *map, char **mime_list, int max_mime )</span>
+<span class="lineNum">     924 </span>            : {
+<span class="lineNum">     925 </span>            :   int mime_count = 0, i,j;
+<span class="lineNum">     926 </span>            :   const char *format_list = NULL;
+<span class="lineNum">     927 </span>            :   char **tokens = NULL;
+<span class="lineNum">     928 </span><span class="lineCov">          1 :   int numtokens = 0;</span>
+<span class="lineNum">     929 </span>            :   outputFormatObj *format;
+<span class="lineNum">     930 </span><span class="lineCov">          1 :   msApplyDefaultOutputFormats(map);</span>
+<span class="lineNum">     931 </span><span class="lineCov">          1 :   format_list = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;M&quot;,&quot;getmap_formatlist&quot;);</span>
+<span class="lineNum">     932 </span><span class="lineCov">          1 :   if ( format_list &amp;&amp; strlen(format_list) &gt; 0)</span>
+<span class="lineNum">     933 </span><span class="lineCov">          1 :     tokens = msStringSplit(format_list,  ',', &amp;numtokens);</span>
+<span class="lineNum">     934 </span>            : 
+<span class="lineNum">     935 </span><span class="lineCov">          1 :   if (tokens &amp;&amp; numtokens &gt; 0) {</span>
+<span class="lineNum">     936 </span><span class="lineCov">          1 :     for(j = 0; j &lt; numtokens; j++ ) {</span>
+<span class="lineNum">     937 </span><span class="lineCov">          1 :       format = msSelectOutputFormat(map, tokens[j]);</span>
+<span class="lineNum">     938 </span><span class="lineCov">          1 :       if (format != NULL) {</span>
+<span class="lineNum">     939 </span><span class="lineCov">          1 :         mime_list[mime_count++] = format-&gt;mimetype;</span>
+<span class="lineNum">     940 </span>            :       }
+<span class="lineNum">     941 </span>            :     }
+<span class="lineNum">     942 </span>            :   } else {
+<span class="lineNum">     943 </span><span class="lineCov">          1 :     for( i = 0; i &lt; map-&gt;numoutputformats &amp;&amp; mime_count &lt; max_mime; i++ ) {</span>
+<span class="lineNum">     944 </span>            :       int  j;
+<span class="lineNum">     945 </span>            : 
+<span class="lineNum">     946 </span><span class="lineCov">          1 :       if( map-&gt;outputformatlist[i]-&gt;mimetype == NULL )</span>
+<span class="lineNum">     947 </span><span class="lineNoCov">          0 :         continue;</span>
+<span class="lineNum">     948 </span>            : 
+<span class="lineNum">     949 </span><span class="lineCov">          1 :       for( j = 0; j &lt; mime_count; j++ ) {</span>
+<span class="lineNum">     950 </span><span class="lineCov">          1 :         if( strcasecmp(mime_list[j],</span>
+<span class="lineNum">     951 </span>            :                        map-&gt;outputformatlist[i]-&gt;mimetype) == 0 )
+<span class="lineNum">     952 </span>            :           break;
+<span class="lineNum">     953 </span>            :       }
+<span class="lineNum">     954 </span>            : 
+<span class="lineNum">     955 </span><span class="lineCov">          1 :       if( j == mime_count &amp;&amp; map-&gt;outputformatlist[i]-&gt;driver &amp;&amp;</span>
+<span class="lineNum">     956 </span>            :           (
+<span class="lineNum">     957 </span><span class="lineCov">          1 :             strncasecmp(map-&gt;outputformatlist[i]-&gt;driver, &quot;GDAL/&quot;, 5)==0 ||</span>
+<span class="lineNum">     958 </span><span class="lineCov">          1 :             strncasecmp(map-&gt;outputformatlist[i]-&gt;driver, &quot;AGG/&quot;, 4)==0 ||</span>
+<span class="lineNum">     959 </span><span class="lineCov">          1 :             strcasecmp(map-&gt;outputformatlist[i]-&gt;driver, &quot;CAIRO/SVG&quot;)==0 ||</span>
+<span class="lineNum">     960 </span><span class="lineCov">          1 :             strcasecmp(map-&gt;outputformatlist[i]-&gt;driver, &quot;CAIRO/PDF&quot;)==0 ||</span>
+<span class="lineNum">     961 </span><span class="lineCov">          1 :             strcasecmp(map-&gt;outputformatlist[i]-&gt;driver, &quot;kml&quot;)==0 ||</span>
+<span class="lineNum">     962 </span><span class="lineCov">          1 :             strcasecmp(map-&gt;outputformatlist[i]-&gt;driver, &quot;kmz&quot;)==0 ||</span>
+<span class="lineNum">     963 </span><span class="lineCov">          1 :             strcasecmp(map-&gt;outputformatlist[i]-&gt;driver, &quot;mvt&quot;)==0 ||</span>
+<span class="lineNum">     964 </span><span class="lineCov">          1 :             strcasecmp(map-&gt;outputformatlist[i]-&gt;driver, &quot;UTFGRID&quot;)==0))</span>
+<span class="lineNum">     965 </span><span class="lineCov">          1 :         mime_list[mime_count++] = map-&gt;outputformatlist[i]-&gt;mimetype;</span>
+<span class="lineNum">     966 </span>            :     }
+<span class="lineNum">     967 </span>            :   }
+<span class="lineNum">     968 </span><span class="lineCov">          1 :   if( mime_count &lt; max_mime )</span>
+<span class="lineNum">     969 </span><span class="lineCov">          1 :     mime_list[mime_count] = NULL;</span>
+<span class="lineNum">     970 </span><span class="lineCov">          1 :   if(tokens)</span>
+<span class="lineNum">     971 </span><span class="lineCov">          1 :     msFreeCharArray(tokens, numtokens);</span>
+<span class="lineNum">     972 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     973 </span>            : 
+<span class="lineNum">     974 </span>            : 
+<span class="lineNum">     975 </span>            : /************************************************************************/
+<span class="lineNum">     976 </span>            : /*                       msOutputFormatValidate()                       */
+<span class="lineNum">     977 </span>            : /*                                                                      */
+<span class="lineNum">     978 </span>            : /*      Do some validation of the output format, and report to debug    */
+<span class="lineNum">     979 </span>            : /*      output if it doesn't seem valid.  Fixup in place as best as     */
+<span class="lineNum">     980 </span>            : /*      possible.                                                       */
+<a name="981"><span class="lineNum">     981 </span>            : /************************************************************************/</a>
+<span class="lineNum">     982 </span>            : 
+<span class="lineNum">     983 </span><span class="lineCov">          1 : int msOutputFormatValidate( outputFormatObj *format, int issue_error )</span>
+<span class="lineNum">     984 </span>            : 
+<span class="lineNum">     985 </span>            : {
+<span class="lineNum">     986 </span>            :   int result = MS_TRUE;
+<span class="lineNum">     987 </span>            :   char *driver_ext;
+<span class="lineNum">     988 </span>            : 
+<span class="lineNum">     989 </span><span class="lineCov">          1 :   format-&gt;bands = atoi(msGetOutputFormatOption( format, &quot;BAND_COUNT&quot;, &quot;1&quot; ));</span>
+<span class="lineNum">     990 </span>            : 
+<span class="lineNum">     991 </span>            :   /* Enforce the requirement that JPEG be RGB and TRANSPARENT=OFF */
+<span class="lineNum">     992 </span><span class="lineCov">          1 :   driver_ext = strstr(format-&gt;driver,&quot;/&quot;);</span>
+<span class="lineNum">     993 </span><span class="lineCov">          1 :   if( driver_ext &amp;&amp; ++driver_ext &amp;&amp; !strcasecmp(driver_ext,&quot;JPEG&quot;)) {</span>
+<span class="lineNum">     994 </span><span class="lineCov">          1 :     if( format-&gt;transparent ) {</span>
+<span class="lineNum">     995 </span><span class="lineNoCov">          0 :       if( issue_error )</span>
+<span class="lineNum">     996 </span><span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
+<span class="lineNum">     997 </span>            :                     &quot;JPEG OUTPUTFORMAT %s has TRANSPARENT set ON, but this is not supported.\n&quot;
+<span class="lineNum">     998 </span>            :                     &quot;It has been disabled.\n&quot;,
+<span class="lineNum">     999 </span>            :                     &quot;msOutputFormatValidate()&quot;, format-&gt;name );
+<span class="lineNum">    1000 </span>            :       else
+<span class="lineNum">    1001 </span><span class="lineNoCov">          0 :         msDebug( &quot;JPEG OUTPUTFORMAT %s has TRANSPARENT set ON, but this is not supported.\n&quot;</span>
+<span class="lineNum">    1002 </span>            :                  &quot;It has been disabled.\n&quot;,
+<span class="lineNum">    1003 </span>            :                  format-&gt;name );
+<span class="lineNum">    1004 </span>            : 
+<span class="lineNum">    1005 </span><span class="lineNoCov">          0 :       format-&gt;transparent = MS_FALSE;</span>
+<span class="lineNum">    1006 </span>            :       result = MS_FALSE;
+<span class="lineNum">    1007 </span>            :     }
+<span class="lineNum">    1008 </span><span class="lineCov">          1 :     if( format-&gt;imagemode == MS_IMAGEMODE_RGBA ) {</span>
+<span class="lineNum">    1009 </span><span class="lineNoCov">          0 :       if( issue_error )</span>
+<span class="lineNum">    1010 </span><span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1011 </span>            :                     &quot;JPEG OUTPUTFORMAT %s has IMAGEMODE RGBA, but this is not supported.\n&quot;
+<span class="lineNum">    1012 </span>            :                     &quot;IMAGEMODE forced to RGB.\n&quot;,
+<span class="lineNum">    1013 </span>            :                     &quot;msOutputFormatValidate()&quot;, format-&gt;name );
+<span class="lineNum">    1014 </span>            :       else
+<span class="lineNum">    1015 </span><span class="lineNoCov">          0 :         msDebug( &quot;JPEG OUTPUTFORMAT %s has IMAGEMODE RGBA, but this is not supported.\n&quot;</span>
+<span class="lineNum">    1016 </span>            :                  &quot;IMAGEMODE forced to RGB.\n&quot;,
+<span class="lineNum">    1017 </span>            :                  format-&gt;name );
+<span class="lineNum">    1018 </span>            : 
+<span class="lineNum">    1019 </span><span class="lineNoCov">          0 :       format-&gt;imagemode = MS_IMAGEMODE_RGB;</span>
+<span class="lineNum">    1020 </span>            :       result = MS_FALSE;
+<span class="lineNum">    1021 </span>            :     }
+<span class="lineNum">    1022 </span>            :   }
+<span class="lineNum">    1023 </span>            : 
+<span class="lineNum">    1024 </span><span class="lineCov">          1 :   if( format-&gt;transparent &amp;&amp; format-&gt;imagemode == MS_IMAGEMODE_RGB ) {</span>
+<span class="lineNum">    1025 </span><span class="lineCov">          1 :     if( issue_error )</span>
+<span class="lineNum">    1026 </span><span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1027 </span>            :                   &quot;OUTPUTFORMAT %s has TRANSPARENT set ON, but an IMAGEMODE\n&quot;
+<span class="lineNum">    1028 </span>            :                   &quot;of RGB instead of RGBA.  Changing imagemode to RGBA.\n&quot;,
+<span class="lineNum">    1029 </span>            :                   &quot;msOutputFormatValidate()&quot;, format-&gt;name );
+<span class="lineNum">    1030 </span>            :     else
+<span class="lineNum">    1031 </span><span class="lineCov">          1 :       msDebug(&quot;OUTPUTFORMAT %s has TRANSPARENT set ON, but an IMAGEMODE\n&quot;</span>
+<span class="lineNum">    1032 </span>            :               &quot;of RGB instead of RGBA.  Changing imagemode to RGBA.\n&quot;,
+<span class="lineNum">    1033 </span>            :               format-&gt;name );
+<span class="lineNum">    1034 </span>            : 
+<span class="lineNum">    1035 </span><span class="lineCov">          1 :     format-&gt;imagemode = MS_IMAGEMODE_RGBA;</span>
+<span class="lineNum">    1036 </span>            :     result = MS_FALSE;
+<span class="lineNum">    1037 </span>            :   }
+<span class="lineNum">    1038 </span>            : 
+<span class="lineNum">    1039 </span>            :   /* Special checking around RAWMODE image modes. */
+<span class="lineNum">    1040 </span><span class="lineCov">          1 :   if( format-&gt;imagemode == MS_IMAGEMODE_INT16</span>
+<span class="lineNum">    1041 </span>            :       || format-&gt;imagemode == MS_IMAGEMODE_FLOAT32
+<span class="lineNum">    1042 </span><span class="lineCov">          1 :       || format-&gt;imagemode == MS_IMAGEMODE_BYTE ) {</span>
+<span class="lineNum">    1043 </span><span class="lineCov">          1 :     if( strncmp(format-&gt;driver,&quot;GDAL/&quot;,5) != 0 ) {</span>
+<span class="lineNum">    1044 </span>            :       result = MS_FALSE;
+<span class="lineNum">    1045 </span><span class="lineNoCov">          0 :       if( issue_error )</span>
+<span class="lineNum">    1046 </span><span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1047 </span>            :                     &quot;OUTPUTFORMAT %s has IMAGEMODE BYTE/INT16/FLOAT32, but this is only supported for GDAL drivers.&quot;,
+<span class="lineNum">    1048 </span>            :                     &quot;msOutputFormatValidate()&quot;, format-&gt;name );
+<span class="lineNum">    1049 </span>            :       else
+<span class="lineNum">    1050 </span><span class="lineNoCov">          0 :         msDebug( &quot;OUTPUTFORMAT %s has IMAGEMODE BYTE/INT16/FLOAT32, but this is only supported for GDAL drivers.&quot;,</span>
+<span class="lineNum">    1051 </span>            :                  format-&gt;name );
+<span class="lineNum">    1052 </span>            :     }
+<span class="lineNum">    1053 </span>            : 
+<span class="lineNum">    1054 </span><span class="lineCov">          1 :     if( format-&gt;renderer != MS_RENDER_WITH_RAWDATA ) /* see bug 724 */</span>
+<span class="lineNum">    1055 </span><span class="lineNoCov">          0 :       format-&gt;renderer = MS_RENDER_WITH_RAWDATA;</span>
+<span class="lineNum">    1056 </span>            :   }
+<span class="lineNum">    1057 </span>            : 
+<span class="lineNum">    1058 </span><span class="lineCov">          1 :   if( !strcasecmp(format-&gt;driver,&quot;AGG/MIXED&quot;) )</span>
+<span class="lineNum">    1059 </span>            :   {
+<span class="lineNum">    1060 </span><span class="lineCov">          1 :     if( !msGetOutputFormatOption(format, &quot;TRANSPARENT_FORMAT&quot;, NULL) )</span>
+<span class="lineNum">    1061 </span>            :     {
+<span class="lineNum">    1062 </span>            :       result = MS_FALSE;
+<span class="lineNum">    1063 </span><span class="lineNoCov">          0 :       if( issue_error )</span>
+<span class="lineNum">    1064 </span><span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1065 </span>            :                     &quot;OUTPUTFORMAT %s lacks a 'TRANSPARENT_FORMAT' FORMATOPTION.&quot;,
+<span class="lineNum">    1066 </span>            :                     &quot;msOutputFormatValidate()&quot;, format-&gt;name );
+<span class="lineNum">    1067 </span>            :       else
+<span class="lineNum">    1068 </span><span class="lineNoCov">          0 :         msDebug( &quot;OUTPUTFORMAT %s lacks a 'TRANSPARENT_FORMAT' FORMATOPTION.&quot;,</span>
+<span class="lineNum">    1069 </span>            :                  format-&gt;name );
+<span class="lineNum">    1070 </span>            :     }
+<span class="lineNum">    1071 </span><span class="lineCov">          1 :     if( !msGetOutputFormatOption(format, &quot;OPAQUE_FORMAT&quot;, NULL) )</span>
+<span class="lineNum">    1072 </span>            :     {
+<span class="lineNum">    1073 </span>            :       result = MS_FALSE;
+<span class="lineNum">    1074 </span><span class="lineNoCov">          0 :       if( issue_error )</span>
+<span class="lineNum">    1075 </span><span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1076 </span>            :                     &quot;OUTPUTFORMAT %s lacks a 'OPAQUE_FORMAT' FORMATOPTION.&quot;,
+<span class="lineNum">    1077 </span>            :                     &quot;msOutputFormatValidate()&quot;, format-&gt;name );
+<span class="lineNum">    1078 </span>            :       else
+<span class="lineNum">    1079 </span><span class="lineNoCov">          0 :         msDebug( &quot;OUTPUTFORMAT %s lacks a 'OPAQUE_FORMAT' FORMATOPTION.&quot;,</span>
+<span class="lineNum">    1080 </span>            :                  format-&gt;name );
+<span class="lineNum">    1081 </span>            :     }
+<span class="lineNum">    1082 </span>            :   }
+<span class="lineNum">    1083 </span>            : 
+<span class="lineNum">    1084 </span><span class="lineCov">          1 :   return result;</span>
+<span class="lineNum">    1085 </span>            : }
+<span class="lineNum">    1086 </span>            : 
+<span class="lineNum">    1087 </span>            : /************************************************************************/
+<span class="lineNum">    1088 </span>            : /*                     msInitializeRendererVTable()                     */
+<a name="1089"><span class="lineNum">    1089 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1090 </span>            : 
+<span class="lineNum">    1091 </span><span class="lineCov">          1 : int msInitializeRendererVTable(outputFormatObj *format)</span>
+<span class="lineNum">    1092 </span>            : {
+<span class="lineNum">    1093 </span>            :   assert(format);
+<span class="lineNum">    1094 </span><span class="lineCov">          1 :   if(format-&gt;vtable) {</span>
+<span class="lineNum">    1095 </span>            :     return MS_SUCCESS;
+<span class="lineNum">    1096 </span>            :   }
+<span class="lineNum">    1097 </span><span class="lineCov">          1 :   format-&gt;vtable = (rendererVTableObj*)calloc(1,sizeof(rendererVTableObj));</span>
+<span class="lineNum">    1098 </span>            : 
+<span class="lineNum">    1099 </span><span class="lineCov">          1 :   msInitializeDummyRenderer(format-&gt;vtable);</span>
+<span class="lineNum">    1100 </span>            : 
+<span class="lineNum">    1101 </span><span class="lineCov">          1 :   switch(format-&gt;renderer) {</span>
+<span class="lineNum">    1102 </span>            :     case MS_RENDER_WITH_AGG:
+<span class="lineNum">    1103 </span><span class="lineCov">          1 :       return msPopulateRendererVTableAGG(format-&gt;vtable);</span>
+<span class="lineNum">    1104 </span>            :     case MS_RENDER_WITH_UTFGRID:
+<span class="lineNum">    1105 </span><span class="lineCov">          1 :       return msPopulateRendererVTableUTFGrid(format-&gt;vtable);</span>
+<span class="lineNum">    1106 </span>            : #ifdef USE_PBF
+<span class="lineNum">    1107 </span>            :     case MS_RENDER_WITH_MVT:
+<span class="lineNum">    1108 </span><span class="lineCov">          1 :       return msPopulateRendererVTableMVT(format-&gt;vtable);</span>
+<span class="lineNum">    1109 </span>            : #endif
+<span class="lineNum">    1110 </span>            : #ifdef USE_CAIRO
+<span class="lineNum">    1111 </span>            :     case MS_RENDER_WITH_CAIRO_RASTER:
+<span class="lineNum">    1112 </span><span class="lineCov">          1 :       return msPopulateRendererVTableCairoRaster(format-&gt;vtable);</span>
+<span class="lineNum">    1113 </span>            :     case MS_RENDER_WITH_CAIRO_PDF:
+<span class="lineNum">    1114 </span><span class="lineCov">          1 :       return msPopulateRendererVTableCairoPDF(format-&gt;vtable);</span>
+<span class="lineNum">    1115 </span>            :     case MS_RENDER_WITH_CAIRO_SVG:
+<span class="lineNum">    1116 </span><span class="lineCov">          1 :       return msPopulateRendererVTableCairoSVG(format-&gt;vtable);</span>
+<span class="lineNum">    1117 </span>            : #endif
+<span class="lineNum">    1118 </span>            : #ifdef USE_OGL
+<span class="lineNum">    1119 </span>            :     case MS_RENDER_WITH_OGL:
+<span class="lineNum">    1120 </span>            :       return msPopulateRendererVTableOGL(format-&gt;vtable);
+<span class="lineNum">    1121 </span>            : #endif
+<span class="lineNum">    1122 </span>            : #ifdef USE_KML
+<span class="lineNum">    1123 </span>            :     case MS_RENDER_WITH_KML:
+<span class="lineNum">    1124 </span><span class="lineCov">          1 :       return msPopulateRendererVTableKML(format-&gt;vtable);</span>
+<span class="lineNum">    1125 </span>            : #endif
+<span class="lineNum">    1126 </span>            : #ifdef USE_OGR
+<span class="lineNum">    1127 </span>            :     case MS_RENDER_WITH_OGR:
+<span class="lineNum">    1128 </span><span class="lineNoCov">          0 :       return msPopulateRendererVTableOGR(format-&gt;vtable);</span>
+<span class="lineNum">    1129 </span>            : #endif
+<span class="lineNum">    1130 </span>            :     default:
+<span class="lineNum">    1131 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;unsupported RendererVtable renderer %d&quot;,</span>
+<span class="lineNum">    1132 </span>            :                  &quot;msInitializeRendererVTable()&quot;,format-&gt;renderer);
+<span class="lineNum">    1133 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    1134 </span>            :   }
+<span class="lineNum">    1135 </span>            :   /* this code should never be executed */
+<span class="lineNum">    1136 </span>            :   return MS_FAILURE;
+<span class="lineNum">    1137 </span>            : }
+<span class="lineNum">    1138 </span>            : 
+<span class="lineNum">    1139 </span>            : /************************************************************************/
+<span class="lineNum">    1140 </span>            : /*                    msOutputFormatResolveFromImage()                  */
+<a name="1141"><span class="lineNum">    1141 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1142 </span>            : 
+<span class="lineNum">    1143 </span><span class="lineCov">          1 : void msOutputFormatResolveFromImage( mapObj *map, imageObj* img )</span>
+<span class="lineNum">    1144 </span>            : {
+<span class="lineNum">    1145 </span><span class="lineCov">          1 :   outputFormatObj* format = map-&gt;outputformat;</span>
+<span class="lineNum">    1146 </span>            :   assert( img-&gt;format == format );
+<span class="lineNum">    1147 </span>            :   assert( img-&gt;format-&gt;refcount &gt;= 2 );
+<span class="lineNum">    1148 </span>            : 
+<span class="lineNum">    1149 </span><span class="lineCov">          1 :   if( format-&gt;renderer == MS_RENDER_WITH_AGG &amp;&amp;</span>
+<span class="lineNum">    1150 </span><span class="lineCov">          1 :       strcmp(format-&gt;driver, &quot;AGG/MIXED&quot;) == 0 &amp;&amp;</span>
+<span class="lineNum">    1151 </span><span class="lineCov">          1 :       (format-&gt;imagemode == MS_IMAGEMODE_RGB ||</span>
+<span class="lineNum">    1152 </span>            :        format-&gt;imagemode == MS_IMAGEMODE_RGBA) )
+<span class="lineNum">    1153 </span>            :   {
+<span class="lineNum">    1154 </span>            :     outputFormatObj * new_format;
+<span class="lineNum">    1155 </span>            :     int has_non_opaque_pixels = MS_FALSE;
+<span class="lineNum">    1156 </span>            :     const char* underlying_driver_type = NULL;
+<span class="lineNum">    1157 </span>            :     const char* underlying_driver_name = NULL;
+<span class="lineNum">    1158 </span>            : 
+<span class="lineNum">    1159 </span>            :     // Check if the image has non opaque pixels
+<span class="lineNum">    1160 </span><span class="lineCov">          1 :     if( format-&gt;imagemode == MS_IMAGEMODE_RGBA )</span>
+<span class="lineNum">    1161 </span>            :     {
+<span class="lineNum">    1162 </span>            :       rasterBufferObj rb;
+<span class="lineNum">    1163 </span>            :       int ret;
+<span class="lineNum">    1164 </span>            : 
+<span class="lineNum">    1165 </span><span class="lineCov">          1 :       ret = format-&gt;vtable-&gt;getRasterBufferHandle(img,&amp;rb);</span>
+<span class="lineNum">    1166 </span>            :       assert( ret == MS_SUCCESS );
+<span class="lineNum">    1167 </span><span class="lineCov">          1 :       if( rb.data.rgba.a )</span>
+<span class="lineNum">    1168 </span>            :       {
+<span class="lineNum">    1169 </span>            :         int row;
+<span class="lineNum">    1170 </span><span class="lineCov">          1 :         for(row=0; row&lt;rb.height &amp;&amp; !has_non_opaque_pixels; row++) {</span>
+<span class="lineNum">    1171 </span>            :           int col;
+<span class="lineNum">    1172 </span>            :           unsigned char *a;
+<span class="lineNum">    1173 </span><span class="lineCov">          1 :           a=rb.data.rgba.a+row*rb.data.rgba.row_step;</span>
+<span class="lineNum">    1174 </span><span class="lineCov">          1 :           for(col=0; col&lt;rb.width &amp;&amp; !has_non_opaque_pixels; col++) {</span>
+<span class="lineNum">    1175 </span><span class="lineCov">          1 :             if(*a &lt; 255) {</span>
+<span class="lineNum">    1176 </span>            :               has_non_opaque_pixels = MS_TRUE;
+<span class="lineNum">    1177 </span>            :             }
+<span class="lineNum">    1178 </span><span class="lineCov">          1 :             a+=rb.data.rgba.pixel_step;</span>
+<span class="lineNum">    1179 </span>            :           }
+<span class="lineNum">    1180 </span>            :         }
+<span class="lineNum">    1181 </span>            :       }
+<span class="lineNum">    1182 </span>            :     }
+<span class="lineNum">    1183 </span>            : 
+<span class="lineNum">    1184 </span>            :     underlying_driver_type = ( has_non_opaque_pixels ) ?
+<span class="lineNum">    1185 </span><span class="lineCov">          1 :                                     &quot;TRANSPARENT_FORMAT&quot; : &quot;OPAQUE_FORMAT&quot;;</span>
+<span class="lineNum">    1186 </span><span class="lineCov">          1 :     underlying_driver_name = msGetOutputFormatOption(format, underlying_driver_type,</span>
+<span class="lineNum">    1187 </span>            :                                                 NULL);
+<span class="lineNum">    1188 </span><span class="lineCov">          1 :     if( underlying_driver_name == NULL ) {</span>
+<span class="lineNum">    1189 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR,</span>
+<span class="lineNum">    1190 </span>            :                  &quot;Missing %s format option on %s.&quot;,
+<span class="lineNum">    1191 </span>            :                  &quot;msOutputFormatResolveFromImage()&quot;,
+<span class="lineNum">    1192 </span>            :                  underlying_driver_type, format-&gt;name );
+<span class="lineNum">    1193 </span><span class="lineNoCov">          0 :       return;</span>
+<span class="lineNum">    1194 </span>            :     }
+<span class="lineNum">    1195 </span><span class="lineCov">          1 :     new_format = msSelectOutputFormat( map, underlying_driver_name );</span>
+<span class="lineNum">    1196 </span><span class="lineCov">          1 :     if( new_format == NULL ) {</span>
+<span class="lineNum">    1197 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR,</span>
+<span class="lineNum">    1198 </span>            :                  &quot;Cannot find %s output format.&quot;,
+<span class="lineNum">    1199 </span>            :                  &quot;msOutputFormatResolveFromImage()&quot;,
+<span class="lineNum">    1200 </span>            :                  underlying_driver_name );
+<span class="lineNum">    1201 </span><span class="lineNoCov">          0 :       return;</span>
+<span class="lineNum">    1202 </span>            :     }
+<span class="lineNum">    1203 </span><span class="lineCov">          1 :     if( new_format-&gt;renderer != MS_RENDER_WITH_AGG )</span>
+<span class="lineNum">    1204 </span>            :     {
+<span class="lineNum">    1205 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR,</span>
+<span class="lineNum">    1206 </span>            :                  &quot;%s cannot be used as the %s format of %s since it is not AGG based.&quot;,
+<span class="lineNum">    1207 </span>            :                  &quot;msOutputFormatResolveFromImage()&quot;,
+<span class="lineNum">    1208 </span>            :                  underlying_driver_name, underlying_driver_type, format-&gt;name );
+<span class="lineNum">    1209 </span><span class="lineNoCov">          0 :       return;</span>
+<span class="lineNum">    1210 </span>            :     }
+<span class="lineNum">    1211 </span>            : 
+<span class="lineNum">    1212 </span><span class="lineCov">          1 :     msApplyOutputFormat( &amp;(map-&gt;outputformat),</span>
+<span class="lineNum">    1213 </span>            :                          new_format,
+<span class="lineNum">    1214 </span>            :                          has_non_opaque_pixels,
+<span class="lineNum">    1215 </span>            :                          MS_NOOVERRIDE,
+<span class="lineNum">    1216 </span>            :                          MS_NOOVERRIDE );
+<span class="lineNum">    1217 </span>            : 
+<span class="lineNum">    1218 </span><span class="lineCov">          1 :     msFreeOutputFormat( format );</span>
+<span class="lineNum">    1219 </span><span class="lineCov">          1 :     img-&gt;format = map-&gt;outputformat;</span>
+<span class="lineNum">    1220 </span><span class="lineCov">          1 :     img-&gt;format-&gt;refcount ++;</span>
+<span class="lineNum">    1221 </span>            :   }
+<span class="lineNum">    1222 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
