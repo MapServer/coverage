@@ -31,18 +31,18 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">185</td>
-            <td class="headerCovTableEntry">234</td>
-            <td class="headerCovTableEntryMed">79.1 %</td>
+            <td class="headerCovTableEntry">181</td>
+            <td class="headerCovTableEntry">252</td>
+            <td class="headerCovTableEntryLo">71.8 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
             <td class="headerValue">XXXX-XX-XX</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">9</td>
-            <td class="headerCovTableEntry">10</td>
-            <td class="headerCovTableEntryHi">90.0 %</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">72.7 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -119,451 +119,485 @@
 <span class="lineNum">      57 </span>            : #define COMMAND(id, count) (((id) &amp; 0x7) | ((count) &lt;&lt; 3))
 <a name="58"><span class="lineNum">      58 </span>            : #define PARAMETER(n) (((n) &lt;&lt; 1) ^ ((n) &gt;&gt; 31))</a>
 <span class="lineNum">      59 </span>            : 
-<span class="lineNum">      60 </span><span class="lineCov">          1 : static enum MS_RING_DIRECTION mvtGetRingDirection(lineObj *ring) {</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 : static enum MS_RING_DIRECTION mvtGetRingDirection(lineObj *ring) {</span>
 <span class="lineNum">      61 </span>            :   int i, sum=0;
 <span class="lineNum">      62 </span>            : 
-<span class="lineNum">      63 </span><span class="lineCov">          1 :   if(ring-&gt;numpoints &lt; 4) return MS_DIRECTION_INVALID_RING;</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :   if(ring-&gt;numpoints &lt; 4) return MS_DIRECTION_INVALID_RING;</span>
 <span class="lineNum">      64 </span>            : 
 <span class="lineNum">      65 </span>            :   /* step throught the edges */
-<span class="lineNum">      66 </span><span class="lineCov">          1 :   for(i=0; i&lt;ring-&gt;numpoints-1; i++) {</span>
-<span class="lineNum">      67 </span><span class="lineCov">          1 :     sum += (ring-&gt;point[i+1].x - ring-&gt;point[i].x)*(ring-&gt;point[i+1].y + ring-&gt;point[i].y); /* (x2 − x1)*(y2 + y1) */</span>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :   for(i=0; i&lt;ring-&gt;numpoints-1; i++) {</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :     sum += ring-&gt;point[i].x * ring-&gt;point[i+1].y - ring-&gt;point[i+1].x * ring-&gt;point[i].y;</span>
 <span class="lineNum">      68 </span>            :   }
 <span class="lineNum">      69 </span>            : 
-<span class="lineNum">      70 </span><span class="lineCov">          1 :   return (sum &gt;= 0)?MS_DIRECTION_CLOCKWISE:MS_DIRECTION_COUNTERCLOCKWISE;</span>
-<a name="71"><span class="lineNum">      71 </span>            : }</a>
-<span class="lineNum">      72 </span>            : 
-<span class="lineNum">      73 </span><span class="lineNoCov">          0 : static void mvtReverseRingDirection(lineObj *ring) {</span>
-<span class="lineNum">      74 </span>            :   pointObj temp;
-<span class="lineNum">      75 </span><span class="lineNoCov">          0 :   int start=1, end=ring-&gt;numpoints-2; /* first and last points are the same so skip 'em */</span>
-<span class="lineNum">      76 </span>            : 
-<span class="lineNum">      77 </span><span class="lineNoCov">          0 :   while (start &lt; end) {</span>
-<span class="lineNum">      78 </span><span class="lineNoCov">          0 :     temp.x = ring-&gt;point[start].x; temp.y = ring-&gt;point[start].y;</span>
-<span class="lineNum">      79 </span><span class="lineNoCov">          0 :     ring-&gt;point[start].x = ring-&gt;point[end].x; ring-&gt;point[start].y = ring-&gt;point[end].y;</span>
-<span class="lineNum">      80 </span><span class="lineNoCov">          0 :     ring-&gt;point[end].x = temp.x; ring-&gt;point[end].y = temp.y;</span>
-<span class="lineNum">      81 </span><span class="lineNoCov">          0 :     start++;</span>
-<span class="lineNum">      82 </span><span class="lineNoCov">          0 :     end--;</span>
-<span class="lineNum">      83 </span>            :   }
-<a name="84"><span class="lineNum">      84 </span><span class="lineNoCov">          0 : }</span></a>
-<span class="lineNum">      85 </span>            : 
-<span class="lineNum">      86 </span><span class="lineCov">          1 : static int mvtTransformShape(shapeObj *shape, rectObj *extent, int layer_type, int mvt_layer_extent) {</span>
-<span class="lineNum">      87 </span>            :   double scale_x,scale_y;
-<span class="lineNum">      88 </span>            :   int i,j,outj;
-<span class="lineNum">      89 </span>            : 
-<span class="lineNum">      90 </span>            :   int ring_direction, is_outer_ring;
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :   return sum &gt; 0 ? MS_DIRECTION_CLOCKWISE :</span>
+<span class="lineNum">      71 </span>            :          sum &lt; 0 ? MS_DIRECTION_COUNTERCLOCKWISE : MS_DIRECTION_INVALID_RING;
+<a name="72"><span class="lineNum">      72 </span>            : }</a>
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 : static void mvtReverseRingDirection(lineObj *ring) {</span>
+<span class="lineNum">      75 </span>            :   pointObj temp;
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :   int start=1, end=ring-&gt;numpoints-2; /* first and last points are the same so skip 'em */</span>
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :   while (start &lt; end) {</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :     temp.x = ring-&gt;point[start].x; temp.y = ring-&gt;point[start].y;</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :     ring-&gt;point[start].x = ring-&gt;point[end].x; ring-&gt;point[start].y = ring-&gt;point[end].y;</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :     ring-&gt;point[end].x = temp.x; ring-&gt;point[end].y = temp.y;</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :     start++;</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :     end--;</span>
+<span class="lineNum">      84 </span>            :   }
+<a name="85"><span class="lineNum">      85 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 : static void mvtReorderRings(shapeObj *shape, int *outers) {</span>
+<span class="lineNum">      88 </span>            :   int i, j;
+<span class="lineNum">      89 </span>            :   int t1;
+<span class="lineNum">      90 </span>            :   lineObj t2; 
 <span class="lineNum">      91 </span>            : 
-<span class="lineNum">      92 </span><span class="lineCov">          1 :   scale_x = (double)mvt_layer_extent/(extent-&gt;maxx - extent-&gt;minx);</span>
-<span class="lineNum">      93 </span><span class="lineCov">          1 :   scale_y = (double)mvt_layer_extent/(extent-&gt;maxy - extent-&gt;miny);</span>
-<span class="lineNum">      94 </span>            : 
-<span class="lineNum">      95 </span><span class="lineCov">          1 :   for(i=0;i&lt;shape-&gt;numlines;i++) {</span>
-<span class="lineNum">      96 </span><span class="lineCov">          1 :     for(j=0,outj=0;j&lt;shape-&gt;line[i].numpoints;j++) {</span>
-<span class="lineNum">      97 </span>            : 
-<span class="lineNum">      98 </span><span class="lineCov">          1 :       shape-&gt;line[i].point[outj].x = (int)((shape-&gt;line[i].point[j].x - extent-&gt;minx)*scale_x);</span>
-<span class="lineNum">      99 </span><span class="lineCov">          1 :       shape-&gt;line[i].point[outj].y = mvt_layer_extent - (int)((shape-&gt;line[i].point[j].y - extent-&gt;miny)*scale_y);</span>
-<span class="lineNum">     100 </span>            : 
-<span class="lineNum">     101 </span><span class="lineCov">          1 :       if(!outj || shape-&gt;line[i].point[outj].x != shape-&gt;line[i].point[outj-1].x || shape-&gt;line[i].point[outj].y != shape-&gt;line[i].point[outj-1].y)</span>
-<span class="lineNum">     102 </span><span class="lineCov">          1 :         outj++; /* add the point to the shape only if it's the first one or if it's different than the previous one */</span>
-<span class="lineNum">     103 </span>            :     }
-<span class="lineNum">     104 </span><span class="lineCov">          1 :     shape-&gt;line[i].numpoints = outj;</span>
-<span class="lineNum">     105 </span>            : 
-<span class="lineNum">     106 </span><span class="lineCov">          1 :     is_outer_ring = msIsOuterRing(shape, i);</span>
-<span class="lineNum">     107 </span><span class="lineCov">          1 :     ring_direction = mvtGetRingDirection(&amp;shape-&gt;line[i]);</span>
-<span class="lineNum">     108 </span>            : 
-<span class="lineNum">     109 </span><span class="lineCov">          1 :     if( (layer_type==MS_LAYER_POLYGON) &amp;&amp; ((ring_direction != MS_DIRECTION_INVALID_RING) &amp;&amp; ((is_outer_ring &amp;&amp; ring_direction != MS_DIRECTION_CLOCKWISE) || (!is_outer_ring &amp;&amp; ring_direction != MS_DIRECTION_COUNTERCLOCKWISE))))</span>
-<span class="lineNum">     110 </span><span class="lineNoCov">          0 :       mvtReverseRingDirection(&amp;shape-&gt;line[i]);</span>
-<span class="lineNum">     111 </span>            :   }
-<span class="lineNum">     112 </span>            : 
-<span class="lineNum">     113 </span><span class="lineCov">          1 :   msComputeBounds(shape); /* TODO: might need to limit this to just valid parts... */</span>
-<span class="lineNum">     114 </span>            : 
-<span class="lineNum">     115 </span><span class="lineCov">          1 :   return (shape-&gt;numlines == 0)?MS_FAILURE:MS_SUCCESS; /* sucess if at least one line */</span>
-<a name="116"><span class="lineNum">     116 </span>            : }</a>
-<span class="lineNum">     117 </span>            : 
-<span class="lineNum">     118 </span><span class="lineCov">          1 : static int mvtClipShape(shapeObj *shape, int layer_type, int buffer, int mvt_layer_extent) {</span>
-<span class="lineNum">     119 </span>            :   rectObj tile_rect;
-<span class="lineNum">     120 </span><span class="lineCov">          1 :   tile_rect.minx = tile_rect.miny=-buffer*16;</span>
-<span class="lineNum">     121 </span><span class="lineCov">          1 :   tile_rect.maxx = tile_rect.maxy=mvt_layer_extent + buffer*16;</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :   for(i=0; i&lt;(shape-&gt;numlines-1); i++) {</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :     for(j=0; j&lt;(shape-&gt;numlines-i-1); j++) {</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :       if(outers[j] &lt; outers[j+1]) {</span>
+<span class="lineNum">      95 </span>            :         /* swap */
+<span class="lineNum">      96 </span>            :   t1 = outers[j];
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :         outers[j] = outers[j+1];</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :   outers[j+1] = t1;</span>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :   t2 = shape-&gt;line[j];</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :         shape-&gt;line[j] = shape-&gt;line[j+1];</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :   shape-&gt;line[j+1] = t2;</span>
+<span class="lineNum">     103 </span>            :       }
+<span class="lineNum">     104 </span>            :     }
+<span class="lineNum">     105 </span>            :   }
+<a name="106"><span class="lineNum">     106 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">          1 : static int mvtTransformShape(shapeObj *shape, rectObj *extent, int layer_type, int mvt_layer_extent) {</span>
+<span class="lineNum">     109 </span>            :   double scale_x,scale_y;
+<span class="lineNum">     110 </span>            :   int i,j,outj;
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :   int *outers=NULL, ring_direction;
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span><span class="lineCov">          1 :   scale_x = (double)mvt_layer_extent/(extent-&gt;maxx - extent-&gt;minx);</span>
+<span class="lineNum">     115 </span><span class="lineCov">          1 :   scale_y = (double)mvt_layer_extent/(extent-&gt;maxy - extent-&gt;miny);</span>
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span><span class="lineCov">          1 :   if(layer_type == MS_LAYER_POLYGON) {</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :     outers = msGetOuterList(shape); /* compute before we muck with the shape */</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :     if(outers[0] == 0) /* first ring must be an outer */</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :       mvtReorderRings(shape, outers);</span>
+<span class="lineNum">     121 </span>            :   }
 <span class="lineNum">     122 </span>            : 
-<span class="lineNum">     123 </span><span class="lineCov">          1 :   if(layer_type == MS_LAYER_POLYGON) {</span>
-<span class="lineNum">     124 </span><span class="lineNoCov">          0 :     msClipPolygonRect(shape, tile_rect);</span>
-<span class="lineNum">     125 </span><span class="lineCov">          1 :   } else if(layer_type == MS_LAYER_LINE) {</span>
-<span class="lineNum">     126 </span><span class="lineCov">          1 :     msClipPolylineRect(shape, tile_rect);</span>
-<span class="lineNum">     127 </span>            :   }
+<span class="lineNum">     123 </span><span class="lineCov">          1 :   for(i=0;i&lt;shape-&gt;numlines;i++) {</span>
+<span class="lineNum">     124 </span><span class="lineCov">          1 :     for(j=0,outj=0;j&lt;shape-&gt;line[i].numpoints;j++) {</span>
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span><span class="lineCov">          1 :       shape-&gt;line[i].point[outj].x = (int)((shape-&gt;line[i].point[j].x - extent-&gt;minx)*scale_x);</span>
+<span class="lineNum">     127 </span><span class="lineCov">          1 :       shape-&gt;line[i].point[outj].y = mvt_layer_extent - (int)((shape-&gt;line[i].point[j].y - extent-&gt;miny)*scale_y);</span>
 <span class="lineNum">     128 </span>            : 
-<span class="lineNum">     129 </span><span class="lineCov">          1 :   if(shape-&gt;numlines&gt;0)</span>
-<span class="lineNum">     130 </span>            :     return MS_SUCCESS;
-<span class="lineNum">     131 </span>            :   else
-<span class="lineNum">     132 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<a name="133"><span class="lineNum">     133 </span>            : }</a>
-<span class="lineNum">     134 </span>            : 
-<span class="lineNum">     135 </span><span class="lineCov">          1 : static void freeMvtFeature( VectorTile__Tile__Feature *mvt_feature ) {</span>
-<span class="lineNum">     136 </span><span class="lineCov">          1 :   if(mvt_feature-&gt;tags)</span>
-<span class="lineNum">     137 </span><span class="lineCov">          1 :     msFree(mvt_feature-&gt;tags);</span>
-<span class="lineNum">     138 </span><span class="lineCov">          1 :   if(mvt_feature-&gt;geometry)</span>
-<span class="lineNum">     139 </span><span class="lineCov">          1 :     msFree(mvt_feature-&gt;geometry);</span>
-<span class="lineNum">     140 </span><span class="lineCov">          1 : }</span>
-<a name="141"><span class="lineNum">     141 </span>            : </a>
-<span class="lineNum">     142 </span>            : static void freeMvtValue( VectorTile__Tile__Value *mvt_value ) {
-<span class="lineNum">     143 </span><span class="lineCov">          1 :   if(mvt_value-&gt;string_value)</span>
-<span class="lineNum">     144 </span><span class="lineCov">          1 :     msFree(mvt_value-&gt;string_value);</span>
-<span class="lineNum">     145 </span>            : }
-<span class="lineNum">     146 </span>            : 
-<span class="lineNum">     147 </span><span class="lineCov">          1 : static void freeMvtLayer( VectorTile__Tile__Layer *mvt_layer ) {</span>
-<span class="lineNum">     148 </span>            :   int i;
-<span class="lineNum">     149 </span><span class="lineCov">          1 :   if(mvt_layer-&gt;keys) {</span>
-<span class="lineNum">     150 </span><span class="lineCov">          1 :     for(i=0;i&lt;mvt_layer-&gt;n_keys; i++) {</span>
-<span class="lineNum">     151 </span><span class="lineCov">          1 :       msFree(mvt_layer-&gt;keys[i]);</span>
-<span class="lineNum">     152 </span>            :     }
-<span class="lineNum">     153 </span><span class="lineCov">          1 :     msFree(mvt_layer-&gt;keys);</span>
-<span class="lineNum">     154 </span>            :   }
-<span class="lineNum">     155 </span><span class="lineCov">          1 :   if(mvt_layer-&gt;values) {</span>
-<span class="lineNum">     156 </span><span class="lineCov">          1 :     for(i=0;i&lt;mvt_layer-&gt;n_values; i++) {</span>
-<span class="lineNum">     157 </span><span class="lineCov">          1 :         freeMvtValue(mvt_layer-&gt;values[i]);</span>
-<span class="lineNum">     158 </span><span class="lineCov">          1 :         msFree(mvt_layer-&gt;values[i]);</span>
-<span class="lineNum">     159 </span>            :     }
-<span class="lineNum">     160 </span><span class="lineCov">          1 :     msFree(mvt_layer-&gt;values);</span>
-<span class="lineNum">     161 </span>            :   }
-<span class="lineNum">     162 </span><span class="lineCov">          1 :   if(mvt_layer-&gt;features) {</span>
-<span class="lineNum">     163 </span><span class="lineCov">          1 :     for(i=0;i&lt;mvt_layer-&gt;n_features; i++) {</span>
-<span class="lineNum">     164 </span><span class="lineCov">          1 :         freeMvtFeature(mvt_layer-&gt;features[i]);</span>
-<span class="lineNum">     165 </span><span class="lineCov">          1 :         msFree(mvt_layer-&gt;features[i]);</span>
-<span class="lineNum">     166 </span>            :     }
-<span class="lineNum">     167 </span><span class="lineCov">          1 :     msFree(mvt_layer-&gt;features);</span>
-<span class="lineNum">     168 </span>            :   }
-<a name="169"><span class="lineNum">     169 </span><span class="lineCov">          1 : }</span></a>
-<span class="lineNum">     170 </span>            : 
-<span class="lineNum">     171 </span><span class="lineCov">          1 : int mvtWriteShape( layerObj *layer, shapeObj *shape, VectorTile__Tile__Layer *mvt_layer,</span>
-<span class="lineNum">     172 </span>            :                    gmlItemListObj *item_list, value_lookup_table *value_lookup_cache,
-<span class="lineNum">     173 </span>            :                    rectObj *unbuffered_bbox, int buffer) {
-<span class="lineNum">     174 </span>            :   VectorTile__Tile__Feature *mvt_feature;
-<span class="lineNum">     175 </span>            :   int i,j,iout;
-<span class="lineNum">     176 </span>            :   value_lookup *value;
-<span class="lineNum">     177 </span>            :   long int n_geometry;
+<span class="lineNum">     129 </span><span class="lineCov">          1 :       if(!outj || shape-&gt;line[i].point[outj].x != shape-&gt;line[i].point[outj-1].x || shape-&gt;line[i].point[outj].y != shape-&gt;line[i].point[outj-1].y)</span>
+<span class="lineNum">     130 </span><span class="lineCov">          1 :         outj++; /* add the point to the shape only if it's the first one or if it's different than the previous one */</span>
+<span class="lineNum">     131 </span>            :     }
+<span class="lineNum">     132 </span><span class="lineCov">          1 :     shape-&gt;line[i].numpoints = outj;</span>
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span><span class="lineCov">          1 :     if(layer_type == MS_LAYER_POLYGON) {</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :       ring_direction = mvtGetRingDirection(&amp;shape-&gt;line[i]);</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :       if(ring_direction == MS_DIRECTION_INVALID_RING)</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :         shape-&gt;line[i].numpoints = 0; /* so it's not considered anymore */</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :       else if((outers[i] &amp;&amp; ring_direction != MS_DIRECTION_CLOCKWISE) || (!outers[i] &amp;&amp; ring_direction != MS_DIRECTION_COUNTERCLOCKWISE))</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :         mvtReverseRingDirection(&amp;shape-&gt;line[i]);</span>
+<span class="lineNum">     140 </span>            :     }
+<span class="lineNum">     141 </span>            :   }
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span><span class="lineCov">          1 :   msComputeBounds(shape); /* TODO: might need to limit this to just valid parts... */</span>
+<span class="lineNum">     144 </span><span class="lineCov">          1 :   msFree(outers);</span>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineCov">          1 :   return (shape-&gt;numlines == 0)?MS_FAILURE:MS_SUCCESS; /* sucess if at least one line */</span>
+<a name="147"><span class="lineNum">     147 </span>            : }</a>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span><span class="lineCov">          1 : static int mvtClipShape(shapeObj *shape, int layer_type, int buffer, int mvt_layer_extent) {</span>
+<span class="lineNum">     150 </span>            :   rectObj tile_rect;
+<span class="lineNum">     151 </span><span class="lineCov">          1 :   tile_rect.minx = tile_rect.miny=-buffer*16;</span>
+<span class="lineNum">     152 </span><span class="lineCov">          1 :   tile_rect.maxx = tile_rect.maxy=mvt_layer_extent + buffer*16;</span>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineCov">          1 :   if(layer_type == MS_LAYER_POLYGON) {</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :     msClipPolygonRect(shape, tile_rect);</span>
+<span class="lineNum">     156 </span><span class="lineCov">          1 :   } else if(layer_type == MS_LAYER_LINE) {</span>
+<span class="lineNum">     157 </span><span class="lineCov">          1 :     msClipPolylineRect(shape, tile_rect);</span>
+<span class="lineNum">     158 </span>            :   }
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span>            :   /* success if at least one line and not a degenerate bounding box */
+<span class="lineNum">     161 </span><span class="lineCov">          1 :   if(shape-&gt;numlines &gt; 0 &amp;&amp; (shape-&gt;bounds.minx != shape-&gt;bounds.maxx || shape-&gt;bounds.miny != shape-&gt;bounds.maxy))</span>
+<span class="lineNum">     162 </span>            :     return MS_SUCCESS;
+<span class="lineNum">     163 </span>            :   else
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<a name="165"><span class="lineNum">     165 </span>            : }</a>
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span><span class="lineCov">          1 : static void freeMvtFeature( VectorTile__Tile__Feature *mvt_feature ) {</span>
+<span class="lineNum">     168 </span><span class="lineCov">          1 :   if(mvt_feature-&gt;tags)</span>
+<span class="lineNum">     169 </span><span class="lineCov">          1 :     msFree(mvt_feature-&gt;tags);</span>
+<span class="lineNum">     170 </span><span class="lineCov">          1 :   if(mvt_feature-&gt;geometry)</span>
+<span class="lineNum">     171 </span><span class="lineCov">          1 :     msFree(mvt_feature-&gt;geometry);</span>
+<span class="lineNum">     172 </span><span class="lineCov">          1 : }</span>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<span class="lineNum">     174 </span>            : static void freeMvtValue( VectorTile__Tile__Value *mvt_value ) {
+<span class="lineNum">     175 </span><span class="lineCov">          1 :   if(mvt_value-&gt;string_value)</span>
+<span class="lineNum">     176 </span><span class="lineCov">          1 :     msFree(mvt_value-&gt;string_value);</span>
+<span class="lineNum">     177 </span>            : }
 <span class="lineNum">     178 </span>            : 
-<span class="lineNum">     179 </span>            :   /* could consider an intersection test here */
-<span class="lineNum">     180 </span>            : 
-<span class="lineNum">     181 </span><span class="lineCov">          1 :   if(mvtTransformShape(shape, unbuffered_bbox, layer-&gt;type, mvt_layer-&gt;extent) != MS_SUCCESS) {</span>
-<span class="lineNum">     182 </span>            :     return MS_SUCCESS; /* degenerate shape */
-<span class="lineNum">     183 </span>            :   }
-<span class="lineNum">     184 </span><span class="lineCov">          1 :   if(mvtClipShape(shape, layer-&gt;type, buffer, mvt_layer-&gt;extent) != MS_SUCCESS) {</span>
-<span class="lineNum">     185 </span>            :     return MS_SUCCESS; /* no features left after clipping */
+<span class="lineNum">     179 </span><span class="lineCov">          1 : static void freeMvtLayer( VectorTile__Tile__Layer *mvt_layer ) {</span>
+<span class="lineNum">     180 </span>            :   int i;
+<span class="lineNum">     181 </span><span class="lineCov">          1 :   if(mvt_layer-&gt;keys) {</span>
+<span class="lineNum">     182 </span><span class="lineCov">          1 :     for(i=0;i&lt;mvt_layer-&gt;n_keys; i++) {</span>
+<span class="lineNum">     183 </span><span class="lineCov">          1 :       msFree(mvt_layer-&gt;keys[i]);</span>
+<span class="lineNum">     184 </span>            :     }
+<span class="lineNum">     185 </span><span class="lineCov">          1 :     msFree(mvt_layer-&gt;keys);</span>
 <span class="lineNum">     186 </span>            :   }
-<span class="lineNum">     187 </span>            : 
-<span class="lineNum">     188 </span>            :   n_geometry = 0;
-<span class="lineNum">     189 </span><span class="lineCov">          1 :   if(layer-&gt;type == MS_LAYER_POINT) {</span>
-<span class="lineNum">     190 </span><span class="lineNoCov">          0 :     for(i=0;i&lt;shape-&gt;numlines;i++)</span>
-<span class="lineNum">     191 </span><span class="lineNoCov">          0 :       n_geometry += shape-&gt;line[i].numpoints * 2;</span>
-<span class="lineNum">     192 </span><span class="lineNoCov">          0 :     if(n_geometry)</span>
-<span class="lineNum">     193 </span><span class="lineNoCov">          0 :       n_geometry++; /* one MOVETO */</span>
-<span class="lineNum">     194 </span><span class="lineCov">          1 :   } else if(layer-&gt;type == MS_LAYER_LINE) {</span>
-<span class="lineNum">     195 </span><span class="lineCov">          1 :     for(i=0;i&lt;shape-&gt;numlines;i++)</span>
-<span class="lineNum">     196 </span><span class="lineCov">          1 :       if(shape-&gt;line[i].numpoints &gt;= 2) n_geometry += 2 + shape-&gt;line[i].numpoints * 2; /* one MOVETO, one LINETO */</span>
-<span class="lineNum">     197 </span>            :   } else {
-<span class="lineNum">     198 </span><span class="lineNoCov">          0 :     for(i=0;i&lt;shape-&gt;numlines;i++)</span>
-<span class="lineNum">     199 </span><span class="lineNoCov">          0 :       if(shape-&gt;line[i].numpoints &gt;= 4) n_geometry += 3 + shape-&gt;line[i].numpoints * 2; /* one MOVETO, one LINETO, one CLOSEPATH */</span>
+<span class="lineNum">     187 </span><span class="lineCov">          1 :   if(mvt_layer-&gt;values) {</span>
+<span class="lineNum">     188 </span><span class="lineCov">          1 :     for(i=0;i&lt;mvt_layer-&gt;n_values; i++) {</span>
+<span class="lineNum">     189 </span><span class="lineCov">          1 :         freeMvtValue(mvt_layer-&gt;values[i]);</span>
+<span class="lineNum">     190 </span><span class="lineCov">          1 :         msFree(mvt_layer-&gt;values[i]);</span>
+<span class="lineNum">     191 </span>            :     }
+<span class="lineNum">     192 </span><span class="lineCov">          1 :     msFree(mvt_layer-&gt;values);</span>
+<span class="lineNum">     193 </span>            :   }
+<span class="lineNum">     194 </span><span class="lineCov">          1 :   if(mvt_layer-&gt;features) {</span>
+<span class="lineNum">     195 </span><span class="lineCov">          1 :     for(i=0;i&lt;mvt_layer-&gt;n_features; i++) {</span>
+<span class="lineNum">     196 </span><span class="lineCov">          1 :         freeMvtFeature(mvt_layer-&gt;features[i]);</span>
+<span class="lineNum">     197 </span><span class="lineCov">          1 :         msFree(mvt_layer-&gt;features[i]);</span>
+<span class="lineNum">     198 </span>            :     }
+<span class="lineNum">     199 </span><span class="lineCov">          1 :     msFree(mvt_layer-&gt;features);</span>
 <span class="lineNum">     200 </span>            :   }
-<span class="lineNum">     201 </span>            : 
-<span class="lineNum">     202 </span><span class="lineCov">          1 :   if(n_geometry == 0) return MS_SUCCESS;</span>
-<span class="lineNum">     203 </span>            : 
-<span class="lineNum">     204 </span><span class="lineCov">          1 :   mvt_layer-&gt;features[mvt_layer-&gt;n_features++] = msSmallMalloc(sizeof(VectorTile__Tile__Feature));</span>
-<span class="lineNum">     205 </span><span class="lineCov">          1 :   mvt_feature = mvt_layer-&gt;features[mvt_layer-&gt;n_features-1];</span>
-<span class="lineNum">     206 </span><span class="lineCov">          1 :   vector_tile__tile__feature__init(mvt_feature);</span>
-<span class="lineNum">     207 </span><span class="lineCov">          1 :   mvt_feature-&gt;n_tags = mvt_layer-&gt;n_keys * 2;</span>
-<span class="lineNum">     208 </span><span class="lineCov">          1 :   mvt_feature-&gt;tags = msSmallMalloc(mvt_feature-&gt;n_tags * sizeof(uint32_t));</span>
-<span class="lineNum">     209 </span><span class="lineCov">          1 :   mvt_feature-&gt;id = shape-&gt;index;</span>
-<span class="lineNum">     210 </span><span class="lineCov">          1 :   mvt_feature-&gt;has_id = 1;</span>
-<span class="lineNum">     211 </span>            : 
-<span class="lineNum">     212 </span><span class="lineCov">          1 :   if(layer-&gt;type == MS_LAYER_POLYGON)</span>
-<span class="lineNum">     213 </span><span class="lineNoCov">          0 :     mvt_feature-&gt;type = VECTOR_TILE__TILE__GEOM_TYPE__POLYGON;</span>
-<span class="lineNum">     214 </span><span class="lineCov">          1 :   else if(layer-&gt;type == MS_LAYER_LINE)</span>
-<span class="lineNum">     215 </span><span class="lineCov">          1 :     mvt_feature-&gt;type = VECTOR_TILE__TILE__GEOM_TYPE__LINESTRING;</span>
-<span class="lineNum">     216 </span>            :   else
-<span class="lineNum">     217 </span><span class="lineNoCov">          0 :     mvt_feature-&gt;type = VECTOR_TILE__TILE__GEOM_TYPE__POINT;</span>
-<span class="lineNum">     218 </span><span class="lineCov">          1 :   mvt_feature-&gt;has_type = 1;</span>
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span><span class="lineCov">          1 : int mvtWriteShape( layerObj *layer, shapeObj *shape, VectorTile__Tile__Layer *mvt_layer,</span>
+<span class="lineNum">     204 </span>            :                    gmlItemListObj *item_list, value_lookup_table *value_lookup_cache,
+<span class="lineNum">     205 </span>            :                    rectObj *unbuffered_bbox, int buffer) {
+<span class="lineNum">     206 </span>            :   VectorTile__Tile__Feature *mvt_feature;
+<span class="lineNum">     207 </span>            :   int i,j,iout;
+<span class="lineNum">     208 </span>            :   value_lookup *value;
+<span class="lineNum">     209 </span>            :   long int n_geometry;
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span>            :   /* could consider an intersection test here */
+<span class="lineNum">     212 </span>            : 
+<span class="lineNum">     213 </span><span class="lineCov">          1 :   if(mvtTransformShape(shape, unbuffered_bbox, layer-&gt;type, mvt_layer-&gt;extent) != MS_SUCCESS) {</span>
+<span class="lineNum">     214 </span>            :     return MS_SUCCESS; /* degenerate shape */
+<span class="lineNum">     215 </span>            :   }
+<span class="lineNum">     216 </span><span class="lineCov">          1 :   if(mvtClipShape(shape, layer-&gt;type, buffer, mvt_layer-&gt;extent) != MS_SUCCESS) {</span>
+<span class="lineNum">     217 </span>            :     return MS_SUCCESS; /* no features left after clipping */
+<span class="lineNum">     218 </span>            :   }
 <span class="lineNum">     219 </span>            : 
-<span class="lineNum">     220 </span>            :   /* output values */
-<span class="lineNum">     221 </span><span class="lineCov">          1 :   for( i = 0, iout = 0; i &lt; item_list-&gt;numitems; i++ ) {</span>
-<span class="lineNum">     222 </span><span class="lineCov">          1 :     gmlItemObj *item = item_list-&gt;items + i;</span>
-<span class="lineNum">     223 </span>            : 
-<span class="lineNum">     224 </span><span class="lineCov">          1 :     if( !item-&gt;visible )</span>
-<span class="lineNum">     225 </span><span class="lineNoCov">          0 :       continue;</span>
-<span class="lineNum">     226 </span>            : 
-<span class="lineNum">     227 </span><span class="lineCov">          1 :     UT_HASH_FIND_STR(value_lookup_cache-&gt;cache, shape-&gt;values[i], value);</span>
-<span class="lineNum">     228 </span><span class="lineCov">          1 :     if(!value) {</span>
-<span class="lineNum">     229 </span>            :       VectorTile__Tile__Value *mvt_value;
-<span class="lineNum">     230 </span><span class="lineCov">          1 :       value = msSmallMalloc(sizeof(value_lookup));</span>
-<span class="lineNum">     231 </span><span class="lineCov">          1 :       value-&gt;value = msStrdup(shape-&gt;values[i]);</span>
-<span class="lineNum">     232 </span><span class="lineCov">          1 :       value-&gt;index = mvt_layer-&gt;n_values;</span>
-<span class="lineNum">     233 </span><span class="lineCov">          1 :       mvt_layer-&gt;values = msSmallRealloc(mvt_layer-&gt;values,(++mvt_layer-&gt;n_values)*sizeof(VectorTile__Tile__Value*));</span>
-<span class="lineNum">     234 </span><span class="lineCov">          1 :       mvt_layer-&gt;values[mvt_layer-&gt;n_values-1] = msSmallMalloc(sizeof(VectorTile__Tile__Value));</span>
-<span class="lineNum">     235 </span><span class="lineCov">          1 :       mvt_value = mvt_layer-&gt;values[mvt_layer-&gt;n_values-1];</span>
-<span class="lineNum">     236 </span><span class="lineCov">          1 :       vector_tile__tile__value__init(mvt_value);</span>
-<span class="lineNum">     237 </span>            : 
-<span class="lineNum">     238 </span><span class="lineCov">          1 :       if( item-&gt;type &amp;&amp; EQUAL(item-&gt;type,&quot;Integer&quot;)) {</span>
-<span class="lineNum">     239 </span><span class="lineNoCov">          0 :         mvt_value-&gt;int_value = atoi(value-&gt;value);</span>
-<span class="lineNum">     240 </span><span class="lineNoCov">          0 :         mvt_value-&gt;has_int_value = 1;</span>
-<span class="lineNum">     241 </span><span class="lineCov">          1 :       } else if( item-&gt;type &amp;&amp; EQUAL(item-&gt;type,&quot;Real&quot;) ) {</span>
-<span class="lineNum">     242 </span><span class="lineNoCov">          0 :         mvt_value-&gt;float_value = atof(value-&gt;value);</span>
-<span class="lineNum">     243 </span><span class="lineNoCov">          0 :         mvt_value-&gt;has_float_value = 1;</span>
-<span class="lineNum">     244 </span><span class="lineCov">          1 :       } else if( item-&gt;type &amp;&amp; EQUAL(item-&gt;type,&quot;Boolean&quot;) ) {</span>
-<span class="lineNum">     245 </span><span class="lineNoCov">          0 :         if(EQUAL(value-&gt;value,&quot;0&quot;) || EQUAL(value-&gt;value,&quot;false&quot;))</span>
-<span class="lineNum">     246 </span><span class="lineNoCov">          0 :           mvt_value-&gt;bool_value = 0;</span>
-<span class="lineNum">     247 </span>            :         else
-<span class="lineNum">     248 </span><span class="lineNoCov">          0 :           mvt_value-&gt;bool_value = 1;</span>
-<span class="lineNum">     249 </span><span class="lineNoCov">          0 :         mvt_value-&gt;has_bool_value = 1;</span>
-<span class="lineNum">     250 </span>            :       } else {
-<span class="lineNum">     251 </span><span class="lineCov">          1 :         mvt_value-&gt;string_value = msStrdup(value-&gt;value);</span>
-<span class="lineNum">     252 </span>            :       }
-<span class="lineNum">     253 </span><span class="lineCov">          1 :       UT_HASH_ADD_KEYPTR(hh,value_lookup_cache-&gt;cache,value-&gt;value, strlen(value-&gt;value), value);</span>
-<span class="lineNum">     254 </span>            :     }
-<span class="lineNum">     255 </span><span class="lineCov">          1 :     mvt_feature-&gt;tags[iout*2] = iout;</span>
-<span class="lineNum">     256 </span><span class="lineCov">          1 :     mvt_feature-&gt;tags[iout*2+1] = value-&gt;index;</span>
-<span class="lineNum">     257 </span>            : 
-<span class="lineNum">     258 </span><span class="lineCov">          1 :     iout++;</span>
-<span class="lineNum">     259 </span>            :   }
-<span class="lineNum">     260 </span>            : 
-<span class="lineNum">     261 </span>            :   /* output geom */
-<span class="lineNum">     262 </span><span class="lineCov">          1 :   mvt_feature-&gt;n_geometry = n_geometry;</span>
-<span class="lineNum">     263 </span><span class="lineCov">          1 :   mvt_feature-&gt;geometry = msSmallMalloc(mvt_feature-&gt;n_geometry * sizeof(uint32_t));</span>
-<span class="lineNum">     264 </span>            : 
-<span class="lineNum">     265 </span><span class="lineCov">          1 :   if(layer-&gt;type == MS_LAYER_POINT) {</span>
-<span class="lineNum">     266 </span>            :     int idx=0, lastx=0, lasty=0;
-<span class="lineNum">     267 </span><span class="lineNoCov">          0 :     mvt_feature-&gt;geometry[idx++] = COMMAND(MOVETO, mvt_feature-&gt;n_geometry-1);</span>
-<span class="lineNum">     268 </span><span class="lineNoCov">          0 :     for(i=0;i&lt;shape-&gt;numlines;i++) {</span>
-<span class="lineNum">     269 </span><span class="lineNoCov">          0 :       for(j=0;j&lt;shape-&gt;line[i].numpoints;j++) {</span>
-<span class="lineNum">     270 </span><span class="lineNoCov">          0 :         mvt_feature-&gt;geometry[idx++] = PARAMETER(MS_NINT(shape-&gt;line[i].point[j].x)-lastx);</span>
-<span class="lineNum">     271 </span><span class="lineNoCov">          0 :         mvt_feature-&gt;geometry[idx++] = PARAMETER(MS_NINT(shape-&gt;line[i].point[j].y)-lasty);</span>
-<span class="lineNum">     272 </span><span class="lineNoCov">          0 :         lastx = MS_NINT(shape-&gt;line[i].point[j].x);</span>
-<span class="lineNum">     273 </span><span class="lineNoCov">          0 :         lasty = MS_NINT(shape-&gt;line[i].point[j].y);</span>
-<span class="lineNum">     274 </span>            :       }
-<span class="lineNum">     275 </span>            :     }
-<span class="lineNum">     276 </span>            :   } else { /* MS_LAYER_LINE or MS_LAYER_POLYGON */
-<span class="lineNum">     277 </span>            :     int idx=0, lastx=0, lasty=0;
-<span class="lineNum">     278 </span><span class="lineCov">          1 :     for(i=0;i&lt;shape-&gt;numlines;i++) {</span>
-<span class="lineNum">     279 </span>            : 
-<span class="lineNum">     280 </span><span class="lineCov">          1 :       if((layer-&gt;type == MS_LAYER_LINE &amp;&amp; !(shape-&gt;line[i].numpoints &gt;= 2)) || </span>
-<span class="lineNum">     281 </span><span class="lineNoCov">          0 :          (layer-&gt;type == MS_LAYER_POLYGON &amp;&amp; !(shape-&gt;line[i].numpoints &gt;= 4))) {        </span>
-<span class="lineNum">     282 </span><span class="lineNoCov">          0 :         continue; /* skip malformed parts */</span>
-<span class="lineNum">     283 </span>            :       }
-<span class="lineNum">     284 </span>            : 
-<span class="lineNum">     285 </span><span class="lineCov">          1 :       for(j=0;j&lt;shape-&gt;line[i].numpoints;j++) {</span>
-<span class="lineNum">     286 </span><span class="lineCov">          1 :         if(j==0) {</span>
-<span class="lineNum">     287 </span><span class="lineCov">          1 :           mvt_feature-&gt;geometry[idx++] = COMMAND(MOVETO, 1);</span>
-<span class="lineNum">     288 </span><span class="lineCov">          1 :         } else if(j==1) {</span>
-<span class="lineNum">     289 </span><span class="lineCov">          1 :           mvt_feature-&gt;geometry[idx++] = COMMAND(LINETO, shape-&gt;line[i].numpoints-1);</span>
-<span class="lineNum">     290 </span>            :         }
-<span class="lineNum">     291 </span><span class="lineCov">          1 :         mvt_feature-&gt;geometry[idx++] = PARAMETER(MS_NINT(shape-&gt;line[i].point[j].x)-lastx);</span>
-<span class="lineNum">     292 </span><span class="lineCov">          1 :   mvt_feature-&gt;geometry[idx++] = PARAMETER(MS_NINT(shape-&gt;line[i].point[j].y)-lasty);</span>
-<span class="lineNum">     293 </span><span class="lineCov">          1 :   lastx = MS_NINT(shape-&gt;line[i].point[j].x);</span>
-<span class="lineNum">     294 </span><span class="lineCov">          1 :   lasty = MS_NINT(shape-&gt;line[i].point[j].y);</span>
-<span class="lineNum">     295 </span>            :       }
-<span class="lineNum">     296 </span><span class="lineCov">          1 :       if(layer-&gt;type == MS_LAYER_POLYGON) {</span>
-<span class="lineNum">     297 </span><span class="lineNoCov">          0 :         mvt_feature-&gt;geometry[idx++] = COMMAND(CLOSEPATH, 1);</span>
-<span class="lineNum">     298 </span>            :       }
-<span class="lineNum">     299 </span>            :     }
-<span class="lineNum">     300 </span>            :   }
-<span class="lineNum">     301 </span>            : 
-<span class="lineNum">     302 </span>            :   return MS_SUCCESS;
-<a name="303"><span class="lineNum">     303 </span>            : }</a>
-<span class="lineNum">     304 </span>            : 
-<span class="lineNum">     305 </span><span class="lineCov">          1 : static void freeMvtTile( VectorTile__Tile *mvt_tile ) {</span>
-<span class="lineNum">     306 </span>            :   int iLayer;
-<span class="lineNum">     307 </span><span class="lineCov">          1 :   for(iLayer=0;iLayer&lt;mvt_tile-&gt;n_layers;iLayer++) {</span>
-<span class="lineNum">     308 </span><span class="lineCov">          1 :     freeMvtLayer(mvt_tile-&gt;layers[iLayer]);</span>
-<span class="lineNum">     309 </span><span class="lineCov">          1 :     msFree(mvt_tile-&gt;layers[iLayer]);</span>
-<span class="lineNum">     310 </span>            :   }
-<span class="lineNum">     311 </span><span class="lineCov">          1 :   msFree(mvt_tile-&gt;layers);</span>
-<a name="312"><span class="lineNum">     312 </span><span class="lineCov">          1 : }</span></a>
-<span class="lineNum">     313 </span>            : 
-<span class="lineNum">     314 </span><span class="lineCov">          1 : int msMVTWriteTile( mapObj *map, int sendheaders ) {</span>
-<span class="lineNum">     315 </span>            :   int iLayer,retcode=MS_SUCCESS;
-<span class="lineNum">     316 </span>            :   unsigned len;
-<span class="lineNum">     317 </span>            :   void *buf;
-<span class="lineNum">     318 </span><span class="lineCov">          1 :   const char *mvt_extent = msGetOutputFormatOption(map-&gt;outputformat, &quot;EXTENT&quot;, &quot;4096&quot;);</span>
-<span class="lineNum">     319 </span><span class="lineCov">          1 :   const char *mvt_buffer = msGetOutputFormatOption(map-&gt;outputformat, &quot;EDGE_BUFFER&quot;, &quot;10&quot;);</span>
-<span class="lineNum">     320 </span><span class="lineCov">          1 :   int buffer = MS_ABS(atoi(mvt_buffer));</span>
-<span class="lineNum">     321 </span><span class="lineCov">          1 :   VectorTile__Tile mvt_tile = VECTOR_TILE__TILE__INIT;</span>
-<span class="lineNum">     322 </span><span class="lineCov">          1 :   mvt_tile.layers = msSmallCalloc(map-&gt;numlayers, sizeof(VectorTile__Tile__Layer*));</span>
-<span class="lineNum">     323 </span>            : 
-<span class="lineNum">     324 </span>            :   /* expand the map-&gt;extent so it goes from pixel center (MapServer) to pixel edge (OWS) */
-<span class="lineNum">     325 </span><span class="lineCov">          1 :   map-&gt;extent.minx -= map-&gt;cellsize * 0.5;</span>
-<span class="lineNum">     326 </span><span class="lineCov">          1 :   map-&gt;extent.maxx += map-&gt;cellsize * 0.5;</span>
-<span class="lineNum">     327 </span><span class="lineCov">          1 :   map-&gt;extent.miny -= map-&gt;cellsize * 0.5;</span>
-<span class="lineNum">     328 </span><span class="lineCov">          1 :   map-&gt;extent.maxy += map-&gt;cellsize * 0.5;</span>
-<span class="lineNum">     329 </span>            : 
-<span class="lineNum">     330 </span><span class="lineCov">          1 :   for( iLayer = 0; iLayer &lt; map-&gt;numlayers; iLayer++ ) {</span>
-<span class="lineNum">     331 </span>            :     int status=MS_SUCCESS;
-<span class="lineNum">     332 </span><span class="lineCov">          1 :     layerObj *layer = GET_LAYER(map, iLayer);</span>
-<span class="lineNum">     333 </span>            :     int i;
-<span class="lineNum">     334 </span>            :     shapeObj shape;
-<span class="lineNum">     335 </span>            :     gmlItemListObj *item_list = NULL;
-<span class="lineNum">     336 </span>            :     VectorTile__Tile__Layer *mvt_layer;
-<span class="lineNum">     337 </span><span class="lineCov">          1 :     value_lookup_table value_lookup_cache = {NULL};</span>
-<span class="lineNum">     338 </span>            :     value_lookup *cur_value_lookup, *tmp_value_lookup;
-<span class="lineNum">     339 </span>            :     rectObj rect;
-<span class="lineNum">     340 </span>            : 
-<span class="lineNum">     341 </span>            :     int features_size = 0;
-<span class="lineNum">     342 </span>            : 
-<span class="lineNum">     343 </span><span class="lineCov">          1 :     if(!msLayerIsVisible(map, layer)) continue;</span>
-<span class="lineNum">     344 </span>            : 
-<span class="lineNum">     345 </span><span class="lineCov">          1 :     if(layer-&gt;type != MS_LAYER_POINT &amp;&amp; layer-&gt;type != MS_LAYER_POLYGON &amp;&amp; layer-&gt;type != MS_LAYER_LINE)</span>
-<span class="lineNum">     346 </span><span class="lineNoCov">          0 :       continue;</span>
+<span class="lineNum">     220 </span>            :   n_geometry = 0;
+<span class="lineNum">     221 </span><span class="lineCov">          1 :   if(layer-&gt;type == MS_LAYER_POINT) {</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :     for(i=0;i&lt;shape-&gt;numlines;i++)</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :       n_geometry += shape-&gt;line[i].numpoints * 2;</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :     if(n_geometry)</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :       n_geometry++; /* one MOVETO */</span>
+<span class="lineNum">     226 </span><span class="lineCov">          1 :   } else if(layer-&gt;type == MS_LAYER_LINE) {</span>
+<span class="lineNum">     227 </span><span class="lineCov">          1 :     for(i=0;i&lt;shape-&gt;numlines;i++)</span>
+<span class="lineNum">     228 </span><span class="lineCov">          1 :       if(shape-&gt;line[i].numpoints &gt;= 2) n_geometry += 2 + shape-&gt;line[i].numpoints * 2; /* one MOVETO, one LINETO */</span>
+<span class="lineNum">     229 </span>            :   } else { /* MS_LAYER_POLYGON */
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :     for(i=0;i&lt;shape-&gt;numlines;i++)</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :       if(shape-&gt;line[i].numpoints &gt;= 4) n_geometry += 3 + (shape-&gt;line[i].numpoints-1) * 2; /* one MOVETO, one LINETO, one CLOSEPATH (don't consider last duplicate point) */</span>
+<span class="lineNum">     232 </span>            :   }
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span><span class="lineCov">          1 :   if(n_geometry == 0) return MS_SUCCESS;</span>
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span><span class="lineCov">          1 :   mvt_layer-&gt;features[mvt_layer-&gt;n_features++] = msSmallMalloc(sizeof(VectorTile__Tile__Feature));</span>
+<span class="lineNum">     237 </span><span class="lineCov">          1 :   mvt_feature = mvt_layer-&gt;features[mvt_layer-&gt;n_features-1];</span>
+<span class="lineNum">     238 </span><span class="lineCov">          1 :   vector_tile__tile__feature__init(mvt_feature);</span>
+<span class="lineNum">     239 </span><span class="lineCov">          1 :   mvt_feature-&gt;n_tags = mvt_layer-&gt;n_keys * 2;</span>
+<span class="lineNum">     240 </span><span class="lineCov">          1 :   mvt_feature-&gt;tags = msSmallMalloc(mvt_feature-&gt;n_tags * sizeof(uint32_t));</span>
+<span class="lineNum">     241 </span><span class="lineCov">          1 :   mvt_feature-&gt;id = shape-&gt;index;</span>
+<span class="lineNum">     242 </span><span class="lineCov">          1 :   mvt_feature-&gt;has_id = 1;</span>
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span><span class="lineCov">          1 :   if(layer-&gt;type == MS_LAYER_POLYGON)</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :     mvt_feature-&gt;type = VECTOR_TILE__TILE__GEOM_TYPE__POLYGON;</span>
+<span class="lineNum">     246 </span><span class="lineCov">          1 :   else if(layer-&gt;type == MS_LAYER_LINE)</span>
+<span class="lineNum">     247 </span><span class="lineCov">          1 :     mvt_feature-&gt;type = VECTOR_TILE__TILE__GEOM_TYPE__LINESTRING;</span>
+<span class="lineNum">     248 </span>            :   else
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :     mvt_feature-&gt;type = VECTOR_TILE__TILE__GEOM_TYPE__POINT;</span>
+<span class="lineNum">     250 </span><span class="lineCov">          1 :   mvt_feature-&gt;has_type = 1;</span>
+<span class="lineNum">     251 </span>            : 
+<span class="lineNum">     252 </span>            :   /* output values */
+<span class="lineNum">     253 </span><span class="lineCov">          1 :   for( i = 0, iout = 0; i &lt; item_list-&gt;numitems; i++ ) {</span>
+<span class="lineNum">     254 </span><span class="lineCov">          1 :     gmlItemObj *item = item_list-&gt;items + i;</span>
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span><span class="lineCov">          1 :     if( !item-&gt;visible )</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :       continue;</span>
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span><span class="lineCov">          1 :     UT_HASH_FIND_STR(value_lookup_cache-&gt;cache, shape-&gt;values[i], value);</span>
+<span class="lineNum">     260 </span><span class="lineCov">          1 :     if(!value) {</span>
+<span class="lineNum">     261 </span>            :       VectorTile__Tile__Value *mvt_value;
+<span class="lineNum">     262 </span><span class="lineCov">          1 :       value = msSmallMalloc(sizeof(value_lookup));</span>
+<span class="lineNum">     263 </span><span class="lineCov">          1 :       value-&gt;value = msStrdup(shape-&gt;values[i]);</span>
+<span class="lineNum">     264 </span><span class="lineCov">          1 :       value-&gt;index = mvt_layer-&gt;n_values;</span>
+<span class="lineNum">     265 </span><span class="lineCov">          1 :       mvt_layer-&gt;values = msSmallRealloc(mvt_layer-&gt;values,(++mvt_layer-&gt;n_values)*sizeof(VectorTile__Tile__Value*));</span>
+<span class="lineNum">     266 </span><span class="lineCov">          1 :       mvt_layer-&gt;values[mvt_layer-&gt;n_values-1] = msSmallMalloc(sizeof(VectorTile__Tile__Value));</span>
+<span class="lineNum">     267 </span><span class="lineCov">          1 :       mvt_value = mvt_layer-&gt;values[mvt_layer-&gt;n_values-1];</span>
+<span class="lineNum">     268 </span><span class="lineCov">          1 :       vector_tile__tile__value__init(mvt_value);</span>
+<span class="lineNum">     269 </span>            : 
+<span class="lineNum">     270 </span><span class="lineCov">          1 :       if( item-&gt;type &amp;&amp; EQUAL(item-&gt;type,&quot;Integer&quot;)) {</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :         mvt_value-&gt;int_value = atoi(value-&gt;value);</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :         mvt_value-&gt;has_int_value = 1;</span>
+<span class="lineNum">     273 </span><span class="lineCov">          1 :       } else if( item-&gt;type &amp;&amp; EQUAL(item-&gt;type,&quot;Real&quot;) ) {</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :         mvt_value-&gt;float_value = atof(value-&gt;value);</span>
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :         mvt_value-&gt;has_float_value = 1;</span>
+<span class="lineNum">     276 </span><span class="lineCov">          1 :       } else if( item-&gt;type &amp;&amp; EQUAL(item-&gt;type,&quot;Boolean&quot;) ) {</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :         if(EQUAL(value-&gt;value,&quot;0&quot;) || EQUAL(value-&gt;value,&quot;false&quot;))</span>
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :           mvt_value-&gt;bool_value = 0;</span>
+<span class="lineNum">     279 </span>            :         else
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :           mvt_value-&gt;bool_value = 1;</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :         mvt_value-&gt;has_bool_value = 1;</span>
+<span class="lineNum">     282 </span>            :       } else {
+<span class="lineNum">     283 </span><span class="lineCov">          1 :         mvt_value-&gt;string_value = msStrdup(value-&gt;value);</span>
+<span class="lineNum">     284 </span>            :       }
+<span class="lineNum">     285 </span><span class="lineCov">          1 :       UT_HASH_ADD_KEYPTR(hh,value_lookup_cache-&gt;cache,value-&gt;value, strlen(value-&gt;value), value);</span>
+<span class="lineNum">     286 </span>            :     }
+<span class="lineNum">     287 </span><span class="lineCov">          1 :     mvt_feature-&gt;tags[iout*2] = iout;</span>
+<span class="lineNum">     288 </span><span class="lineCov">          1 :     mvt_feature-&gt;tags[iout*2+1] = value-&gt;index;</span>
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span><span class="lineCov">          1 :     iout++;</span>
+<span class="lineNum">     291 </span>            :   }
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span>            :   /* output geom */
+<span class="lineNum">     294 </span><span class="lineCov">          1 :   mvt_feature-&gt;n_geometry = n_geometry;</span>
+<span class="lineNum">     295 </span><span class="lineCov">          1 :   mvt_feature-&gt;geometry = msSmallMalloc(mvt_feature-&gt;n_geometry * sizeof(uint32_t));</span>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span><span class="lineCov">          1 :   if(layer-&gt;type == MS_LAYER_POINT) {</span>
+<span class="lineNum">     298 </span>            :     int idx=0, lastx=0, lasty=0;
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :     mvt_feature-&gt;geometry[idx++] = COMMAND(MOVETO, mvt_feature-&gt;n_geometry-1);</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :     for(i=0;i&lt;shape-&gt;numlines;i++) {</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :       for(j=0;j&lt;shape-&gt;line[i].numpoints;j++) {</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :         mvt_feature-&gt;geometry[idx++] = PARAMETER(MS_NINT(shape-&gt;line[i].point[j].x)-lastx);</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :         mvt_feature-&gt;geometry[idx++] = PARAMETER(MS_NINT(shape-&gt;line[i].point[j].y)-lasty);</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :         lastx = MS_NINT(shape-&gt;line[i].point[j].x);</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :         lasty = MS_NINT(shape-&gt;line[i].point[j].y);</span>
+<span class="lineNum">     306 </span>            :       }
+<span class="lineNum">     307 </span>            :     }
+<span class="lineNum">     308 </span>            :   } else { /* MS_LAYER_LINE or MS_LAYER_POLYGON */
+<span class="lineNum">     309 </span>            :     int numpoints;
+<span class="lineNum">     310 </span>            :     int idx=0, lastx=0, lasty=0;
+<span class="lineNum">     311 </span><span class="lineCov">          1 :     for(i=0;i&lt;shape-&gt;numlines;i++) {</span>
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span><span class="lineCov">          1 :       if((layer-&gt;type == MS_LAYER_LINE &amp;&amp; !(shape-&gt;line[i].numpoints &gt;= 2)) || </span>
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :          (layer-&gt;type == MS_LAYER_POLYGON &amp;&amp; !(shape-&gt;line[i].numpoints &gt;= 4))) {        </span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :         continue; /* skip malformed parts */</span>
+<span class="lineNum">     316 </span>            :       }
+<span class="lineNum">     317 </span>            : 
+<span class="lineNum">     318 </span><span class="lineCov">          1 :       numpoints = (layer-&gt;type == MS_LAYER_LINE)?shape-&gt;line[i].numpoints:(shape-&gt;line[i].numpoints-1); /* don't consider last point for polygons */</span>
+<span class="lineNum">     319 </span><span class="lineCov">          1 :       for(j=0;j&lt;numpoints;j++) {</span>
+<span class="lineNum">     320 </span><span class="lineCov">          1 :         if(j==0) {</span>
+<span class="lineNum">     321 </span><span class="lineCov">          1 :           mvt_feature-&gt;geometry[idx++] = COMMAND(MOVETO, 1);</span>
+<span class="lineNum">     322 </span><span class="lineCov">          1 :         } else if(j==1) {</span>
+<span class="lineNum">     323 </span><span class="lineCov">          1 :           mvt_feature-&gt;geometry[idx++] = COMMAND(LINETO, numpoints-1);</span>
+<span class="lineNum">     324 </span>            :         }
+<span class="lineNum">     325 </span><span class="lineCov">          1 :         mvt_feature-&gt;geometry[idx++] = PARAMETER(MS_NINT(shape-&gt;line[i].point[j].x)-lastx);</span>
+<span class="lineNum">     326 </span><span class="lineCov">          1 :   mvt_feature-&gt;geometry[idx++] = PARAMETER(MS_NINT(shape-&gt;line[i].point[j].y)-lasty);</span>
+<span class="lineNum">     327 </span><span class="lineCov">          1 :   lastx = MS_NINT(shape-&gt;line[i].point[j].x);</span>
+<span class="lineNum">     328 </span><span class="lineCov">          1 :   lasty = MS_NINT(shape-&gt;line[i].point[j].y);</span>
+<span class="lineNum">     329 </span>            :       }
+<span class="lineNum">     330 </span><span class="lineCov">          1 :       if(layer-&gt;type == MS_LAYER_POLYGON) {</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :         mvt_feature-&gt;geometry[idx++] = COMMAND(CLOSEPATH, 1);</span>
+<span class="lineNum">     332 </span>            :       }
+<span class="lineNum">     333 </span>            :     }
+<span class="lineNum">     334 </span>            :   }
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span>            :   return MS_SUCCESS;
+<a name="337"><span class="lineNum">     337 </span>            : }</a>
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span><span class="lineCov">          1 : static void freeMvtTile( VectorTile__Tile *mvt_tile ) {</span>
+<span class="lineNum">     340 </span>            :   int iLayer;
+<span class="lineNum">     341 </span><span class="lineCov">          1 :   for(iLayer=0;iLayer&lt;mvt_tile-&gt;n_layers;iLayer++) {</span>
+<span class="lineNum">     342 </span><span class="lineCov">          1 :     freeMvtLayer(mvt_tile-&gt;layers[iLayer]);</span>
+<span class="lineNum">     343 </span><span class="lineCov">          1 :     msFree(mvt_tile-&gt;layers[iLayer]);</span>
+<span class="lineNum">     344 </span>            :   }
+<span class="lineNum">     345 </span><span class="lineCov">          1 :   msFree(mvt_tile-&gt;layers);</span>
+<a name="346"><span class="lineNum">     346 </span><span class="lineCov">          1 : }</span></a>
 <span class="lineNum">     347 </span>            : 
-<span class="lineNum">     348 </span><span class="lineCov">          1 :     status = msLayerOpen(layer);</span>
-<span class="lineNum">     349 </span><span class="lineCov">          1 :     if(status != MS_SUCCESS) {</span>
-<span class="lineNum">     350 </span>            :       retcode = status;
-<span class="lineNum">     351 </span>            :       goto layer_cleanup;
-<span class="lineNum">     352 </span>            :     }
-<span class="lineNum">     353 </span>            : 
-<span class="lineNum">     354 </span><span class="lineCov">          1 :     status = msLayerWhichItems(layer, MS_TRUE, NULL); /* we want all items - behaves like a query in that sense */</span>
-<span class="lineNum">     355 </span><span class="lineCov">          1 :     if(status != MS_SUCCESS) {</span>
-<span class="lineNum">     356 </span>            :       retcode = status;
-<span class="lineNum">     357 </span>            :       goto layer_cleanup;
-<span class="lineNum">     358 </span>            :     }
-<span class="lineNum">     359 </span>            : 
-<span class="lineNum">     360 </span>            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     361 </span>            :     /*      Will we need to reproject?                                      */
-<span class="lineNum">     362 </span>            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     363 </span><span class="lineCov">          1 :     layer-&gt;project = msProjectionsDiffer(&amp;(layer-&gt;projection), &amp;(map-&gt;projection));</span>
-<span class="lineNum">     364 </span>            : 
-<span class="lineNum">     365 </span><span class="lineCov">          1 :     rect = map-&gt;extent;</span>
-<span class="lineNum">     366 </span><span class="lineCov">          1 :     if(layer-&gt;project) msProjectRect(&amp;(map-&gt;projection), &amp;(layer-&gt;projection), &amp;rect);</span>
-<span class="lineNum">     367 </span>            : 
-<span class="lineNum">     368 </span><span class="lineCov">          1 :     status = msLayerWhichShapes(layer, rect, MS_TRUE);</span>
-<span class="lineNum">     369 </span><span class="lineCov">          1 :     if(status == MS_DONE) { /* no overlap - that's ok */</span>
-<span class="lineNum">     370 </span>            :       retcode = MS_SUCCESS;
-<span class="lineNum">     371 </span>            :       goto layer_cleanup;
-<span class="lineNum">     372 </span><span class="lineCov">          1 :     } else if(status != MS_SUCCESS) {</span>
-<span class="lineNum">     373 </span>            :       retcode = status;
-<span class="lineNum">     374 </span>            :       goto layer_cleanup;
-<span class="lineNum">     375 </span>            :     }
+<span class="lineNum">     348 </span><span class="lineCov">          1 : int msMVTWriteTile( mapObj *map, int sendheaders ) {</span>
+<span class="lineNum">     349 </span>            :   int iLayer,retcode=MS_SUCCESS;
+<span class="lineNum">     350 </span>            :   unsigned len;
+<span class="lineNum">     351 </span>            :   void *buf;
+<span class="lineNum">     352 </span><span class="lineCov">          1 :   const char *mvt_extent = msGetOutputFormatOption(map-&gt;outputformat, &quot;EXTENT&quot;, &quot;4096&quot;);</span>
+<span class="lineNum">     353 </span><span class="lineCov">          1 :   const char *mvt_buffer = msGetOutputFormatOption(map-&gt;outputformat, &quot;EDGE_BUFFER&quot;, &quot;10&quot;);</span>
+<span class="lineNum">     354 </span><span class="lineCov">          1 :   int buffer = MS_ABS(atoi(mvt_buffer));</span>
+<span class="lineNum">     355 </span><span class="lineCov">          1 :   VectorTile__Tile mvt_tile = VECTOR_TILE__TILE__INIT;</span>
+<span class="lineNum">     356 </span><span class="lineCov">          1 :   mvt_tile.layers = msSmallCalloc(map-&gt;numlayers, sizeof(VectorTile__Tile__Layer*));</span>
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span>            :   /* expand the map-&gt;extent so it goes from pixel center (MapServer) to pixel edge (OWS) */
+<span class="lineNum">     359 </span><span class="lineCov">          1 :   map-&gt;extent.minx -= map-&gt;cellsize * 0.5;</span>
+<span class="lineNum">     360 </span><span class="lineCov">          1 :   map-&gt;extent.maxx += map-&gt;cellsize * 0.5;</span>
+<span class="lineNum">     361 </span><span class="lineCov">          1 :   map-&gt;extent.miny -= map-&gt;cellsize * 0.5;</span>
+<span class="lineNum">     362 </span><span class="lineCov">          1 :   map-&gt;extent.maxy += map-&gt;cellsize * 0.5;</span>
+<span class="lineNum">     363 </span>            : 
+<span class="lineNum">     364 </span><span class="lineCov">          1 :   for( iLayer = 0; iLayer &lt; map-&gt;numlayers; iLayer++ ) {</span>
+<span class="lineNum">     365 </span>            :     int status=MS_SUCCESS;
+<span class="lineNum">     366 </span><span class="lineCov">          1 :     layerObj *layer = GET_LAYER(map, iLayer);</span>
+<span class="lineNum">     367 </span>            :     int i;
+<span class="lineNum">     368 </span>            :     shapeObj shape;
+<span class="lineNum">     369 </span>            :     gmlItemListObj *item_list = NULL;
+<span class="lineNum">     370 </span>            :     VectorTile__Tile__Layer *mvt_layer;
+<span class="lineNum">     371 </span><span class="lineCov">          1 :     value_lookup_table value_lookup_cache = {NULL};</span>
+<span class="lineNum">     372 </span>            :     value_lookup *cur_value_lookup, *tmp_value_lookup;
+<span class="lineNum">     373 </span>            :     rectObj rect;
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span>            :     int features_size = 0;
 <span class="lineNum">     376 </span>            : 
-<span class="lineNum">     377 </span><span class="lineCov">          1 :     mvt_tile.layers[mvt_tile.n_layers++] = msSmallMalloc(sizeof(VectorTile__Tile__Layer));</span>
-<span class="lineNum">     378 </span><span class="lineCov">          1 :     mvt_layer = mvt_tile.layers[mvt_tile.n_layers-1];</span>
-<span class="lineNum">     379 </span><span class="lineCov">          1 :     vector_tile__tile__layer__init(mvt_layer);</span>
-<span class="lineNum">     380 </span><span class="lineCov">          1 :     mvt_layer-&gt;version = 2;</span>
-<span class="lineNum">     381 </span><span class="lineCov">          1 :     mvt_layer-&gt;name = layer-&gt;name;</span>
-<span class="lineNum">     382 </span>            : 
-<span class="lineNum">     383 </span><span class="lineCov">          1 :     mvt_layer-&gt;extent = MS_ABS(atoi(mvt_extent));</span>
-<span class="lineNum">     384 </span><span class="lineCov">          1 :     mvt_layer-&gt;has_extent = 1;</span>
-<span class="lineNum">     385 </span>            : 
-<span class="lineNum">     386 </span>            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     387 </span>            :     /*      Create appropriate attributes on this layer.                    */
-<span class="lineNum">     388 </span>            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     389 </span><span class="lineCov">          1 :     item_list = msGMLGetItems( layer, &quot;G&quot; );</span>
-<span class="lineNum">     390 </span>            :     assert( item_list-&gt;numitems == layer-&gt;numitems );
-<span class="lineNum">     391 </span>            : 
-<span class="lineNum">     392 </span><span class="lineCov">          1 :     mvt_layer-&gt;keys = msSmallMalloc(layer-&gt;numitems * sizeof(char*));</span>
+<span class="lineNum">     377 </span><span class="lineCov">          1 :     if(!msLayerIsVisible(map, layer)) continue;</span>
+<span class="lineNum">     378 </span>            : 
+<span class="lineNum">     379 </span><span class="lineCov">          1 :     if(layer-&gt;type != MS_LAYER_POINT &amp;&amp; layer-&gt;type != MS_LAYER_POLYGON &amp;&amp; layer-&gt;type != MS_LAYER_LINE)</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :       continue;</span>
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span><span class="lineCov">          1 :     status = msLayerOpen(layer);</span>
+<span class="lineNum">     383 </span><span class="lineCov">          1 :     if(status != MS_SUCCESS) {</span>
+<span class="lineNum">     384 </span>            :       retcode = status;
+<span class="lineNum">     385 </span>            :       goto layer_cleanup;
+<span class="lineNum">     386 </span>            :     }
+<span class="lineNum">     387 </span>            : 
+<span class="lineNum">     388 </span><span class="lineCov">          1 :     status = msLayerWhichItems(layer, MS_TRUE, NULL); /* we want all items - behaves like a query in that sense */</span>
+<span class="lineNum">     389 </span><span class="lineCov">          1 :     if(status != MS_SUCCESS) {</span>
+<span class="lineNum">     390 </span>            :       retcode = status;
+<span class="lineNum">     391 </span>            :       goto layer_cleanup;
+<span class="lineNum">     392 </span>            :     }
 <span class="lineNum">     393 </span>            : 
-<span class="lineNum">     394 </span><span class="lineCov">          1 :     for( i = 0; i &lt; layer-&gt;numitems; i++ ) {</span>
-<span class="lineNum">     395 </span><span class="lineCov">          1 :       gmlItemObj *item = item_list-&gt;items + i;</span>
-<span class="lineNum">     396 </span>            : 
-<span class="lineNum">     397 </span><span class="lineCov">          1 :       if( !item-&gt;visible )</span>
-<span class="lineNum">     398 </span><span class="lineNoCov">          0 :         continue;</span>
-<span class="lineNum">     399 </span>            : 
-<span class="lineNum">     400 </span><span class="lineCov">          1 :       if( item-&gt;alias )</span>
-<span class="lineNum">     401 </span><span class="lineNoCov">          0 :         mvt_layer-&gt;keys[mvt_layer-&gt;n_keys++] = msStrdup(item-&gt;alias);</span>
-<span class="lineNum">     402 </span>            :       else
-<span class="lineNum">     403 </span><span class="lineCov">          1 :         mvt_layer-&gt;keys[mvt_layer-&gt;n_keys++] = msStrdup(item-&gt;name);</span>
-<span class="lineNum">     404 </span>            :     }
-<span class="lineNum">     405 </span>            : 
-<span class="lineNum">     406 </span>            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     407 </span>            :     /*      Setup joins if needed.  This is likely untested.                */
-<span class="lineNum">     408 </span>            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     409 </span><span class="lineCov">          1 :     if(layer-&gt;numjoins &gt; 0) {</span>
-<span class="lineNum">     410 </span>            :       int j;
-<span class="lineNum">     411 </span><span class="lineNoCov">          0 :       for(j=0; j&lt;layer-&gt;numjoins; j++) {</span>
-<span class="lineNum">     412 </span><span class="lineNoCov">          0 :         status = msJoinConnect(layer, &amp;(layer-&gt;joins[j]));</span>
-<span class="lineNum">     413 </span><span class="lineNoCov">          0 :         if(status != MS_SUCCESS) {</span>
-<span class="lineNum">     414 </span>            :           retcode = status;
-<span class="lineNum">     415 </span>            :           goto layer_cleanup;
-<span class="lineNum">     416 </span>            :         }
-<span class="lineNum">     417 </span>            :       }
-<span class="lineNum">     418 </span>            :     }
+<span class="lineNum">     394 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     395 </span>            :     /*      Will we need to reproject?                                      */
+<span class="lineNum">     396 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     397 </span><span class="lineCov">          1 :     layer-&gt;project = msProjectionsDiffer(&amp;(layer-&gt;projection), &amp;(map-&gt;projection));</span>
+<span class="lineNum">     398 </span>            : 
+<span class="lineNum">     399 </span><span class="lineCov">          1 :     rect = map-&gt;extent;</span>
+<span class="lineNum">     400 </span><span class="lineCov">          1 :     if(layer-&gt;project) msProjectRect(&amp;(map-&gt;projection), &amp;(layer-&gt;projection), &amp;rect);</span>
+<span class="lineNum">     401 </span>            : 
+<span class="lineNum">     402 </span><span class="lineCov">          1 :     status = msLayerWhichShapes(layer, rect, MS_TRUE);</span>
+<span class="lineNum">     403 </span><span class="lineCov">          1 :     if(status == MS_DONE) { /* no overlap - that's ok */</span>
+<span class="lineNum">     404 </span>            :       retcode = MS_SUCCESS;
+<span class="lineNum">     405 </span>            :       goto layer_cleanup;
+<span class="lineNum">     406 </span><span class="lineCov">          1 :     } else if(status != MS_SUCCESS) {</span>
+<span class="lineNum">     407 </span>            :       retcode = status;
+<span class="lineNum">     408 </span>            :       goto layer_cleanup;
+<span class="lineNum">     409 </span>            :     }
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span><span class="lineCov">          1 :     mvt_tile.layers[mvt_tile.n_layers++] = msSmallMalloc(sizeof(VectorTile__Tile__Layer));</span>
+<span class="lineNum">     412 </span><span class="lineCov">          1 :     mvt_layer = mvt_tile.layers[mvt_tile.n_layers-1];</span>
+<span class="lineNum">     413 </span><span class="lineCov">          1 :     vector_tile__tile__layer__init(mvt_layer);</span>
+<span class="lineNum">     414 </span><span class="lineCov">          1 :     mvt_layer-&gt;version = 2;</span>
+<span class="lineNum">     415 </span><span class="lineCov">          1 :     mvt_layer-&gt;name = layer-&gt;name;</span>
+<span class="lineNum">     416 </span>            : 
+<span class="lineNum">     417 </span><span class="lineCov">          1 :     mvt_layer-&gt;extent = MS_ABS(atoi(mvt_extent));</span>
+<span class="lineNum">     418 </span><span class="lineCov">          1 :     mvt_layer-&gt;has_extent = 1;</span>
 <span class="lineNum">     419 </span>            : 
-<span class="lineNum">     420 </span><span class="lineCov">          1 :     mvt_layer-&gt;features = msSmallCalloc(FEATURES_INCREMENT_SIZE, sizeof(VectorTile__Tile__Feature*));</span>
-<span class="lineNum">     421 </span>            :     features_size = FEATURES_INCREMENT_SIZE;
-<span class="lineNum">     422 </span>            : 
-<span class="lineNum">     423 </span><span class="lineCov">          1 :     msInitShape(&amp;shape);</span>
-<span class="lineNum">     424 </span><span class="lineCov">          1 :     while((status = msLayerNextShape(layer, &amp;shape)) == MS_SUCCESS) {</span>
-<span class="lineNum">     425 </span>            :       
-<span class="lineNum">     426 </span><span class="lineCov">          1 :       if(layer-&gt;numclasses &gt; 0) {</span>
-<span class="lineNum">     427 </span><span class="lineCov">          1 :         shape.classindex = msShapeGetClass(layer, map, &amp;shape, NULL, -1); /* Perform classification, and some annotation related magic. */</span>
-<span class="lineNum">     428 </span><span class="lineCov">          1 :         if(shape.classindex &lt; 0)</span>
-<span class="lineNum">     429 </span>            :           goto feature_cleanup; /* no matching CLASS found, skip this feature */
-<span class="lineNum">     430 </span>            :       }
-<span class="lineNum">     431 </span>            : 
-<span class="lineNum">     432 </span>            :       /*
-<span class="lineNum">     433 </span>            :       ** prepare any necessary JOINs here (one-to-one only)
-<span class="lineNum">     434 </span>            :       */
-<span class="lineNum">     435 </span><span class="lineCov">          1 :       if( layer-&gt;numjoins &gt; 0) {</span>
-<span class="lineNum">     436 </span>            :         int j;
-<span class="lineNum">     437 </span>            : 
-<span class="lineNum">     438 </span><span class="lineNoCov">          0 :         for(j=0; j &lt; layer-&gt;numjoins; j++) {</span>
-<span class="lineNum">     439 </span><span class="lineNoCov">          0 :           if(layer-&gt;joins[j].type == MS_JOIN_ONE_TO_ONE) {</span>
-<span class="lineNum">     440 </span><span class="lineNoCov">          0 :             msJoinPrepare(&amp;(layer-&gt;joins[j]), &amp;shape);</span>
-<span class="lineNum">     441 </span><span class="lineNoCov">          0 :             msJoinNext(&amp;(layer-&gt;joins[j])); /* fetch the first row */</span>
-<span class="lineNum">     442 </span>            :           }
-<span class="lineNum">     443 </span>            :         }
-<span class="lineNum">     444 </span>            :       }
-<span class="lineNum">     445 </span>            : 
-<span class="lineNum">     446 </span><span class="lineCov">          1 :       if(mvt_layer-&gt;n_features == features_size) { /* need to allocate more space */</span>
-<span class="lineNum">     447 </span><span class="lineCov">          1 :         features_size += FEATURES_INCREMENT_SIZE;</span>
-<span class="lineNum">     448 </span><span class="lineCov">          1 :         mvt_layer-&gt;features = msSmallRealloc(mvt_layer-&gt;features, sizeof(VectorTile__Tile__Feature*)*(features_size));</span>
-<span class="lineNum">     449 </span>            :       }
-<span class="lineNum">     450 </span>            : 
-<span class="lineNum">     451 </span><span class="lineCov">          1 :       if( layer-&gt;project ) {</span>
-<span class="lineNum">     452 </span><span class="lineCov">          1 :         status = msProjectShape(&amp;layer-&gt;projection, &amp;layer-&gt;map-&gt;projection, &amp;shape);</span>
-<span class="lineNum">     453 </span><span class="lineCov">          1 :       }      if( status == MS_SUCCESS ) {</span>
-<span class="lineNum">     454 </span><span class="lineCov">          1 :         status = mvtWriteShape( layer, &amp;shape, mvt_layer, item_list, &amp;value_lookup_cache, &amp;map-&gt;extent, buffer );</span>
-<span class="lineNum">     455 </span>            :       }
+<span class="lineNum">     420 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     421 </span>            :     /*      Create appropriate attributes on this layer.                    */
+<span class="lineNum">     422 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     423 </span><span class="lineCov">          1 :     item_list = msGMLGetItems( layer, &quot;G&quot; );</span>
+<span class="lineNum">     424 </span>            :     assert( item_list-&gt;numitems == layer-&gt;numitems );
+<span class="lineNum">     425 </span>            : 
+<span class="lineNum">     426 </span><span class="lineCov">          1 :     mvt_layer-&gt;keys = msSmallMalloc(layer-&gt;numitems * sizeof(char*));</span>
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span><span class="lineCov">          1 :     for( i = 0; i &lt; layer-&gt;numitems; i++ ) {</span>
+<span class="lineNum">     429 </span><span class="lineCov">          1 :       gmlItemObj *item = item_list-&gt;items + i;</span>
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span><span class="lineCov">          1 :       if( !item-&gt;visible )</span>
+<span class="lineNum">     432 </span><span class="lineNoCov">          0 :         continue;</span>
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span><span class="lineCov">          1 :       if( item-&gt;alias )</span>
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :         mvt_layer-&gt;keys[mvt_layer-&gt;n_keys++] = msStrdup(item-&gt;alias);</span>
+<span class="lineNum">     436 </span>            :       else
+<span class="lineNum">     437 </span><span class="lineCov">          1 :         mvt_layer-&gt;keys[mvt_layer-&gt;n_keys++] = msStrdup(item-&gt;name);</span>
+<span class="lineNum">     438 </span>            :     }
+<span class="lineNum">     439 </span>            : 
+<span class="lineNum">     440 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     441 </span>            :     /*      Setup joins if needed.  This is likely untested.                */
+<span class="lineNum">     442 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     443 </span><span class="lineCov">          1 :     if(layer-&gt;numjoins &gt; 0) {</span>
+<span class="lineNum">     444 </span>            :       int j;
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :       for(j=0; j&lt;layer-&gt;numjoins; j++) {</span>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :         status = msJoinConnect(layer, &amp;(layer-&gt;joins[j]));</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :         if(status != MS_SUCCESS) {</span>
+<span class="lineNum">     448 </span>            :           retcode = status;
+<span class="lineNum">     449 </span>            :           goto layer_cleanup;
+<span class="lineNum">     450 </span>            :         }
+<span class="lineNum">     451 </span>            :       }
+<span class="lineNum">     452 </span>            :     }
+<span class="lineNum">     453 </span>            : 
+<span class="lineNum">     454 </span><span class="lineCov">          1 :     mvt_layer-&gt;features = msSmallCalloc(FEATURES_INCREMENT_SIZE, sizeof(VectorTile__Tile__Feature*));</span>
+<span class="lineNum">     455 </span>            :     features_size = FEATURES_INCREMENT_SIZE;
 <span class="lineNum">     456 </span>            : 
-<span class="lineNum">     457 </span>            :       feature_cleanup:
-<span class="lineNum">     458 </span><span class="lineCov">          1 :       msFreeShape(&amp;shape);</span>
-<span class="lineNum">     459 </span><span class="lineCov">          1 :       if(retcode != MS_SUCCESS) goto layer_cleanup;</span>
-<span class="lineNum">     460 </span>            :     } /* next shape */
-<span class="lineNum">     461 </span>            :     layer_cleanup:
-<span class="lineNum">     462 </span><span class="lineCov">          1 :     msLayerClose(layer);</span>
-<span class="lineNum">     463 </span><span class="lineCov">          1 :     msGMLFreeItems(item_list);</span>
-<span class="lineNum">     464 </span><span class="lineCov">          1 :     UT_HASH_ITER(hh, value_lookup_cache.cache, cur_value_lookup, tmp_value_lookup) {</span>
-<span class="lineNum">     465 </span><span class="lineCov">          1 :       msFree(cur_value_lookup-&gt;value);</span>
-<span class="lineNum">     466 </span><span class="lineCov">          1 :       UT_HASH_DEL(value_lookup_cache.cache,cur_value_lookup);</span>
-<span class="lineNum">     467 </span><span class="lineCov">          1 :       msFree(cur_value_lookup);</span>
-<span class="lineNum">     468 </span>            :     }
-<span class="lineNum">     469 </span><span class="lineCov">          1 :     if(retcode != MS_SUCCESS) goto cleanup;</span>
-<span class="lineNum">     470 </span>            :   } /* next layer */
+<span class="lineNum">     457 </span><span class="lineCov">          1 :     msInitShape(&amp;shape);</span>
+<span class="lineNum">     458 </span><span class="lineCov">          1 :     while((status = msLayerNextShape(layer, &amp;shape)) == MS_SUCCESS) {</span>
+<span class="lineNum">     459 </span>            :       
+<span class="lineNum">     460 </span><span class="lineCov">          1 :       if(layer-&gt;numclasses &gt; 0) {</span>
+<span class="lineNum">     461 </span><span class="lineCov">          1 :         shape.classindex = msShapeGetClass(layer, map, &amp;shape, NULL, -1); /* Perform classification, and some annotation related magic. */</span>
+<span class="lineNum">     462 </span><span class="lineCov">          1 :         if(shape.classindex &lt; 0)</span>
+<span class="lineNum">     463 </span>            :           goto feature_cleanup; /* no matching CLASS found, skip this feature */
+<span class="lineNum">     464 </span>            :       }
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span>            :       /*
+<span class="lineNum">     467 </span>            :       ** prepare any necessary JOINs here (one-to-one only)
+<span class="lineNum">     468 </span>            :       */
+<span class="lineNum">     469 </span><span class="lineCov">          1 :       if( layer-&gt;numjoins &gt; 0) {</span>
+<span class="lineNum">     470 </span>            :         int j;
 <span class="lineNum">     471 </span>            : 
-<span class="lineNum">     472 </span><span class="lineCov">          1 :   len = vector_tile__tile__get_packed_size(&amp;mvt_tile); // This is the calculated packing length</span>
-<span class="lineNum">     473 </span>            : 
-<span class="lineNum">     474 </span><span class="lineCov">          1 :   buf = msSmallMalloc(len); // Allocate memory</span>
-<span class="lineNum">     475 </span><span class="lineCov">          1 :   vector_tile__tile__pack(&amp;mvt_tile, buf);</span>
-<span class="lineNum">     476 </span><span class="lineCov">          1 :   if( sendheaders ) {</span>
-<span class="lineNum">     477 </span><span class="lineCov">          1 :     msIO_fprintf( stdout,</span>
-<span class="lineNum">     478 </span>            :       &quot;Content-Length: %d\r\n&quot;
-<span class="lineNum">     479 </span>            :       &quot;Content-Type: application/x-protobuf\r\n\r\n&quot;,
-<span class="lineNum">     480 </span>            :                   len);
-<span class="lineNum">     481 </span>            :   }
-<span class="lineNum">     482 </span><span class="lineCov">          1 :   msIO_fwrite(buf,len,1,stdout);</span>
-<span class="lineNum">     483 </span><span class="lineCov">          1 :   msFree(buf);</span>
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :         for(j=0; j &lt; layer-&gt;numjoins; j++) {</span>
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :           if(layer-&gt;joins[j].type == MS_JOIN_ONE_TO_ONE) {</span>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :             msJoinPrepare(&amp;(layer-&gt;joins[j]), &amp;shape);</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :             msJoinNext(&amp;(layer-&gt;joins[j])); /* fetch the first row */</span>
+<span class="lineNum">     476 </span>            :           }
+<span class="lineNum">     477 </span>            :         }
+<span class="lineNum">     478 </span>            :       }
+<span class="lineNum">     479 </span>            : 
+<span class="lineNum">     480 </span><span class="lineCov">          1 :       if(mvt_layer-&gt;n_features == features_size) { /* need to allocate more space */</span>
+<span class="lineNum">     481 </span><span class="lineCov">          1 :         features_size += FEATURES_INCREMENT_SIZE;</span>
+<span class="lineNum">     482 </span><span class="lineCov">          1 :         mvt_layer-&gt;features = msSmallRealloc(mvt_layer-&gt;features, sizeof(VectorTile__Tile__Feature*)*(features_size));</span>
+<span class="lineNum">     483 </span>            :       }
 <span class="lineNum">     484 </span>            : 
-<span class="lineNum">     485 </span>            :   cleanup:
-<span class="lineNum">     486 </span><span class="lineCov">          1 :   freeMvtTile(&amp;mvt_tile);</span>
-<span class="lineNum">     487 </span>            : 
-<span class="lineNum">     488 </span><span class="lineCov">          1 :   return retcode;</span>
-<a name="489"><span class="lineNum">     489 </span>            : }</a>
+<span class="lineNum">     485 </span><span class="lineCov">          1 :       if( layer-&gt;project ) {</span>
+<span class="lineNum">     486 </span><span class="lineCov">          1 :         status = msProjectShape(&amp;layer-&gt;projection, &amp;layer-&gt;map-&gt;projection, &amp;shape);</span>
+<span class="lineNum">     487 </span><span class="lineCov">          1 :       }      if( status == MS_SUCCESS ) {</span>
+<span class="lineNum">     488 </span><span class="lineCov">          1 :         status = mvtWriteShape( layer, &amp;shape, mvt_layer, item_list, &amp;value_lookup_cache, &amp;map-&gt;extent, buffer );</span>
+<span class="lineNum">     489 </span>            :       }
 <span class="lineNum">     490 </span>            : 
-<span class="lineNum">     491 </span><span class="lineCov">          1 : int msPopulateRendererVTableMVT(rendererVTableObj * renderer) {</span>
-<span class="lineNum">     492 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     493 </span>            : }
-<span class="lineNum">     494 </span>            : #else
-<span class="lineNum">     495 </span>            : int msPopulateRendererVTableMVT(rendererVTableObj * renderer) {
-<span class="lineNum">     496 </span>            :   msSetError(MS_MISCERR, &quot;Vector Tile Driver requested but support is not compiled in&quot;, &quot;msPopulateRendererVTableMVT()&quot;);
-<span class="lineNum">     497 </span>            :   return MS_FAILURE;
-<span class="lineNum">     498 </span>            : }
-<span class="lineNum">     499 </span>            : 
-<span class="lineNum">     500 </span>            : int msMVTWriteTile( mapObj *map, int sendheaders ) {
-<span class="lineNum">     501 </span>            :   msSetError(MS_MISCERR, &quot;Vector Tile support is not available.&quot;, &quot;msMVTWriteTile()&quot;);
-<span class="lineNum">     502 </span>            :   return MS_FAILURE;
-<span class="lineNum">     503 </span>            : }
-<span class="lineNum">     504 </span>            : #endif
+<span class="lineNum">     491 </span>            :       feature_cleanup:
+<span class="lineNum">     492 </span><span class="lineCov">          1 :       msFreeShape(&amp;shape);</span>
+<span class="lineNum">     493 </span><span class="lineCov">          1 :       if(retcode != MS_SUCCESS) goto layer_cleanup;</span>
+<span class="lineNum">     494 </span>            :     } /* next shape */
+<span class="lineNum">     495 </span>            :     layer_cleanup:
+<span class="lineNum">     496 </span><span class="lineCov">          1 :     msLayerClose(layer);</span>
+<span class="lineNum">     497 </span><span class="lineCov">          1 :     msGMLFreeItems(item_list);</span>
+<span class="lineNum">     498 </span><span class="lineCov">          1 :     UT_HASH_ITER(hh, value_lookup_cache.cache, cur_value_lookup, tmp_value_lookup) {</span>
+<span class="lineNum">     499 </span><span class="lineCov">          1 :       msFree(cur_value_lookup-&gt;value);</span>
+<span class="lineNum">     500 </span><span class="lineCov">          1 :       UT_HASH_DEL(value_lookup_cache.cache,cur_value_lookup);</span>
+<span class="lineNum">     501 </span><span class="lineCov">          1 :       msFree(cur_value_lookup);</span>
+<span class="lineNum">     502 </span>            :     }
+<span class="lineNum">     503 </span><span class="lineCov">          1 :     if(retcode != MS_SUCCESS) goto cleanup;</span>
+<span class="lineNum">     504 </span>            :   } /* next layer */
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span><span class="lineCov">          1 :   len = vector_tile__tile__get_packed_size(&amp;mvt_tile); // This is the calculated packing length</span>
+<span class="lineNum">     507 </span>            : 
+<span class="lineNum">     508 </span><span class="lineCov">          1 :   buf = msSmallMalloc(len); // Allocate memory</span>
+<span class="lineNum">     509 </span><span class="lineCov">          1 :   vector_tile__tile__pack(&amp;mvt_tile, buf);</span>
+<span class="lineNum">     510 </span><span class="lineCov">          1 :   if( sendheaders ) {</span>
+<span class="lineNum">     511 </span><span class="lineCov">          1 :     msIO_fprintf( stdout,</span>
+<span class="lineNum">     512 </span>            :       &quot;Content-Length: %d\r\n&quot;
+<span class="lineNum">     513 </span>            :       &quot;Content-Type: application/x-protobuf\r\n\r\n&quot;,
+<span class="lineNum">     514 </span>            :                   len);
+<span class="lineNum">     515 </span>            :   }
+<span class="lineNum">     516 </span><span class="lineCov">          1 :   msIO_fwrite(buf,len,1,stdout);</span>
+<span class="lineNum">     517 </span><span class="lineCov">          1 :   msFree(buf);</span>
+<span class="lineNum">     518 </span>            : 
+<span class="lineNum">     519 </span>            :   cleanup:
+<span class="lineNum">     520 </span><span class="lineCov">          1 :   freeMvtTile(&amp;mvt_tile);</span>
+<span class="lineNum">     521 </span>            : 
+<span class="lineNum">     522 </span><span class="lineCov">          1 :   return retcode;</span>
+<a name="523"><span class="lineNum">     523 </span>            : }</a>
+<span class="lineNum">     524 </span>            : 
+<span class="lineNum">     525 </span><span class="lineCov">          1 : int msPopulateRendererVTableMVT(rendererVTableObj * renderer) {</span>
+<span class="lineNum">     526 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     527 </span>            : }
+<span class="lineNum">     528 </span>            : #else
+<span class="lineNum">     529 </span>            : int msPopulateRendererVTableMVT(rendererVTableObj * renderer) {
+<span class="lineNum">     530 </span>            :   msSetError(MS_MISCERR, &quot;Vector Tile Driver requested but support is not compiled in&quot;, &quot;msPopulateRendererVTableMVT()&quot;);
+<span class="lineNum">     531 </span>            :   return MS_FAILURE;
+<span class="lineNum">     532 </span>            : }
+<span class="lineNum">     533 </span>            : 
+<span class="lineNum">     534 </span>            : int msMVTWriteTile( mapObj *map, int sendheaders ) {
+<span class="lineNum">     535 </span>            :   msSetError(MS_MISCERR, &quot;Vector Tile support is not available.&quot;, &quot;msMVTWriteTile()&quot;);
+<span class="lineNum">     536 </span>            :   return MS_FAILURE;
+<span class="lineNum">     537 </span>            : }
+<span class="lineNum">     538 </span>            : #endif
 </pre>
       </td>
     </tr>
