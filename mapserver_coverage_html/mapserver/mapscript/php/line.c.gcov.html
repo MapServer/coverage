@@ -1,0 +1,581 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - mapserver/mapscript/php/line.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">mapserver/mapscript/php</a> - line.c<span style="font-size: 80%;"> (source / <a href="line.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">148</td>
+            <td class="headerCovTableEntryLo">6.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryLo">7.1 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /**********************************************************************</a>
+<span class="lineNum">       2 </span>            :  * $Id: php_mapscript.c 9765 2010-01-28 15:32:10Z aboudreault $
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * Project:  MapServer
+<span class="lineNum">       5 </span>            :  * Purpose:  PHP/MapScript extension for MapServer.  External interface
+<span class="lineNum">       6 </span>            :  *           functions
+<span class="lineNum">       7 </span>            :  * Author:   Daniel Morissette, DM Solutions Group (dmorissette@dmsolutions.ca)
+<span class="lineNum">       8 </span>            :  *           Alan Boudreault, Mapgears
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  **********************************************************************
+<span class="lineNum">      11 </span>            :  * Copyright (c) 2000-2010, Daniel Morissette, DM Solutions Group Inc.
+<span class="lineNum">      12 </span>            :  *
+<span class="lineNum">      13 </span>            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      14 </span>            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      15 </span>            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      16 </span>            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      17 </span>            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      18 </span>            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      21 </span>            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      22 </span>            :  *
+<span class="lineNum">      23 </span>            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<span class="lineNum">      24 </span>            :  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      25 </span>            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+<span class="lineNum">      26 </span>            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      27 </span>            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      28 </span>            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      29 </span>            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      30 </span>            :  **********************************************************************/
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #include &quot;php_mapscript.h&quot;
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : zend_class_entry *mapscript_ce_line;
+<span class="lineNum">      35 </span>            : zend_object_handlers mapscript_line_object_handlers;
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : ZEND_BEGIN_ARG_INFO_EX(line___get_args, 0, 0, 1)
+<span class="lineNum">      38 </span>            : ZEND_ARG_INFO(0, property)
+<span class="lineNum">      39 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : ZEND_BEGIN_ARG_INFO_EX(line___set_args, 0, 0, 2)
+<span class="lineNum">      42 </span>            : ZEND_ARG_INFO(0, property)
+<span class="lineNum">      43 </span>            : ZEND_ARG_INFO(0, value)
+<span class="lineNum">      44 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : ZEND_BEGIN_ARG_INFO_EX(line_add_args, 0, 0, 1)
+<span class="lineNum">      47 </span>            : ZEND_ARG_OBJ_INFO(0, point, pointObj, 0)
+<span class="lineNum">      48 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            : ZEND_BEGIN_ARG_INFO_EX(line_set_args, 0, 0, 2)
+<span class="lineNum">      51 </span>            : ZEND_ARG_INFO(0, index)
+<span class="lineNum">      52 </span>            : ZEND_ARG_OBJ_INFO(0, point, pointObj, 0)
+<span class="lineNum">      53 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : ZEND_BEGIN_ARG_INFO_EX(line_addXY_args, 0, 0, 2)
+<span class="lineNum">      56 </span>            : ZEND_ARG_INFO(0, x)
+<span class="lineNum">      57 </span>            : ZEND_ARG_INFO(0, y)
+<span class="lineNum">      58 </span>            : ZEND_ARG_INFO(0, m)
+<span class="lineNum">      59 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            : ZEND_BEGIN_ARG_INFO_EX(line_addXYZ_args, 0, 0, 3)
+<span class="lineNum">      62 </span>            : ZEND_ARG_INFO(0, x)
+<span class="lineNum">      63 </span>            : ZEND_ARG_INFO(0, y)
+<span class="lineNum">      64 </span>            : ZEND_ARG_INFO(0, z)
+<span class="lineNum">      65 </span>            : ZEND_ARG_INFO(0, m)
+<span class="lineNum">      66 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            : ZEND_BEGIN_ARG_INFO_EX(line_project_args, 0, 0, 2)
+<span class="lineNum">      69 </span>            : ZEND_ARG_OBJ_INFO(0, projIn, projectionObj, 0)
+<span class="lineNum">      70 </span>            : ZEND_ARG_OBJ_INFO(0, projOut, projectionObj, 0)
+<span class="lineNum">      71 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : ZEND_BEGIN_ARG_INFO_EX(line_point_args, 0, 0, 1)
+<span class="lineNum">      74 </span>            : ZEND_ARG_INFO(0, index)
+<span class="lineNum">      75 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      76 </span>            : 
+<a name="77"><span class="lineNum">      77 </span>            : /* {{{ proto line __construct()</a>
+<span class="lineNum">      78 </span>            :    Create a new lineObj instance. */
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 : PHP_METHOD(lineObj, __construct)</span>
+<span class="lineNum">      80 </span>            : {
+<span class="lineNum">      81 </span>            :   php_line_object *php_line;
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters_none() == FAILURE) {</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">      87 </span>            :   }
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :   php_line = MAPSCRIPT_OBJ_P(php_line_object, getThis());</span>
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :   if ((php_line-&gt;line = lineObj_new()) == NULL) {</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :     mapscript_throw_exception(&quot;Unable to construct lineObj.&quot; TSRMLS_CC);</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">      95 </span>            :   }
+<span class="lineNum">      96 </span>            : }
+<a name="97"><span class="lineNum">      97 </span>            : /* }}} */</a>
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 : PHP_METHOD(lineObj, __get)</span>
+<span class="lineNum">     100 </span>            : {
+<span class="lineNum">     101 </span>            :   char *property;
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :   long property_len = 0;</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :   zval *zobj = getThis();</span>
+<span class="lineNum">     104 </span>            :   php_line_object *php_line;
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;s&quot;,</span>
+<span class="lineNum">     108 </span>            :                             &amp;property, &amp;property_len) == FAILURE) {
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     111 </span>            :   }
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :   php_line = MAPSCRIPT_OBJ_P(php_line_object, zobj);</span>
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :   IF_GET_LONG(&quot;numpoints&quot;, php_line-&gt;line-&gt;numpoints)</span>
+<span class="lineNum">     117 </span>            :   else {
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :     mapscript_throw_exception(&quot;Property '%s' does not exist in this object.&quot; TSRMLS_CC, property);</span>
+<span class="lineNum">     119 </span>            :   }
+<a name="120"><span class="lineNum">     120 </span>            : }</a>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 : PHP_METHOD(lineObj, __set)</span>
+<span class="lineNum">     123 </span>            : {
+<span class="lineNum">     124 </span>            :   char *property;
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :   long property_len = 0;</span>
+<span class="lineNum">     126 </span>            :   zval *value;
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;sz&quot;,</span>
+<span class="lineNum">     130 </span>            :                             &amp;property, &amp;property_len, &amp;value) == FAILURE) {
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     133 </span>            :   }
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :   if (STRING_EQUAL(&quot;numpoints&quot;, property)) {</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :     mapscript_throw_exception(&quot;Property '%s' is read-only and cannot be set.&quot; TSRMLS_CC, property);</span>
+<span class="lineNum">     138 </span>            :   } else {
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :     mapscript_throw_exception(&quot;Property '%s' does not exist in this object.&quot; TSRMLS_CC, property);</span>
+<span class="lineNum">     140 </span>            :   }
+<span class="lineNum">     141 </span>            : }
+<span class="lineNum">     142 </span>            : 
+<a name="143"><span class="lineNum">     143 </span>            : /* {{{ proto int line.add(pointObj point)</a>
+<span class="lineNum">     144 </span>            :    Adds a point to the end of a line */
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 : PHP_METHOD(lineObj, add)</span>
+<span class="lineNum">     146 </span>            : {
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :   zval *zobj =  getThis();</span>
+<span class="lineNum">     148 </span>            :   zval *zobj_point;
+<span class="lineNum">     149 </span>            :   php_line_object *php_line;
+<span class="lineNum">     150 </span>            :   php_point_object *php_point;
+<span class="lineNum">     151 </span>            :   int status = MS_FAILURE;
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;O&quot;,</span>
+<span class="lineNum">     155 </span>            :                             &amp;zobj_point, mapscript_ce_point) == FAILURE) {
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     158 </span>            :   }
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :   php_line = MAPSCRIPT_OBJ_P(php_line_object, zobj);</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :   php_point = MAPSCRIPT_OBJ_P(php_point_object, zobj_point);</span>
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :   status = lineObj_add(php_line-&gt;line, php_point-&gt;point);</span>
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :   RETURN_LONG(status);</span>
+<span class="lineNum">     167 </span>            : }
+<span class="lineNum">     168 </span>            : /* }}} */
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            : /* {{{ proto int line.addXY(double x, double y, double m)
+<a name="171"><span class="lineNum">     171 </span>            :    3rd argument m is used for Measured shape files. It is not mandatory.</a>
+<span class="lineNum">     172 </span>            :    Adds a point to the end of a line */
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 : PHP_METHOD(lineObj, addXY)</span>
+<span class="lineNum">     174 </span>            : {
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :   zval *zobj = getThis();</span>
+<span class="lineNum">     176 </span>            :   pointObj point;
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :   double x, y, m = 0;</span>
+<span class="lineNum">     178 </span>            :   int status = MS_FAILURE;
+<span class="lineNum">     179 </span>            :   php_line_object *php_line;
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;dd|d&quot;, &amp;x, &amp;y, &amp;m) == FAILURE) {</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     185 </span>            :   }
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :   php_line = MAPSCRIPT_OBJ_P(php_line_object, zobj);</span>
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :   point.x = x;</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :   point.y = y;</span>
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            : #ifdef USE_LINE_Z_M
+<span class="lineNum">     194 </span>            :   point.z = 0;
+<span class="lineNum">     195 </span>            :   point.m = m;
+<span class="lineNum">     196 </span>            : #endif
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :   status = lineObj_add(php_line-&gt;line, &amp;point);</span>
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :   RETURN_LONG(status);</span>
+<span class="lineNum">     201 </span>            : }
+<span class="lineNum">     202 </span>            : /* }}} */
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span>            : /* {{{ proto int line.addXYZ(double x, double y, double z, double m)
+<a name="205"><span class="lineNum">     205 </span>            :    4th argument m is used for Measured shape files. It is not mandatory.</a>
+<span class="lineNum">     206 </span>            :    Adds a point to the end of a line */
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 : PHP_METHOD(lineObj, addXYZ)</span>
+<span class="lineNum">     208 </span>            : {
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :   zval *zobj = getThis();</span>
+<span class="lineNum">     210 </span>            :   pointObj point;
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :   double x, y, z, m = 0;</span>
+<span class="lineNum">     212 </span>            :   int status = MS_FAILURE;
+<span class="lineNum">     213 </span>            :   php_line_object *php_line;
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;ddd|d&quot;,</span>
+<span class="lineNum">     217 </span>            :                             &amp;x, &amp;y, &amp;z, &amp;m) == FAILURE) {
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     220 </span>            :   }
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :   php_line = MAPSCRIPT_OBJ_P(php_line_object, zobj);</span>
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :   point.x = x;</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :   point.y = y;</span>
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span>            : #ifdef USE_LINE_Z_M
+<span class="lineNum">     229 </span>            :   point.z = z;
+<span class="lineNum">     230 </span>            :   point.m = m;
+<span class="lineNum">     231 </span>            : #endif
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :   status = lineObj_add(php_line-&gt;line, &amp;point);</span>
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :   RETURN_LONG(status);</span>
+<span class="lineNum">     236 </span>            : }
+<span class="lineNum">     237 </span>            : /* }}} */
+<span class="lineNum">     238 </span>            : 
+<a name="239"><span class="lineNum">     239 </span>            : /* {{{ proto int line.project(projectionObj in, projectionObj out)</a>
+<span class="lineNum">     240 </span>            :    Project the point. returns MS_SUCCESS/MS_FAILURE */
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 : PHP_METHOD(lineObj, project)</span>
+<span class="lineNum">     242 </span>            : {
+<span class="lineNum">     243 </span>            :   zval *zobj_proj_in, *zobj_proj_out;
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :   zval *zobj =  getThis();</span>
+<span class="lineNum">     245 </span>            :   php_line_object *php_line;
+<span class="lineNum">     246 </span>            :   php_projection_object *php_proj_in, *php_proj_out;
+<span class="lineNum">     247 </span>            :   int status = MS_FAILURE;
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;OO&quot;,</span>
+<span class="lineNum">     251 </span>            :                             &amp;zobj_proj_in, mapscript_ce_projection,
+<span class="lineNum">     252 </span>            :                             &amp;zobj_proj_out, mapscript_ce_projection) == FAILURE) {
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     255 </span>            :   }
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :   php_line = MAPSCRIPT_OBJ_P(php_line_object, zobj);</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :   php_proj_in = MAPSCRIPT_OBJ_P(php_projection_object, zobj_proj_in);</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :   php_proj_out = MAPSCRIPT_OBJ_P(php_projection_object, zobj_proj_out);</span>
+<span class="lineNum">     261 </span>            : 
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :   status = lineObj_project(php_line-&gt;line, php_proj_in-&gt;projection, php_proj_out-&gt;projection);</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :   if (status != MS_SUCCESS) {</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :     mapscript_report_mapserver_error(E_WARNING TSRMLS_CC);</span>
+<span class="lineNum">     265 </span>            :   }
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :   RETURN_LONG(status);</span>
+<span class="lineNum">     268 </span>            : }
+<span class="lineNum">     269 </span>            : /* }}} */
+<span class="lineNum">     270 </span>            : 
+<a name="271"><span class="lineNum">     271 </span>            : /* {{{ proto int line.point(int i)</a>
+<span class="lineNum">     272 </span>            :    Returns point number i.  First point is number 0. */
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 : PHP_METHOD(lineObj, point)</span>
+<span class="lineNum">     274 </span>            : {
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :   zval *zobj = getThis();</span>
+<span class="lineNum">     276 </span>            :   php_line_object *php_line;
+<span class="lineNum">     277 </span>            :   long index;
+<span class="lineNum">     278 </span>            :   parent_object parent;
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;l&quot;, &amp;index) == FAILURE) {</span>
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     284 </span>            :   }
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     286 </span>            : 
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :   php_line = MAPSCRIPT_OBJ_P(php_line_object, zobj);</span>
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :   if ( (index &lt; 0) || (index &gt;= php_line-&gt;line-&gt;numpoints)) {</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :     mapscript_throw_exception(&quot;Point '%d' does not exist in this object.&quot; TSRMLS_CC, index);</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     292 </span>            :   }
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :   MAPSCRIPT_MAKE_PARENT(zobj, NULL);</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :   mapscript_create_point(&amp;(php_line-&gt;line-&gt;point[index]), parent, return_value TSRMLS_CC);</span>
+<span class="lineNum">     296 </span>            : }
+<span class="lineNum">     297 </span>            : /* }}} */
+<span class="lineNum">     298 </span>            : 
+<a name="299"><span class="lineNum">     299 </span>            : /* {{{ proto int line.set(int, index, pointObj point)</a>
+<span class="lineNum">     300 </span>            :    Set the point values at the specified index */
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 : PHP_METHOD(lineObj, set)</span>
+<span class="lineNum">     302 </span>            : {
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :   zval *zobj =  getThis();</span>
+<span class="lineNum">     304 </span>            :   zval *zobj_point;
+<span class="lineNum">     305 </span>            :   long index;
+<span class="lineNum">     306 </span>            :   php_line_object *php_line;
+<span class="lineNum">     307 </span>            :   php_point_object *php_point;
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;lO&quot;,</span>
+<span class="lineNum">     311 </span>            :                             &amp;index, &amp;zobj_point, mapscript_ce_point) == FAILURE) {
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     314 </span>            :   }
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :   php_line = MAPSCRIPT_OBJ_P(php_line_object, zobj);</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :   if ( (index &lt; 0) || (index &gt;= php_line-&gt;line-&gt;numpoints)) {</span>
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :     mapscript_throw_exception(&quot;Point '%d' does not exist in this object.&quot; TSRMLS_CC, index);</span>
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     322 </span>            :   }
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :   php_point = MAPSCRIPT_OBJ_P(php_point_object, zobj_point);</span>
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :   php_line-&gt;line-&gt;point[index].x = php_point-&gt;point-&gt;x;</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :   php_line-&gt;line-&gt;point[index].y = php_point-&gt;point-&gt;y;</span>
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :   RETURN_LONG(MS_SUCCESS);</span>
+<span class="lineNum">     330 </span>            : }
+<span class="lineNum">     331 </span>            : /* }}} */
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span>            : zend_function_entry line_functions[] = {
+<span class="lineNum">     334 </span>            :   PHP_ME(lineObj, __construct, NULL, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+<span class="lineNum">     335 </span>            :   PHP_ME(lineObj, __get, line___get_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     336 </span>            :   PHP_ME(lineObj, __set, line___set_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     337 </span>            :   PHP_ME(lineObj, add, line_add_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     338 </span>            :   PHP_ME(lineObj, addXY, line_addXY_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     339 </span>            :   PHP_ME(lineObj, addXYZ, line_addXYZ_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     340 </span>            :   PHP_ME(lineObj, project, line_project_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     341 </span>            :   PHP_ME(lineObj, point, line_point_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     342 </span>            :   PHP_MALIAS(lineObj, get, point, line_point_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     343 </span>            :   PHP_ME(lineObj, set, line_set_args, ZEND_ACC_PUBLIC) {
+<span class="lineNum">     344 </span>            :     NULL, NULL, NULL
+<span class="lineNum">     345 </span>            :   }
+<span class="lineNum">     346 </span>            : };
+<a name="347"><span class="lineNum">     347 </span>            : </a>
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 : void mapscript_create_line(lineObj *line, parent_object parent, zval *return_value TSRMLS_DC)</span>
+<span class="lineNum">     350 </span>            : {
+<span class="lineNum">     351 </span>            :   php_line_object * php_line;
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :   object_init_ex(return_value, mapscript_ce_line);</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :   php_line = MAPSCRIPT_OBJ_P(php_line_object, return_value);</span>
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :   php_line-&gt;line = line;</span>
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :   if (ZVAL_NOT_UNDEF(parent.val))</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :     php_line-&gt;is_ref = 1;</span>
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :   php_line-&gt;parent = parent;</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :   MAPSCRIPT_ADDREF(parent.val);</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     362 </span>            : 
+<a name="363"><span class="lineNum">     363 </span>            : #if PHP_VERSION_ID &gt;= 70000</a>
+<span class="lineNum">     364 </span>            : /* PHP7 - Modification by Bjoern Boldt &lt;mapscript@pixaweb.net&gt; */
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 : static zend_object *mapscript_line_create_object(zend_class_entry *ce TSRMLS_DC)</span>
+<span class="lineNum">     366 </span>            : {
+<span class="lineNum">     367 </span>            :   php_line_object *php_line;
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :   php_line = ecalloc(1, sizeof(*php_line) + zend_object_properties_size(ce));</span>
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :   zend_object_std_init(&amp;php_line-&gt;zobj, ce TSRMLS_CC);</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :   object_properties_init(&amp;php_line-&gt;zobj, ce);</span>
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :   php_line-&gt;zobj.handlers = &amp;mapscript_line_object_handlers;</span>
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :   MAPSCRIPT_INIT_PARENT(php_line-&gt;parent);</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :   php_line-&gt;is_ref = 0;</span>
+<span class="lineNum">     378 </span>            : 
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :   return &amp;php_line-&gt;zobj;</span>
+<a name="380"><span class="lineNum">     380 </span>            : }</a>
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 : static void mapscript_line_free_object(zend_object *object)</span>
+<span class="lineNum">     383 </span>            : {
+<span class="lineNum">     384 </span>            :   php_line_object *php_line;
+<span class="lineNum">     385 </span>            : 
+<span class="lineNum">     386 </span>            :   php_line = (php_line_object *)((char *)object - XtOffsetOf(php_line_object, zobj));
+<span class="lineNum">     387 </span>            : 
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :   MAPSCRIPT_FREE_PARENT(php_line-&gt;parent);</span>
+<span class="lineNum">     389 </span>            : 
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :   if (php_line-&gt;line &amp;&amp; !php_line-&gt;is_ref) {</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :     lineObj_destroy(php_line-&gt;line);</span>
+<span class="lineNum">     392 </span>            :   }
+<span class="lineNum">     393 </span>            : 
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :   zend_object_std_dtor(object);</span>
+<a name="395"><span class="lineNum">     395 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     396 </span>            : 
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 : static zend_object* mapscript_line_clone_object(zval *zobj)</span>
+<span class="lineNum">     398 </span>            : {
+<span class="lineNum">     399 </span>            :   php_line_object *php_line_old, *php_line_new;
+<span class="lineNum">     400 </span>            :   zend_object* zobj_new;
+<span class="lineNum">     401 </span>            : 
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :   php_line_old = MAPSCRIPT_OBJ_P(php_line_object, zobj);</span>
+<span class="lineNum">     403 </span>            : 
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :   zobj_new = mapscript_line_create_object(mapscript_ce_line);</span>
+<span class="lineNum">     405 </span>            :   php_line_new = (php_line_object *)((char *)zobj_new - XtOffsetOf(php_line_object, zobj));
+<span class="lineNum">     406 </span>            : 
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :   zend_objects_clone_members(&amp;php_line_new-&gt;zobj, &amp;php_line_old-&gt;zobj);</span>
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :   php_line_new-&gt;line = lineObj_clone(php_line_old-&gt;line);</span>
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :   return zobj_new;</span>
+<a name="412"><span class="lineNum">     412 </span>            : }</a>
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span><span class="lineCov">          1 : PHP_MINIT_FUNCTION(line)</span>
+<span class="lineNum">     415 </span>            : {
+<span class="lineNum">     416 </span>            :   zend_class_entry ce;
+<span class="lineNum">     417 </span>            : 
+<span class="lineNum">     418 </span><span class="lineCov">          1 :   INIT_CLASS_ENTRY(ce, &quot;lineObj&quot;, line_functions);</span>
+<span class="lineNum">     419 </span><span class="lineCov">          1 :   mapscript_ce_line = zend_register_internal_class(&amp;ce TSRMLS_CC);</span>
+<span class="lineNum">     420 </span>            : 
+<span class="lineNum">     421 </span><span class="lineCov">          1 :   mapscript_ce_line-&gt;create_object = mapscript_line_create_object;</span>
+<span class="lineNum">     422 </span><span class="lineCov">          1 :   mapscript_ce_line-&gt;ce_flags |= ZEND_ACC_FINAL;</span>
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span>            :   memcpy(&amp;mapscript_line_object_handlers, &amp;mapscript_std_object_handlers, sizeof(mapscript_line_object_handlers));
+<span class="lineNum">     425 </span><span class="lineCov">          1 :   mapscript_line_object_handlers.free_obj = mapscript_line_free_object;</span>
+<span class="lineNum">     426 </span><span class="lineCov">          1 :   mapscript_line_object_handlers.clone_obj = mapscript_line_clone_object;</span>
+<span class="lineNum">     427 </span><span class="lineCov">          1 :   mapscript_line_object_handlers.offset   = XtOffsetOf(php_line_object, zobj);</span>
+<span class="lineNum">     428 </span>            : 
+<span class="lineNum">     429 </span><span class="lineCov">          1 :   return SUCCESS;</span>
+<span class="lineNum">     430 </span>            : }
+<span class="lineNum">     431 </span>            : #else
+<span class="lineNum">     432 </span>            : /* PHP5 */
+<span class="lineNum">     433 </span>            : static void mapscript_line_object_destroy(void *object TSRMLS_DC)
+<span class="lineNum">     434 </span>            : {
+<span class="lineNum">     435 </span>            :   php_line_object *php_line = (php_line_object *)object;
+<span class="lineNum">     436 </span>            : 
+<span class="lineNum">     437 </span>            :   MAPSCRIPT_FREE_OBJECT(php_line);
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span>            :   MAPSCRIPT_FREE_PARENT(php_line-&gt;parent);
+<span class="lineNum">     440 </span>            : 
+<span class="lineNum">     441 </span>            :   if (php_line-&gt;line &amp;&amp; !php_line-&gt;is_ref) {
+<span class="lineNum">     442 </span>            :     lineObj_destroy(php_line-&gt;line);
+<span class="lineNum">     443 </span>            :   }
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span>            :   efree(object);
+<span class="lineNum">     446 </span>            : }
+<span class="lineNum">     447 </span>            : 
+<span class="lineNum">     448 </span>            : static zend_object_value mapscript_line_object_new_ex(zend_class_entry *ce, php_line_object **ptr TSRMLS_DC)
+<span class="lineNum">     449 </span>            : {
+<span class="lineNum">     450 </span>            :   zend_object_value retval;
+<span class="lineNum">     451 </span>            :   php_line_object *php_line;
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span>            :   MAPSCRIPT_ALLOC_OBJECT(php_line, php_line_object);
+<span class="lineNum">     454 </span>            : 
+<span class="lineNum">     455 </span>            :   retval = mapscript_object_new_ex(&amp;php_line-&gt;std, ce,
+<span class="lineNum">     456 </span>            :                                    &amp;mapscript_line_object_destroy,
+<span class="lineNum">     457 </span>            :                                    &amp;mapscript_line_object_handlers TSRMLS_CC);
+<span class="lineNum">     458 </span>            : 
+<span class="lineNum">     459 </span>            :   if (ptr)
+<span class="lineNum">     460 </span>            :     *ptr = php_line;
+<span class="lineNum">     461 </span>            : 
+<span class="lineNum">     462 </span>            :   php_line-&gt;is_ref = 0;
+<span class="lineNum">     463 </span>            :   MAPSCRIPT_INIT_PARENT(php_line-&gt;parent);
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span>            :   return retval;
+<span class="lineNum">     466 </span>            : }
+<span class="lineNum">     467 </span>            : 
+<span class="lineNum">     468 </span>            : static zend_object_value mapscript_line_object_new(zend_class_entry *ce TSRMLS_DC)
+<span class="lineNum">     469 </span>            : {
+<span class="lineNum">     470 </span>            :   return mapscript_line_object_new_ex(ce, NULL TSRMLS_CC);
+<span class="lineNum">     471 </span>            : }
+<span class="lineNum">     472 </span>            : 
+<span class="lineNum">     473 </span>            : static zend_object_value mapscript_line_object_clone(zval *zobj TSRMLS_DC)
+<span class="lineNum">     474 </span>            : {
+<span class="lineNum">     475 </span>            :   php_line_object *php_line_old, *php_line_new;
+<span class="lineNum">     476 </span>            :   zend_object_value new_ov;
+<span class="lineNum">     477 </span>            : 
+<span class="lineNum">     478 </span>            :   php_line_old = MAPSCRIPT_OBJ_P(php_line_object, zobj);
+<span class="lineNum">     479 </span>            : 
+<span class="lineNum">     480 </span>            :   new_ov = mapscript_line_object_new_ex(mapscript_ce_line, &amp;php_line_new TSRMLS_CC);
+<span class="lineNum">     481 </span>            :   zend_objects_clone_members(&amp;php_line_new-&gt;std, new_ov, &amp;php_line_old-&gt;std, Z_OBJ_HANDLE_P(zobj) TSRMLS_CC);
+<span class="lineNum">     482 </span>            : 
+<span class="lineNum">     483 </span>            :   php_line_new-&gt;line = lineObj_clone(php_line_old-&gt;line);
+<span class="lineNum">     484 </span>            : 
+<span class="lineNum">     485 </span>            :   return new_ov;
+<span class="lineNum">     486 </span>            : }
+<span class="lineNum">     487 </span>            : 
+<span class="lineNum">     488 </span>            : PHP_MINIT_FUNCTION(line)
+<span class="lineNum">     489 </span>            : {
+<span class="lineNum">     490 </span>            :   zend_class_entry ce;
+<span class="lineNum">     491 </span>            : 
+<span class="lineNum">     492 </span>            :   memcpy(&amp;mapscript_line_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+<span class="lineNum">     493 </span>            :   mapscript_line_object_handlers.clone_obj = mapscript_line_object_clone;
+<span class="lineNum">     494 </span>            : 
+<span class="lineNum">     495 </span>            : 
+<span class="lineNum">     496 </span>            :   MAPSCRIPT_REGISTER_CLASS(&quot;lineObj&quot;,
+<span class="lineNum">     497 </span>            :                            line_functions,
+<span class="lineNum">     498 </span>            :                            mapscript_ce_line,
+<span class="lineNum">     499 </span>            :                            mapscript_line_object_new);
+<span class="lineNum">     500 </span>            : 
+<span class="lineNum">     501 </span>            :   mapscript_ce_line-&gt;ce_flags |= ZEND_ACC_FINAL_CLASS;
+<span class="lineNum">     502 </span>            : 
+<span class="lineNum">     503 </span>            :   return SUCCESS;
+<span class="lineNum">     504 </span>            : }
+<span class="lineNum">     505 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

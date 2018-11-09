@@ -1,0 +1,652 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - mapserver/mapscript/php/owsrequest.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">mapserver/mapscript/php</a> - owsrequest.c<span style="font-size: 80%;"> (source / <a href="owsrequest.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">178</td>
+            <td class="headerCovTableEntryLo">4.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">XXXX-XX-XX</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryLo">7.1 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /**********************************************************************</a>
+<span class="lineNum">       2 </span>            :  * $Id: php_mapscript.c 9765 2010-01-28 15:32:10Z aboudreault $
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * Project:  MapServer
+<span class="lineNum">       5 </span>            :  * Purpose:  PHP/MapScript extension for MapServer.  External interface
+<span class="lineNum">       6 </span>            :  *           functions
+<span class="lineNum">       7 </span>            :  * Author:   Daniel Morissette, DM Solutions Group (dmorissette@dmsolutions.ca)
+<span class="lineNum">       8 </span>            :  *           Alan Boudreault, Mapgears
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  **********************************************************************
+<span class="lineNum">      11 </span>            :  * Copyright (c) 2000-2010, Daniel Morissette, DM Solutions Group Inc.
+<span class="lineNum">      12 </span>            :  *
+<span class="lineNum">      13 </span>            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      14 </span>            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      15 </span>            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      16 </span>            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      17 </span>            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      18 </span>            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      21 </span>            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      22 </span>            :  *
+<span class="lineNum">      23 </span>            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<span class="lineNum">      24 </span>            :  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      25 </span>            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+<span class="lineNum">      26 </span>            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      27 </span>            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      28 </span>            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      29 </span>            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      30 </span>            :  **********************************************************************/
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #include &quot;php_mapscript.h&quot;
+<span class="lineNum">      33 </span>            : #include &quot;SAPI.h&quot;
+<span class="lineNum">      34 </span>            : #include &quot;php_variables.h&quot;
+<span class="lineNum">      35 </span>            : #if PHP_VERSION_ID &gt;= 50600
+<span class="lineNum">      36 </span>            : #include &quot;php_streams.h&quot;
+<span class="lineNum">      37 </span>            : #endif
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : char *owsrequest_getenv(const char *name, void *thread_context);
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : zend_class_entry *mapscript_ce_owsrequest;
+<span class="lineNum">      42 </span>            : #if PHP_VERSION_ID &gt;= 70000
+<span class="lineNum">      43 </span>            : zend_object_handlers mapscript_owsrequest_object_handlers;
+<span class="lineNum">      44 </span>            : #endif  
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : ZEND_BEGIN_ARG_INFO_EX(owsrequest___get_args, 0, 0, 1)
+<span class="lineNum">      47 </span>            : ZEND_ARG_INFO(0, property)
+<span class="lineNum">      48 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            : ZEND_BEGIN_ARG_INFO_EX(owsrequest___set_args, 0, 0, 2)
+<span class="lineNum">      51 </span>            : ZEND_ARG_INFO(0, property)
+<span class="lineNum">      52 </span>            : ZEND_ARG_INFO(0, value)
+<span class="lineNum">      53 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : ZEND_BEGIN_ARG_INFO_EX(owsrequest_setParameter_args, 0, 0, 2)
+<span class="lineNum">      56 </span>            : ZEND_ARG_INFO(0, name)
+<span class="lineNum">      57 </span>            : ZEND_ARG_INFO(0, value)
+<span class="lineNum">      58 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            : ZEND_BEGIN_ARG_INFO_EX(owsrequest_addParameter_args, 0, 0, 2)
+<span class="lineNum">      61 </span>            : ZEND_ARG_INFO(0, name)
+<span class="lineNum">      62 </span>            : ZEND_ARG_INFO(0, value)
+<span class="lineNum">      63 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            : ZEND_BEGIN_ARG_INFO_EX(owsrequest_getName_args, 0, 0, 1)
+<span class="lineNum">      66 </span>            : ZEND_ARG_INFO(0, index)
+<span class="lineNum">      67 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            : ZEND_BEGIN_ARG_INFO_EX(owsrequest_getValue_args, 0, 0, 1)
+<span class="lineNum">      70 </span>            : ZEND_ARG_INFO(0, index)
+<span class="lineNum">      71 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : ZEND_BEGIN_ARG_INFO_EX(owsrequest_getValueByName_args, 0, 0, 1)
+<span class="lineNum">      74 </span>            : ZEND_ARG_INFO(0, name)
+<span class="lineNum">      75 </span>            : ZEND_END_ARG_INFO()
+<span class="lineNum">      76 </span>            : 
+<a name="77"><span class="lineNum">      77 </span>            : /* {{{ proto owsrequest __construct()</a>
+<span class="lineNum">      78 </span>            :    Create a new OWSRequestObj instance. */
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 : PHP_METHOD(OWSRequestObj, __construct)</span>
+<span class="lineNum">      80 </span>            : {
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :   zval *zobj = getThis();</span>
+<span class="lineNum">      82 </span>            :   php_owsrequest_object *php_owsrequest;
+<span class="lineNum">      83 </span>            :   cgiRequestObj *request;
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters_none() == FAILURE) {</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">      89 </span>            :   }
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :   php_owsrequest = MAPSCRIPT_OBJ_P(php_owsrequest_object, zobj);</span>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :   if ((request = cgirequestObj_new()) == NULL) {</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :     mapscript_throw_mapserver_exception(&quot;&quot; TSRMLS_CC);</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">      97 </span>            :   }
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :   php_owsrequest-&gt;cgirequest = request;</span>
+<span class="lineNum">     100 </span>            : }
+<a name="101"><span class="lineNum">     101 </span>            : /* }}} */</a>
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 : PHP_METHOD(OWSRequestObj, __get)</span>
+<span class="lineNum">     104 </span>            : {
+<span class="lineNum">     105 </span>            :   char *property;
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :   long property_len = 0;</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :   zval *zobj = getThis();</span>
+<span class="lineNum">     108 </span>            :   php_owsrequest_object *php_owsrequest;
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;s&quot;,</span>
+<span class="lineNum">     112 </span>            :                             &amp;property, &amp;property_len) == FAILURE) {
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     115 </span>            :   }
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :   php_owsrequest = MAPSCRIPT_OBJ_P(php_owsrequest_object, zobj);</span>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :   IF_GET_LONG(&quot;numparams&quot;, php_owsrequest-&gt;cgirequest-&gt;NumParams)</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :   else IF_GET_STRING(&quot;contenttype&quot;, php_owsrequest-&gt;cgirequest-&gt;contenttype)</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :     else IF_GET_STRING(&quot;postrequest&quot;, php_owsrequest-&gt;cgirequest-&gt;postrequest)</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :       else IF_GET_STRING(&quot;httpcookiedata&quot;, php_owsrequest-&gt;cgirequest-&gt;httpcookiedata)</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         else IF_GET_LONG(&quot;type&quot;, php_owsrequest-&gt;cgirequest-&gt;type)</span>
+<span class="lineNum">     126 </span>            :           else {
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :             mapscript_throw_exception(&quot;Property '%s' does not exist in this object.&quot; TSRMLS_CC, property);</span>
+<span class="lineNum">     128 </span>            :           }
+<a name="129"><span class="lineNum">     129 </span>            : }</a>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 : PHP_METHOD(OWSRequestObj, __set)</span>
+<span class="lineNum">     132 </span>            : {
+<span class="lineNum">     133 </span>            :   char *property;
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :   long property_len = 0;</span>
+<span class="lineNum">     135 </span>            :   zval *value;
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;sz&quot;,</span>
+<span class="lineNum">     139 </span>            :                             &amp;property, &amp;property_len, &amp;value) == FAILURE) {
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     142 </span>            :   }
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :   if ( (STRING_EQUAL(&quot;numparams&quot;, property)) ||</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :        (STRING_EQUAL(&quot;type&quot;, property)) ||</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :        (STRING_EQUAL(&quot;contenttype&quot;, property)) ||</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :        (STRING_EQUAL(&quot;postrequest&quot;, property)) ||</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :        (STRING_EQUAL(&quot;httpcookiedata&quot;, property))) {</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :     mapscript_throw_exception(&quot;Property '%s' is read-only and cannot be set.&quot; TSRMLS_CC, property);</span>
+<span class="lineNum">     151 </span>            :   } else {
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :     mapscript_throw_exception(&quot;Property '%s' does not exist in this object.&quot; TSRMLS_CC, property);</span>
+<span class="lineNum">     153 </span>            :   }
+<span class="lineNum">     154 </span>            : }
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            : /* {{{ proto int owsrequest.loadParams()
+<span class="lineNum">     157 </span>            :    Initializes the OWSRequest object from the cgi environment variables
+<a name="158"><span class="lineNum">     158 </span>            :    REQUEST_METHOD, QUERY_STRING and HTTP_COOKIE. Returns the number of</a>
+<span class="lineNum">     159 </span>            :    name/value pairs collected. */
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 : PHP_METHOD(OWSRequestObj, loadParams)</span>
+<span class="lineNum">     161 </span>            : {
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :   zval *zobj = getThis();</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :   MAPSCRIPT_ZVAL_P val;</span>
+<span class="lineNum">     164 </span>            :   php_owsrequest_object *php_owsrequest;
+<span class="lineNum">     165 </span>            :   void *thread_context;
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters_none() == FAILURE) {</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     171 </span>            :   }
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span>            :   thread_context = NULL;
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :   php_owsrequest = MAPSCRIPT_OBJ_P(php_owsrequest_object, zobj);</span>
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :   if ( (STRING_EQUAL(sapi_module.name,&quot;cli&quot;)) ||</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :        (STRING_EQUAL(sapi_module.name,&quot;cgi&quot;)) ||</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :        (STRING_EQUAL(sapi_module.name,&quot;cgi-fcgi&quot;)) ) {</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :     cgirequestObj_loadParams(php_owsrequest-&gt;cgirequest, NULL, NULL, 0, thread_context);</span>
+<span class="lineNum">     182 </span>            :   } else {
+<span class="lineNum">     183 </span>            :     // check if we have input data for GET method
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :     if (SG(request_info).request_method &amp;&amp;</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :         STRING_EQUAL(SG(request_info).request_method, &quot;GET&quot;)) {</span>
+<span class="lineNum">     186 </span>            : #if PHP_VERSION_ID &gt;= 70000
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :       zend_is_auto_global_str(&quot;_SERVER&quot;, sizeof(&quot;_SERVER&quot;)-1 TSRMLS_CC);</span>
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :       if ( !Z_ISUNDEF(PG(http_globals)[TRACK_VARS_SERVER]) &amp;&amp;</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :            ((val = zend_hash_str_find(Z_ARRVAL(PG(http_globals)[TRACK_VARS_SERVER]), &quot;QUERY_STRING&quot;, sizeof(&quot;QUERY_STRING&quot;)-1)) != NULL) &amp;&amp;</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :            (Z_TYPE_P(val) == IS_STRING) &amp;&amp;</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :            (Z_STRLEN_P(val) &gt; 0) ) {</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :         cgirequestObj_loadParams(php_owsrequest-&gt;cgirequest, owsrequest_getenv, NULL, 0, thread_context);</span>
+<span class="lineNum">     193 </span>            :       }
+<span class="lineNum">     194 </span>            : #else
+<span class="lineNum">     195 </span>            :       zend_is_auto_global(&quot;_SERVER&quot;, sizeof(&quot;_SERVER&quot;)-1 TSRMLS_CC);
+<span class="lineNum">     196 </span>            :       if ( PG(http_globals)[TRACK_VARS_SERVER] &amp;&amp;
+<span class="lineNum">     197 </span>            :            (zend_hash_find(PG(http_globals)[TRACK_VARS_SERVER]-&gt;value.ht, &quot;QUERY_STRING&quot;, sizeof(&quot;QUERY_STRING&quot;), (void **) &amp;val) == SUCCESS) &amp;&amp;
+<span class="lineNum">     198 </span>            :            (Z_TYPE_PP(val) == IS_STRING) &amp;&amp;
+<span class="lineNum">     199 </span>            :            (Z_STRLEN_PP(val) &gt; 0) ) {
+<span class="lineNum">     200 </span>            :         cgirequestObj_loadParams(php_owsrequest-&gt;cgirequest, owsrequest_getenv, NULL, 0, thread_context);
+<span class="lineNum">     201 </span>            :       }
+<span class="lineNum">     202 </span>            : #endif
+<span class="lineNum">     203 </span>            :     } else {
+<span class="lineNum">     204 </span>            : #if PHP_VERSION_ID &gt;= 50600
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :       php_stream *s = php_stream_temp_new();</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :       php_stream *input = php_stream_open_wrapper(&quot;php://input&quot;, &quot;r&quot;, 0, NULL);</span>
+<span class="lineNum">     207 </span>            : #if PHP_VERSION_ID &gt;= 70000
+<span class="lineNum">     208 </span>            :       zend_string *raw_post_data = NULL;
+<span class="lineNum">     209 </span>            : #else
+<span class="lineNum">     210 </span>            :       char *raw_post_data = NULL;
+<span class="lineNum">     211 </span>            :       long raw_post_data_length = 0;
+<span class="lineNum">     212 </span>            : #endif
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span>            :       /* php://input does not support stat */
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :       php_stream_copy_to_stream_ex(input, s, -1, NULL);</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :       php_stream_close(input);</span>
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :       php_stream_rewind(s);</span>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span>            :       
+<span class="lineNum">     221 </span>            : #if PHP_VERSION_ID &gt;= 70000
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :       raw_post_data = php_stream_copy_to_mem(s, -1,  0);</span>
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :       cgirequestObj_loadParams(php_owsrequest-&gt;cgirequest, owsrequest_getenv,</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :                                ZSTR_VAL(raw_post_data),</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :                                ZSTR_LEN(raw_post_data), thread_context);</span>
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :       if(raw_post_data) zend_string_free(raw_post_data);</span>
+<span class="lineNum">     229 </span>            : #else
+<span class="lineNum">     230 </span>            :       raw_post_data_length  = php_stream_copy_to_mem(s, raw_post_data, -1, 0);
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span>            :       cgirequestObj_loadParams(php_owsrequest-&gt;cgirequest, owsrequest_getenv,
+<span class="lineNum">     233 </span>            :                                raw_post_data,
+<span class="lineNum">     234 </span>            :                                raw_post_data_length, thread_context);
+<span class="lineNum">     235 </span>            : #endif
+<span class="lineNum">     236 </span>            : #else
+<span class="lineNum">     237 </span>            :       cgirequestObj_loadParams(php_owsrequest-&gt;cgirequest, owsrequest_getenv,
+<span class="lineNum">     238 </span>            :                                SG(request_info).raw_post_data,
+<span class="lineNum">     239 </span>            :                                SG(request_info).raw_post_data_length, thread_context);
+<span class="lineNum">     240 </span>            : #endif
+<span class="lineNum">     241 </span>            :     }
+<span class="lineNum">     242 </span>            :   }
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :   RETURN_LONG(php_owsrequest-&gt;cgirequest-&gt;NumParams);</span>
+<span class="lineNum">     245 </span>            : }
+<span class="lineNum">     246 </span>            : /* }}} */
+<span class="lineNum">     247 </span>            : 
+<a name="248"><span class="lineNum">     248 </span>            : /* {{{ proto int owsrequest.setParameter(string name, string value)</a>
+<span class="lineNum">     249 </span>            :    Set a request parameter. */
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 : PHP_METHOD(OWSRequestObj, setParameter)</span>
+<span class="lineNum">     251 </span>            : {
+<span class="lineNum">     252 </span>            :   char *name;
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :   long name_len = 0;</span>
+<span class="lineNum">     254 </span>            :   char *value;
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :   long value_len = 0;</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :   zval *zobj = getThis();</span>
+<span class="lineNum">     257 </span>            :   php_owsrequest_object *php_owsrequest;
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;ss&quot;,</span>
+<span class="lineNum">     261 </span>            :                             &amp;name, &amp;name_len, &amp;value, &amp;value_len) == FAILURE) {
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     264 </span>            :   }
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :   php_owsrequest = MAPSCRIPT_OBJ_P(php_owsrequest_object, zobj);</span>
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :   cgirequestObj_setParameter(php_owsrequest-&gt;cgirequest, name, value);</span>
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :   RETURN_LONG(MS_SUCCESS);</span>
+<span class="lineNum">     272 </span>            : }
+<span class="lineNum">     273 </span>            : /* }}} */
+<span class="lineNum">     274 </span>            : 
+<a name="275"><span class="lineNum">     275 </span>            : /* {{{ proto int owsrequest.addParameter(string name, string value)</a>
+<span class="lineNum">     276 </span>            :    Add a request parameter. */
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 : PHP_METHOD(OWSRequestObj, addParameter)</span>
+<span class="lineNum">     278 </span>            : {
+<span class="lineNum">     279 </span>            :   char *name;
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :   long name_len = 0;</span>
+<span class="lineNum">     281 </span>            :   char *value;
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :   long value_len = 0;</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :   zval *zobj = getThis();</span>
+<span class="lineNum">     284 </span>            :   php_owsrequest_object *php_owsrequest;
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;ss&quot;,</span>
+<span class="lineNum">     288 </span>            :                             &amp;name, &amp;name_len, &amp;value, &amp;value_len) == FAILURE) {
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     291 </span>            :   }
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :   php_owsrequest = MAPSCRIPT_OBJ_P(php_owsrequest_object, zobj);</span>
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :   cgirequestObj_addParameter(php_owsrequest-&gt;cgirequest, name, value);</span>
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :   RETURN_LONG(MS_SUCCESS);</span>
+<span class="lineNum">     299 </span>            : }
+<span class="lineNum">     300 </span>            : /* }}} */
+<span class="lineNum">     301 </span>            : 
+<a name="302"><span class="lineNum">     302 </span>            : /* {{{ proto string owsrequest.getName(int index)</a>
+<span class="lineNum">     303 </span>            :    Return the name of the parameter at index in the request's array of parameter names. */
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 : PHP_METHOD(OWSRequestObj, getName)</span>
+<span class="lineNum">     305 </span>            : {
+<span class="lineNum">     306 </span>            :   long index;
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :   zval *zobj = getThis();</span>
+<span class="lineNum">     308 </span>            :   char *value = NULL;
+<span class="lineNum">     309 </span>            :   php_owsrequest_object *php_owsrequest;
+<span class="lineNum">     310 </span>            : 
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;l&quot;,</span>
+<span class="lineNum">     313 </span>            :                             &amp;index) == FAILURE) {
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     316 </span>            :   }
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :   php_owsrequest = MAPSCRIPT_OBJ_P(php_owsrequest_object, zobj);</span>
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :   value = cgirequestObj_getName(php_owsrequest-&gt;cgirequest, index);</span>
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :   if (!value)</span>
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :     MAPSCRIPT_RETURN_STRING(&quot;&quot;, 1);</span>
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :   MAPSCRIPT_RETURN_STRING(value,1);</span>
+<span class="lineNum">     326 </span>            : }
+<span class="lineNum">     327 </span>            : /* }}} */
+<span class="lineNum">     328 </span>            : 
+<a name="329"><span class="lineNum">     329 </span>            : /* {{{ proto string owsrequest.getValue(int index)</a>
+<span class="lineNum">     330 </span>            :    Return the value of the parameter at index in the request’s array of parameter values.*/
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 : PHP_METHOD(OWSRequestObj, getValue)</span>
+<span class="lineNum">     332 </span>            : {
+<span class="lineNum">     333 </span>            :   long index;
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :   zval *zobj = getThis();</span>
+<span class="lineNum">     335 </span>            :   char *value = NULL;
+<span class="lineNum">     336 </span>            :   php_owsrequest_object *php_owsrequest;
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;l&quot;,</span>
+<span class="lineNum">     340 </span>            :                             &amp;index) == FAILURE) {
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     343 </span>            :   }
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     345 </span>            : 
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :   php_owsrequest = MAPSCRIPT_OBJ_P(php_owsrequest_object, zobj);</span>
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :   value = cgirequestObj_getValue(php_owsrequest-&gt;cgirequest, index);</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :   if (!value)</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :     MAPSCRIPT_RETURN_STRING(&quot;&quot;, 1);</span>
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :   MAPSCRIPT_RETURN_STRING(value,1);</span>
+<span class="lineNum">     353 </span>            : }
+<span class="lineNum">     354 </span>            : /* }}} */
+<span class="lineNum">     355 </span>            : 
+<a name="356"><span class="lineNum">     356 </span>            : /* {{{ proto string owsrequest.getValueByName(string name)</a>
+<span class="lineNum">     357 </span>            :    Return the value associated with the parameter name.*/
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 : PHP_METHOD(OWSRequestObj, getValueByName)</span>
+<span class="lineNum">     359 </span>            : {
+<span class="lineNum">     360 </span>            :   char *name;
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :   long name_len = 0;</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :   zval *zobj = getThis();</span>
+<span class="lineNum">     363 </span>            :   char *value = NULL;
+<span class="lineNum">     364 </span>            :   php_owsrequest_object *php_owsrequest;
+<span class="lineNum">     365 </span>            : 
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_ERROR_HANDLING(TRUE);</span>
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;s&quot;,</span>
+<span class="lineNum">     368 </span>            :                             &amp;name, &amp;name_len) == FAILURE) {
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :     PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     371 </span>            :   }
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :   PHP_MAPSCRIPT_RESTORE_ERRORS(TRUE);</span>
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :   php_owsrequest = MAPSCRIPT_OBJ_P(php_owsrequest_object, zobj);</span>
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :   value = cgirequestObj_getValueByName(php_owsrequest-&gt;cgirequest, name);</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :   if (!value)</span>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :     MAPSCRIPT_RETURN_STRING(&quot;&quot;, 1);</span>
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :   MAPSCRIPT_RETURN_STRING(value,1);</span>
+<span class="lineNum">     381 </span>            : }
+<span class="lineNum">     382 </span>            : /* }}} */
+<span class="lineNum">     383 </span>            : 
+<span class="lineNum">     384 </span>            : zend_function_entry owsrequest_functions[] = {
+<span class="lineNum">     385 </span>            :   PHP_ME(OWSRequestObj, __construct, NULL, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+<span class="lineNum">     386 </span>            :   PHP_ME(OWSRequestObj, __get, owsrequest___get_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     387 </span>            :   PHP_ME(OWSRequestObj, __set, owsrequest___set_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     388 </span>            :   PHP_ME(OWSRequestObj, loadParams, NULL, ZEND_ACC_PUBLIC)
+<span class="lineNum">     389 </span>            :   PHP_ME(OWSRequestObj, setParameter, owsrequest_setParameter_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     390 </span>            :   PHP_ME(OWSRequestObj, addParameter, owsrequest_addParameter_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     391 </span>            :   PHP_ME(OWSRequestObj, getName, owsrequest_getName_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     392 </span>            :   PHP_ME(OWSRequestObj, getValue, owsrequest_getValue_args, ZEND_ACC_PUBLIC)
+<span class="lineNum">     393 </span>            :   PHP_ME(OWSRequestObj, getValueByName, owsrequest_getValueByName_args, ZEND_ACC_PUBLIC) {
+<span class="lineNum">     394 </span>            :     NULL, NULL, NULL
+<span class="lineNum">     395 </span>            :   }
+<span class="lineNum">     396 </span>            : };
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span>            : #if PHP_VERSION_ID &lt; 70000
+<span class="lineNum">     399 </span>            : char *owsrequest_getenv(const char *name, void *thread_context)
+<span class="lineNum">     400 </span>            : {
+<span class="lineNum">     401 </span>            :   zval **val, **ppzval;
+<span class="lineNum">     402 </span>            :   zval *cookie_result, *key;
+<span class="lineNum">     403 </span>            :   HashTable *cookies;
+<span class="lineNum">     404 </span>            :   char *string_key = NULL, *cookie_tmp;
+<span class="lineNum">     405 </span>            :   ulong num_key;
+<span class="lineNum">     406 </span>            :   int i = 0;
+<span class="lineNum">     407 </span>            :   TSRMLS_FETCH_FROM_CTX(thread_context);
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span>            :   if  (STRING_EQUAL(name, &quot;HTTP_COOKIE&quot;)) {
+<span class="lineNum">     410 </span>            :     cookies = PG(http_globals)[TRACK_VARS_COOKIE]-&gt;value.ht;
+<span class="lineNum">     411 </span>            :     MAKE_STD_ZVAL(cookie_result);
+<span class="lineNum">     412 </span>            :     ZVAL_STRING(cookie_result, &quot;&quot;,1);
+<span class="lineNum">     413 </span>            :     for(zend_hash_internal_pointer_reset(cookies);
+<span class="lineNum">     414 </span>            :         zend_hash_has_more_elements(cookies) == SUCCESS;
+<span class="lineNum">     415 </span>            :         zend_hash_move_forward(cookies), ++i) {
+<span class="lineNum">     416 </span>            :       zend_hash_get_current_data(cookies, (void **)&amp;ppzval);
+<span class="lineNum">     417 </span>            :       zend_hash_get_current_key(cookies, &amp;string_key, &amp;num_key, 1);
+<span class="lineNum">     418 </span>            :       cookie_tmp = malloc((strlen(string_key)+Z_STRLEN_PP(ppzval)+3) * sizeof(char));
+<span class="lineNum">     419 </span>            :       sprintf(cookie_tmp, &quot;%s=%s;&quot;,string_key,Z_STRVAL_PP(ppzval));
+<span class="lineNum">     420 </span>            :       MAKE_STD_ZVAL(key);
+<span class="lineNum">     421 </span>            :       ZVAL_STRING(key, cookie_tmp,1);
+<span class="lineNum">     422 </span>            :       add_string_to_string(cookie_result,cookie_result, key);
+<span class="lineNum">     423 </span>            :       zval_dtor(key);
+<span class="lineNum">     424 </span>            :       free(cookie_tmp);
+<span class="lineNum">     425 </span>            :     }
+<span class="lineNum">     426 </span>            :     return Z_STRVAL_P(cookie_result);
+<span class="lineNum">     427 </span>            :   } else {
+<span class="lineNum">     428 </span>            :     zend_is_auto_global(&quot;_SERVER&quot;, sizeof(&quot;_SERVER&quot;)-1 TSRMLS_CC);
+<span class="lineNum">     429 </span>            :     if ( PG(http_globals)[TRACK_VARS_SERVER] &amp;&amp;
+<span class="lineNum">     430 </span>            :          (zend_hash_find(PG(http_globals)[TRACK_VARS_SERVER]-&gt;value.ht, name, strlen(name)+1, (void **) &amp;val) == SUCCESS) &amp;&amp;
+<span class="lineNum">     431 </span>            :          (Z_TYPE_PP(val) == IS_STRING)) {
+<span class="lineNum">     432 </span>            :       return Z_STRVAL_PP(val);
+<span class="lineNum">     433 </span>            :     }
+<span class="lineNum">     434 </span>            :   }
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span>            :   return NULL;
+<span class="lineNum">     437 </span>            : }
+<a name="438"><span class="lineNum">     438 </span>            : #else</a>
+<span class="lineNum">     439 </span>            : /* PHP7 - Modification by Bjoern Boldt &lt;mapscript@pixaweb.net&gt; */ 
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 : char *owsrequest_getenv(const char *name, void *thread_context)</span>
+<span class="lineNum">     441 </span>            : {
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :   zval *val, *ppzval;</span>
+<span class="lineNum">     443 </span>            :   zval cookie_result;
+<span class="lineNum">     444 </span>            :   HashTable *cookies;
+<span class="lineNum">     445 </span>            :   zend_string *string_key;
+<span class="lineNum">     446 </span>            :   zend_string *result = NULL;
+<span class="lineNum">     447 </span>            :   zend_ulong num_key;
+<span class="lineNum">     448 </span>            :   size_t len, sum = 0;
+<span class="lineNum">     449 </span>            :   int i = 0;
+<span class="lineNum">     450 </span>            :   TSRMLS_FETCH_FROM_CTX(thread_context);
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :   if (STRING_EQUAL(name, &quot;HTTP_COOKIE&quot;)) {</span>
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :     cookies = Z_ARRVAL(PG(http_globals)[TRACK_VARS_COOKIE]);</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :     for(zend_hash_internal_pointer_reset(cookies);</span>
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :         zend_hash_has_more_elements(cookies) == SUCCESS;</span>
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :         zend_hash_move_forward(cookies), ++i) {</span>
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :       ppzval = zend_hash_get_current_data(cookies);</span>
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :       zend_hash_get_current_key(cookies, &amp;string_key, &amp;num_key);</span>
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :       len = (ZSTR_LEN(string_key)+Z_STRLEN_P(ppzval)+2) * sizeof(char);</span>
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :       if(!result)</span>
+<span class="lineNum">     461 </span>            :         result = zend_string_alloc(len, 1);
+<span class="lineNum">     462 </span>            :       else
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :         result = zend_string_extend(result, sum + len, 1);</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :       sprintf(&amp;result-&gt;val[sum], &quot;%s=%s;&quot;,ZSTR_VAL(string_key),Z_STRVAL_P(ppzval));</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :       sum += len;</span>
+<span class="lineNum">     466 </span>            :     }
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :     if (result){</span>
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :       ZVAL_STRINGL(&amp;cookie_result, ZSTR_VAL(result), ZSTR_LEN(result));</span>
+<span class="lineNum">     469 </span>            :     zend_string_free(result);
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :     return Z_STRVAL(cookie_result); /* this string will stay in memory until php-script exit */</span>
+<span class="lineNum">     471 </span>            :     }
+<span class="lineNum">     472 </span>            :     else
+<span class="lineNum">     473 </span>            :     return &quot;&quot;;
+<span class="lineNum">     474 </span>            :   } else {
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :     zend_is_auto_global_str(&quot;_SERVER&quot;, sizeof(&quot;_SERVER&quot;)-1 TSRMLS_CC);</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :     if ( (!Z_ISUNDEF(PG(http_globals)[TRACK_VARS_SERVER])) &amp;&amp;</span>
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :          ((val = zend_hash_str_find(Z_ARRVAL(PG(http_globals)[TRACK_VARS_SERVER]), name, strlen(name))) != NULL) &amp;&amp;</span>
+<span class="lineNum">     478 </span>            :          (Z_TYPE_P(val) == IS_STRING)) {
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :       return Z_STRVAL_P(val);</span>
+<span class="lineNum">     480 </span>            :     }
+<span class="lineNum">     481 </span>            :   }
+<span class="lineNum">     482 </span>            : 
+<span class="lineNum">     483 </span>            :   return NULL;
+<span class="lineNum">     484 </span>            : }
+<a name="485"><span class="lineNum">     485 </span>            : #endif</a>
+<span class="lineNum">     486 </span>            : 
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 : void mapscript_create_owsrequest(cgiRequestObj *cgirequest, zval *return_value TSRMLS_DC)</span>
+<span class="lineNum">     488 </span>            : {
+<span class="lineNum">     489 </span>            :   php_owsrequest_object * php_owsrequest;
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :   object_init_ex(return_value, mapscript_ce_owsrequest);</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :   php_owsrequest = MAPSCRIPT_OBJ_P(php_owsrequest_object, return_value);</span>
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :   php_owsrequest-&gt;cgirequest = cgirequest;</span>
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     494 </span>            : 
+<a name="495"><span class="lineNum">     495 </span>            : #if PHP_VERSION_ID &gt;= 70000</a>
+<span class="lineNum">     496 </span>            : /* PHP7 - Modification by Bjoern Boldt &lt;mapscript@pixaweb.net&gt; */
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 : static zend_object *mapscript_owsrequest_create_object(zend_class_entry *ce TSRMLS_DC)</span>
+<span class="lineNum">     498 </span>            : {
+<span class="lineNum">     499 </span>            :   php_owsrequest_object *php_owsrequest;
+<span class="lineNum">     500 </span>            : 
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :   php_owsrequest = ecalloc(1, sizeof(*php_owsrequest) + zend_object_properties_size(ce));</span>
+<span class="lineNum">     502 </span>            : 
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :   zend_object_std_init(&amp;php_owsrequest-&gt;zobj, ce TSRMLS_CC);</span>
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :   object_properties_init(&amp;php_owsrequest-&gt;zobj, ce);</span>
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :   php_owsrequest-&gt;zobj.handlers = &amp;mapscript_owsrequest_object_handlers;</span>
+<span class="lineNum">     507 </span>            : 
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :   return &amp;php_owsrequest-&gt;zobj;</span>
+<a name="509"><span class="lineNum">     509 </span>            : }</a>
+<span class="lineNum">     510 </span>            : 
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 : static void mapscript_owsrequest_free_object(zend_object *object)</span>
+<span class="lineNum">     512 </span>            : {
+<span class="lineNum">     513 </span>            :   php_owsrequest_object *php_owsrequest;
+<span class="lineNum">     514 </span>            : 
+<span class="lineNum">     515 </span>            :   php_owsrequest = (php_owsrequest_object *)((char *)object - XtOffsetOf(php_owsrequest_object, zobj));
+<span class="lineNum">     516 </span>            : 
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :   cgirequestObj_destroy(php_owsrequest-&gt;cgirequest);</span>
+<span class="lineNum">     518 </span>            : 
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :   zend_object_std_dtor(object);</span>
+<a name="520"><span class="lineNum">     520 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     521 </span>            : 
+<span class="lineNum">     522 </span><span class="lineCov">          1 : PHP_MINIT_FUNCTION(owsrequest)</span>
+<span class="lineNum">     523 </span>            : {
+<span class="lineNum">     524 </span>            :   zend_class_entry ce;
+<span class="lineNum">     525 </span>            : 
+<span class="lineNum">     526 </span><span class="lineCov">          1 :   INIT_CLASS_ENTRY(ce, &quot;OWSRequestObj&quot;, owsrequest_functions);</span>
+<span class="lineNum">     527 </span><span class="lineCov">          1 :   mapscript_ce_owsrequest = zend_register_internal_class(&amp;ce TSRMLS_CC);</span>
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span><span class="lineCov">          1 :   mapscript_ce_owsrequest-&gt;create_object = mapscript_owsrequest_create_object;</span>
+<span class="lineNum">     530 </span><span class="lineCov">          1 :   mapscript_ce_owsrequest-&gt;ce_flags |= ZEND_ACC_FINAL;</span>
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span>            :   memcpy(&amp;mapscript_owsrequest_object_handlers, &amp;mapscript_std_object_handlers, sizeof(mapscript_owsrequest_object_handlers));
+<span class="lineNum">     533 </span><span class="lineCov">          1 :   mapscript_owsrequest_object_handlers.free_obj = mapscript_owsrequest_free_object;</span>
+<span class="lineNum">     534 </span><span class="lineCov">          1 :   mapscript_owsrequest_object_handlers.offset   = XtOffsetOf(php_owsrequest_object, zobj);</span>
+<span class="lineNum">     535 </span>            : 
+<span class="lineNum">     536 </span><span class="lineCov">          1 :   return SUCCESS;</span>
+<span class="lineNum">     537 </span>            : }
+<span class="lineNum">     538 </span>            : #else
+<span class="lineNum">     539 </span>            : /* PHP5 */
+<span class="lineNum">     540 </span>            : static void mapscript_owsrequest_object_destroy(void *object TSRMLS_DC)
+<span class="lineNum">     541 </span>            : {
+<span class="lineNum">     542 </span>            :   php_owsrequest_object *php_owsrequest = (php_owsrequest_object *)object;
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span>            :   MAPSCRIPT_FREE_OBJECT(php_owsrequest);
+<span class="lineNum">     545 </span>            : 
+<span class="lineNum">     546 </span>            :   cgirequestObj_destroy(php_owsrequest-&gt;cgirequest);
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span>            :   efree(object);
+<span class="lineNum">     549 </span>            : }
+<span class="lineNum">     550 </span>            : 
+<span class="lineNum">     551 </span>            : static zend_object_value mapscript_owsrequest_object_new(zend_class_entry *ce TSRMLS_DC)
+<span class="lineNum">     552 </span>            : {
+<span class="lineNum">     553 </span>            :   zend_object_value retval;
+<span class="lineNum">     554 </span>            :   php_owsrequest_object *php_owsrequest;
+<span class="lineNum">     555 </span>            : 
+<span class="lineNum">     556 </span>            :   MAPSCRIPT_ALLOC_OBJECT(php_owsrequest, php_owsrequest_object);
+<span class="lineNum">     557 </span>            : 
+<span class="lineNum">     558 </span>            :   retval = mapscript_object_new(&amp;php_owsrequest-&gt;std, ce,
+<span class="lineNum">     559 </span>            :                                 &amp;mapscript_owsrequest_object_destroy TSRMLS_CC);
+<span class="lineNum">     560 </span>            :   return retval;
+<span class="lineNum">     561 </span>            : }
+<span class="lineNum">     562 </span>            : 
+<span class="lineNum">     563 </span>            : PHP_MINIT_FUNCTION(owsrequest)
+<span class="lineNum">     564 </span>            : {
+<span class="lineNum">     565 </span>            :   zend_class_entry ce;
+<span class="lineNum">     566 </span>            : 
+<span class="lineNum">     567 </span>            :   MAPSCRIPT_REGISTER_CLASS(&quot;OWSRequestObj&quot;,
+<span class="lineNum">     568 </span>            :                            owsrequest_functions,
+<span class="lineNum">     569 </span>            :                            mapscript_ce_owsrequest,
+<span class="lineNum">     570 </span>            :                            mapscript_owsrequest_object_new);
+<span class="lineNum">     571 </span>            : 
+<span class="lineNum">     572 </span>            :   mapscript_ce_owsrequest-&gt;ce_flags |= ZEND_ACC_FINAL_CLASS;
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span>            :   return SUCCESS;
+<span class="lineNum">     575 </span>            : }
+<span class="lineNum">     576 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
