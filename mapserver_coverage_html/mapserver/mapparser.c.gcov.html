@@ -3027,82 +3027,84 @@
 <span class="lineNum">    2965 </span>            :   case MS_TOKEN_COMPARISON_RE: token = RE; break;
 <span class="lineNum">    2966 </span>            :   case MS_TOKEN_COMPARISON_IRE: token = IRE; break;
 <span class="lineNum">    2967 </span>            : 
-<span class="lineNum">    2968 </span>            :   case MS_TOKEN_COMPARISON_INTERSECTS: token = INTERSECTS; break;
-<span class="lineNum">    2969 </span>            :   case MS_TOKEN_COMPARISON_DISJOINT: token = DISJOINT; break;
-<span class="lineNum">    2970 </span>            :   case MS_TOKEN_COMPARISON_TOUCHES: token = TOUCHES; break;
-<span class="lineNum">    2971 </span>            :   case MS_TOKEN_COMPARISON_OVERLAPS: token = OVERLAPS; break; 
-<span class="lineNum">    2972 </span>            :   case MS_TOKEN_COMPARISON_CROSSES: token = CROSSES; break;
-<span class="lineNum">    2973 </span>            :   case MS_TOKEN_COMPARISON_WITHIN: token = WITHIN; break; 
-<span class="lineNum">    2974 </span>            :   case MS_TOKEN_COMPARISON_CONTAINS: token = CONTAINS; break;
-<span class="lineNum">    2975 </span>            :   case MS_TOKEN_COMPARISON_EQUALS: token = EQUALS; break;
-<span class="lineNum">    2976 </span>            :   case MS_TOKEN_COMPARISON_BEYOND: token = BEYOND; break;
-<span class="lineNum">    2977 </span>            :   case MS_TOKEN_COMPARISON_DWITHIN: token = DWITHIN; break;
-<span class="lineNum">    2978 </span>            : 
-<span class="lineNum">    2979 </span>            :   case MS_TOKEN_LOGICAL_AND: token = AND; break;
-<span class="lineNum">    2980 </span>            :   case MS_TOKEN_LOGICAL_OR: token = OR; break;
-<span class="lineNum">    2981 </span>            :   case MS_TOKEN_LOGICAL_NOT: token = NOT; break;
-<span class="lineNum">    2982 </span>            : 
-<span class="lineNum">    2983 </span>            :   case MS_TOKEN_BINDING_DOUBLE:
-<span class="lineNum">    2984 </span>            :   case MS_TOKEN_BINDING_INTEGER:
-<span class="lineNum">    2985 </span>            :     token = NUMBER;
-<span class="lineNum">    2986 </span>            :     (*lvalp).dblval = atof(p-&gt;shape-&gt;values[p-&gt;expr-&gt;curtoken-&gt;tokenval.bindval.index]);
-<span class="lineNum">    2987 </span>            :     break;
-<span class="lineNum">    2988 </span>            :   case MS_TOKEN_BINDING_STRING:
-<span class="lineNum">    2989 </span>            :     token = STRING;
-<span class="lineNum">    2990 </span>            :     (*lvalp).strval = msStrdup(p-&gt;shape-&gt;values[p-&gt;expr-&gt;curtoken-&gt;tokenval.bindval.index]);
-<span class="lineNum">    2991 </span>            :     break;
-<span class="lineNum">    2992 </span>            :   case MS_TOKEN_BINDING_SHAPE:
-<span class="lineNum">    2993 </span>            :     token = SHAPE;
-<span class="lineNum">    2994 </span>            :     // fprintf(stderr, &quot;token value = %s\n&quot;, msShapeToWKT(p-&gt;shape));
-<span class="lineNum">    2995 </span>            :     (*lvalp).shpval = p-&gt;shape;
-<span class="lineNum">    2996 </span>            :     break;
-<span class="lineNum">    2997 </span>            :   case MS_TOKEN_BINDING_MAP_CELLSIZE:
-<span class="lineNum">    2998 </span>            :     token = NUMBER;
-<span class="lineNum">    2999 </span>            :     (*lvalp).dblval = p-&gt;dblval;
-<span class="lineNum">    3000 </span>            :     break;
-<span class="lineNum">    3001 </span>            :   case MS_TOKEN_BINDING_DATA_CELLSIZE:
-<span class="lineNum">    3002 </span>            :     token = NUMBER;
-<span class="lineNum">    3003 </span>            :     (*lvalp).dblval = p-&gt;dblval2;
-<span class="lineNum">    3004 </span>            :     break;    
-<span class="lineNum">    3005 </span>            :   case MS_TOKEN_BINDING_TIME:
-<span class="lineNum">    3006 </span>            :     token = TIME;
-<span class="lineNum">    3007 </span>            :     msTimeInit(&amp;((*lvalp).tmval));
-<span class="lineNum">    3008 </span>            :     if(msParseTime(p-&gt;shape-&gt;values[p-&gt;expr-&gt;curtoken-&gt;tokenval.bindval.index], &amp;((*lvalp).tmval)) != MS_TRUE) {
-<span class="lineNum">    3009 </span>            :       yyerror(p, &quot;Parsing time value failed.&quot;);
-<span class="lineNum">    3010 </span>            :       return(-1);
-<span class="lineNum">    3011 </span>            :     }
-<span class="lineNum">    3012 </span>            :     break;
-<span class="lineNum">    3013 </span>            : 
-<span class="lineNum">    3014 </span>            :   case MS_TOKEN_FUNCTION_AREA: token = AREA; break;
-<span class="lineNum">    3015 </span>            :   case MS_TOKEN_FUNCTION_LENGTH: token = LENGTH; break;
-<span class="lineNum">    3016 </span>            :   case MS_TOKEN_FUNCTION_TOSTRING: token = TOSTRING; break;
-<span class="lineNum">    3017 </span>            :   case MS_TOKEN_FUNCTION_COMMIFY: token = COMMIFY; break;
-<span class="lineNum">    3018 </span>            :   case MS_TOKEN_FUNCTION_UPPER: token = UPPER; break;
-<span class="lineNum">    3019 </span>            :   case MS_TOKEN_FUNCTION_LOWER: token = LOWER; break;
-<span class="lineNum">    3020 </span>            :   case MS_TOKEN_FUNCTION_INITCAP: token = INITCAP; break;
-<span class="lineNum">    3021 </span>            :   case MS_TOKEN_FUNCTION_FIRSTCAP: token = FIRSTCAP; break;
-<span class="lineNum">    3022 </span>            :   case MS_TOKEN_FUNCTION_ROUND: token = ROUND; break;
-<span class="lineNum">    3023 </span>            : 
-<span class="lineNum">    3024 </span>            :   case MS_TOKEN_FUNCTION_BUFFER: token = YYBUFFER; break;
-<span class="lineNum">    3025 </span>            :   case MS_TOKEN_FUNCTION_DIFFERENCE: token = DIFFERENCE; break;
-<span class="lineNum">    3026 </span>            :   case MS_TOKEN_FUNCTION_SIMPLIFY: token = SIMPLIFY; break;
-<span class="lineNum">    3027 </span>            :   case MS_TOKEN_FUNCTION_SIMPLIFYPT: token = SIMPLIFYPT; break;
-<span class="lineNum">    3028 </span>            :   case MS_TOKEN_FUNCTION_GENERALIZE: token = GENERALIZE; break;
-<span class="lineNum">    3029 </span>            :   case MS_TOKEN_FUNCTION_SMOOTHSIA: token = SMOOTHSIA; break;
-<span class="lineNum">    3030 </span>            :   case MS_TOKEN_FUNCTION_JAVASCRIPT: token = JAVASCRIPT; break;
-<span class="lineNum">    3031 </span>            : 
-<span class="lineNum">    3032 </span>            :   default:
-<span class="lineNum">    3033 </span>            :     break;
-<span class="lineNum">    3034 </span>            :   }
-<span class="lineNum">    3035 </span>            : 
-<span class="lineNum">    3036 </span>            :   p-&gt;expr-&gt;curtoken = p-&gt;expr-&gt;curtoken-&gt;next; /* re-position */ 
-<span class="lineNum">    3037 </span>            :   return(token);
-<span class="lineNum">    3038 </span>            : }
-<span class="lineNum">    3039 </span>            : 
-<span class="lineNum">    3040 </span>            : int yyerror(parseObj *p, const char *s) {
-<span class="lineNum">    3041 </span>            :   msSetError(MS_PARSEERR, &quot;%s&quot;, &quot;yyparse()&quot;, s);
-<span class="lineNum">    3042 </span>            :   return(0);
-<span class="lineNum">    3043 </span>            : }
+<span class="lineNum">    2968 </span>            :   case MS_TOKEN_COMPARISON_IN: token = IN; break;
+<span class="lineNum">    2969 </span>            : 
+<span class="lineNum">    2970 </span>            :   case MS_TOKEN_COMPARISON_INTERSECTS: token = INTERSECTS; break;
+<span class="lineNum">    2971 </span>            :   case MS_TOKEN_COMPARISON_DISJOINT: token = DISJOINT; break;
+<span class="lineNum">    2972 </span>            :   case MS_TOKEN_COMPARISON_TOUCHES: token = TOUCHES; break;
+<span class="lineNum">    2973 </span>            :   case MS_TOKEN_COMPARISON_OVERLAPS: token = OVERLAPS; break; 
+<span class="lineNum">    2974 </span>            :   case MS_TOKEN_COMPARISON_CROSSES: token = CROSSES; break;
+<span class="lineNum">    2975 </span>            :   case MS_TOKEN_COMPARISON_WITHIN: token = WITHIN; break; 
+<span class="lineNum">    2976 </span>            :   case MS_TOKEN_COMPARISON_CONTAINS: token = CONTAINS; break;
+<span class="lineNum">    2977 </span>            :   case MS_TOKEN_COMPARISON_EQUALS: token = EQUALS; break;
+<span class="lineNum">    2978 </span>            :   case MS_TOKEN_COMPARISON_BEYOND: token = BEYOND; break;
+<span class="lineNum">    2979 </span>            :   case MS_TOKEN_COMPARISON_DWITHIN: token = DWITHIN; break;
+<span class="lineNum">    2980 </span>            : 
+<span class="lineNum">    2981 </span>            :   case MS_TOKEN_LOGICAL_AND: token = AND; break;
+<span class="lineNum">    2982 </span>            :   case MS_TOKEN_LOGICAL_OR: token = OR; break;
+<span class="lineNum">    2983 </span>            :   case MS_TOKEN_LOGICAL_NOT: token = NOT; break;
+<span class="lineNum">    2984 </span>            : 
+<span class="lineNum">    2985 </span>            :   case MS_TOKEN_BINDING_DOUBLE:
+<span class="lineNum">    2986 </span>            :   case MS_TOKEN_BINDING_INTEGER:
+<span class="lineNum">    2987 </span>            :     token = NUMBER;
+<span class="lineNum">    2988 </span>            :     (*lvalp).dblval = atof(p-&gt;shape-&gt;values[p-&gt;expr-&gt;curtoken-&gt;tokenval.bindval.index]);
+<span class="lineNum">    2989 </span>            :     break;
+<span class="lineNum">    2990 </span>            :   case MS_TOKEN_BINDING_STRING:
+<span class="lineNum">    2991 </span>            :     token = STRING;
+<span class="lineNum">    2992 </span>            :     (*lvalp).strval = msStrdup(p-&gt;shape-&gt;values[p-&gt;expr-&gt;curtoken-&gt;tokenval.bindval.index]);
+<span class="lineNum">    2993 </span>            :     break;
+<span class="lineNum">    2994 </span>            :   case MS_TOKEN_BINDING_SHAPE:
+<span class="lineNum">    2995 </span>            :     token = SHAPE;
+<span class="lineNum">    2996 </span>            :     // fprintf(stderr, &quot;token value = %s\n&quot;, msShapeToWKT(p-&gt;shape));
+<span class="lineNum">    2997 </span>            :     (*lvalp).shpval = p-&gt;shape;
+<span class="lineNum">    2998 </span>            :     break;
+<span class="lineNum">    2999 </span>            :   case MS_TOKEN_BINDING_MAP_CELLSIZE:
+<span class="lineNum">    3000 </span>            :     token = NUMBER;
+<span class="lineNum">    3001 </span>            :     (*lvalp).dblval = p-&gt;dblval;
+<span class="lineNum">    3002 </span>            :     break;
+<span class="lineNum">    3003 </span>            :   case MS_TOKEN_BINDING_DATA_CELLSIZE:
+<span class="lineNum">    3004 </span>            :     token = NUMBER;
+<span class="lineNum">    3005 </span>            :     (*lvalp).dblval = p-&gt;dblval2;
+<span class="lineNum">    3006 </span>            :     break;    
+<span class="lineNum">    3007 </span>            :   case MS_TOKEN_BINDING_TIME:
+<span class="lineNum">    3008 </span>            :     token = TIME;
+<span class="lineNum">    3009 </span>            :     msTimeInit(&amp;((*lvalp).tmval));
+<span class="lineNum">    3010 </span>            :     if(msParseTime(p-&gt;shape-&gt;values[p-&gt;expr-&gt;curtoken-&gt;tokenval.bindval.index], &amp;((*lvalp).tmval)) != MS_TRUE) {
+<span class="lineNum">    3011 </span>            :       yyerror(p, &quot;Parsing time value failed.&quot;);
+<span class="lineNum">    3012 </span>            :       return(-1);
+<span class="lineNum">    3013 </span>            :     }
+<span class="lineNum">    3014 </span>            :     break;
+<span class="lineNum">    3015 </span>            : 
+<span class="lineNum">    3016 </span>            :   case MS_TOKEN_FUNCTION_AREA: token = AREA; break;
+<span class="lineNum">    3017 </span>            :   case MS_TOKEN_FUNCTION_LENGTH: token = LENGTH; break;
+<span class="lineNum">    3018 </span>            :   case MS_TOKEN_FUNCTION_TOSTRING: token = TOSTRING; break;
+<span class="lineNum">    3019 </span>            :   case MS_TOKEN_FUNCTION_COMMIFY: token = COMMIFY; break;
+<span class="lineNum">    3020 </span>            :   case MS_TOKEN_FUNCTION_UPPER: token = UPPER; break;
+<span class="lineNum">    3021 </span>            :   case MS_TOKEN_FUNCTION_LOWER: token = LOWER; break;
+<span class="lineNum">    3022 </span>            :   case MS_TOKEN_FUNCTION_INITCAP: token = INITCAP; break;
+<span class="lineNum">    3023 </span>            :   case MS_TOKEN_FUNCTION_FIRSTCAP: token = FIRSTCAP; break;
+<span class="lineNum">    3024 </span>            :   case MS_TOKEN_FUNCTION_ROUND: token = ROUND; break;
+<span class="lineNum">    3025 </span>            : 
+<span class="lineNum">    3026 </span>            :   case MS_TOKEN_FUNCTION_BUFFER: token = YYBUFFER; break;
+<span class="lineNum">    3027 </span>            :   case MS_TOKEN_FUNCTION_DIFFERENCE: token = DIFFERENCE; break;
+<span class="lineNum">    3028 </span>            :   case MS_TOKEN_FUNCTION_SIMPLIFY: token = SIMPLIFY; break;
+<span class="lineNum">    3029 </span>            :   case MS_TOKEN_FUNCTION_SIMPLIFYPT: token = SIMPLIFYPT; break;
+<span class="lineNum">    3030 </span>            :   case MS_TOKEN_FUNCTION_GENERALIZE: token = GENERALIZE; break;
+<span class="lineNum">    3031 </span>            :   case MS_TOKEN_FUNCTION_SMOOTHSIA: token = SMOOTHSIA; break;
+<span class="lineNum">    3032 </span>            :   case MS_TOKEN_FUNCTION_JAVASCRIPT: token = JAVASCRIPT; break;
+<span class="lineNum">    3033 </span>            : 
+<span class="lineNum">    3034 </span>            :   default:
+<span class="lineNum">    3035 </span>            :     break;
+<span class="lineNum">    3036 </span>            :   }
+<span class="lineNum">    3037 </span>            : 
+<span class="lineNum">    3038 </span>            :   p-&gt;expr-&gt;curtoken = p-&gt;expr-&gt;curtoken-&gt;next; /* re-position */ 
+<span class="lineNum">    3039 </span>            :   return(token);
+<span class="lineNum">    3040 </span>            : }
+<span class="lineNum">    3041 </span>            : 
+<span class="lineNum">    3042 </span>            : int yyerror(parseObj *p, const char *s) {
+<span class="lineNum">    3043 </span>            :   msSetError(MS_PARSEERR, &quot;%s&quot;, &quot;yyparse()&quot;, s);
+<span class="lineNum">    3044 </span>            :   return(0);
+<span class="lineNum">    3045 </span>            : }
 </pre>
       </td>
     </tr>
