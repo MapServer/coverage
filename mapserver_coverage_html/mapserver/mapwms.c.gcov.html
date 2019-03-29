@@ -1429,294 +1429,294 @@
 <span class="lineNum">    1367 </span>            :   }
 <span class="lineNum">    1368 </span>            : 
 <span class="lineNum">    1369 </span>            :   /*
-<span class="lineNum">    1370 </span>            :   ** Apply vendor-specific filter if specified
-<span class="lineNum">    1371 </span>            :   */
-<span class="lineNum">    1372 </span><span class="lineCov">          1 :   if (filter) {</span>
-<span class="lineNum">    1373 </span><span class="lineCov">          1 :     if (sld_url || sld_body) {</span>
-<span class="lineNum">    1374 </span><span class="lineNoCov">          0 :       msSetError(MS_WMSERR,</span>
-<span class="lineNum">    1375 </span>            :                  &quot;Vendor-specific FILTER parameter cannot be used with SLD or SLD_BODY.&quot;,
-<span class="lineNum">    1376 </span>            :                  &quot;msWMSLoadGetMapParams()&quot;);
-<span class="lineNum">    1377 </span><span class="lineNoCov">          0 :       return msWMSException(map, nVersion, NULL, wms_exception_format);</span>
-<span class="lineNum">    1378 </span>            :     }
-<span class="lineNum">    1379 </span>            :     
-<span class="lineNum">    1380 </span><span class="lineCov">          1 :     if (msWMSApplyFilter(map, nVersion, filter, need_axis_swap, wms_exception_format) == MS_FAILURE) {</span>
-<span class="lineNum">    1381 </span>            :       return MS_FAILURE;/* msWMSException(map, nVersion, &quot;InvalidFilterRequest&quot;); */
-<span class="lineNum">    1382 </span>            :     }
-<span class="lineNum">    1383 </span>            :   }
-<span class="lineNum">    1384 </span>            : 
-<span class="lineNum">    1385 </span>            :   /*
-<span class="lineNum">    1386 </span>            :   ** If any select layers have a default time, we will apply the default
-<span class="lineNum">    1387 </span>            :   ** time value even if no TIME request was in the url.
+<span class="lineNum">    1370 </span>            :   ** If any select layers have a default time, we will apply the default
+<span class="lineNum">    1371 </span>            :   ** time value even if no TIME request was in the url.
+<span class="lineNum">    1372 </span>            :   */
+<span class="lineNum">    1373 </span><span class="lineCov">          1 :   if( !timerequest &amp;&amp; map ) {</span>
+<span class="lineNum">    1374 </span><span class="lineCov">          1 :     for (i=0; i&lt;map-&gt;numlayers &amp;&amp; !timerequest; i++) {</span>
+<span class="lineNum">    1375 </span>            :       layerObj *lp = NULL;
+<span class="lineNum">    1376 </span>            : 
+<span class="lineNum">    1377 </span><span class="lineCov">          1 :       lp = (GET_LAYER(map, i));</span>
+<span class="lineNum">    1378 </span><span class="lineCov">          1 :       if (lp-&gt;status != MS_ON &amp;&amp; lp-&gt;status != MS_DEFAULT)</span>
+<span class="lineNum">    1379 </span><span class="lineCov">          1 :         continue;</span>
+<span class="lineNum">    1380 </span>            : 
+<span class="lineNum">    1381 </span><span class="lineCov">          1 :       if( msOWSLookupMetadata(&amp;(lp-&gt;metadata), &quot;MO&quot;, &quot;timedefault&quot;) )</span>
+<span class="lineNum">    1382 </span>            :         timerequest = 1;
+<span class="lineNum">    1383 </span>            :     }
+<span class="lineNum">    1384 </span>            :   }
+<span class="lineNum">    1385 </span>            : 
+<span class="lineNum">    1386 </span>            :   /*
+<span class="lineNum">    1387 </span>            :   ** Apply time filters if available in the request.
 <span class="lineNum">    1388 </span>            :   */
-<span class="lineNum">    1389 </span><span class="lineCov">          1 :   if( !timerequest &amp;&amp; map ) {</span>
-<span class="lineNum">    1390 </span><span class="lineCov">          1 :     for (i=0; i&lt;map-&gt;numlayers &amp;&amp; !timerequest; i++) {</span>
-<span class="lineNum">    1391 </span>            :       layerObj *lp = NULL;
-<span class="lineNum">    1392 </span>            : 
-<span class="lineNum">    1393 </span><span class="lineCov">          1 :       lp = (GET_LAYER(map, i));</span>
-<span class="lineNum">    1394 </span><span class="lineCov">          1 :       if (lp-&gt;status != MS_ON &amp;&amp; lp-&gt;status != MS_DEFAULT)</span>
-<span class="lineNum">    1395 </span><span class="lineCov">          1 :         continue;</span>
-<span class="lineNum">    1396 </span>            : 
-<span class="lineNum">    1397 </span><span class="lineCov">          1 :       if( msOWSLookupMetadata(&amp;(lp-&gt;metadata), &quot;MO&quot;, &quot;timedefault&quot;) )</span>
-<span class="lineNum">    1398 </span>            :         timerequest = 1;
-<span class="lineNum">    1399 </span>            :     }
-<span class="lineNum">    1400 </span>            :   }
-<span class="lineNum">    1401 </span>            : 
-<span class="lineNum">    1402 </span>            :   /*
-<span class="lineNum">    1403 </span>            :   ** Apply time filters if available in the request.
-<span class="lineNum">    1404 </span>            :   */
-<span class="lineNum">    1405 </span><span class="lineCov">          1 :   if (timerequest) {</span>
-<span class="lineNum">    1406 </span><span class="lineCov">          1 :     if (msWMSApplyTime(map, nVersion, stime, wms_exception_format) == MS_FAILURE) {</span>
-<span class="lineNum">    1407 </span>            :       return MS_FAILURE;/* msWMSException(map, nVersion, &quot;InvalidTimeRequest&quot;); */
-<span class="lineNum">    1408 </span>            :     }
-<span class="lineNum">    1409 </span>            :   }
-<span class="lineNum">    1410 </span>            : 
-<span class="lineNum">    1411 </span>            :   /*
-<span class="lineNum">    1412 </span>            :   ** Check/apply  wms dimensions
-<span class="lineNum">    1413 </span>            :   ** all dimension requests shoul start with dim_xxxx, except time and elevation.
-<span class="lineNum">    1414 </span>            :   */
-<span class="lineNum">    1415 </span><span class="lineCov">          1 :   for (i=0; i&lt;map-&gt;numlayers; i++) {</span>
-<span class="lineNum">    1416 </span>            :     layerObj *lp = NULL;
-<span class="lineNum">    1417 </span>            :     const char *dimensionlist = NULL;
-<span class="lineNum">    1418 </span>            :     char **tokens;
-<span class="lineNum">    1419 </span><span class="lineCov">          1 :     int ntokens=0,k;</span>
-<span class="lineNum">    1420 </span>            : 
-<span class="lineNum">    1421 </span><span class="lineCov">          1 :     lp = (GET_LAYER(map, i));</span>
-<span class="lineNum">    1422 </span><span class="lineCov">          1 :     if (lp-&gt;status != MS_ON &amp;&amp; lp-&gt;status != MS_DEFAULT)</span>
-<span class="lineNum">    1423 </span><span class="lineCov">          1 :       continue;</span>
+<span class="lineNum">    1389 </span><span class="lineCov">          1 :   if (timerequest) {</span>
+<span class="lineNum">    1390 </span><span class="lineCov">          1 :     if (msWMSApplyTime(map, nVersion, stime, wms_exception_format) == MS_FAILURE) {</span>
+<span class="lineNum">    1391 </span>            :       return MS_FAILURE;/* msWMSException(map, nVersion, &quot;InvalidTimeRequest&quot;); */
+<span class="lineNum">    1392 </span>            :     }
+<span class="lineNum">    1393 </span>            :   }
+<span class="lineNum">    1394 </span>            : 
+<span class="lineNum">    1395 </span>            :   /*
+<span class="lineNum">    1396 </span>            :   ** Check/apply  wms dimensions
+<span class="lineNum">    1397 </span>            :   ** all dimension requests shoul start with dim_xxxx, except time and elevation.
+<span class="lineNum">    1398 </span>            :   */
+<span class="lineNum">    1399 </span><span class="lineCov">          1 :   for (i=0; i&lt;map-&gt;numlayers; i++) {</span>
+<span class="lineNum">    1400 </span>            :     layerObj *lp = NULL;
+<span class="lineNum">    1401 </span>            :     const char *dimensionlist = NULL;
+<span class="lineNum">    1402 </span>            :     char **tokens;
+<span class="lineNum">    1403 </span><span class="lineCov">          1 :     int ntokens=0,k;</span>
+<span class="lineNum">    1404 </span>            : 
+<span class="lineNum">    1405 </span><span class="lineCov">          1 :     lp = (GET_LAYER(map, i));</span>
+<span class="lineNum">    1406 </span><span class="lineCov">          1 :     if (lp-&gt;status != MS_ON &amp;&amp; lp-&gt;status != MS_DEFAULT)</span>
+<span class="lineNum">    1407 </span><span class="lineCov">          1 :       continue;</span>
+<span class="lineNum">    1408 </span>            : 
+<span class="lineNum">    1409 </span><span class="lineCov">          1 :     dimensionlist = msOWSLookupMetadata(&amp;(lp-&gt;metadata), &quot;M&quot;, &quot;dimensionlist&quot;);</span>
+<span class="lineNum">    1410 </span>            :     /*
+<span class="lineNum">    1411 </span>            :     if (!dimensionlist)
+<span class="lineNum">    1412 </span>            :     dimensionlist = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;M&quot;, &quot;dimensionlist&quot;);
+<span class="lineNum">    1413 </span>            :     */
+<span class="lineNum">    1414 </span><span class="lineCov">          1 :     if (dimensionlist) {</span>
+<span class="lineNum">    1415 </span><span class="lineCov">          1 :       tokens = msStringSplit(dimensionlist,  ',', &amp;ntokens);</span>
+<span class="lineNum">    1416 </span><span class="lineCov">          1 :       if (tokens &amp;&amp; ntokens &gt; 0) {</span>
+<span class="lineNum">    1417 </span>            :         char *dimensionname=NULL;
+<span class="lineNum">    1418 </span>            :         char *stmp = NULL;
+<span class="lineNum">    1419 </span><span class="lineCov">          1 :         for (j=0; j&lt;ntokens; j++) {</span>
+<span class="lineNum">    1420 </span><span class="lineCov">          1 :           for(k=0; map &amp;&amp; k&lt;numentries; k++) {</span>
+<span class="lineNum">    1421 </span><span class="lineCov">          1 :             if (strcasecmp(names[k], &quot;elevation&quot;) == 0)</span>
+<span class="lineNum">    1422 </span><span class="lineCov">          1 :               dimensionname = msStrdup(names[k]);</span>
+<span class="lineNum">    1423 </span>            :             else {
 <span class="lineNum">    1424 </span>            : 
-<span class="lineNum">    1425 </span><span class="lineCov">          1 :     dimensionlist = msOWSLookupMetadata(&amp;(lp-&gt;metadata), &quot;M&quot;, &quot;dimensionlist&quot;);</span>
-<span class="lineNum">    1426 </span>            :     /*
-<span class="lineNum">    1427 </span>            :     if (!dimensionlist)
-<span class="lineNum">    1428 </span>            :     dimensionlist = msOWSLookupMetadata(&amp;(map-&gt;web.metadata), &quot;M&quot;, &quot;dimensionlist&quot;);
-<span class="lineNum">    1429 </span>            :     */
-<span class="lineNum">    1430 </span><span class="lineCov">          1 :     if (dimensionlist) {</span>
-<span class="lineNum">    1431 </span><span class="lineCov">          1 :       tokens = msStringSplit(dimensionlist,  ',', &amp;ntokens);</span>
-<span class="lineNum">    1432 </span><span class="lineCov">          1 :       if (tokens &amp;&amp; ntokens &gt; 0) {</span>
-<span class="lineNum">    1433 </span>            :         char *dimensionname=NULL;
-<span class="lineNum">    1434 </span>            :         char *stmp = NULL;
-<span class="lineNum">    1435 </span><span class="lineCov">          1 :         for (j=0; j&lt;ntokens; j++) {</span>
-<span class="lineNum">    1436 </span><span class="lineCov">          1 :           for(k=0; map &amp;&amp; k&lt;numentries; k++) {</span>
-<span class="lineNum">    1437 </span><span class="lineCov">          1 :             if (strcasecmp(names[k], &quot;elevation&quot;) == 0)</span>
-<span class="lineNum">    1438 </span><span class="lineCov">          1 :               dimensionname = msStrdup(names[k]);</span>
-<span class="lineNum">    1439 </span>            :             else {
-<span class="lineNum">    1440 </span>            : 
-<span class="lineNum">    1441 </span>            :               /*
-<span class="lineNum">    1442 </span>            :                 dimensionname = msStrdup(&quot;dim_&quot;);
-<span class="lineNum">    1443 </span>            :                 dimensionname = msStringConcatenate(dimensionname, names[k]);
-<span class="lineNum">    1444 </span>            :               */
-<span class="lineNum">    1445 </span><span class="lineCov">          1 :               dimensionname = msStrdup(names[k]);</span>
-<span class="lineNum">    1446 </span>            :             }
-<span class="lineNum">    1447 </span>            : 
-<span class="lineNum">    1448 </span>            :             /*the dim_ is supposed to be part of the dimension name in the request*/
-<span class="lineNum">    1449 </span><span class="lineCov">          1 :             if (strcasecmp(tokens[j], &quot;elevation&quot;) == 0)</span>
-<span class="lineNum">    1450 </span><span class="lineCov">          1 :               stmp = msStrdup(tokens[j]);</span>
-<span class="lineNum">    1451 </span>            :             else {
-<span class="lineNum">    1452 </span><span class="lineCov">          1 :               stmp =  msStrdup(&quot;dim_&quot;);</span>
-<span class="lineNum">    1453 </span><span class="lineCov">          1 :               msStringTrim(tokens[j]);</span>
-<span class="lineNum">    1454 </span><span class="lineCov">          1 :               stmp = msStringConcatenate(stmp, tokens[j]);</span>
-<span class="lineNum">    1455 </span>            :             }
-<span class="lineNum">    1456 </span><span class="lineCov">          1 :             if (strcasecmp(dimensionname, stmp) == 0) {</span>
-<span class="lineNum">    1457 </span><span class="lineCov">          1 :               if (!msWMSApplyDimension(lp, nVersion, dimensionname, values[k],</span>
-<span class="lineNum">    1458 </span>            :                                        wms_exception_format)) {
-<span class="lineNum">    1459 </span><span class="lineCov">          1 :                 msFreeCharArray(tokens, ntokens);</span>
-<span class="lineNum">    1460 </span><span class="lineCov">          1 :                 msFree(dimensionname);</span>
-<span class="lineNum">    1461 </span><span class="lineCov">          1 :                 msFree(stmp);</span>
-<span class="lineNum">    1462 </span>            : 
-<span class="lineNum">    1463 </span><span class="lineCov">          1 :                 return msWMSException(lp-&gt;map, nVersion, &quot;InvalidDimensionValue&quot;,  wms_exception_format);</span>
-<span class="lineNum">    1464 </span>            :               }
-<span class="lineNum">    1465 </span><span class="lineCov">          1 :               msFree(dimensionname);</span>
-<span class="lineNum">    1466 </span><span class="lineCov">          1 :               msFree(stmp);</span>
-<span class="lineNum">    1467 </span><span class="lineCov">          1 :               break;</span>
-<span class="lineNum">    1468 </span>            :             }
-<span class="lineNum">    1469 </span><span class="lineCov">          1 :             msFree(dimensionname);</span>
-<span class="lineNum">    1470 </span><span class="lineCov">          1 :             msFree(stmp);</span>
-<span class="lineNum">    1471 </span>            :           }
-<span class="lineNum">    1472 </span>            :         }
-<span class="lineNum">    1473 </span><span class="lineCov">          1 :         msFreeCharArray(tokens, ntokens);</span>
-<span class="lineNum">    1474 </span>            :       }
-<span class="lineNum">    1475 </span>            :     }
-<span class="lineNum">    1476 </span>            :   }
-<span class="lineNum">    1477 </span>            : 
-<span class="lineNum">    1478 </span>            :   /*
-<span class="lineNum">    1479 </span>            :   ** Apply the selected output format (if one was selected), and override
-<span class="lineNum">    1480 </span>            :   ** the transparency if needed.
-<span class="lineNum">    1481 </span>            :   */
-<span class="lineNum">    1482 </span>            : 
-<span class="lineNum">    1483 </span><span class="lineCov">          1 :   if( format != NULL )</span>
-<span class="lineNum">    1484 </span><span class="lineCov">          1 :     msApplyOutputFormat( &amp;(map-&gt;outputformat), format, transparent,</span>
-<span class="lineNum">    1485 </span>            :                          MS_NOOVERRIDE, MS_NOOVERRIDE );
+<span class="lineNum">    1425 </span>            :               /*
+<span class="lineNum">    1426 </span>            :                 dimensionname = msStrdup(&quot;dim_&quot;);
+<span class="lineNum">    1427 </span>            :                 dimensionname = msStringConcatenate(dimensionname, names[k]);
+<span class="lineNum">    1428 </span>            :               */
+<span class="lineNum">    1429 </span><span class="lineCov">          1 :               dimensionname = msStrdup(names[k]);</span>
+<span class="lineNum">    1430 </span>            :             }
+<span class="lineNum">    1431 </span>            : 
+<span class="lineNum">    1432 </span>            :             /*the dim_ is supposed to be part of the dimension name in the request*/
+<span class="lineNum">    1433 </span><span class="lineCov">          1 :             if (strcasecmp(tokens[j], &quot;elevation&quot;) == 0)</span>
+<span class="lineNum">    1434 </span><span class="lineCov">          1 :               stmp = msStrdup(tokens[j]);</span>
+<span class="lineNum">    1435 </span>            :             else {
+<span class="lineNum">    1436 </span><span class="lineCov">          1 :               stmp =  msStrdup(&quot;dim_&quot;);</span>
+<span class="lineNum">    1437 </span><span class="lineCov">          1 :               msStringTrim(tokens[j]);</span>
+<span class="lineNum">    1438 </span><span class="lineCov">          1 :               stmp = msStringConcatenate(stmp, tokens[j]);</span>
+<span class="lineNum">    1439 </span>            :             }
+<span class="lineNum">    1440 </span><span class="lineCov">          1 :             if (strcasecmp(dimensionname, stmp) == 0) {</span>
+<span class="lineNum">    1441 </span><span class="lineCov">          1 :               if (!msWMSApplyDimension(lp, nVersion, dimensionname, values[k],</span>
+<span class="lineNum">    1442 </span>            :                                        wms_exception_format)) {
+<span class="lineNum">    1443 </span><span class="lineCov">          1 :                 msFreeCharArray(tokens, ntokens);</span>
+<span class="lineNum">    1444 </span><span class="lineCov">          1 :                 msFree(dimensionname);</span>
+<span class="lineNum">    1445 </span><span class="lineCov">          1 :                 msFree(stmp);</span>
+<span class="lineNum">    1446 </span>            : 
+<span class="lineNum">    1447 </span><span class="lineCov">          1 :                 return msWMSException(lp-&gt;map, nVersion, &quot;InvalidDimensionValue&quot;,  wms_exception_format);</span>
+<span class="lineNum">    1448 </span>            :               }
+<span class="lineNum">    1449 </span><span class="lineCov">          1 :               msFree(dimensionname);</span>
+<span class="lineNum">    1450 </span><span class="lineCov">          1 :               msFree(stmp);</span>
+<span class="lineNum">    1451 </span><span class="lineCov">          1 :               break;</span>
+<span class="lineNum">    1452 </span>            :             }
+<span class="lineNum">    1453 </span><span class="lineCov">          1 :             msFree(dimensionname);</span>
+<span class="lineNum">    1454 </span><span class="lineCov">          1 :             msFree(stmp);</span>
+<span class="lineNum">    1455 </span>            :           }
+<span class="lineNum">    1456 </span>            :         }
+<span class="lineNum">    1457 </span><span class="lineCov">          1 :         msFreeCharArray(tokens, ntokens);</span>
+<span class="lineNum">    1458 </span>            :       }
+<span class="lineNum">    1459 </span>            :     }
+<span class="lineNum">    1460 </span>            :   }
+<span class="lineNum">    1461 </span>            : 
+<span class="lineNum">    1462 </span>            :   /*
+<span class="lineNum">    1463 </span>            :   ** Apply the selected output format (if one was selected), and override
+<span class="lineNum">    1464 </span>            :   ** the transparency if needed.
+<span class="lineNum">    1465 </span>            :   */
+<span class="lineNum">    1466 </span>            : 
+<span class="lineNum">    1467 </span><span class="lineCov">          1 :   if( format != NULL )</span>
+<span class="lineNum">    1468 </span><span class="lineCov">          1 :     msApplyOutputFormat( &amp;(map-&gt;outputformat), format, transparent,</span>
+<span class="lineNum">    1469 </span>            :                          MS_NOOVERRIDE, MS_NOOVERRIDE );
+<span class="lineNum">    1470 </span>            : 
+<span class="lineNum">    1471 </span>            :   /* Validate all layers given.
+<span class="lineNum">    1472 </span>            :   ** If an invalid layer is sent, return an exception.
+<span class="lineNum">    1473 </span>            :   */
+<span class="lineNum">    1474 </span><span class="lineCov">          1 :   if (validlayers == 0 || invalidlayers &gt; 0) {</span>
+<span class="lineNum">    1475 </span><span class="lineCov">          1 :     if (invalidlayers &gt; 0) {</span>
+<span class="lineNum">    1476 </span><span class="lineCov">          1 :       msSetError(MS_WMSERR, &quot;Invalid layer(s) given in the LAYERS parameter. A layer might be disabled for \</span>
+<span class="lineNum">    1477 </span>            : this request. Check wms/ows_enable_request settings.&quot;,
+<span class="lineNum">    1478 </span>            :                  &quot;msWMSLoadGetMapParams()&quot;);
+<span class="lineNum">    1479 </span><span class="lineCov">          1 :       return msWMSException(map, nVersion, &quot;LayerNotDefined&quot;, wms_exception_format);</span>
+<span class="lineNum">    1480 </span>            :     }
+<span class="lineNum">    1481 </span><span class="lineCov">          1 :     if (validlayers == 0 &amp;&amp; sld_url == NULL &amp;&amp;   sld_body == NULL) {</span>
+<span class="lineNum">    1482 </span><span class="lineCov">          1 :       msSetError(MS_WMSERR, &quot;Missing required parameter LAYERS&quot;, &quot;msWMSLoadGetMapParams()&quot;);</span>
+<span class="lineNum">    1483 </span><span class="lineCov">          1 :       return msWMSException(map, nVersion, &quot;MissingParameterValue&quot;, wms_exception_format);</span>
+<span class="lineNum">    1484 </span>            :     }
+<span class="lineNum">    1485 </span>            :   }
 <span class="lineNum">    1486 </span>            : 
-<span class="lineNum">    1487 </span>            :   /* Validate all layers given.
-<span class="lineNum">    1488 </span>            :   ** If an invalid layer is sent, return an exception.
-<span class="lineNum">    1489 </span>            :   */
-<span class="lineNum">    1490 </span><span class="lineCov">          1 :   if (validlayers == 0 || invalidlayers &gt; 0) {</span>
-<span class="lineNum">    1491 </span><span class="lineCov">          1 :     if (invalidlayers &gt; 0) {</span>
-<span class="lineNum">    1492 </span><span class="lineCov">          1 :       msSetError(MS_WMSERR, &quot;Invalid layer(s) given in the LAYERS parameter. A layer might be disabled for \</span>
-<span class="lineNum">    1493 </span>            : this request. Check wms/ows_enable_request settings.&quot;,
-<span class="lineNum">    1494 </span>            :                  &quot;msWMSLoadGetMapParams()&quot;);
-<span class="lineNum">    1495 </span><span class="lineCov">          1 :       return msWMSException(map, nVersion, &quot;LayerNotDefined&quot;, wms_exception_format);</span>
-<span class="lineNum">    1496 </span>            :     }
-<span class="lineNum">    1497 </span><span class="lineCov">          1 :     if (validlayers == 0 &amp;&amp; sld_url == NULL &amp;&amp;   sld_body == NULL) {</span>
-<span class="lineNum">    1498 </span><span class="lineCov">          1 :       msSetError(MS_WMSERR, &quot;Missing required parameter LAYERS&quot;, &quot;msWMSLoadGetMapParams()&quot;);</span>
-<span class="lineNum">    1499 </span><span class="lineCov">          1 :       return msWMSException(map, nVersion, &quot;MissingParameterValue&quot;, wms_exception_format);</span>
-<span class="lineNum">    1500 </span>            :     }
-<span class="lineNum">    1501 </span>            :   }
-<span class="lineNum">    1502 </span>            : 
-<span class="lineNum">    1503 </span>            :   /* validate srs value: When the SRS parameter in a GetMap request contains a
-<span class="lineNum">    1504 </span>            :   ** SRS that is valid for some, but not all of the layers being requested,
-<span class="lineNum">    1505 </span>            :   ** then the server shall throw a Service Exception (code = &quot;InvalidSRS&quot;).
-<span class="lineNum">    1506 </span>            :   ** Validate first against epsg in the map and if no matching srs is found
-<span class="lineNum">    1507 </span>            :   ** validate all layers requested.
-<span class="lineNum">    1508 </span>            :   */
-<span class="lineNum">    1509 </span><span class="lineCov">          1 :   if (epsgbuf[0] &amp;&amp; epsgbuf[1]) { /*at least 2 chars*/</span>
-<span class="lineNum">    1510 </span>            :     char *projstring;
-<span class="lineNum">    1511 </span>            :     epsgvalid = MS_FALSE;
-<span class="lineNum">    1512 </span><span class="lineCov">          1 :     msOWSGetEPSGProj(&amp;(map-&gt;projection), &amp;(map-&gt;web.metadata),</span>
-<span class="lineNum">    1513 </span>            :                                   &quot;MO&quot;, MS_FALSE, &amp;projstring);
-<span class="lineNum">    1514 </span><span class="lineCov">          1 :     if (projstring) {</span>
-<span class="lineNum">    1515 </span><span class="lineCov">          1 :       tokens = msStringSplit(projstring, ' ', &amp;n);</span>
-<span class="lineNum">    1516 </span><span class="lineCov">          1 :       if (tokens &amp;&amp; n &gt; 0) {</span>
-<span class="lineNum">    1517 </span><span class="lineCov">          1 :         for(i=0; i&lt;n; i++) {</span>
-<span class="lineNum">    1518 </span><span class="lineCov">          1 :           if (strcasecmp(tokens[i], epsgbuf) == 0) {</span>
-<span class="lineNum">    1519 </span>            :             epsgvalid = MS_TRUE;
-<span class="lineNum">    1520 </span>            :             break;
-<span class="lineNum">    1521 </span>            :           }
-<span class="lineNum">    1522 </span>            :         }
-<span class="lineNum">    1523 </span><span class="lineCov">          1 :         msFreeCharArray(tokens, n);</span>
-<span class="lineNum">    1524 </span>            :       }
-<span class="lineNum">    1525 </span><span class="lineCov">          1 :       msFree(projstring);</span>
-<span class="lineNum">    1526 </span>            :     }
-<span class="lineNum">    1527 </span><span class="lineCov">          1 :     if (epsgvalid == MS_FALSE) {</span>
-<span class="lineNum">    1528 </span><span class="lineCov">          1 :       for (i=0; i&lt;map-&gt;numlayers; i++) {</span>
-<span class="lineNum">    1529 </span>            :         epsgvalid = MS_FALSE;
-<span class="lineNum">    1530 </span><span class="lineCov">          1 :         if (GET_LAYER(map, i)-&gt;status == MS_ON) {</span>
-<span class="lineNum">    1531 </span><span class="lineCov">          1 :           msOWSGetEPSGProj(&amp;(GET_LAYER(map, i)-&gt;projection),</span>
-<span class="lineNum">    1532 </span>            :                                         &amp;(GET_LAYER(map, i)-&gt;metadata),
-<span class="lineNum">    1533 </span>            :                                         &quot;MO&quot;, MS_FALSE, &amp;projstring);
-<span class="lineNum">    1534 </span><span class="lineCov">          1 :           if (projstring) {</span>
-<span class="lineNum">    1535 </span><span class="lineCov">          1 :             tokens = msStringSplit(projstring, ' ', &amp;n);</span>
-<span class="lineNum">    1536 </span><span class="lineCov">          1 :             if (tokens &amp;&amp; n &gt; 0) {</span>
-<span class="lineNum">    1537 </span><span class="lineCov">          1 :               for(j=0; j&lt;n; j++) {</span>
-<span class="lineNum">    1538 </span><span class="lineCov">          1 :                 if (strcasecmp(tokens[j], epsgbuf) == 0) {</span>
-<span class="lineNum">    1539 </span>            :                   epsgvalid = MS_TRUE;
-<span class="lineNum">    1540 </span>            :                   break;
-<span class="lineNum">    1541 </span>            :                 }
-<span class="lineNum">    1542 </span>            :               }
-<span class="lineNum">    1543 </span><span class="lineCov">          1 :               msFreeCharArray(tokens, n);</span>
-<span class="lineNum">    1544 </span>            :             }
-<span class="lineNum">    1545 </span><span class="lineCov">          1 :             msFree(projstring);</span>
-<span class="lineNum">    1546 </span>            :           }
-<span class="lineNum">    1547 </span><span class="lineCov">          1 :           if (epsgvalid == MS_FALSE) {</span>
-<span class="lineNum">    1548 </span><span class="lineNoCov">          0 :             if (nVersion &gt;= OWS_1_3_0) {</span>
-<span class="lineNum">    1549 </span><span class="lineNoCov">          0 :               msSetError(MS_WMSERR, &quot;Invalid CRS given : CRS must be valid for all requested layers.&quot;,</span>
-<span class="lineNum">    1550 </span>            :                          &quot;msWMSLoadGetMapParams()&quot;);
-<span class="lineNum">    1551 </span><span class="lineNoCov">          0 :               return msWMSException(map, nVersion, &quot;InvalidSRS&quot;, wms_exception_format);</span>
-<span class="lineNum">    1552 </span>            :             } else {
-<span class="lineNum">    1553 </span><span class="lineNoCov">          0 :               msSetError(MS_WMSERR, &quot;Invalid SRS given : SRS must be valid for all requested layers.&quot;,</span>
-<span class="lineNum">    1554 </span>            :                          &quot;msWMSLoadGetMapParams()&quot;);
-<span class="lineNum">    1555 </span><span class="lineNoCov">          0 :               return msWMSException(map, nVersion, &quot;InvalidSRS&quot;, wms_exception_format);</span>
-<span class="lineNum">    1556 </span>            :             }
-<span class="lineNum">    1557 </span>            :           }
-<span class="lineNum">    1558 </span>            :         }
-<span class="lineNum">    1559 </span>            :       }
-<span class="lineNum">    1560 </span>            :     }
-<span class="lineNum">    1561 </span>            :   }
-<span class="lineNum">    1562 </span>            : 
-<span class="lineNum">    1563 </span>            :   /* Validate requested image size.
-<span class="lineNum">    1564 </span>            :    */
-<span class="lineNum">    1565 </span><span class="lineCov">          1 :   if(map-&gt;width &gt; map-&gt;maxsize || map-&gt;height &gt; map-&gt;maxsize ||</span>
-<span class="lineNum">    1566 </span><span class="lineCov">          1 :       map-&gt;width &lt; 1 || map-&gt;height &lt; 1) {</span>
-<span class="lineNum">    1567 </span><span class="lineNoCov">          0 :     msSetError(MS_WMSERR, &quot;Image size out of range, WIDTH and HEIGHT must be between 1 and %d pixels.&quot;, &quot;msWMSLoadGetMapParams()&quot;, map-&gt;maxsize);</span>
+<span class="lineNum">    1487 </span>            :   /* validate srs value: When the SRS parameter in a GetMap request contains a
+<span class="lineNum">    1488 </span>            :   ** SRS that is valid for some, but not all of the layers being requested,
+<span class="lineNum">    1489 </span>            :   ** then the server shall throw a Service Exception (code = &quot;InvalidSRS&quot;).
+<span class="lineNum">    1490 </span>            :   ** Validate first against epsg in the map and if no matching srs is found
+<span class="lineNum">    1491 </span>            :   ** validate all layers requested.
+<span class="lineNum">    1492 </span>            :   */
+<span class="lineNum">    1493 </span><span class="lineCov">          1 :   if (epsgbuf[0] &amp;&amp; epsgbuf[1]) { /*at least 2 chars*/</span>
+<span class="lineNum">    1494 </span>            :     char *projstring;
+<span class="lineNum">    1495 </span>            :     epsgvalid = MS_FALSE;
+<span class="lineNum">    1496 </span><span class="lineCov">          1 :     msOWSGetEPSGProj(&amp;(map-&gt;projection), &amp;(map-&gt;web.metadata),</span>
+<span class="lineNum">    1497 </span>            :                                   &quot;MO&quot;, MS_FALSE, &amp;projstring);
+<span class="lineNum">    1498 </span><span class="lineCov">          1 :     if (projstring) {</span>
+<span class="lineNum">    1499 </span><span class="lineCov">          1 :       tokens = msStringSplit(projstring, ' ', &amp;n);</span>
+<span class="lineNum">    1500 </span><span class="lineCov">          1 :       if (tokens &amp;&amp; n &gt; 0) {</span>
+<span class="lineNum">    1501 </span><span class="lineCov">          1 :         for(i=0; i&lt;n; i++) {</span>
+<span class="lineNum">    1502 </span><span class="lineCov">          1 :           if (strcasecmp(tokens[i], epsgbuf) == 0) {</span>
+<span class="lineNum">    1503 </span>            :             epsgvalid = MS_TRUE;
+<span class="lineNum">    1504 </span>            :             break;
+<span class="lineNum">    1505 </span>            :           }
+<span class="lineNum">    1506 </span>            :         }
+<span class="lineNum">    1507 </span><span class="lineCov">          1 :         msFreeCharArray(tokens, n);</span>
+<span class="lineNum">    1508 </span>            :       }
+<span class="lineNum">    1509 </span><span class="lineCov">          1 :       msFree(projstring);</span>
+<span class="lineNum">    1510 </span>            :     }
+<span class="lineNum">    1511 </span><span class="lineCov">          1 :     if (epsgvalid == MS_FALSE) {</span>
+<span class="lineNum">    1512 </span><span class="lineCov">          1 :       for (i=0; i&lt;map-&gt;numlayers; i++) {</span>
+<span class="lineNum">    1513 </span>            :         epsgvalid = MS_FALSE;
+<span class="lineNum">    1514 </span><span class="lineCov">          1 :         if (GET_LAYER(map, i)-&gt;status == MS_ON) {</span>
+<span class="lineNum">    1515 </span><span class="lineCov">          1 :           msOWSGetEPSGProj(&amp;(GET_LAYER(map, i)-&gt;projection),</span>
+<span class="lineNum">    1516 </span>            :                                         &amp;(GET_LAYER(map, i)-&gt;metadata),
+<span class="lineNum">    1517 </span>            :                                         &quot;MO&quot;, MS_FALSE, &amp;projstring);
+<span class="lineNum">    1518 </span><span class="lineCov">          1 :           if (projstring) {</span>
+<span class="lineNum">    1519 </span><span class="lineCov">          1 :             tokens = msStringSplit(projstring, ' ', &amp;n);</span>
+<span class="lineNum">    1520 </span><span class="lineCov">          1 :             if (tokens &amp;&amp; n &gt; 0) {</span>
+<span class="lineNum">    1521 </span><span class="lineCov">          1 :               for(j=0; j&lt;n; j++) {</span>
+<span class="lineNum">    1522 </span><span class="lineCov">          1 :                 if (strcasecmp(tokens[j], epsgbuf) == 0) {</span>
+<span class="lineNum">    1523 </span>            :                   epsgvalid = MS_TRUE;
+<span class="lineNum">    1524 </span>            :                   break;
+<span class="lineNum">    1525 </span>            :                 }
+<span class="lineNum">    1526 </span>            :               }
+<span class="lineNum">    1527 </span><span class="lineCov">          1 :               msFreeCharArray(tokens, n);</span>
+<span class="lineNum">    1528 </span>            :             }
+<span class="lineNum">    1529 </span><span class="lineCov">          1 :             msFree(projstring);</span>
+<span class="lineNum">    1530 </span>            :           }
+<span class="lineNum">    1531 </span><span class="lineCov">          1 :           if (epsgvalid == MS_FALSE) {</span>
+<span class="lineNum">    1532 </span><span class="lineNoCov">          0 :             if (nVersion &gt;= OWS_1_3_0) {</span>
+<span class="lineNum">    1533 </span><span class="lineNoCov">          0 :               msSetError(MS_WMSERR, &quot;Invalid CRS given : CRS must be valid for all requested layers.&quot;,</span>
+<span class="lineNum">    1534 </span>            :                          &quot;msWMSLoadGetMapParams()&quot;);
+<span class="lineNum">    1535 </span><span class="lineNoCov">          0 :               return msWMSException(map, nVersion, &quot;InvalidSRS&quot;, wms_exception_format);</span>
+<span class="lineNum">    1536 </span>            :             } else {
+<span class="lineNum">    1537 </span><span class="lineNoCov">          0 :               msSetError(MS_WMSERR, &quot;Invalid SRS given : SRS must be valid for all requested layers.&quot;,</span>
+<span class="lineNum">    1538 </span>            :                          &quot;msWMSLoadGetMapParams()&quot;);
+<span class="lineNum">    1539 </span><span class="lineNoCov">          0 :               return msWMSException(map, nVersion, &quot;InvalidSRS&quot;, wms_exception_format);</span>
+<span class="lineNum">    1540 </span>            :             }
+<span class="lineNum">    1541 </span>            :           }
+<span class="lineNum">    1542 </span>            :         }
+<span class="lineNum">    1543 </span>            :       }
+<span class="lineNum">    1544 </span>            :     }
+<span class="lineNum">    1545 </span>            :   }
+<span class="lineNum">    1546 </span>            : 
+<span class="lineNum">    1547 </span>            :   /* Validate requested image size.
+<span class="lineNum">    1548 </span>            :    */
+<span class="lineNum">    1549 </span><span class="lineCov">          1 :   if(map-&gt;width &gt; map-&gt;maxsize || map-&gt;height &gt; map-&gt;maxsize ||</span>
+<span class="lineNum">    1550 </span><span class="lineCov">          1 :       map-&gt;width &lt; 1 || map-&gt;height &lt; 1) {</span>
+<span class="lineNum">    1551 </span><span class="lineNoCov">          0 :     msSetError(MS_WMSERR, &quot;Image size out of range, WIDTH and HEIGHT must be between 1 and %d pixels.&quot;, &quot;msWMSLoadGetMapParams()&quot;, map-&gt;maxsize);</span>
+<span class="lineNum">    1552 </span>            : 
+<span class="lineNum">    1553 </span>            :     /* Restore valid default values in case errors INIMAGE are used */
+<span class="lineNum">    1554 </span><span class="lineNoCov">          0 :     map-&gt;width = 400;</span>
+<span class="lineNum">    1555 </span><span class="lineNoCov">          0 :     map-&gt;height= 300;</span>
+<span class="lineNum">    1556 </span><span class="lineNoCov">          0 :     return msWMSException(map, nVersion, NULL, wms_exception_format);</span>
+<span class="lineNum">    1557 </span>            :   }
+<span class="lineNum">    1558 </span>            : 
+<span class="lineNum">    1559 </span>            :   /* Check whether requested BBOX and width/height result in non-square pixels
+<span class="lineNum">    1560 </span>            :    */
+<span class="lineNum">    1561 </span><span class="lineCov">          1 :   nonsquare_enabled = msTestConfigOption( map, &quot;MS_NONSQUARE&quot;, MS_FALSE );</span>
+<span class="lineNum">    1562 </span><span class="lineCov">          1 :   if (!nonsquare_enabled) {</span>
+<span class="lineNum">    1563 </span>            :     double dx, dy, reqy;
+<span class="lineNum">    1564 </span><span class="lineCov">          1 :     dx = MS_ABS(map-&gt;extent.maxx - map-&gt;extent.minx);</span>
+<span class="lineNum">    1565 </span><span class="lineCov">          1 :     dy = MS_ABS(map-&gt;extent.maxy - map-&gt;extent.miny);</span>
+<span class="lineNum">    1566 </span>            : 
+<span class="lineNum">    1567 </span><span class="lineCov">          1 :     reqy = ((double)map-&gt;width) * dy / dx;</span>
 <span class="lineNum">    1568 </span>            : 
-<span class="lineNum">    1569 </span>            :     /* Restore valid default values in case errors INIMAGE are used */
-<span class="lineNum">    1570 </span><span class="lineNoCov">          0 :     map-&gt;width = 400;</span>
-<span class="lineNum">    1571 </span><span class="lineNoCov">          0 :     map-&gt;height= 300;</span>
-<span class="lineNum">    1572 </span><span class="lineNoCov">          0 :     return msWMSException(map, nVersion, NULL, wms_exception_format);</span>
-<span class="lineNum">    1573 </span>            :   }
-<span class="lineNum">    1574 </span>            : 
-<span class="lineNum">    1575 </span>            :   /* Check whether requested BBOX and width/height result in non-square pixels
-<span class="lineNum">    1576 </span>            :    */
-<span class="lineNum">    1577 </span><span class="lineCov">          1 :   nonsquare_enabled = msTestConfigOption( map, &quot;MS_NONSQUARE&quot;, MS_FALSE );</span>
-<span class="lineNum">    1578 </span><span class="lineCov">          1 :   if (!nonsquare_enabled) {</span>
-<span class="lineNum">    1579 </span>            :     double dx, dy, reqy;
-<span class="lineNum">    1580 </span><span class="lineCov">          1 :     dx = MS_ABS(map-&gt;extent.maxx - map-&gt;extent.minx);</span>
-<span class="lineNum">    1581 </span><span class="lineCov">          1 :     dy = MS_ABS(map-&gt;extent.maxy - map-&gt;extent.miny);</span>
-<span class="lineNum">    1582 </span>            : 
-<span class="lineNum">    1583 </span><span class="lineCov">          1 :     reqy = ((double)map-&gt;width) * dy / dx;</span>
-<span class="lineNum">    1584 </span>            : 
-<span class="lineNum">    1585 </span>            :     /* Allow up to 1 pixel of error on the width/height ratios. */
-<span class="lineNum">    1586 </span>            :     /* If more than 1 pixel then enable non-square pixels */
-<span class="lineNum">    1587 </span><span class="lineCov">          1 :     if ( MS_ABS((reqy - (double)map-&gt;height)) &gt; 1.0 ) {</span>
-<span class="lineNum">    1588 </span><span class="lineCov">          1 :       if (map-&gt;debug)</span>
-<span class="lineNum">    1589 </span><span class="lineNoCov">          0 :         msDebug(&quot;msWMSLoadGetMapParams(): enabling non-square pixels.\n&quot;);</span>
-<span class="lineNum">    1590 </span><span class="lineCov">          1 :       msSetConfigOption(map, &quot;MS_NONSQUARE&quot;, &quot;YES&quot;);</span>
-<span class="lineNum">    1591 </span>            :       nonsquare_enabled = MS_TRUE;
-<span class="lineNum">    1592 </span>            :     }
-<span class="lineNum">    1593 </span>            :   }
-<span class="lineNum">    1594 </span>            : 
-<span class="lineNum">    1595 </span>            :   /* If the requested SRS is different from the default mapfile projection, or
-<span class="lineNum">    1596 </span>            :   ** if a BBOX resulting in non-square pixels is requested then
-<span class="lineNum">    1597 </span>            :   ** copy the original mapfile's projection to any layer that doesn't already
-<span class="lineNum">    1598 </span>            :   ** have a projection. This will prevent problems when users forget to
-<span class="lineNum">    1599 </span>            :   ** explicitly set a projection on all layers in a WMS mapfile.
-<span class="lineNum">    1600 </span>            :   */
-<span class="lineNum">    1601 </span><span class="lineCov">          1 :   if (strlen(srsbuffer) &gt; 1 || nonsquare_enabled) {</span>
-<span class="lineNum">    1602 </span>            :     projectionObj newProj;
+<span class="lineNum">    1569 </span>            :     /* Allow up to 1 pixel of error on the width/height ratios. */
+<span class="lineNum">    1570 </span>            :     /* If more than 1 pixel then enable non-square pixels */
+<span class="lineNum">    1571 </span><span class="lineCov">          1 :     if ( MS_ABS((reqy - (double)map-&gt;height)) &gt; 1.0 ) {</span>
+<span class="lineNum">    1572 </span><span class="lineCov">          1 :       if (map-&gt;debug)</span>
+<span class="lineNum">    1573 </span><span class="lineNoCov">          0 :         msDebug(&quot;msWMSLoadGetMapParams(): enabling non-square pixels.\n&quot;);</span>
+<span class="lineNum">    1574 </span><span class="lineCov">          1 :       msSetConfigOption(map, &quot;MS_NONSQUARE&quot;, &quot;YES&quot;);</span>
+<span class="lineNum">    1575 </span>            :       nonsquare_enabled = MS_TRUE;
+<span class="lineNum">    1576 </span>            :     }
+<span class="lineNum">    1577 </span>            :   }
+<span class="lineNum">    1578 </span>            : 
+<span class="lineNum">    1579 </span>            :   /* If the requested SRS is different from the default mapfile projection, or
+<span class="lineNum">    1580 </span>            :   ** if a BBOX resulting in non-square pixels is requested then
+<span class="lineNum">    1581 </span>            :   ** copy the original mapfile's projection to any layer that doesn't already
+<span class="lineNum">    1582 </span>            :   ** have a projection. This will prevent problems when users forget to
+<span class="lineNum">    1583 </span>            :   ** explicitly set a projection on all layers in a WMS mapfile.
+<span class="lineNum">    1584 </span>            :   */
+<span class="lineNum">    1585 </span><span class="lineCov">          1 :   if (strlen(srsbuffer) &gt; 1 || nonsquare_enabled) {</span>
+<span class="lineNum">    1586 </span>            :     projectionObj newProj;
+<span class="lineNum">    1587 </span>            : 
+<span class="lineNum">    1588 </span><span class="lineCov">          1 :     if (map-&gt;projection.numargs &lt;= 0) {</span>
+<span class="lineNum">    1589 </span><span class="lineNoCov">          0 :       if (nVersion &gt;= OWS_1_3_0) {</span>
+<span class="lineNum">    1590 </span><span class="lineNoCov">          0 :         msSetError(MS_WMSERR, &quot;Cannot set new CRS on a map that doesn't &quot;</span>
+<span class="lineNum">    1591 </span>            :                    &quot;have any projection set. Please make sure your mapfile &quot;
+<span class="lineNum">    1592 </span>            :                    &quot;has a projection defined at the top level.&quot;,
+<span class="lineNum">    1593 </span>            :                    &quot;msWMSLoadGetMapParams()&quot;);
+<span class="lineNum">    1594 </span><span class="lineNoCov">          0 :         return msWMSException(map, nVersion, &quot;InvalidCRS&quot;, wms_exception_format);</span>
+<span class="lineNum">    1595 </span>            :       } else {
+<span class="lineNum">    1596 </span><span class="lineNoCov">          0 :         msSetError(MS_WMSERR, &quot;Cannot set new SRS on a map that doesn't &quot;</span>
+<span class="lineNum">    1597 </span>            :                    &quot;have any projection set. Please make sure your mapfile &quot;
+<span class="lineNum">    1598 </span>            :                    &quot;has a projection defined at the top level.&quot;,
+<span class="lineNum">    1599 </span>            :                    &quot;msWMSLoadGetMapParams()&quot;);
+<span class="lineNum">    1600 </span><span class="lineNoCov">          0 :         return msWMSException(map, nVersion, &quot;InvalidSRS&quot;, wms_exception_format);</span>
+<span class="lineNum">    1601 </span>            :       }
+<span class="lineNum">    1602 </span>            :     }
 <span class="lineNum">    1603 </span>            : 
-<span class="lineNum">    1604 </span><span class="lineCov">          1 :     if (map-&gt;projection.numargs &lt;= 0) {</span>
-<span class="lineNum">    1605 </span><span class="lineNoCov">          0 :       if (nVersion &gt;= OWS_1_3_0) {</span>
-<span class="lineNum">    1606 </span><span class="lineNoCov">          0 :         msSetError(MS_WMSERR, &quot;Cannot set new CRS on a map that doesn't &quot;</span>
-<span class="lineNum">    1607 </span>            :                    &quot;have any projection set. Please make sure your mapfile &quot;
-<span class="lineNum">    1608 </span>            :                    &quot;has a projection defined at the top level.&quot;,
-<span class="lineNum">    1609 </span>            :                    &quot;msWMSLoadGetMapParams()&quot;);
-<span class="lineNum">    1610 </span><span class="lineNoCov">          0 :         return msWMSException(map, nVersion, &quot;InvalidCRS&quot;, wms_exception_format);</span>
-<span class="lineNum">    1611 </span>            :       } else {
-<span class="lineNum">    1612 </span><span class="lineNoCov">          0 :         msSetError(MS_WMSERR, &quot;Cannot set new SRS on a map that doesn't &quot;</span>
-<span class="lineNum">    1613 </span>            :                    &quot;have any projection set. Please make sure your mapfile &quot;
-<span class="lineNum">    1614 </span>            :                    &quot;has a projection defined at the top level.&quot;,
-<span class="lineNum">    1615 </span>            :                    &quot;msWMSLoadGetMapParams()&quot;);
-<span class="lineNum">    1616 </span><span class="lineNoCov">          0 :         return msWMSException(map, nVersion, &quot;InvalidSRS&quot;, wms_exception_format);</span>
-<span class="lineNum">    1617 </span>            :       }
-<span class="lineNum">    1618 </span>            :     }
-<span class="lineNum">    1619 </span>            : 
-<span class="lineNum">    1620 </span><span class="lineCov">          1 :     msInitProjection(&amp;newProj);</span>
-<span class="lineNum">    1621 </span><span class="lineCov">          1 :     if (strlen(srsbuffer) &gt; 1) {</span>
-<span class="lineNum">    1622 </span>            :       int nTmp;
-<span class="lineNum">    1623 </span>            : 
-<span class="lineNum">    1624 </span><span class="lineCov">          1 :       if (nVersion &gt;= OWS_1_3_0)</span>
-<span class="lineNum">    1625 </span><span class="lineCov">          1 :         nTmp = msLoadProjectionStringEPSG(&amp;newProj, srsbuffer);</span>
-<span class="lineNum">    1626 </span>            :       else
-<span class="lineNum">    1627 </span><span class="lineCov">          1 :         nTmp = msLoadProjectionString(&amp;newProj, srsbuffer);</span>
-<span class="lineNum">    1628 </span><span class="lineCov">          1 :       if (nTmp != 0) {</span>
-<span class="lineNum">    1629 </span><span class="lineNoCov">          0 :         msFreeProjection(&amp;newProj);</span>
-<span class="lineNum">    1630 </span><span class="lineNoCov">          0 :         return msWMSException(map, nVersion, NULL, wms_exception_format);</span>
-<span class="lineNum">    1631 </span>            :       }
-<span class="lineNum">    1632 </span>            :     }
-<span class="lineNum">    1633 </span>            : 
-<span class="lineNum">    1634 </span><span class="lineCov">          1 :     if (nonsquare_enabled ||</span>
-<span class="lineNum">    1635 </span><span class="lineCov">          1 :         msProjectionsDiffer(&amp;(map-&gt;projection), &amp;newProj)) {</span>
-<span class="lineNum">    1636 </span><span class="lineCov">          1 :       msMapSetLayerProjections(map);</span>
-<span class="lineNum">    1637 </span>            :     }
-<span class="lineNum">    1638 </span><span class="lineCov">          1 :     msFreeProjection(&amp;newProj);</span>
-<span class="lineNum">    1639 </span>            :   }
-<span class="lineNum">    1640 </span>            : 
-<span class="lineNum">    1641 </span>            :   /* apply the srs to the map file. This is only done after validating */
-<span class="lineNum">    1642 </span>            :   /* that the srs given as parameter is valid for all layers */
-<span class="lineNum">    1643 </span><span class="lineCov">          1 :   if (strlen(srsbuffer) &gt; 1) {</span>
-<span class="lineNum">    1644 </span>            :     int nTmp;
-<span class="lineNum">    1645 </span><span class="lineCov">          1 :     msFreeProjection(&amp;map-&gt;projection);</span>
-<span class="lineNum">    1646 </span><span class="lineCov">          1 :     msInitProjection(&amp;map-&gt;projection);</span>
-<span class="lineNum">    1647 </span><span class="lineCov">          1 :     if (nVersion &gt;= OWS_1_3_0)</span>
-<span class="lineNum">    1648 </span><span class="lineCov">          1 :       nTmp = msLoadProjectionStringEPSG(&amp;(map-&gt;projection), srsbuffer);</span>
-<span class="lineNum">    1649 </span>            :     else
-<span class="lineNum">    1650 </span><span class="lineCov">          1 :       nTmp = msLoadProjectionString(&amp;(map-&gt;projection), srsbuffer);</span>
-<span class="lineNum">    1651 </span>            : 
-<span class="lineNum">    1652 </span><span class="lineCov">          1 :     if (nTmp != 0)</span>
+<span class="lineNum">    1604 </span><span class="lineCov">          1 :     msInitProjection(&amp;newProj);</span>
+<span class="lineNum">    1605 </span><span class="lineCov">          1 :     if (strlen(srsbuffer) &gt; 1) {</span>
+<span class="lineNum">    1606 </span>            :       int nTmp;
+<span class="lineNum">    1607 </span>            : 
+<span class="lineNum">    1608 </span><span class="lineCov">          1 :       if (nVersion &gt;= OWS_1_3_0)</span>
+<span class="lineNum">    1609 </span><span class="lineCov">          1 :         nTmp = msLoadProjectionStringEPSG(&amp;newProj, srsbuffer);</span>
+<span class="lineNum">    1610 </span>            :       else
+<span class="lineNum">    1611 </span><span class="lineCov">          1 :         nTmp = msLoadProjectionString(&amp;newProj, srsbuffer);</span>
+<span class="lineNum">    1612 </span><span class="lineCov">          1 :       if (nTmp != 0) {</span>
+<span class="lineNum">    1613 </span><span class="lineNoCov">          0 :         msFreeProjection(&amp;newProj);</span>
+<span class="lineNum">    1614 </span><span class="lineNoCov">          0 :         return msWMSException(map, nVersion, NULL, wms_exception_format);</span>
+<span class="lineNum">    1615 </span>            :       }
+<span class="lineNum">    1616 </span>            :     }
+<span class="lineNum">    1617 </span>            : 
+<span class="lineNum">    1618 </span><span class="lineCov">          1 :     if (nonsquare_enabled ||</span>
+<span class="lineNum">    1619 </span><span class="lineCov">          1 :         msProjectionsDiffer(&amp;(map-&gt;projection), &amp;newProj)) {</span>
+<span class="lineNum">    1620 </span><span class="lineCov">          1 :       msMapSetLayerProjections(map);</span>
+<span class="lineNum">    1621 </span>            :     }
+<span class="lineNum">    1622 </span><span class="lineCov">          1 :     msFreeProjection(&amp;newProj);</span>
+<span class="lineNum">    1623 </span>            :   }
+<span class="lineNum">    1624 </span>            : 
+<span class="lineNum">    1625 </span>            :   /* apply the srs to the map file. This is only done after validating */
+<span class="lineNum">    1626 </span>            :   /* that the srs given as parameter is valid for all layers */
+<span class="lineNum">    1627 </span><span class="lineCov">          1 :   if (strlen(srsbuffer) &gt; 1) {</span>
+<span class="lineNum">    1628 </span>            :     int nTmp;
+<span class="lineNum">    1629 </span><span class="lineCov">          1 :     msFreeProjection(&amp;map-&gt;projection);</span>
+<span class="lineNum">    1630 </span><span class="lineCov">          1 :     msInitProjection(&amp;map-&gt;projection);</span>
+<span class="lineNum">    1631 </span><span class="lineCov">          1 :     if (nVersion &gt;= OWS_1_3_0)</span>
+<span class="lineNum">    1632 </span><span class="lineCov">          1 :       nTmp = msLoadProjectionStringEPSG(&amp;(map-&gt;projection), srsbuffer);</span>
+<span class="lineNum">    1633 </span>            :     else
+<span class="lineNum">    1634 </span><span class="lineCov">          1 :       nTmp = msLoadProjectionString(&amp;(map-&gt;projection), srsbuffer);</span>
+<span class="lineNum">    1635 </span>            : 
+<span class="lineNum">    1636 </span><span class="lineCov">          1 :     if (nTmp != 0)</span>
+<span class="lineNum">    1637 </span><span class="lineNoCov">          0 :       return msWMSException(map, nVersion, NULL, wms_exception_format);</span>
+<span class="lineNum">    1638 </span>            : 
+<span class="lineNum">    1639 </span><span class="lineCov">          1 :     nTmp = GetMapserverUnitUsingProj(&amp;(map-&gt;projection));</span>
+<span class="lineNum">    1640 </span><span class="lineCov">          1 :     if( nTmp != -1 ) {</span>
+<span class="lineNum">    1641 </span><span class="lineCov">          1 :       map-&gt;units = nTmp;</span>
+<span class="lineNum">    1642 </span>            :     }
+<span class="lineNum">    1643 </span>            :   }
+<span class="lineNum">    1644 </span>            : 
+<span class="lineNum">    1645 </span>            :   /*
+<span class="lineNum">    1646 </span>            :   ** Apply vendor-specific filter if specified
+<span class="lineNum">    1647 </span>            :   */
+<span class="lineNum">    1648 </span><span class="lineCov">          1 :   if (filter) {</span>
+<span class="lineNum">    1649 </span><span class="lineCov">          1 :     if (sld_url || sld_body) {</span>
+<span class="lineNum">    1650 </span><span class="lineNoCov">          0 :       msSetError(MS_WMSERR,</span>
+<span class="lineNum">    1651 </span>            :                  &quot;Vendor-specific FILTER parameter cannot be used with SLD or SLD_BODY.&quot;,
+<span class="lineNum">    1652 </span>            :                  &quot;msWMSLoadGetMapParams()&quot;);
 <span class="lineNum">    1653 </span><span class="lineNoCov">          0 :       return msWMSException(map, nVersion, NULL, wms_exception_format);</span>
-<span class="lineNum">    1654 </span>            : 
-<span class="lineNum">    1655 </span><span class="lineCov">          1 :     nTmp = GetMapserverUnitUsingProj(&amp;(map-&gt;projection));</span>
-<span class="lineNum">    1656 </span><span class="lineCov">          1 :     if( nTmp != -1 ) {</span>
-<span class="lineNum">    1657 </span><span class="lineCov">          1 :       map-&gt;units = nTmp;</span>
+<span class="lineNum">    1654 </span>            :     }
+<span class="lineNum">    1655 </span>            : 
+<span class="lineNum">    1656 </span><span class="lineCov">          1 :     if (msWMSApplyFilter(map, nVersion, filter, need_axis_swap, wms_exception_format) == MS_FAILURE) {</span>
+<span class="lineNum">    1657 </span>            :       return MS_FAILURE;/* msWMSException(map, nVersion, &quot;InvalidFilterRequest&quot;); */
 <span class="lineNum">    1658 </span>            :     }
 <span class="lineNum">    1659 </span>            :   }
 <span class="lineNum">    1660 </span>            : 
