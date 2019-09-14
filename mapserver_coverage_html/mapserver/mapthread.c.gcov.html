@@ -335,49 +335,57 @@
 <span class="lineNum">     273 </span>            : /*                           msGetThreadId()                            */
 <span class="lineNum">     274 </span>            : /************************************************************************/
 <span class="lineNum">     275 </span>            : 
-<span class="lineNum">     276 </span>            : void* msGetThreadId()
-<span class="lineNum">     277 </span>            : 
-<span class="lineNum">     278 </span>            : {
-<span class="lineNum">     279 </span>            :   return GetCurrentThreadId();
-<span class="lineNum">     280 </span>            : }
+<span class="lineNum">     276 </span>            : union voidStartDWORD
+<span class="lineNum">     277 </span>            : {
+<span class="lineNum">     278 </span>            :     void* ptr;
+<span class="lineNum">     279 </span>            :     DWORD dword;
+<span class="lineNum">     280 </span>            : };
 <span class="lineNum">     281 </span>            : 
-<span class="lineNum">     282 </span>            : /************************************************************************/
-<span class="lineNum">     283 </span>            : /*                           msAcquireLock()                            */
-<span class="lineNum">     284 </span>            : /************************************************************************/
-<span class="lineNum">     285 </span>            : 
-<span class="lineNum">     286 </span>            : void msAcquireLock( int nLockId )
-<span class="lineNum">     287 </span>            : 
-<span class="lineNum">     288 </span>            : {
-<span class="lineNum">     289 </span>            :   if( mutexes_initialized == 0 )
-<span class="lineNum">     290 </span>            :     msThreadInit();
-<span class="lineNum">     291 </span>            : 
-<span class="lineNum">     292 </span>            :   assert( nLockId &gt;= 0 &amp;&amp; nLockId &lt; mutexes_initialized );
+<span class="lineNum">     282 </span>            : void* msGetThreadId()
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span>            : {
+<span class="lineNum">     285 </span>            :   union voidStartDWORD u;
+<span class="lineNum">     286 </span>            :   u.dword = GetCurrentThreadId();
+<span class="lineNum">     287 </span>            :   return u.ptr;
+<span class="lineNum">     288 </span>            : }
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span>            : /************************************************************************/
+<span class="lineNum">     291 </span>            : /*                           msAcquireLock()                            */
+<span class="lineNum">     292 </span>            : /************************************************************************/
 <span class="lineNum">     293 </span>            : 
-<span class="lineNum">     294 </span>            :   if( thread_debug )
-<span class="lineNum">     295 </span>            :     fprintf( stderr, &quot;msAcquireLock(%d/%s) (win32)\n&quot;,
-<span class="lineNum">     296 </span>            :              nLockId, lock_names[nLockId] );
-<span class="lineNum">     297 </span>            : 
-<span class="lineNum">     298 </span>            :   WaitForSingleObject( mutex_locks[nLockId], INFINITE );
-<span class="lineNum">     299 </span>            : }
-<span class="lineNum">     300 </span>            : 
-<span class="lineNum">     301 </span>            : /************************************************************************/
-<span class="lineNum">     302 </span>            : /*                           msReleaseLock()                            */
-<span class="lineNum">     303 </span>            : /************************************************************************/
-<span class="lineNum">     304 </span>            : 
-<span class="lineNum">     305 </span>            : void msReleaseLock( int nLockId )
-<span class="lineNum">     306 </span>            : 
-<span class="lineNum">     307 </span>            : {
-<span class="lineNum">     308 </span>            :   assert( mutexes_initialized &gt; 0 );
-<span class="lineNum">     309 </span>            :   assert( nLockId &gt;= 0 &amp;&amp; nLockId &lt; mutexes_initialized );
-<span class="lineNum">     310 </span>            : 
-<span class="lineNum">     311 </span>            :   if( thread_debug )
-<span class="lineNum">     312 </span>            :     fprintf( stderr, &quot;msReleaseLock(%d/%s) (win32)\n&quot;,
-<span class="lineNum">     313 </span>            :              nLockId, lock_names[nLockId] );
+<span class="lineNum">     294 </span>            : void msAcquireLock( int nLockId )
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span>            : {
+<span class="lineNum">     297 </span>            :   if( mutexes_initialized == 0 )
+<span class="lineNum">     298 </span>            :     msThreadInit();
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span>            :   assert( nLockId &gt;= 0 &amp;&amp; nLockId &lt; mutexes_initialized );
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span>            :   if( thread_debug )
+<span class="lineNum">     303 </span>            :     fprintf( stderr, &quot;msAcquireLock(%d/%s) (win32)\n&quot;,
+<span class="lineNum">     304 </span>            :              nLockId, lock_names[nLockId] );
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span>            :   WaitForSingleObject( mutex_locks[nLockId], INFINITE );
+<span class="lineNum">     307 </span>            : }
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span>            : /************************************************************************/
+<span class="lineNum">     310 </span>            : /*                           msReleaseLock()                            */
+<span class="lineNum">     311 </span>            : /************************************************************************/
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span>            : void msReleaseLock( int nLockId )
 <span class="lineNum">     314 </span>            : 
-<span class="lineNum">     315 </span>            :   ReleaseMutex( mutex_locks[nLockId] );
-<span class="lineNum">     316 </span>            : }
-<span class="lineNum">     317 </span>            : 
-<span class="lineNum">     318 </span>            : #endif /* defined(USE_THREAD) &amp;&amp; defined(_WIN32) */
+<span class="lineNum">     315 </span>            : {
+<span class="lineNum">     316 </span>            :   assert( mutexes_initialized &gt; 0 );
+<span class="lineNum">     317 </span>            :   assert( nLockId &gt;= 0 &amp;&amp; nLockId &lt; mutexes_initialized );
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            :   if( thread_debug )
+<span class="lineNum">     320 </span>            :     fprintf( stderr, &quot;msReleaseLock(%d/%s) (win32)\n&quot;,
+<span class="lineNum">     321 </span>            :              nLockId, lock_names[nLockId] );
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span>            :   ReleaseMutex( mutex_locks[nLockId] );
+<span class="lineNum">     324 </span>            : }
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span>            : #endif /* defined(USE_THREAD) &amp;&amp; defined(_WIN32) */
 </pre>
       </td>
     </tr>
