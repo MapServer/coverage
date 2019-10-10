@@ -32,8 +32,8 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntry">390</td>
-            <td class="headerCovTableEntry">521</td>
-            <td class="headerCovTableEntryLo">74.9 %</td>
+            <td class="headerCovTableEntry">524</td>
+            <td class="headerCovTableEntryLo">74.4 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -1241,262 +1241,268 @@
 <span class="lineNum">    1179 </span>            :       }
 <span class="lineNum">    1180 </span>            : 
 <span class="lineNum">    1181 </span><span class="lineCov">          1 :       if( layer-&gt;project ) {</span>
-<span class="lineNum">    1182 </span><span class="lineNoCov">          0 :         status =</span>
-<span class="lineNum">    1183 </span><span class="lineNoCov">          0 :           msProjectShape(&amp;layer-&gt;projection, &amp;layer-&gt;map-&gt;projection,</span>
-<span class="lineNum">    1184 </span>            :                          &amp;resultshape);
-<span class="lineNum">    1185 </span>            :       }
-<span class="lineNum">    1186 </span>            : 
-<span class="lineNum">    1187 </span>            :       /*
-<span class="lineNum">    1188 </span>            :       ** Write out the feature to OGR.
-<span class="lineNum">    1189 </span>            :       */
-<span class="lineNum">    1190 </span>            : 
-<span class="lineNum">    1191 </span><span class="lineCov">          1 :       if( status == MS_SUCCESS )</span>
-<span class="lineNum">    1192 </span><span class="lineCov">          1 :         status = msOGRWriteShape( layer, hOGRLayer, &amp;resultshape,</span>
-<span class="lineNum">    1193 </span>            :                                   item_list, nFirstOGRFieldIndex, pszFeatureid );
-<span class="lineNum">    1194 </span>            : 
-<span class="lineNum">    1195 </span><span class="lineCov">          1 :       if(status != MS_SUCCESS) {</span>
-<span class="lineNum">    1196 </span><span class="lineNoCov">          0 :         OGR_DS_Destroy( hDS );</span>
-<span class="lineNum">    1197 </span><span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1198 </span><span class="lineNoCov">          0 :         msGMLFreeItems(item_list);</span>
-<span class="lineNum">    1199 </span><span class="lineNoCov">          0 :         msFreeShape(&amp;resultshape);</span>
-<span class="lineNum">    1200 </span><span class="lineNoCov">          0 :         CSLDestroy(layer_options);</span>
-<span class="lineNum">    1201 </span><span class="lineNoCov">          0 :         return status;</span>
-<span class="lineNum">    1202 </span>            :       }
-<span class="lineNum">    1203 </span>            :     }
-<span class="lineNum">    1204 </span>            : 
-<span class="lineNum">    1205 </span><span class="lineCov">          1 :     msGMLFreeItems(item_list);</span>
-<span class="lineNum">    1206 </span><span class="lineCov">          1 :     msFreeShape(&amp;resultshape); /* init too */</span>
-<span class="lineNum">    1207 </span>            :   }
-<span class="lineNum">    1208 </span>            : 
-<span class="lineNum">    1209 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1210 </span>            :   /*      Close the datasource.                                           */
-<span class="lineNum">    1211 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1212 </span><span class="lineCov">          1 :   OGR_DS_Destroy( hDS );</span>
-<span class="lineNum">    1213 </span>            : 
-<span class="lineNum">    1214 </span><span class="lineCov">          1 :   CSLDestroy( layer_options );</span>
-<span class="lineNum">    1215 </span>            : 
-<span class="lineNum">    1216 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1217 </span>            :   /*      Get list of resulting files.                                    */
-<span class="lineNum">    1218 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1182 </span><span class="lineNoCov">          0 :         if( layer-&gt;reprojectorLayerToMap == NULL )</span>
+<span class="lineNum">    1183 </span>            :         {
+<span class="lineNum">    1184 </span><span class="lineNoCov">          0 :             layer-&gt;reprojectorLayerToMap = msProjectCreateReprojector(</span>
+<span class="lineNum">    1185 </span><span class="lineNoCov">          0 :                 &amp;layer-&gt;projection, &amp;layer-&gt;map-&gt;projection);</span>
+<span class="lineNum">    1186 </span>            :         }
+<span class="lineNum">    1187 </span><span class="lineNoCov">          0 :         if( layer-&gt;reprojectorLayerToMap )</span>
+<span class="lineNum">    1188 </span><span class="lineNoCov">          0 :             status = msProjectShapeEx(layer-&gt;reprojectorLayerToMap, &amp;resultshape);</span>
+<span class="lineNum">    1189 </span>            :         else
+<span class="lineNum">    1190 </span>            :             status = MS_FAILURE;
+<span class="lineNum">    1191 </span>            :       }
+<span class="lineNum">    1192 </span>            : 
+<span class="lineNum">    1193 </span>            :       /*
+<span class="lineNum">    1194 </span>            :       ** Write out the feature to OGR.
+<span class="lineNum">    1195 </span>            :       */
+<span class="lineNum">    1196 </span>            : 
+<span class="lineNum">    1197 </span><span class="lineCov">          1 :       if( status == MS_SUCCESS )</span>
+<span class="lineNum">    1198 </span><span class="lineCov">          1 :         status = msOGRWriteShape( layer, hOGRLayer, &amp;resultshape,</span>
+<span class="lineNum">    1199 </span>            :                                   item_list, nFirstOGRFieldIndex, pszFeatureid );
+<span class="lineNum">    1200 </span>            : 
+<span class="lineNum">    1201 </span><span class="lineCov">          1 :       if(status != MS_SUCCESS) {</span>
+<span class="lineNum">    1202 </span><span class="lineNoCov">          0 :         OGR_DS_Destroy( hDS );</span>
+<span class="lineNum">    1203 </span><span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1204 </span><span class="lineNoCov">          0 :         msGMLFreeItems(item_list);</span>
+<span class="lineNum">    1205 </span><span class="lineNoCov">          0 :         msFreeShape(&amp;resultshape);</span>
+<span class="lineNum">    1206 </span><span class="lineNoCov">          0 :         CSLDestroy(layer_options);</span>
+<span class="lineNum">    1207 </span><span class="lineNoCov">          0 :         return status;</span>
+<span class="lineNum">    1208 </span>            :       }
+<span class="lineNum">    1209 </span>            :     }
+<span class="lineNum">    1210 </span>            : 
+<span class="lineNum">    1211 </span><span class="lineCov">          1 :     msGMLFreeItems(item_list);</span>
+<span class="lineNum">    1212 </span><span class="lineCov">          1 :     msFreeShape(&amp;resultshape); /* init too */</span>
+<span class="lineNum">    1213 </span>            :   }
+<span class="lineNum">    1214 </span>            : 
+<span class="lineNum">    1215 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1216 </span>            :   /*      Close the datasource.                                           */
+<span class="lineNum">    1217 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1218 </span><span class="lineCov">          1 :   OGR_DS_Destroy( hDS );</span>
 <span class="lineNum">    1219 </span>            : 
-<span class="lineNum">    1220 </span><span class="lineCov">          1 :   if( EQUAL(form,&quot;simple&quot;) ) {</span>
-<span class="lineNum">    1221 </span><span class="lineCov">          1 :     file_list = CSLAddString( NULL, datasource_name );</span>
-<span class="lineNum">    1222 </span>            :   } else {
-<span class="lineNum">    1223 </span>            :     char datasource_path[MS_MAXPATHLEN];
-<span class="lineNum">    1224 </span>            : 
-<span class="lineNum">    1225 </span><span class="lineCov">          1 :     if( bDataSourceNameIsRequestDir )</span>
-<span class="lineNum">    1226 </span><span class="lineCov">          1 :         file_list = msOGRRecursiveFileList( datasource_name );</span>
-<span class="lineNum">    1227 </span>            :     else
-<span class="lineNum">    1228 </span>            :     {
-<span class="lineNum">    1229 </span><span class="lineCov">          1 :         strncpy( datasource_path, CPLGetPath( datasource_name ), MS_MAXPATHLEN-1 );</span>
-<span class="lineNum">    1230 </span><span class="lineCov">          1 :         file_list = msOGRRecursiveFileList( datasource_path );</span>
-<span class="lineNum">    1231 </span>            :     }
-<span class="lineNum">    1232 </span>            :   }
-<span class="lineNum">    1233 </span>            : 
-<span class="lineNum">    1234 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1235 </span>            :   /*      If our &quot;storage&quot; is stream then the output has already been     */
-<span class="lineNum">    1236 </span>            :   /*      sent back to the client and we don't need to copy it now.       */
-<span class="lineNum">    1237 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1238 </span><span class="lineCov">          1 :   if( EQUAL(storage,&quot;stream&quot;) ) {</span>
-<span class="lineNum">    1239 </span>            :     /* already done */
-<span class="lineNum">    1240 </span>            :   }
-<span class="lineNum">    1241 </span>            : 
-<span class="lineNum">    1242 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1243 </span>            :   /*      Handle case of simple file written to stdout.                   */
-<span class="lineNum">    1244 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1245 </span><span class="lineCov">          1 :   else if( EQUAL(form,&quot;simple&quot;) ) {</span>
-<span class="lineNum">    1246 </span>            :     char buffer[1024];
-<span class="lineNum">    1247 </span>            :     int  bytes_read;
-<span class="lineNum">    1248 </span>            :     FILE *fp;
-<span class="lineNum">    1249 </span>            :     const char *jsonp;
-<span class="lineNum">    1250 </span>            : 
-<span class="lineNum">    1251 </span><span class="lineCov">          1 :     jsonp = msGetOutputFormatOption( format, &quot;JSONP&quot;, NULL );</span>
-<span class="lineNum">    1252 </span><span class="lineCov">          1 :     if( sendheaders ) {</span>
-<span class="lineNum">    1253 </span><span class="lineCov">          1 :       if( !jsonp )</span>
-<span class="lineNum">    1254 </span><span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Disposition&quot;,&quot;attachment; filename=%s&quot;,</span>
-<span class="lineNum">    1255 </span>            :                      CPLGetFilename( file_list[0] ) );
-<span class="lineNum">    1256 </span><span class="lineCov">          1 :       if( format-&gt;mimetype )</span>
-<span class="lineNum">    1257 </span><span class="lineCov">          1 :         msIO_setHeader(&quot;Content-Type&quot;,&quot;%s&quot;,format-&gt;mimetype);</span>
-<span class="lineNum">    1258 </span><span class="lineCov">          1 :       msIO_sendHeaders();</span>
-<span class="lineNum">    1259 </span>            :     } else
-<span class="lineNum">    1260 </span><span class="lineNoCov">          0 :       msIO_fprintf( stdout, &quot;%c&quot;, 10 );</span>
-<span class="lineNum">    1261 </span>            : 
-<span class="lineNum">    1262 </span><span class="lineCov">          1 :     fp = VSIFOpenL( file_list[0], &quot;r&quot; );</span>
-<span class="lineNum">    1263 </span><span class="lineCov">          1 :     if( fp == NULL ) {</span>
-<span class="lineNum">    1264 </span><span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
-<span class="lineNum">    1265 </span>            :                   &quot;Failed to open result file '%s'.&quot;,
-<span class="lineNum">    1266 </span>            :                   &quot;msOGRWriteFromQuery()&quot;,
-<span class="lineNum">    1267 </span>            :                   file_list[0] );
-<span class="lineNum">    1268 </span><span class="lineNoCov">          0 :       msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1269 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">    1270 </span>            :     }
-<span class="lineNum">    1271 </span>            : 
-<span class="lineNum">    1272 </span><span class="lineCov">          1 :     if( jsonp != NULL ) msIO_fprintf( stdout, &quot;%s(&quot;, jsonp );</span>
-<span class="lineNum">    1273 </span>            : 
-<span class="lineNum">    1274 </span><span class="lineCov">          1 :     while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 )</span>
-<span class="lineNum">    1275 </span><span class="lineCov">          1 :       msIO_fwrite( buffer, 1, bytes_read, stdout );</span>
-<span class="lineNum">    1276 </span><span class="lineCov">          1 :     VSIFCloseL( fp );</span>
+<span class="lineNum">    1220 </span><span class="lineCov">          1 :   CSLDestroy( layer_options );</span>
+<span class="lineNum">    1221 </span>            : 
+<span class="lineNum">    1222 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1223 </span>            :   /*      Get list of resulting files.                                    */
+<span class="lineNum">    1224 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1225 </span>            : 
+<span class="lineNum">    1226 </span><span class="lineCov">          1 :   if( EQUAL(form,&quot;simple&quot;) ) {</span>
+<span class="lineNum">    1227 </span><span class="lineCov">          1 :     file_list = CSLAddString( NULL, datasource_name );</span>
+<span class="lineNum">    1228 </span>            :   } else {
+<span class="lineNum">    1229 </span>            :     char datasource_path[MS_MAXPATHLEN];
+<span class="lineNum">    1230 </span>            : 
+<span class="lineNum">    1231 </span><span class="lineCov">          1 :     if( bDataSourceNameIsRequestDir )</span>
+<span class="lineNum">    1232 </span><span class="lineCov">          1 :         file_list = msOGRRecursiveFileList( datasource_name );</span>
+<span class="lineNum">    1233 </span>            :     else
+<span class="lineNum">    1234 </span>            :     {
+<span class="lineNum">    1235 </span><span class="lineCov">          1 :         strncpy( datasource_path, CPLGetPath( datasource_name ), MS_MAXPATHLEN-1 );</span>
+<span class="lineNum">    1236 </span><span class="lineCov">          1 :         file_list = msOGRRecursiveFileList( datasource_path );</span>
+<span class="lineNum">    1237 </span>            :     }
+<span class="lineNum">    1238 </span>            :   }
+<span class="lineNum">    1239 </span>            : 
+<span class="lineNum">    1240 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1241 </span>            :   /*      If our &quot;storage&quot; is stream then the output has already been     */
+<span class="lineNum">    1242 </span>            :   /*      sent back to the client and we don't need to copy it now.       */
+<span class="lineNum">    1243 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1244 </span><span class="lineCov">          1 :   if( EQUAL(storage,&quot;stream&quot;) ) {</span>
+<span class="lineNum">    1245 </span>            :     /* already done */
+<span class="lineNum">    1246 </span>            :   }
+<span class="lineNum">    1247 </span>            : 
+<span class="lineNum">    1248 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1249 </span>            :   /*      Handle case of simple file written to stdout.                   */
+<span class="lineNum">    1250 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1251 </span><span class="lineCov">          1 :   else if( EQUAL(form,&quot;simple&quot;) ) {</span>
+<span class="lineNum">    1252 </span>            :     char buffer[1024];
+<span class="lineNum">    1253 </span>            :     int  bytes_read;
+<span class="lineNum">    1254 </span>            :     FILE *fp;
+<span class="lineNum">    1255 </span>            :     const char *jsonp;
+<span class="lineNum">    1256 </span>            : 
+<span class="lineNum">    1257 </span><span class="lineCov">          1 :     jsonp = msGetOutputFormatOption( format, &quot;JSONP&quot;, NULL );</span>
+<span class="lineNum">    1258 </span><span class="lineCov">          1 :     if( sendheaders ) {</span>
+<span class="lineNum">    1259 </span><span class="lineCov">          1 :       if( !jsonp )</span>
+<span class="lineNum">    1260 </span><span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Disposition&quot;,&quot;attachment; filename=%s&quot;,</span>
+<span class="lineNum">    1261 </span>            :                      CPLGetFilename( file_list[0] ) );
+<span class="lineNum">    1262 </span><span class="lineCov">          1 :       if( format-&gt;mimetype )</span>
+<span class="lineNum">    1263 </span><span class="lineCov">          1 :         msIO_setHeader(&quot;Content-Type&quot;,&quot;%s&quot;,format-&gt;mimetype);</span>
+<span class="lineNum">    1264 </span><span class="lineCov">          1 :       msIO_sendHeaders();</span>
+<span class="lineNum">    1265 </span>            :     } else
+<span class="lineNum">    1266 </span><span class="lineNoCov">          0 :       msIO_fprintf( stdout, &quot;%c&quot;, 10 );</span>
+<span class="lineNum">    1267 </span>            : 
+<span class="lineNum">    1268 </span><span class="lineCov">          1 :     fp = VSIFOpenL( file_list[0], &quot;r&quot; );</span>
+<span class="lineNum">    1269 </span><span class="lineCov">          1 :     if( fp == NULL ) {</span>
+<span class="lineNum">    1270 </span><span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1271 </span>            :                   &quot;Failed to open result file '%s'.&quot;,
+<span class="lineNum">    1272 </span>            :                   &quot;msOGRWriteFromQuery()&quot;,
+<span class="lineNum">    1273 </span>            :                   file_list[0] );
+<span class="lineNum">    1274 </span><span class="lineNoCov">          0 :       msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1275 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    1276 </span>            :     }
 <span class="lineNum">    1277 </span>            : 
-<span class="lineNum">    1278 </span><span class="lineCov">          1 :     if (jsonp != NULL) msIO_fprintf( stdout, &quot;);\n&quot; );</span>
-<span class="lineNum">    1279 </span>            :   }
-<span class="lineNum">    1280 </span>            : 
-<span class="lineNum">    1281 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1282 </span>            :   /*      Handle the case of a multi-part result.                         */
-<span class="lineNum">    1283 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1284 </span><span class="lineCov">          1 :   else if( EQUAL(form,&quot;multipart&quot;) ) {</span>
-<span class="lineNum">    1285 </span>            :     char **papszAdditionalFiles;
-<span class="lineNum">    1286 </span>            :     static const char *boundary = &quot;xxOGRBoundaryxx&quot;;
-<span class="lineNum">    1287 </span><span class="lineCov">          1 :     msIO_setHeader(&quot;Content-Type&quot;,&quot;multipart/mixed; boundary=%s&quot;,boundary);</span>
-<span class="lineNum">    1288 </span><span class="lineCov">          1 :     msIO_sendHeaders();</span>
-<span class="lineNum">    1289 </span><span class="lineCov">          1 :     msIO_fprintf(stdout,&quot;--%s\r\n&quot;,boundary );</span>
-<span class="lineNum">    1290 </span>            : 
-<span class="lineNum">    1291 </span><span class="lineCov">          1 :     papszAdditionalFiles = msOGROutputGetAdditonalFiles(map);</span>
-<span class="lineNum">    1292 </span><span class="lineCov">          1 :     file_list = msCSLConcatenate(file_list, papszAdditionalFiles);</span>
-<span class="lineNum">    1293 </span><span class="lineCov">          1 :     CSLDestroy(papszAdditionalFiles);</span>
-<span class="lineNum">    1294 </span>            : 
-<span class="lineNum">    1295 </span><span class="lineCov">          1 :     for( i = 0; file_list != NULL &amp;&amp; file_list[i] != NULL; i++ ) {</span>
-<span class="lineNum">    1296 </span>            :       FILE *fp;
-<span class="lineNum">    1297 </span>            :       int bytes_read;
-<span class="lineNum">    1298 </span>            :       char buffer[1024];
-<span class="lineNum">    1299 </span>            : 
-<span class="lineNum">    1300 </span><span class="lineCov">          1 :       if( sendheaders )</span>
-<span class="lineNum">    1301 </span><span class="lineCov">          1 :         msIO_fprintf( stdout,</span>
-<span class="lineNum">    1302 </span>            :                       &quot;Content-Disposition: attachment; filename=%s\r\n&quot;
-<span class="lineNum">    1303 </span>            :                       &quot;Content-Type: application/binary\r\n&quot;
-<span class="lineNum">    1304 </span>            :                       &quot;Content-Transfer-Encoding: binary\r\n\r\n&quot;,
-<span class="lineNum">    1305 </span>            :                       CPLGetFilename( file_list[i] ));
-<span class="lineNum">    1306 </span>            : 
-<span class="lineNum">    1307 </span>            : 
-<span class="lineNum">    1308 </span><span class="lineCov">          1 :       fp = VSIFOpenL( file_list[i], &quot;r&quot; );</span>
-<span class="lineNum">    1309 </span><span class="lineCov">          1 :       if( fp == NULL ) {</span>
-<span class="lineNum">    1310 </span><span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
-<span class="lineNum">    1311 </span>            :                     &quot;Failed to open result file '%s'.&quot;,
-<span class="lineNum">    1312 </span>            :                     &quot;msOGRWriteFromQuery()&quot;,
-<span class="lineNum">    1313 </span>            :                     file_list[0] );
-<span class="lineNum">    1314 </span><span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1315 </span><span class="lineNoCov">          0 :         return MS_FAILURE;</span>
-<span class="lineNum">    1316 </span>            :       }
-<span class="lineNum">    1317 </span>            : 
-<span class="lineNum">    1318 </span><span class="lineCov">          1 :       while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 )</span>
-<span class="lineNum">    1319 </span><span class="lineCov">          1 :         msIO_fwrite( buffer, 1, bytes_read, stdout );</span>
-<span class="lineNum">    1320 </span><span class="lineCov">          1 :       VSIFCloseL( fp );</span>
-<span class="lineNum">    1321 </span>            : 
-<span class="lineNum">    1322 </span><span class="lineCov">          1 :       if (file_list[i+1] == NULL)</span>
-<span class="lineNum">    1323 </span><span class="lineCov">          1 :         msIO_fprintf( stdout, &quot;\r\n--%s--\r\n&quot;, boundary );</span>
-<span class="lineNum">    1324 </span>            :       else
-<span class="lineNum">    1325 </span><span class="lineCov">          1 :         msIO_fprintf( stdout, &quot;\r\n--%s\r\n&quot;, boundary );</span>
-<span class="lineNum">    1326 </span>            :     }
-<span class="lineNum">    1327 </span>            :   }
-<span class="lineNum">    1328 </span>            : 
-<span class="lineNum">    1329 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1330 </span>            :   /*      Handle the case of a zip file result.                           */
-<span class="lineNum">    1331 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1332 </span><span class="lineCov">          1 :   else if( EQUAL(form,&quot;zip&quot;) ) {</span>
-<span class="lineNum">    1333 </span>            : #if !defined(CPL_ZIP_API_OFFERED)
-<span class="lineNum">    1334 </span>            :     msSetError( MS_MISCERR, &quot;FORM=zip selected, but CPL ZIP support unavailable, perhaps you need to upgrade to GDAL/OGR 1.8?&quot;,
-<span class="lineNum">    1335 </span>            :                 &quot;msOGRWriteFromQuery()&quot;);
-<span class="lineNum">    1336 </span>            :     msOGRCleanupDS( datasource_name );
-<span class="lineNum">    1337 </span>            :     return MS_FAILURE;
-<span class="lineNum">    1338 </span>            : #else
-<span class="lineNum">    1339 </span>            :     FILE *fp;
-<span class="lineNum">    1340 </span><span class="lineCov">          1 :     char *zip_filename = msTmpFile(map, NULL, &quot;/vsimem/ogrzip/&quot;, &quot;zip&quot; );</span>
-<span class="lineNum">    1341 </span>            :     void *hZip;
-<span class="lineNum">    1342 </span>            :     int bytes_read;
-<span class="lineNum">    1343 </span>            :     char buffer[1024];
-<span class="lineNum">    1344 </span>            :     char **papszAdditionalFiles;
-<span class="lineNum">    1345 </span>            : 
-<span class="lineNum">    1346 </span><span class="lineCov">          1 :     hZip = CPLCreateZip( zip_filename, NULL );</span>
-<span class="lineNum">    1347 </span>            : 
-<span class="lineNum">    1348 </span><span class="lineCov">          1 :     papszAdditionalFiles = msOGROutputGetAdditonalFiles(map);</span>
-<span class="lineNum">    1349 </span><span class="lineCov">          1 :     file_list = msCSLConcatenate(file_list, papszAdditionalFiles);</span>
-<span class="lineNum">    1350 </span><span class="lineCov">          1 :     CSLDestroy(papszAdditionalFiles);</span>
+<span class="lineNum">    1278 </span><span class="lineCov">          1 :     if( jsonp != NULL ) msIO_fprintf( stdout, &quot;%s(&quot;, jsonp );</span>
+<span class="lineNum">    1279 </span>            : 
+<span class="lineNum">    1280 </span><span class="lineCov">          1 :     while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 )</span>
+<span class="lineNum">    1281 </span><span class="lineCov">          1 :       msIO_fwrite( buffer, 1, bytes_read, stdout );</span>
+<span class="lineNum">    1282 </span><span class="lineCov">          1 :     VSIFCloseL( fp );</span>
+<span class="lineNum">    1283 </span>            : 
+<span class="lineNum">    1284 </span><span class="lineCov">          1 :     if (jsonp != NULL) msIO_fprintf( stdout, &quot;);\n&quot; );</span>
+<span class="lineNum">    1285 </span>            :   }
+<span class="lineNum">    1286 </span>            : 
+<span class="lineNum">    1287 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1288 </span>            :   /*      Handle the case of a multi-part result.                         */
+<span class="lineNum">    1289 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1290 </span><span class="lineCov">          1 :   else if( EQUAL(form,&quot;multipart&quot;) ) {</span>
+<span class="lineNum">    1291 </span>            :     char **papszAdditionalFiles;
+<span class="lineNum">    1292 </span>            :     static const char *boundary = &quot;xxOGRBoundaryxx&quot;;
+<span class="lineNum">    1293 </span><span class="lineCov">          1 :     msIO_setHeader(&quot;Content-Type&quot;,&quot;multipart/mixed; boundary=%s&quot;,boundary);</span>
+<span class="lineNum">    1294 </span><span class="lineCov">          1 :     msIO_sendHeaders();</span>
+<span class="lineNum">    1295 </span><span class="lineCov">          1 :     msIO_fprintf(stdout,&quot;--%s\r\n&quot;,boundary );</span>
+<span class="lineNum">    1296 </span>            : 
+<span class="lineNum">    1297 </span><span class="lineCov">          1 :     papszAdditionalFiles = msOGROutputGetAdditonalFiles(map);</span>
+<span class="lineNum">    1298 </span><span class="lineCov">          1 :     file_list = msCSLConcatenate(file_list, papszAdditionalFiles);</span>
+<span class="lineNum">    1299 </span><span class="lineCov">          1 :     CSLDestroy(papszAdditionalFiles);</span>
+<span class="lineNum">    1300 </span>            : 
+<span class="lineNum">    1301 </span><span class="lineCov">          1 :     for( i = 0; file_list != NULL &amp;&amp; file_list[i] != NULL; i++ ) {</span>
+<span class="lineNum">    1302 </span>            :       FILE *fp;
+<span class="lineNum">    1303 </span>            :       int bytes_read;
+<span class="lineNum">    1304 </span>            :       char buffer[1024];
+<span class="lineNum">    1305 </span>            : 
+<span class="lineNum">    1306 </span><span class="lineCov">          1 :       if( sendheaders )</span>
+<span class="lineNum">    1307 </span><span class="lineCov">          1 :         msIO_fprintf( stdout,</span>
+<span class="lineNum">    1308 </span>            :                       &quot;Content-Disposition: attachment; filename=%s\r\n&quot;
+<span class="lineNum">    1309 </span>            :                       &quot;Content-Type: application/binary\r\n&quot;
+<span class="lineNum">    1310 </span>            :                       &quot;Content-Transfer-Encoding: binary\r\n\r\n&quot;,
+<span class="lineNum">    1311 </span>            :                       CPLGetFilename( file_list[i] ));
+<span class="lineNum">    1312 </span>            : 
+<span class="lineNum">    1313 </span>            : 
+<span class="lineNum">    1314 </span><span class="lineCov">          1 :       fp = VSIFOpenL( file_list[i], &quot;r&quot; );</span>
+<span class="lineNum">    1315 </span><span class="lineCov">          1 :       if( fp == NULL ) {</span>
+<span class="lineNum">    1316 </span><span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1317 </span>            :                     &quot;Failed to open result file '%s'.&quot;,
+<span class="lineNum">    1318 </span>            :                     &quot;msOGRWriteFromQuery()&quot;,
+<span class="lineNum">    1319 </span>            :                     file_list[0] );
+<span class="lineNum">    1320 </span><span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1321 </span><span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">    1322 </span>            :       }
+<span class="lineNum">    1323 </span>            : 
+<span class="lineNum">    1324 </span><span class="lineCov">          1 :       while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 )</span>
+<span class="lineNum">    1325 </span><span class="lineCov">          1 :         msIO_fwrite( buffer, 1, bytes_read, stdout );</span>
+<span class="lineNum">    1326 </span><span class="lineCov">          1 :       VSIFCloseL( fp );</span>
+<span class="lineNum">    1327 </span>            : 
+<span class="lineNum">    1328 </span><span class="lineCov">          1 :       if (file_list[i+1] == NULL)</span>
+<span class="lineNum">    1329 </span><span class="lineCov">          1 :         msIO_fprintf( stdout, &quot;\r\n--%s--\r\n&quot;, boundary );</span>
+<span class="lineNum">    1330 </span>            :       else
+<span class="lineNum">    1331 </span><span class="lineCov">          1 :         msIO_fprintf( stdout, &quot;\r\n--%s\r\n&quot;, boundary );</span>
+<span class="lineNum">    1332 </span>            :     }
+<span class="lineNum">    1333 </span>            :   }
+<span class="lineNum">    1334 </span>            : 
+<span class="lineNum">    1335 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1336 </span>            :   /*      Handle the case of a zip file result.                           */
+<span class="lineNum">    1337 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1338 </span><span class="lineCov">          1 :   else if( EQUAL(form,&quot;zip&quot;) ) {</span>
+<span class="lineNum">    1339 </span>            : #if !defined(CPL_ZIP_API_OFFERED)
+<span class="lineNum">    1340 </span>            :     msSetError( MS_MISCERR, &quot;FORM=zip selected, but CPL ZIP support unavailable, perhaps you need to upgrade to GDAL/OGR 1.8?&quot;,
+<span class="lineNum">    1341 </span>            :                 &quot;msOGRWriteFromQuery()&quot;);
+<span class="lineNum">    1342 </span>            :     msOGRCleanupDS( datasource_name );
+<span class="lineNum">    1343 </span>            :     return MS_FAILURE;
+<span class="lineNum">    1344 </span>            : #else
+<span class="lineNum">    1345 </span>            :     FILE *fp;
+<span class="lineNum">    1346 </span><span class="lineCov">          1 :     char *zip_filename = msTmpFile(map, NULL, &quot;/vsimem/ogrzip/&quot;, &quot;zip&quot; );</span>
+<span class="lineNum">    1347 </span>            :     void *hZip;
+<span class="lineNum">    1348 </span>            :     int bytes_read;
+<span class="lineNum">    1349 </span>            :     char buffer[1024];
+<span class="lineNum">    1350 </span>            :     char **papszAdditionalFiles;
 <span class="lineNum">    1351 </span>            : 
-<span class="lineNum">    1352 </span><span class="lineCov">          1 :     for( i = 0; file_list != NULL &amp;&amp; file_list[i] != NULL; i++ ) {</span>
+<span class="lineNum">    1352 </span><span class="lineCov">          1 :     hZip = CPLCreateZip( zip_filename, NULL );</span>
 <span class="lineNum">    1353 </span>            : 
-<span class="lineNum">    1354 </span><span class="lineCov">          1 :       CPLCreateFileInZip( hZip, CPLGetFilename(file_list[i]), NULL );</span>
-<span class="lineNum">    1355 </span>            : 
-<span class="lineNum">    1356 </span><span class="lineCov">          1 :       fp = VSIFOpenL( file_list[i], &quot;r&quot; );</span>
-<span class="lineNum">    1357 </span><span class="lineCov">          1 :       if( fp == NULL ) {</span>
-<span class="lineNum">    1358 </span><span class="lineNoCov">          0 :         CPLCloseZip( hZip );</span>
-<span class="lineNum">    1359 </span><span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
-<span class="lineNum">    1360 </span>            :                     &quot;Failed to open result file '%s'.&quot;,
-<span class="lineNum">    1361 </span>            :                     &quot;msOGRWriteFromQuery()&quot;,
-<span class="lineNum">    1362 </span>            :                     file_list[0] );
-<span class="lineNum">    1363 </span><span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1364 </span><span class="lineNoCov">          0 :         return MS_FAILURE;</span>
-<span class="lineNum">    1365 </span>            :       }
-<span class="lineNum">    1366 </span>            : 
-<span class="lineNum">    1367 </span><span class="lineCov">          1 :       while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 ) {</span>
-<span class="lineNum">    1368 </span><span class="lineCov">          1 :         CPLWriteFileInZip( hZip, buffer, bytes_read );</span>
-<span class="lineNum">    1369 </span>            :       }
-<span class="lineNum">    1370 </span><span class="lineCov">          1 :       VSIFCloseL( fp );</span>
-<span class="lineNum">    1371 </span>            : 
-<span class="lineNum">    1372 </span><span class="lineCov">          1 :       CPLCloseFileInZip( hZip );</span>
-<span class="lineNum">    1373 </span>            :     }
-<span class="lineNum">    1374 </span><span class="lineCov">          1 :     CPLCloseZip( hZip );</span>
-<span class="lineNum">    1375 </span>            : 
-<span class="lineNum">    1376 </span><span class="lineCov">          1 :     if( sendheaders ) {</span>
-<span class="lineNum">    1377 </span>            :       const char* zip_filename = fo_filename;
-<span class="lineNum">    1378 </span>            :       /* Make sure the filename is ended by .zip */
-<span class="lineNum">    1379 </span><span class="lineCov">          1 :       if( !EQUAL(CPLGetExtension(zip_filename), &quot;zip&quot;) &amp;&amp;</span>
-<span class="lineNum">    1380 </span><span class="lineNoCov">          0 :           !EQUAL(CPLGetExtension(zip_filename), &quot;kmz&quot;) )</span>
-<span class="lineNum">    1381 </span><span class="lineNoCov">          0 :           zip_filename = CPLFormFilename(NULL, fo_filename, &quot;zip&quot;);</span>
-<span class="lineNum">    1382 </span><span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Disposition&quot;,&quot;attachment; filename=%s&quot;,zip_filename);</span>
-<span class="lineNum">    1383 </span><span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Type&quot;,&quot;application/zip&quot;);</span>
-<span class="lineNum">    1384 </span><span class="lineCov">          1 :       msIO_sendHeaders();</span>
-<span class="lineNum">    1385 </span>            :     }
-<span class="lineNum">    1386 </span>            : 
-<span class="lineNum">    1387 </span><span class="lineCov">          1 :     fp = VSIFOpenL( zip_filename, &quot;r&quot; );</span>
-<span class="lineNum">    1388 </span><span class="lineCov">          1 :     if( fp == NULL ) {</span>
-<span class="lineNum">    1389 </span><span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
-<span class="lineNum">    1390 </span>            :                   &quot;Failed to open zip file '%s'.&quot;,
-<span class="lineNum">    1391 </span>            :                   &quot;msOGRWriteFromQuery()&quot;,
-<span class="lineNum">    1392 </span>            :                   file_list[0] );
-<span class="lineNum">    1393 </span><span class="lineNoCov">          0 :       msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1394 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">    1395 </span>            :     }
-<span class="lineNum">    1396 </span>            : 
-<span class="lineNum">    1397 </span><span class="lineCov">          1 :     while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 )</span>
-<span class="lineNum">    1398 </span><span class="lineCov">          1 :       msIO_fwrite( buffer, 1, bytes_read, stdout );</span>
-<span class="lineNum">    1399 </span><span class="lineCov">          1 :     VSIFCloseL( fp );</span>
-<span class="lineNum">    1400 </span>            : 
-<span class="lineNum">    1401 </span><span class="lineCov">          1 :     msFree( zip_filename );</span>
-<span class="lineNum">    1402 </span>            : #endif /* defined(CPL_ZIP_API_OFFERED) */
-<span class="lineNum">    1403 </span>            :   }
-<span class="lineNum">    1404 </span>            : 
-<span class="lineNum">    1405 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1406 </span>            :   /*      Handle illegal form value.                                      */
-<span class="lineNum">    1407 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1408 </span>            :   else {
-<span class="lineNum">    1409 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Unsupported FORM=%s value.&quot;,</span>
-<span class="lineNum">    1410 </span>            :                 &quot;msOGRWriteFromQuery()&quot;, form );
-<span class="lineNum">    1411 </span><span class="lineNoCov">          0 :     msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1412 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1413 </span>            :   }
-<span class="lineNum">    1414 </span>            : 
-<span class="lineNum">    1415 </span><span class="lineCov">          1 :   msOGRCleanupDS( datasource_name );</span>
-<span class="lineNum">    1416 </span>            : 
-<span class="lineNum">    1417 </span><span class="lineCov">          1 :   CSLDestroy( file_list );</span>
-<span class="lineNum">    1418 </span>            : 
-<span class="lineNum">    1419 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1420 </span>            : #endif /* def USE_OGR */
-<span class="lineNum">    1421 </span>            : }
+<span class="lineNum">    1354 </span><span class="lineCov">          1 :     papszAdditionalFiles = msOGROutputGetAdditonalFiles(map);</span>
+<span class="lineNum">    1355 </span><span class="lineCov">          1 :     file_list = msCSLConcatenate(file_list, papszAdditionalFiles);</span>
+<span class="lineNum">    1356 </span><span class="lineCov">          1 :     CSLDestroy(papszAdditionalFiles);</span>
+<span class="lineNum">    1357 </span>            : 
+<span class="lineNum">    1358 </span><span class="lineCov">          1 :     for( i = 0; file_list != NULL &amp;&amp; file_list[i] != NULL; i++ ) {</span>
+<span class="lineNum">    1359 </span>            : 
+<span class="lineNum">    1360 </span><span class="lineCov">          1 :       CPLCreateFileInZip( hZip, CPLGetFilename(file_list[i]), NULL );</span>
+<span class="lineNum">    1361 </span>            : 
+<span class="lineNum">    1362 </span><span class="lineCov">          1 :       fp = VSIFOpenL( file_list[i], &quot;r&quot; );</span>
+<span class="lineNum">    1363 </span><span class="lineCov">          1 :       if( fp == NULL ) {</span>
+<span class="lineNum">    1364 </span><span class="lineNoCov">          0 :         CPLCloseZip( hZip );</span>
+<span class="lineNum">    1365 </span><span class="lineNoCov">          0 :         msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1366 </span>            :                     &quot;Failed to open result file '%s'.&quot;,
+<span class="lineNum">    1367 </span>            :                     &quot;msOGRWriteFromQuery()&quot;,
+<span class="lineNum">    1368 </span>            :                     file_list[0] );
+<span class="lineNum">    1369 </span><span class="lineNoCov">          0 :         msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1370 </span><span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">    1371 </span>            :       }
+<span class="lineNum">    1372 </span>            : 
+<span class="lineNum">    1373 </span><span class="lineCov">          1 :       while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 ) {</span>
+<span class="lineNum">    1374 </span><span class="lineCov">          1 :         CPLWriteFileInZip( hZip, buffer, bytes_read );</span>
+<span class="lineNum">    1375 </span>            :       }
+<span class="lineNum">    1376 </span><span class="lineCov">          1 :       VSIFCloseL( fp );</span>
+<span class="lineNum">    1377 </span>            : 
+<span class="lineNum">    1378 </span><span class="lineCov">          1 :       CPLCloseFileInZip( hZip );</span>
+<span class="lineNum">    1379 </span>            :     }
+<span class="lineNum">    1380 </span><span class="lineCov">          1 :     CPLCloseZip( hZip );</span>
+<span class="lineNum">    1381 </span>            : 
+<span class="lineNum">    1382 </span><span class="lineCov">          1 :     if( sendheaders ) {</span>
+<span class="lineNum">    1383 </span>            :       const char* zip_filename = fo_filename;
+<span class="lineNum">    1384 </span>            :       /* Make sure the filename is ended by .zip */
+<span class="lineNum">    1385 </span><span class="lineCov">          1 :       if( !EQUAL(CPLGetExtension(zip_filename), &quot;zip&quot;) &amp;&amp;</span>
+<span class="lineNum">    1386 </span><span class="lineNoCov">          0 :           !EQUAL(CPLGetExtension(zip_filename), &quot;kmz&quot;) )</span>
+<span class="lineNum">    1387 </span><span class="lineNoCov">          0 :           zip_filename = CPLFormFilename(NULL, fo_filename, &quot;zip&quot;);</span>
+<span class="lineNum">    1388 </span><span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Disposition&quot;,&quot;attachment; filename=%s&quot;,zip_filename);</span>
+<span class="lineNum">    1389 </span><span class="lineCov">          1 :       msIO_setHeader(&quot;Content-Type&quot;,&quot;application/zip&quot;);</span>
+<span class="lineNum">    1390 </span><span class="lineCov">          1 :       msIO_sendHeaders();</span>
+<span class="lineNum">    1391 </span>            :     }
+<span class="lineNum">    1392 </span>            : 
+<span class="lineNum">    1393 </span><span class="lineCov">          1 :     fp = VSIFOpenL( zip_filename, &quot;r&quot; );</span>
+<span class="lineNum">    1394 </span><span class="lineCov">          1 :     if( fp == NULL ) {</span>
+<span class="lineNum">    1395 </span><span class="lineNoCov">          0 :       msSetError( MS_MISCERR,</span>
+<span class="lineNum">    1396 </span>            :                   &quot;Failed to open zip file '%s'.&quot;,
+<span class="lineNum">    1397 </span>            :                   &quot;msOGRWriteFromQuery()&quot;,
+<span class="lineNum">    1398 </span>            :                   file_list[0] );
+<span class="lineNum">    1399 </span><span class="lineNoCov">          0 :       msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1400 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    1401 </span>            :     }
+<span class="lineNum">    1402 </span>            : 
+<span class="lineNum">    1403 </span><span class="lineCov">          1 :     while( (bytes_read = VSIFReadL( buffer, 1, sizeof(buffer), fp )) &gt; 0 )</span>
+<span class="lineNum">    1404 </span><span class="lineCov">          1 :       msIO_fwrite( buffer, 1, bytes_read, stdout );</span>
+<span class="lineNum">    1405 </span><span class="lineCov">          1 :     VSIFCloseL( fp );</span>
+<span class="lineNum">    1406 </span>            : 
+<span class="lineNum">    1407 </span><span class="lineCov">          1 :     msFree( zip_filename );</span>
+<span class="lineNum">    1408 </span>            : #endif /* defined(CPL_ZIP_API_OFFERED) */
+<span class="lineNum">    1409 </span>            :   }
+<span class="lineNum">    1410 </span>            : 
+<span class="lineNum">    1411 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1412 </span>            :   /*      Handle illegal form value.                                      */
+<span class="lineNum">    1413 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1414 </span>            :   else {
+<span class="lineNum">    1415 </span><span class="lineNoCov">          0 :     msSetError( MS_MISCERR, &quot;Unsupported FORM=%s value.&quot;,</span>
+<span class="lineNum">    1416 </span>            :                 &quot;msOGRWriteFromQuery()&quot;, form );
+<span class="lineNum">    1417 </span><span class="lineNoCov">          0 :     msOGRCleanupDS( datasource_name );</span>
+<span class="lineNum">    1418 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1419 </span>            :   }
+<span class="lineNum">    1420 </span>            : 
+<span class="lineNum">    1421 </span><span class="lineCov">          1 :   msOGRCleanupDS( datasource_name );</span>
 <span class="lineNum">    1422 </span>            : 
-<span class="lineNum">    1423 </span>            : /************************************************************************/
-<span class="lineNum">    1424 </span>            : /*                     msPopulateRenderVTableOGR()                      */
-<a name="1425"><span class="lineNum">    1425 </span>            : /************************************************************************/</a>
-<span class="lineNum">    1426 </span>            : 
-<span class="lineNum">    1427 </span><span class="lineNoCov">          0 : int msPopulateRendererVTableOGR( rendererVTableObj *renderer )</span>
-<span class="lineNum">    1428 </span>            : {
-<span class="lineNum">    1429 </span>            : #ifdef USE_OGR
-<span class="lineNum">    1430 </span>            :   /* we aren't really a normal renderer so we leave everything default */
-<span class="lineNum">    1431 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1432 </span>            : #else
-<span class="lineNum">    1433 </span>            :   msSetError(MS_OGRERR, &quot;OGR Driver requested but is not built in&quot;,
-<span class="lineNum">    1434 </span>            :              &quot;msPopulateRendererVTableOGR()&quot;);
-<span class="lineNum">    1435 </span>            :   return MS_FAILURE;
-<span class="lineNum">    1436 </span>            : #endif
-<span class="lineNum">    1437 </span>            : }
+<span class="lineNum">    1423 </span><span class="lineCov">          1 :   CSLDestroy( file_list );</span>
+<span class="lineNum">    1424 </span>            : 
+<span class="lineNum">    1425 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1426 </span>            : #endif /* def USE_OGR */
+<span class="lineNum">    1427 </span>            : }
+<span class="lineNum">    1428 </span>            : 
+<span class="lineNum">    1429 </span>            : /************************************************************************/
+<span class="lineNum">    1430 </span>            : /*                     msPopulateRenderVTableOGR()                      */
+<a name="1431"><span class="lineNum">    1431 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1432 </span>            : 
+<span class="lineNum">    1433 </span><span class="lineNoCov">          0 : int msPopulateRendererVTableOGR( rendererVTableObj *renderer )</span>
+<span class="lineNum">    1434 </span>            : {
+<span class="lineNum">    1435 </span>            : #ifdef USE_OGR
+<span class="lineNum">    1436 </span>            :   /* we aren't really a normal renderer so we leave everything default */
+<span class="lineNum">    1437 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1438 </span>            : #else
+<span class="lineNum">    1439 </span>            :   msSetError(MS_OGRERR, &quot;OGR Driver requested but is not built in&quot;,
+<span class="lineNum">    1440 </span>            :              &quot;msPopulateRendererVTableOGR()&quot;);
+<span class="lineNum">    1441 </span>            :   return MS_FAILURE;
+<span class="lineNum">    1442 </span>            : #endif
+<span class="lineNum">    1443 </span>            : }
 </pre>
       </td>
     </tr>

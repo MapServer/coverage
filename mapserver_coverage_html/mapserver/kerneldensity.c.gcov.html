@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">135</td>
-            <td class="headerCovTableEntry">161</td>
-            <td class="headerCovTableEntryMed">83.9 %</td>
+            <td class="headerCovTableEntry">138</td>
+            <td class="headerCovTableEntry">167</td>
+            <td class="headerCovTableEntryMed">82.6 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -263,151 +263,164 @@
 <span class="lineNum">     201 </span><span class="lineCov">          1 :         values = (float*) msSmallCalloc(im_width * im_height, sizeof(float));</span>
 <span class="lineNum">     202 </span>            : #ifdef USE_PROJ
 <span class="lineNum">     203 </span><span class="lineCov">          1 :       if(layer-&gt;project)</span>
-<span class="lineNum">     204 </span><span class="lineCov">          1 :         msProjectShape(&amp;layer-&gt;projection, &amp;map-&gt;projection, &amp;shape);</span>
-<span class="lineNum">     205 </span>            : #endif
-<span class="lineNum">     206 </span>            :       
-<span class="lineNum">     207 </span>            :       /* the weight for the sample is set to 1.0 by default. If the
-<span class="lineNum">     208 </span>            :        * layer has some classes defined, we will read the weight from
-<span class="lineNum">     209 </span>            :        * the class-&gt;style-&gt;size (which can be binded to an attribute)
-<span class="lineNum">     210 </span>            :        */
-<span class="lineNum">     211 </span><span class="lineCov">          1 :       if(layer-&gt;numclasses &gt; 0) {</span>
-<span class="lineNum">     212 </span><span class="lineCov">          1 :         c = msShapeGetClass(layer, map, &amp;shape, classgroup, nclasses);</span>
-<span class="lineNum">     213 </span><span class="lineCov">          1 :         if((c == -1) || (layer-&gt;class[c]-&gt;status == MS_OFF)) {</span>
-<span class="lineNum">     214 </span>            :           goto nextshape; /* no class matched, skip */
+<span class="lineNum">     204 </span>            :       {
+<span class="lineNum">     205 </span><span class="lineCov">          1 :         if( layer-&gt;reprojectorLayerToMap == NULL )</span>
+<span class="lineNum">     206 </span>            :         {
+<span class="lineNum">     207 </span><span class="lineCov">          1 :             layer-&gt;reprojectorLayerToMap = msProjectCreateReprojector(</span>
+<span class="lineNum">     208 </span>            :                 &amp;layer-&gt;projection, &amp;map-&gt;projection);
+<span class="lineNum">     209 </span><span class="lineCov">          1 :             if( layer-&gt;reprojectorLayerToMap == NULL )</span>
+<span class="lineNum">     210 </span>            :             {
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :                 msFreeShape(&amp;shape);</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :                 msLayerClose(layer);</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                 return MS_FAILURE;</span>
+<span class="lineNum">     214 </span>            :             }
 <span class="lineNum">     215 </span>            :         }
-<span class="lineNum">     216 </span><span class="lineNoCov">          0 :         for (s = 0; s &lt; layer-&gt;class[c]-&gt;numstyles; s++) {</span>
-<span class="lineNum">     217 </span><span class="lineCov">          1 :           if (msScaleInBounds(map-&gt;scaledenom,</span>
-<span class="lineNum">     218 </span>            :                   layer-&gt;class[c]-&gt;styles[s]-&gt;minscaledenom,
-<span class="lineNum">     219 </span><span class="lineCov">          1 :                   layer-&gt;class[c]-&gt;styles[s]-&gt;maxscaledenom)) {</span>
-<span class="lineNum">     220 </span><span class="lineCov">          1 :             if(layer-&gt;class[c]-&gt;styles[s]-&gt;bindings[MS_STYLE_BINDING_SIZE].index != -1) {</span>
-<span class="lineNum">     221 </span><span class="lineCov">          1 :               weight = atof(shape.values[layer-&gt;class[c]-&gt;styles[s]-&gt;bindings[MS_STYLE_BINDING_SIZE].index]);</span>
-<span class="lineNum">     222 </span>            :             } else {
-<span class="lineNum">     223 </span><span class="lineCov">          1 :               weight = layer-&gt;class[c]-&gt;styles[s]-&gt;size;</span>
-<span class="lineNum">     224 </span>            :             }
-<span class="lineNum">     225 </span>            :             break;
-<span class="lineNum">     226 </span>            :           }
-<span class="lineNum">     227 </span>            :         }
-<span class="lineNum">     228 </span><span class="lineCov">          1 :         if(s == layer-&gt;class[c]-&gt;numstyles) {</span>
-<span class="lineNum">     229 </span>            :           /* no style in scale bounds */
-<span class="lineNum">     230 </span>            :           goto nextshape;
-<span class="lineNum">     231 </span>            :         }
-<span class="lineNum">     232 </span>            :       }
-<span class="lineNum">     233 </span><span class="lineCov">          1 :       for(l=0; l&lt;shape.numlines; l++) {</span>
-<span class="lineNum">     234 </span><span class="lineCov">          1 :         for(p=0; p&lt;shape.line[l].numpoints; p++) {</span>
-<span class="lineNum">     235 </span><span class="lineCov">          1 :           int x = MS_MAP2IMAGE_XCELL_IC(shape.line[l].point[p].x, map-&gt;extent.minx - georadius, invcellsize);</span>
-<span class="lineNum">     236 </span><span class="lineCov">          1 :           int y = MS_MAP2IMAGE_YCELL_IC(shape.line[l].point[p].y, map-&gt;extent.maxy + georadius, invcellsize);</span>
-<span class="lineNum">     237 </span><span class="lineCov">          1 :           if(x&gt;=0 &amp;&amp; y&gt;=0 &amp;&amp; x&lt;im_width &amp;&amp; y&lt;im_height) {</span>
-<span class="lineNum">     238 </span><span class="lineCov">          1 :             float *value = values + y * im_width + x;</span>
-<span class="lineNum">     239 </span><span class="lineCov">          1 :             (*value) += weight;</span>
-<span class="lineNum">     240 </span>            :             have_sample = 1;
-<span class="lineNum">     241 </span>            :           }
-<span class="lineNum">     242 </span>            :         }
-<span class="lineNum">     243 </span>            :       }
-<span class="lineNum">     244 </span>            :       
-<span class="lineNum">     245 </span>            :       nextshape:
-<span class="lineNum">     246 </span><span class="lineCov">          1 :       msFreeShape(&amp;shape);</span>
-<span class="lineNum">     247 </span>            :     }
-<span class="lineNum">     248 </span><span class="lineCov">          1 :   } else if(status != MS_DONE) {</span>
-<span class="lineNum">     249 </span><span class="lineNoCov">          0 :     msLayerClose(layer);</span>
-<span class="lineNum">     250 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     251 </span>            :   }
-<span class="lineNum">     252 </span>            :   
-<span class="lineNum">     253 </span>            :   /* status == MS_DONE */
-<span class="lineNum">     254 </span><span class="lineCov">          1 :   msLayerClose(layer);</span>
-<span class="lineNum">     255 </span>            :   status = MS_SUCCESS;
-<span class="lineNum">     256 </span>            : 
-<span class="lineNum">     257 </span>            : 
-<span class="lineNum">     258 </span><span class="lineCov">          1 :   if(have_sample) { /* no use applying the filtering kernel if we have no samples */</span>
-<span class="lineNum">     259 </span><span class="lineCov">          1 :     gaussian_blur(values,im_width, im_height, radius);</span>
-<span class="lineNum">     260 </span>            : 
-<span class="lineNum">     261 </span><span class="lineCov">          1 :     if(normalization_scale == 0.0) {   /* auto normalization */</span>
-<span class="lineNum">     262 </span><span class="lineCov">          1 :       for (j=radius; j&lt;im_height-radius; j++) {</span>
-<span class="lineNum">     263 </span><span class="lineCov">          1 :         for (i=radius; i&lt;im_width-radius; i++) {</span>
-<span class="lineNum">     264 </span><span class="lineCov">          1 :           float val = values[j*im_width + i];</span>
-<span class="lineNum">     265 </span><span class="lineCov">          1 :           if(val &gt;0 &amp;&amp; val&gt;valmax) {</span>
-<span class="lineNum">     266 </span>            :             valmax = val;
-<span class="lineNum">     267 </span>            :           }
-<span class="lineNum">     268 </span><span class="lineCov">          1 :           if(val&gt;0 &amp;&amp; val&lt;valmin) {</span>
-<span class="lineNum">     269 </span>            :             valmin = val;
-<span class="lineNum">     270 </span>            :           }
-<span class="lineNum">     271 </span>            :         }
-<span class="lineNum">     272 </span>            :       }
-<span class="lineNum">     273 </span>            :     } else {
-<span class="lineNum">     274 </span>            :       valmin = 0;
-<span class="lineNum">     275 </span>            :       valmax = normalization_scale;
-<span class="lineNum">     276 </span>            :     }
-<span class="lineNum">     277 </span>            :   }
-<span class="lineNum">     278 </span>            : 
-<span class="lineNum">     279 </span>            : 
-<span class="lineNum">     280 </span><span class="lineCov">          1 :   if(have_sample &amp;&amp; expand_searchrect) {</span>
-<span class="lineNum">     281 </span><span class="lineCov">          1 :     iValues = msSmallMalloc(image-&gt;width*image-&gt;height*sizeof(unsigned char));</span>
-<span class="lineNum">     282 </span><span class="lineCov">          1 :     for (j=0; j&lt;image-&gt;height; j++) {</span>
-<span class="lineNum">     283 </span><span class="lineCov">          1 :       for (i=0; i&lt;image-&gt;width; i++) {</span>
-<span class="lineNum">     284 </span><span class="lineCov">          1 :         float norm=(values[(j+radius)*im_width + i + radius] - valmin) / valmax;</span>
-<span class="lineNum">     285 </span><span class="lineCov">          1 :         int v=255 * norm;</span>
-<span class="lineNum">     286 </span><span class="lineCov">          1 :         if (v&lt;0) v=0;</span>
-<span class="lineNum">     287 </span><span class="lineCov">          1 :         else if (v&gt;255) v=255;</span>
-<span class="lineNum">     288 </span><span class="lineCov">          1 :         iValues[j*image-&gt;width + i] = v;</span>
-<span class="lineNum">     289 </span>            :       }
-<span class="lineNum">     290 </span>            :     }
-<span class="lineNum">     291 </span>            :   } else {
-<span class="lineNum">     292 </span><span class="lineCov">          1 :     iValues = msSmallCalloc(1,image-&gt;width*image-&gt;height*sizeof(unsigned char));</span>
-<span class="lineNum">     293 </span><span class="lineCov">          1 :     if(have_sample) {</span>
-<span class="lineNum">     294 </span><span class="lineCov">          1 :        for (j=radius; j&lt;image-&gt;height-radius; j++) {</span>
-<span class="lineNum">     295 </span><span class="lineCov">          1 :          for (i=radius; i&lt;image-&gt;width-radius; i++) {</span>
-<span class="lineNum">     296 </span><span class="lineCov">          1 :            float norm=(values[j*im_width + i] - valmin) / valmax;</span>
-<span class="lineNum">     297 </span><span class="lineCov">          1 :            int v=255 * norm;</span>
-<span class="lineNum">     298 </span><span class="lineCov">          1 :            if (v&lt;0) v=0;</span>
-<span class="lineNum">     299 </span><span class="lineCov">          1 :            else if (v&gt;255) v=255;</span>
-<span class="lineNum">     300 </span><span class="lineCov">          1 :            iValues[j*image-&gt;width + i]=v;</span>
-<span class="lineNum">     301 </span>            :          }
-<span class="lineNum">     302 </span>            :        }
+<span class="lineNum">     216 </span><span class="lineCov">          1 :         msProjectShapeEx(layer-&gt;reprojectorLayerToMap, &amp;shape);</span>
+<span class="lineNum">     217 </span>            :       }
+<span class="lineNum">     218 </span>            : #endif
+<span class="lineNum">     219 </span>            :       
+<span class="lineNum">     220 </span>            :       /* the weight for the sample is set to 1.0 by default. If the
+<span class="lineNum">     221 </span>            :        * layer has some classes defined, we will read the weight from
+<span class="lineNum">     222 </span>            :        * the class-&gt;style-&gt;size (which can be binded to an attribute)
+<span class="lineNum">     223 </span>            :        */
+<span class="lineNum">     224 </span><span class="lineCov">          1 :       if(layer-&gt;numclasses &gt; 0) {</span>
+<span class="lineNum">     225 </span><span class="lineCov">          1 :         c = msShapeGetClass(layer, map, &amp;shape, classgroup, nclasses);</span>
+<span class="lineNum">     226 </span><span class="lineCov">          1 :         if((c == -1) || (layer-&gt;class[c]-&gt;status == MS_OFF)) {</span>
+<span class="lineNum">     227 </span>            :           goto nextshape; /* no class matched, skip */
+<span class="lineNum">     228 </span>            :         }
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :         for (s = 0; s &lt; layer-&gt;class[c]-&gt;numstyles; s++) {</span>
+<span class="lineNum">     230 </span><span class="lineCov">          1 :           if (msScaleInBounds(map-&gt;scaledenom,</span>
+<span class="lineNum">     231 </span>            :                   layer-&gt;class[c]-&gt;styles[s]-&gt;minscaledenom,
+<span class="lineNum">     232 </span><span class="lineCov">          1 :                   layer-&gt;class[c]-&gt;styles[s]-&gt;maxscaledenom)) {</span>
+<span class="lineNum">     233 </span><span class="lineCov">          1 :             if(layer-&gt;class[c]-&gt;styles[s]-&gt;bindings[MS_STYLE_BINDING_SIZE].index != -1) {</span>
+<span class="lineNum">     234 </span><span class="lineCov">          1 :               weight = atof(shape.values[layer-&gt;class[c]-&gt;styles[s]-&gt;bindings[MS_STYLE_BINDING_SIZE].index]);</span>
+<span class="lineNum">     235 </span>            :             } else {
+<span class="lineNum">     236 </span><span class="lineCov">          1 :               weight = layer-&gt;class[c]-&gt;styles[s]-&gt;size;</span>
+<span class="lineNum">     237 </span>            :             }
+<span class="lineNum">     238 </span>            :             break;
+<span class="lineNum">     239 </span>            :           }
+<span class="lineNum">     240 </span>            :         }
+<span class="lineNum">     241 </span><span class="lineCov">          1 :         if(s == layer-&gt;class[c]-&gt;numstyles) {</span>
+<span class="lineNum">     242 </span>            :           /* no style in scale bounds */
+<span class="lineNum">     243 </span>            :           goto nextshape;
+<span class="lineNum">     244 </span>            :         }
+<span class="lineNum">     245 </span>            :       }
+<span class="lineNum">     246 </span><span class="lineCov">          1 :       for(l=0; l&lt;shape.numlines; l++) {</span>
+<span class="lineNum">     247 </span><span class="lineCov">          1 :         for(p=0; p&lt;shape.line[l].numpoints; p++) {</span>
+<span class="lineNum">     248 </span><span class="lineCov">          1 :           int x = MS_MAP2IMAGE_XCELL_IC(shape.line[l].point[p].x, map-&gt;extent.minx - georadius, invcellsize);</span>
+<span class="lineNum">     249 </span><span class="lineCov">          1 :           int y = MS_MAP2IMAGE_YCELL_IC(shape.line[l].point[p].y, map-&gt;extent.maxy + georadius, invcellsize);</span>
+<span class="lineNum">     250 </span><span class="lineCov">          1 :           if(x&gt;=0 &amp;&amp; y&gt;=0 &amp;&amp; x&lt;im_width &amp;&amp; y&lt;im_height) {</span>
+<span class="lineNum">     251 </span><span class="lineCov">          1 :             float *value = values + y * im_width + x;</span>
+<span class="lineNum">     252 </span><span class="lineCov">          1 :             (*value) += weight;</span>
+<span class="lineNum">     253 </span>            :             have_sample = 1;
+<span class="lineNum">     254 </span>            :           }
+<span class="lineNum">     255 </span>            :         }
+<span class="lineNum">     256 </span>            :       }
+<span class="lineNum">     257 </span>            :       
+<span class="lineNum">     258 </span>            :       nextshape:
+<span class="lineNum">     259 </span><span class="lineCov">          1 :       msFreeShape(&amp;shape);</span>
+<span class="lineNum">     260 </span>            :     }
+<span class="lineNum">     261 </span><span class="lineCov">          1 :   } else if(status != MS_DONE) {</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :     msLayerClose(layer);</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     264 </span>            :   }
+<span class="lineNum">     265 </span>            :   
+<span class="lineNum">     266 </span>            :   /* status == MS_DONE */
+<span class="lineNum">     267 </span><span class="lineCov">          1 :   msLayerClose(layer);</span>
+<span class="lineNum">     268 </span>            :   status = MS_SUCCESS;
+<span class="lineNum">     269 </span>            : 
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span><span class="lineCov">          1 :   if(have_sample) { /* no use applying the filtering kernel if we have no samples */</span>
+<span class="lineNum">     272 </span><span class="lineCov">          1 :     gaussian_blur(values,im_width, im_height, radius);</span>
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span><span class="lineCov">          1 :     if(normalization_scale == 0.0) {   /* auto normalization */</span>
+<span class="lineNum">     275 </span><span class="lineCov">          1 :       for (j=radius; j&lt;im_height-radius; j++) {</span>
+<span class="lineNum">     276 </span><span class="lineCov">          1 :         for (i=radius; i&lt;im_width-radius; i++) {</span>
+<span class="lineNum">     277 </span><span class="lineCov">          1 :           float val = values[j*im_width + i];</span>
+<span class="lineNum">     278 </span><span class="lineCov">          1 :           if(val &gt;0 &amp;&amp; val&gt;valmax) {</span>
+<span class="lineNum">     279 </span>            :             valmax = val;
+<span class="lineNum">     280 </span>            :           }
+<span class="lineNum">     281 </span><span class="lineCov">          1 :           if(val&gt;0 &amp;&amp; val&lt;valmin) {</span>
+<span class="lineNum">     282 </span>            :             valmin = val;
+<span class="lineNum">     283 </span>            :           }
+<span class="lineNum">     284 </span>            :         }
+<span class="lineNum">     285 </span>            :       }
+<span class="lineNum">     286 </span>            :     } else {
+<span class="lineNum">     287 </span>            :       valmin = 0;
+<span class="lineNum">     288 </span>            :       valmax = normalization_scale;
+<span class="lineNum">     289 </span>            :     }
+<span class="lineNum">     290 </span>            :   }
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span><span class="lineCov">          1 :   if(have_sample &amp;&amp; expand_searchrect) {</span>
+<span class="lineNum">     294 </span><span class="lineCov">          1 :     iValues = msSmallMalloc(image-&gt;width*image-&gt;height*sizeof(unsigned char));</span>
+<span class="lineNum">     295 </span><span class="lineCov">          1 :     for (j=0; j&lt;image-&gt;height; j++) {</span>
+<span class="lineNum">     296 </span><span class="lineCov">          1 :       for (i=0; i&lt;image-&gt;width; i++) {</span>
+<span class="lineNum">     297 </span><span class="lineCov">          1 :         float norm=(values[(j+radius)*im_width + i + radius] - valmin) / valmax;</span>
+<span class="lineNum">     298 </span><span class="lineCov">          1 :         int v=255 * norm;</span>
+<span class="lineNum">     299 </span><span class="lineCov">          1 :         if (v&lt;0) v=0;</span>
+<span class="lineNum">     300 </span><span class="lineCov">          1 :         else if (v&gt;255) v=255;</span>
+<span class="lineNum">     301 </span><span class="lineCov">          1 :         iValues[j*image-&gt;width + i] = v;</span>
+<span class="lineNum">     302 </span>            :       }
 <span class="lineNum">     303 </span>            :     }
-<span class="lineNum">     304 </span>            :   }
-<span class="lineNum">     305 </span>            : 
-<span class="lineNum">     306 </span><span class="lineCov">          1 :   free(values);</span>
-<span class="lineNum">     307 </span>            :   
-<span class="lineNum">     308 </span>            :   {
-<span class="lineNum">     309 </span>            :     char pointer[64];
-<span class="lineNum">     310 </span>            :     char ds_string [1024];
-<span class="lineNum">     311 </span>            :     double adfGeoTransform[6];
-<span class="lineNum">     312 </span>            :     memset(pointer, 0, sizeof(pointer));
-<span class="lineNum">     313 </span><span class="lineCov">          1 :     CPLPrintPointer(pointer, iValues, sizeof(pointer));</span>
-<span class="lineNum">     314 </span><span class="lineCov">          1 :     snprintf(ds_string,1024,&quot;MEM:::DATAPOINTER=%s,PIXELS=%u,LINES=%u,BANDS=1,DATATYPE=Byte,PIXELOFFSET=1,LINEOFFSET=%u&quot;,</span>
-<span class="lineNum">     315 </span>            :         pointer,image-&gt;width,image-&gt;height,image-&gt;width);
-<span class="lineNum">     316 </span><span class="lineCov">          1 :     hDS = GDALOpenShared( ds_string, GA_ReadOnly );</span>
-<span class="lineNum">     317 </span><span class="lineCov">          1 :     if(hDS==NULL) {</span>
-<span class="lineNum">     318 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR,&quot;msComputeKernelDensityDataset()&quot;,&quot;failed to create in-memory gdal dataset for interpolated data&quot;);</span>
-<span class="lineNum">     319 </span>            :       status = MS_FAILURE;
-<span class="lineNum">     320 </span><span class="lineNoCov">          0 :       free(iValues);</span>
-<span class="lineNum">     321 </span><span class="lineNoCov">          0 :       return status;</span>
-<span class="lineNum">     322 </span>            :     }
-<span class="lineNum">     323 </span><span class="lineCov">          1 :     adfGeoTransform[0] = map-&gt;extent.minx - map-&gt;cellsize * 0.5; /* top left x */</span>
-<span class="lineNum">     324 </span><span class="lineCov">          1 :     adfGeoTransform[1] = map-&gt;cellsize;/* w-e pixel resolution */</span>
-<span class="lineNum">     325 </span><span class="lineCov">          1 :     adfGeoTransform[2] = 0; /* 0 */</span>
-<span class="lineNum">     326 </span><span class="lineCov">          1 :     adfGeoTransform[3] = map-&gt;extent.maxy + map-&gt;cellsize * 0.5;/* top left y */</span>
-<span class="lineNum">     327 </span><span class="lineCov">          1 :     adfGeoTransform[4] =0; /* 0 */</span>
-<span class="lineNum">     328 </span><span class="lineCov">          1 :     adfGeoTransform[5] = -map-&gt;cellsize;/* n-s pixel resolution (negative value) */</span>
-<span class="lineNum">     329 </span><span class="lineCov">          1 :     GDALSetGeoTransform(hDS,adfGeoTransform);</span>
-<span class="lineNum">     330 </span><span class="lineCov">          1 :     *hDSvoid = hDS;</span>
-<span class="lineNum">     331 </span><span class="lineCov">          1 :     *cleanup_ptr = (void*)iValues;</span>
-<span class="lineNum">     332 </span>            :   }
-<span class="lineNum">     333 </span><span class="lineCov">          1 :   return status;</span>
-<span class="lineNum">     334 </span>            : }
-<span class="lineNum">     335 </span>            : #else
-<span class="lineNum">     336 </span>            : 
-<span class="lineNum">     337 </span>            : 
-<span class="lineNum">     338 </span>            : int msComputeKernelDensityDataset(mapObj *map, imageObj *image, layerObj *layer, void **hDSvoid, void **cleanup_ptr) {
-<span class="lineNum">     339 </span>            :     msSetError(MS_MISCERR,&quot;msComputeKernelDensityDataset()&quot;, &quot;KernelDensity layers require GDAL support, however GDAL support is not compiled in this build&quot;);
-<span class="lineNum">     340 </span>            :     return MS_FAILURE;
-<span class="lineNum">     341 </span>            : }
-<span class="lineNum">     342 </span>            : 
-<a name="343"><span class="lineNum">     343 </span>            : #endif</a>
-<span class="lineNum">     344 </span>            : 
-<span class="lineNum">     345 </span><span class="lineCov">          1 : int msCleanupKernelDensityDataset(mapObj *map, imageObj *image, layerObj *layer, void *cleanup_ptr) {</span>
-<span class="lineNum">     346 </span><span class="lineCov">          1 :   free(cleanup_ptr);</span>
-<span class="lineNum">     347 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     348 </span>            : }
+<span class="lineNum">     304 </span>            :   } else {
+<span class="lineNum">     305 </span><span class="lineCov">          1 :     iValues = msSmallCalloc(1,image-&gt;width*image-&gt;height*sizeof(unsigned char));</span>
+<span class="lineNum">     306 </span><span class="lineCov">          1 :     if(have_sample) {</span>
+<span class="lineNum">     307 </span><span class="lineCov">          1 :        for (j=radius; j&lt;image-&gt;height-radius; j++) {</span>
+<span class="lineNum">     308 </span><span class="lineCov">          1 :          for (i=radius; i&lt;image-&gt;width-radius; i++) {</span>
+<span class="lineNum">     309 </span><span class="lineCov">          1 :            float norm=(values[j*im_width + i] - valmin) / valmax;</span>
+<span class="lineNum">     310 </span><span class="lineCov">          1 :            int v=255 * norm;</span>
+<span class="lineNum">     311 </span><span class="lineCov">          1 :            if (v&lt;0) v=0;</span>
+<span class="lineNum">     312 </span><span class="lineCov">          1 :            else if (v&gt;255) v=255;</span>
+<span class="lineNum">     313 </span><span class="lineCov">          1 :            iValues[j*image-&gt;width + i]=v;</span>
+<span class="lineNum">     314 </span>            :          }
+<span class="lineNum">     315 </span>            :        }
+<span class="lineNum">     316 </span>            :     }
+<span class="lineNum">     317 </span>            :   }
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span><span class="lineCov">          1 :   free(values);</span>
+<span class="lineNum">     320 </span>            :   
+<span class="lineNum">     321 </span>            :   {
+<span class="lineNum">     322 </span>            :     char pointer[64];
+<span class="lineNum">     323 </span>            :     char ds_string [1024];
+<span class="lineNum">     324 </span>            :     double adfGeoTransform[6];
+<span class="lineNum">     325 </span>            :     memset(pointer, 0, sizeof(pointer));
+<span class="lineNum">     326 </span><span class="lineCov">          1 :     CPLPrintPointer(pointer, iValues, sizeof(pointer));</span>
+<span class="lineNum">     327 </span><span class="lineCov">          1 :     snprintf(ds_string,1024,&quot;MEM:::DATAPOINTER=%s,PIXELS=%u,LINES=%u,BANDS=1,DATATYPE=Byte,PIXELOFFSET=1,LINEOFFSET=%u&quot;,</span>
+<span class="lineNum">     328 </span>            :         pointer,image-&gt;width,image-&gt;height,image-&gt;width);
+<span class="lineNum">     329 </span><span class="lineCov">          1 :     hDS = GDALOpenShared( ds_string, GA_ReadOnly );</span>
+<span class="lineNum">     330 </span><span class="lineCov">          1 :     if(hDS==NULL) {</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR,&quot;msComputeKernelDensityDataset()&quot;,&quot;failed to create in-memory gdal dataset for interpolated data&quot;);</span>
+<span class="lineNum">     332 </span>            :       status = MS_FAILURE;
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :       free(iValues);</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :       return status;</span>
+<span class="lineNum">     335 </span>            :     }
+<span class="lineNum">     336 </span><span class="lineCov">          1 :     adfGeoTransform[0] = map-&gt;extent.minx - map-&gt;cellsize * 0.5; /* top left x */</span>
+<span class="lineNum">     337 </span><span class="lineCov">          1 :     adfGeoTransform[1] = map-&gt;cellsize;/* w-e pixel resolution */</span>
+<span class="lineNum">     338 </span><span class="lineCov">          1 :     adfGeoTransform[2] = 0; /* 0 */</span>
+<span class="lineNum">     339 </span><span class="lineCov">          1 :     adfGeoTransform[3] = map-&gt;extent.maxy + map-&gt;cellsize * 0.5;/* top left y */</span>
+<span class="lineNum">     340 </span><span class="lineCov">          1 :     adfGeoTransform[4] =0; /* 0 */</span>
+<span class="lineNum">     341 </span><span class="lineCov">          1 :     adfGeoTransform[5] = -map-&gt;cellsize;/* n-s pixel resolution (negative value) */</span>
+<span class="lineNum">     342 </span><span class="lineCov">          1 :     GDALSetGeoTransform(hDS,adfGeoTransform);</span>
+<span class="lineNum">     343 </span><span class="lineCov">          1 :     *hDSvoid = hDS;</span>
+<span class="lineNum">     344 </span><span class="lineCov">          1 :     *cleanup_ptr = (void*)iValues;</span>
+<span class="lineNum">     345 </span>            :   }
+<span class="lineNum">     346 </span><span class="lineCov">          1 :   return status;</span>
+<span class="lineNum">     347 </span>            : }
+<span class="lineNum">     348 </span>            : #else
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span>            : int msComputeKernelDensityDataset(mapObj *map, imageObj *image, layerObj *layer, void **hDSvoid, void **cleanup_ptr) {
+<span class="lineNum">     352 </span>            :     msSetError(MS_MISCERR,&quot;msComputeKernelDensityDataset()&quot;, &quot;KernelDensity layers require GDAL support, however GDAL support is not compiled in this build&quot;);
+<span class="lineNum">     353 </span>            :     return MS_FAILURE;
+<span class="lineNum">     354 </span>            : }
+<span class="lineNum">     355 </span>            : 
+<a name="356"><span class="lineNum">     356 </span>            : #endif</a>
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span><span class="lineCov">          1 : int msCleanupKernelDensityDataset(mapObj *map, imageObj *image, layerObj *layer, void *cleanup_ptr) {</span>
+<span class="lineNum">     359 </span><span class="lineCov">          1 :   free(cleanup_ptr);</span>
+<span class="lineNum">     360 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     361 </span>            : }
 </pre>
       </td>
     </tr>

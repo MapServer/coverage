@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">184</td>
-            <td class="headerCovTableEntry">266</td>
-            <td class="headerCovTableEntryLo">69.2 %</td>
+            <td class="headerCovTableEntry">187</td>
+            <td class="headerCovTableEntry">269</td>
+            <td class="headerCovTableEntryLo">69.5 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -572,59 +572,68 @@
 <span class="lineNum">     510 </span>            :       }
 <span class="lineNum">     511 </span>            : 
 <span class="lineNum">     512 </span><span class="lineCov">          1 :       if( layer-&gt;project ) {</span>
-<span class="lineNum">     513 </span><span class="lineCov">          1 :         status = msProjectShape(&amp;layer-&gt;projection, &amp;layer-&gt;map-&gt;projection, &amp;shape);</span>
-<span class="lineNum">     514 </span><span class="lineCov">          1 :       }      if( status == MS_SUCCESS ) {</span>
-<span class="lineNum">     515 </span><span class="lineCov">          1 :         status = mvtWriteShape( layer, &amp;shape, mvt_layer, item_list, &amp;value_lookup_cache, &amp;map-&gt;extent, buffer );</span>
-<span class="lineNum">     516 </span>            :       }
-<span class="lineNum">     517 </span>            : 
-<span class="lineNum">     518 </span>            :       feature_cleanup:
-<span class="lineNum">     519 </span><span class="lineCov">          1 :       msFreeShape(&amp;shape);</span>
-<span class="lineNum">     520 </span><span class="lineCov">          1 :       if(retcode != MS_SUCCESS) goto layer_cleanup;</span>
-<span class="lineNum">     521 </span>            :     } /* next shape */
-<span class="lineNum">     522 </span>            :     layer_cleanup:
-<span class="lineNum">     523 </span><span class="lineCov">          1 :     msLayerClose(layer);</span>
-<span class="lineNum">     524 </span><span class="lineCov">          1 :     msGMLFreeItems(item_list);</span>
-<span class="lineNum">     525 </span><span class="lineCov">          1 :     UT_HASH_ITER(hh, value_lookup_cache.cache, cur_value_lookup, tmp_value_lookup) {</span>
-<span class="lineNum">     526 </span><span class="lineCov">          1 :       msFree(cur_value_lookup-&gt;value);</span>
-<span class="lineNum">     527 </span><span class="lineCov">          1 :       UT_HASH_DEL(value_lookup_cache.cache,cur_value_lookup);</span>
-<span class="lineNum">     528 </span><span class="lineCov">          1 :       msFree(cur_value_lookup);</span>
-<span class="lineNum">     529 </span>            :     }
-<span class="lineNum">     530 </span><span class="lineCov">          1 :     if(retcode != MS_SUCCESS) goto cleanup;</span>
-<span class="lineNum">     531 </span>            :   } /* next layer */
-<span class="lineNum">     532 </span>            : 
-<span class="lineNum">     533 </span><span class="lineCov">          1 :   len = vector_tile__tile__get_packed_size(&amp;mvt_tile); // This is the calculated packing length</span>
-<span class="lineNum">     534 </span>            : 
-<span class="lineNum">     535 </span><span class="lineCov">          1 :   buf = msSmallMalloc(len); // Allocate memory</span>
-<span class="lineNum">     536 </span><span class="lineCov">          1 :   vector_tile__tile__pack(&amp;mvt_tile, buf);</span>
-<span class="lineNum">     537 </span><span class="lineCov">          1 :   if( sendheaders ) {</span>
-<span class="lineNum">     538 </span><span class="lineCov">          1 :     msIO_fprintf( stdout,</span>
-<span class="lineNum">     539 </span>            :       &quot;Content-Length: %d\r\n&quot;
-<span class="lineNum">     540 </span>            :       &quot;Content-Type: application/x-protobuf\r\n\r\n&quot;,
-<span class="lineNum">     541 </span>            :                   len);
-<span class="lineNum">     542 </span>            :   }
-<span class="lineNum">     543 </span><span class="lineCov">          1 :   msIO_fwrite(buf,len,1,stdout);</span>
-<span class="lineNum">     544 </span><span class="lineCov">          1 :   msFree(buf);</span>
-<span class="lineNum">     545 </span>            : 
-<span class="lineNum">     546 </span>            :   cleanup:
-<span class="lineNum">     547 </span><span class="lineCov">          1 :   freeMvtTile(&amp;mvt_tile);</span>
-<span class="lineNum">     548 </span>            : 
-<span class="lineNum">     549 </span><span class="lineCov">          1 :   return retcode;</span>
-<a name="550"><span class="lineNum">     550 </span>            : }</a>
-<span class="lineNum">     551 </span>            : 
-<span class="lineNum">     552 </span><span class="lineCov">          1 : int msPopulateRendererVTableMVT(rendererVTableObj * renderer) {</span>
-<span class="lineNum">     553 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     554 </span>            : }
-<span class="lineNum">     555 </span>            : #else
-<span class="lineNum">     556 </span>            : int msPopulateRendererVTableMVT(rendererVTableObj * renderer) {
-<span class="lineNum">     557 </span>            :   msSetError(MS_MISCERR, &quot;Vector Tile Driver requested but support is not compiled in&quot;, &quot;msPopulateRendererVTableMVT()&quot;);
-<span class="lineNum">     558 </span>            :   return MS_FAILURE;
-<span class="lineNum">     559 </span>            : }
+<span class="lineNum">     513 </span><span class="lineCov">          1 :         if( layer-&gt;reprojectorLayerToMap == NULL )</span>
+<span class="lineNum">     514 </span>            :         {
+<span class="lineNum">     515 </span><span class="lineCov">          1 :             layer-&gt;reprojectorLayerToMap = msProjectCreateReprojector(</span>
+<span class="lineNum">     516 </span>            :                 &amp;layer-&gt;projection, &amp;map-&gt;projection);
+<span class="lineNum">     517 </span>            :         }
+<span class="lineNum">     518 </span><span class="lineCov">          1 :         if( layer-&gt;reprojectorLayerToMap )</span>
+<span class="lineNum">     519 </span><span class="lineCov">          1 :             status = msProjectShapeEx(layer-&gt;reprojectorLayerToMap, &amp;shape);</span>
+<span class="lineNum">     520 </span>            :         else
+<span class="lineNum">     521 </span>            :             status = MS_FAILURE;
+<span class="lineNum">     522 </span>            :       }
+<span class="lineNum">     523 </span><span class="lineCov">          1 :       if( status == MS_SUCCESS ) {</span>
+<span class="lineNum">     524 </span><span class="lineCov">          1 :         status = mvtWriteShape( layer, &amp;shape, mvt_layer, item_list, &amp;value_lookup_cache, &amp;map-&gt;extent, buffer );</span>
+<span class="lineNum">     525 </span>            :       }
+<span class="lineNum">     526 </span>            : 
+<span class="lineNum">     527 </span>            :       feature_cleanup:
+<span class="lineNum">     528 </span><span class="lineCov">          1 :       msFreeShape(&amp;shape);</span>
+<span class="lineNum">     529 </span><span class="lineCov">          1 :       if(retcode != MS_SUCCESS) goto layer_cleanup;</span>
+<span class="lineNum">     530 </span>            :     } /* next shape */
+<span class="lineNum">     531 </span>            :     layer_cleanup:
+<span class="lineNum">     532 </span><span class="lineCov">          1 :     msLayerClose(layer);</span>
+<span class="lineNum">     533 </span><span class="lineCov">          1 :     msGMLFreeItems(item_list);</span>
+<span class="lineNum">     534 </span><span class="lineCov">          1 :     UT_HASH_ITER(hh, value_lookup_cache.cache, cur_value_lookup, tmp_value_lookup) {</span>
+<span class="lineNum">     535 </span><span class="lineCov">          1 :       msFree(cur_value_lookup-&gt;value);</span>
+<span class="lineNum">     536 </span><span class="lineCov">          1 :       UT_HASH_DEL(value_lookup_cache.cache,cur_value_lookup);</span>
+<span class="lineNum">     537 </span><span class="lineCov">          1 :       msFree(cur_value_lookup);</span>
+<span class="lineNum">     538 </span>            :     }
+<span class="lineNum">     539 </span><span class="lineCov">          1 :     if(retcode != MS_SUCCESS) goto cleanup;</span>
+<span class="lineNum">     540 </span>            :   } /* next layer */
+<span class="lineNum">     541 </span>            : 
+<span class="lineNum">     542 </span><span class="lineCov">          1 :   len = vector_tile__tile__get_packed_size(&amp;mvt_tile); // This is the calculated packing length</span>
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span><span class="lineCov">          1 :   buf = msSmallMalloc(len); // Allocate memory</span>
+<span class="lineNum">     545 </span><span class="lineCov">          1 :   vector_tile__tile__pack(&amp;mvt_tile, buf);</span>
+<span class="lineNum">     546 </span><span class="lineCov">          1 :   if( sendheaders ) {</span>
+<span class="lineNum">     547 </span><span class="lineCov">          1 :     msIO_fprintf( stdout,</span>
+<span class="lineNum">     548 </span>            :       &quot;Content-Length: %d\r\n&quot;
+<span class="lineNum">     549 </span>            :       &quot;Content-Type: application/x-protobuf\r\n\r\n&quot;,
+<span class="lineNum">     550 </span>            :                   len);
+<span class="lineNum">     551 </span>            :   }
+<span class="lineNum">     552 </span><span class="lineCov">          1 :   msIO_fwrite(buf,len,1,stdout);</span>
+<span class="lineNum">     553 </span><span class="lineCov">          1 :   msFree(buf);</span>
+<span class="lineNum">     554 </span>            : 
+<span class="lineNum">     555 </span>            :   cleanup:
+<span class="lineNum">     556 </span><span class="lineCov">          1 :   freeMvtTile(&amp;mvt_tile);</span>
+<span class="lineNum">     557 </span>            : 
+<span class="lineNum">     558 </span><span class="lineCov">          1 :   return retcode;</span>
+<a name="559"><span class="lineNum">     559 </span>            : }</a>
 <span class="lineNum">     560 </span>            : 
-<span class="lineNum">     561 </span>            : int msMVTWriteTile( mapObj *map, int sendheaders ) {
-<span class="lineNum">     562 </span>            :   msSetError(MS_MISCERR, &quot;Vector Tile support is not available.&quot;, &quot;msMVTWriteTile()&quot;);
-<span class="lineNum">     563 </span>            :   return MS_FAILURE;
-<span class="lineNum">     564 </span>            : }
-<span class="lineNum">     565 </span>            : #endif
+<span class="lineNum">     561 </span><span class="lineCov">          1 : int msPopulateRendererVTableMVT(rendererVTableObj * renderer) {</span>
+<span class="lineNum">     562 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     563 </span>            : }
+<span class="lineNum">     564 </span>            : #else
+<span class="lineNum">     565 </span>            : int msPopulateRendererVTableMVT(rendererVTableObj * renderer) {
+<span class="lineNum">     566 </span>            :   msSetError(MS_MISCERR, &quot;Vector Tile Driver requested but support is not compiled in&quot;, &quot;msPopulateRendererVTableMVT()&quot;);
+<span class="lineNum">     567 </span>            :   return MS_FAILURE;
+<span class="lineNum">     568 </span>            : }
+<span class="lineNum">     569 </span>            : 
+<span class="lineNum">     570 </span>            : int msMVTWriteTile( mapObj *map, int sendheaders ) {
+<span class="lineNum">     571 </span>            :   msSetError(MS_MISCERR, &quot;Vector Tile support is not available.&quot;, &quot;msMVTWriteTile()&quot;);
+<span class="lineNum">     572 </span>            :   return MS_FAILURE;
+<span class="lineNum">     573 </span>            : }
+<span class="lineNum">     574 </span>            : #endif
 </pre>
       </td>
     </tr>
