@@ -31,17 +31,17 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">190</td>
-            <td class="headerCovTableEntry">241</td>
-            <td class="headerCovTableEntryMed">78.8 %</td>
+            <td class="headerCovTableEntry">197</td>
+            <td class="headerCovTableEntry">248</td>
+            <td class="headerCovTableEntryMed">79.4 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
             <td class="headerValue">XXXX-XX-XX</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">6</td>
-            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">7</td>
             <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
@@ -626,98 +626,118 @@
 <span class="lineNum">     564 </span><span class="lineCov">          1 :       msStrdup(GDALGetMetadataItem(hDriver,GDAL_DMD_EXTENSION,NULL));</span>
 <span class="lineNum">     565 </span>            : 
 <span class="lineNum">     566 </span>            :   return MS_SUCCESS;
-<span class="lineNum">     567 </span>            : }
+<a name="567"><span class="lineNum">     567 </span>            : }</a>
 <span class="lineNum">     568 </span>            : 
-<span class="lineNum">     569 </span>            : #else
-<span class="lineNum">     570 </span>            : 
-<span class="lineNum">     571 </span>            : void msGDALInitialize( void ) {}
-<span class="lineNum">     572 </span>            : void msGDALCleanup(void) {}
-<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     569 </span><span class="lineCov">          1 : char** msGetStringListFromHashTable(hashTableObj* table)</span>
+<span class="lineNum">     570 </span>            : {
+<span class="lineNum">     571 </span>            :   struct hashObj *tp = NULL;
+<span class="lineNum">     572 </span>            :   int i;
+<span class="lineNum">     573 </span>            :   char** papszRet = NULL;
 <span class="lineNum">     574 </span>            : 
-<span class="lineNum">     575 </span>            : #endif /* def USE_GDAL */
-<span class="lineNum">     576 </span>            : 
+<span class="lineNum">     575 </span><span class="lineCov">          1 :   if(!table) return NULL;</span>
+<span class="lineNum">     576 </span><span class="lineCov">          1 :   if(msHashIsEmpty(table)) return NULL;</span>
 <span class="lineNum">     577 </span>            : 
-<span class="lineNum">     578 </span>            : /************************************************************************/
-<span class="lineNum">     579 </span>            : /*                      msProjectionObj2OGCWKT()                        */
-<span class="lineNum">     580 </span>            : /*                                                                      */
-<span class="lineNum">     581 </span>            : /*      We stick to the C API for OGRSpatialReference object access     */
-<span class="lineNum">     582 </span>            : /*      to allow MapServer+GDAL to be built without C++                 */
-<span class="lineNum">     583 </span>            : /*      complications.                                                  */
-<span class="lineNum">     584 </span>            : /*                                                                      */
-<span class="lineNum">     585 </span>            : /*      Note that this function will return NULL on failure, and the    */
-<span class="lineNum">     586 </span>            : /*      returned string should be freed with msFree().                  */
-<a name="587"><span class="lineNum">     587 </span>            : /************************************************************************/</a>
+<span class="lineNum">     578 </span><span class="lineCov">          1 :   for (i=0; i&lt;MS_HASHSIZE; ++i) {</span>
+<span class="lineNum">     579 </span><span class="lineCov">          1 :     if (table-&gt;items[i] != NULL) {</span>
+<span class="lineNum">     580 </span><span class="lineCov">          1 :       for (tp=table-&gt;items[i]; tp!=NULL; tp=tp-&gt;next) {</span>
+<span class="lineNum">     581 </span><span class="lineCov">          1 :         papszRet = CSLSetNameValue(papszRet, tp-&gt;key, tp-&gt;data);</span>
+<span class="lineNum">     582 </span>            :       }
+<span class="lineNum">     583 </span>            :     }
+<span class="lineNum">     584 </span>            :   }
+<span class="lineNum">     585 </span>            :   return papszRet;
+<span class="lineNum">     586 </span>            : }
+<span class="lineNum">     587 </span>            : 
 <span class="lineNum">     588 </span>            : 
-<span class="lineNum">     589 </span><span class="lineCov">          1 : char *msProjectionObj2OGCWKT( projectionObj *projection )</span>
+<span class="lineNum">     589 </span>            : #else
 <span class="lineNum">     590 </span>            : 
-<span class="lineNum">     591 </span>            : {
-<span class="lineNum">     592 </span>            : 
-<span class="lineNum">     593 </span>            : #if !defined(USE_GDAL) &amp;&amp; !defined(USE_OGR)
-<span class="lineNum">     594 </span>            :   msSetError(MS_OGRERR,
-<span class="lineNum">     595 </span>            :              &quot;Not implemented since neither OGR nor GDAL is enabled.&quot;,
-<span class="lineNum">     596 </span>            :              &quot;msProjectionObj2OGCWKT()&quot;);
-<span class="lineNum">     597 </span>            :   return NULL;
-<span class="lineNum">     598 </span>            : 
-<span class="lineNum">     599 </span>            : #else /* defined USE_GDAL or USE_OGR */
-<span class="lineNum">     600 </span>            : 
-<span class="lineNum">     601 </span>            :   OGRSpatialReferenceH hSRS;
-<span class="lineNum">     602 </span><span class="lineCov">          1 :   char *pszWKT=NULL, *pszProj4, *pszInitEpsg=NULL;</span>
-<span class="lineNum">     603 </span>            :   int  nLength = 0, i;
-<span class="lineNum">     604 </span>            :   OGRErr eErr;
-<span class="lineNum">     605 </span>            : 
-<span class="lineNum">     606 </span><span class="lineCov">          1 :   if( projection-&gt;proj == NULL )</span>
-<span class="lineNum">     607 </span>            :     return NULL;
+<span class="lineNum">     591 </span>            : void msGDALInitialize( void ) {}
+<span class="lineNum">     592 </span>            : void msGDALCleanup(void) {}
+<span class="lineNum">     593 </span>            : 
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span>            : #endif /* def USE_GDAL */
+<span class="lineNum">     596 </span>            : 
+<span class="lineNum">     597 </span>            : 
+<span class="lineNum">     598 </span>            : /************************************************************************/
+<span class="lineNum">     599 </span>            : /*                      msProjectionObj2OGCWKT()                        */
+<span class="lineNum">     600 </span>            : /*                                                                      */
+<span class="lineNum">     601 </span>            : /*      We stick to the C API for OGRSpatialReference object access     */
+<span class="lineNum">     602 </span>            : /*      to allow MapServer+GDAL to be built without C++                 */
+<span class="lineNum">     603 </span>            : /*      complications.                                                  */
+<span class="lineNum">     604 </span>            : /*                                                                      */
+<span class="lineNum">     605 </span>            : /*      Note that this function will return NULL on failure, and the    */
+<span class="lineNum">     606 </span>            : /*      returned string should be freed with msFree().                  */
+<a name="607"><span class="lineNum">     607 </span>            : /************************************************************************/</a>
 <span class="lineNum">     608 </span>            : 
-<span class="lineNum">     609 </span><span class="lineCov">          1 :   hSRS = OSRNewSpatialReference( NULL );</span>
-<span class="lineNum">     610 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     611 </span>            :   /*      Look for an EPSG-like projection argument                       */
-<span class="lineNum">     612 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     613 </span><span class="lineCov">          1 :   if( projection-&gt;numargs == 1 &amp;&amp;</span>
-<span class="lineNum">     614 </span><span class="lineCov">          1 :         (pszInitEpsg = strcasestr(projection-&gt;args[0],&quot;init=epsg:&quot;))) {</span>
-<span class="lineNum">     615 </span><span class="lineCov">          1 :      int nEpsgCode = atoi(pszInitEpsg + strlen(&quot;init=epsg:&quot;));</span>
-<span class="lineNum">     616 </span><span class="lineCov">          1 :      eErr = OSRImportFromEPSG(hSRS, nEpsgCode);</span>
-<span class="lineNum">     617 </span>            :   } else {
-<span class="lineNum">     618 </span>            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     619 </span>            :     /*      Form arguments into a full Proj.4 definition string.            */
-<span class="lineNum">     620 </span>            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     621 </span><span class="lineCov">          1 :     for( i = 0; i &lt; projection-&gt;numargs; i++ )</span>
-<span class="lineNum">     622 </span><span class="lineCov">          1 :       nLength += strlen(projection-&gt;args[i]) + 2;</span>
-<span class="lineNum">     623 </span>            : 
-<span class="lineNum">     624 </span><span class="lineCov">          1 :     pszProj4 = (char *) CPLMalloc(nLength+2);</span>
-<span class="lineNum">     625 </span><span class="lineCov">          1 :     pszProj4[0] = '\0';</span>
-<span class="lineNum">     626 </span>            : 
-<span class="lineNum">     627 </span><span class="lineCov">          1 :     for( i = 0; i &lt; projection-&gt;numargs; i++ ) {</span>
-<span class="lineNum">     628 </span>            :       strcat( pszProj4, &quot;+&quot; );
-<span class="lineNum">     629 </span><span class="lineCov">          1 :       strcat( pszProj4, projection-&gt;args[i] );</span>
-<span class="lineNum">     630 </span>            :       strcat( pszProj4, &quot; &quot; );
-<span class="lineNum">     631 </span>            :     }
-<span class="lineNum">     632 </span>            : 
-<span class="lineNum">     633 </span>            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     634 </span>            :     /*      Ingest the string into OGRSpatialReference.                     */
-<span class="lineNum">     635 </span>            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     636 </span><span class="lineCov">          1 :     eErr =  OSRImportFromProj4( hSRS, pszProj4 );</span>
-<span class="lineNum">     637 </span><span class="lineCov">          1 :     CPLFree( pszProj4 );</span>
-<span class="lineNum">     638 </span>            :   }
-<span class="lineNum">     639 </span>            : 
-<span class="lineNum">     640 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     641 </span>            :   /*      Export as a WKT string.                                         */
-<span class="lineNum">     642 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     643 </span><span class="lineCov">          1 :   if( eErr == OGRERR_NONE )</span>
-<span class="lineNum">     644 </span><span class="lineCov">          1 :     eErr = OSRExportToWkt( hSRS, &amp;pszWKT );</span>
-<span class="lineNum">     645 </span>            : 
-<span class="lineNum">     646 </span><span class="lineCov">          1 :   OSRDestroySpatialReference( hSRS );</span>
-<span class="lineNum">     647 </span>            : 
-<span class="lineNum">     648 </span><span class="lineCov">          1 :   if( pszWKT ) {</span>
-<span class="lineNum">     649 </span><span class="lineCov">          1 :     char *pszWKT2 = msStrdup(pszWKT);</span>
-<span class="lineNum">     650 </span><span class="lineCov">          1 :     CPLFree( pszWKT );</span>
-<span class="lineNum">     651 </span>            : 
-<span class="lineNum">     652 </span><span class="lineCov">          1 :     return pszWKT2;</span>
-<span class="lineNum">     653 </span>            :   } else
-<span class="lineNum">     654 </span>            :     return NULL;
-<span class="lineNum">     655 </span>            : #endif /* defined USE_GDAL or USE_OGR */
-<span class="lineNum">     656 </span>            : }
-<span class="lineNum">     657 </span>            : 
-<span class="lineNum">     658 </span>            : 
+<span class="lineNum">     609 </span><span class="lineCov">          1 : char *msProjectionObj2OGCWKT( projectionObj *projection )</span>
+<span class="lineNum">     610 </span>            : 
+<span class="lineNum">     611 </span>            : {
+<span class="lineNum">     612 </span>            : 
+<span class="lineNum">     613 </span>            : #if !defined(USE_GDAL) &amp;&amp; !defined(USE_OGR)
+<span class="lineNum">     614 </span>            :   msSetError(MS_OGRERR,
+<span class="lineNum">     615 </span>            :              &quot;Not implemented since neither OGR nor GDAL is enabled.&quot;,
+<span class="lineNum">     616 </span>            :              &quot;msProjectionObj2OGCWKT()&quot;);
+<span class="lineNum">     617 </span>            :   return NULL;
+<span class="lineNum">     618 </span>            : 
+<span class="lineNum">     619 </span>            : #else /* defined USE_GDAL or USE_OGR */
+<span class="lineNum">     620 </span>            : 
+<span class="lineNum">     621 </span>            :   OGRSpatialReferenceH hSRS;
+<span class="lineNum">     622 </span><span class="lineCov">          1 :   char *pszWKT=NULL, *pszProj4, *pszInitEpsg=NULL;</span>
+<span class="lineNum">     623 </span>            :   int  nLength = 0, i;
+<span class="lineNum">     624 </span>            :   OGRErr eErr;
+<span class="lineNum">     625 </span>            : 
+<span class="lineNum">     626 </span><span class="lineCov">          1 :   if( projection-&gt;proj == NULL )</span>
+<span class="lineNum">     627 </span>            :     return NULL;
+<span class="lineNum">     628 </span>            : 
+<span class="lineNum">     629 </span><span class="lineCov">          1 :   hSRS = OSRNewSpatialReference( NULL );</span>
+<span class="lineNum">     630 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     631 </span>            :   /*      Look for an EPSG-like projection argument                       */
+<span class="lineNum">     632 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     633 </span><span class="lineCov">          1 :   if( projection-&gt;numargs == 1 &amp;&amp;</span>
+<span class="lineNum">     634 </span><span class="lineCov">          1 :         (pszInitEpsg = strcasestr(projection-&gt;args[0],&quot;init=epsg:&quot;))) {</span>
+<span class="lineNum">     635 </span><span class="lineCov">          1 :      int nEpsgCode = atoi(pszInitEpsg + strlen(&quot;init=epsg:&quot;));</span>
+<span class="lineNum">     636 </span><span class="lineCov">          1 :      eErr = OSRImportFromEPSG(hSRS, nEpsgCode);</span>
+<span class="lineNum">     637 </span>            :   } else {
+<span class="lineNum">     638 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     639 </span>            :     /*      Form arguments into a full Proj.4 definition string.            */
+<span class="lineNum">     640 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     641 </span><span class="lineCov">          1 :     for( i = 0; i &lt; projection-&gt;numargs; i++ )</span>
+<span class="lineNum">     642 </span><span class="lineCov">          1 :       nLength += strlen(projection-&gt;args[i]) + 2;</span>
+<span class="lineNum">     643 </span>            : 
+<span class="lineNum">     644 </span><span class="lineCov">          1 :     pszProj4 = (char *) CPLMalloc(nLength+2);</span>
+<span class="lineNum">     645 </span><span class="lineCov">          1 :     pszProj4[0] = '\0';</span>
+<span class="lineNum">     646 </span>            : 
+<span class="lineNum">     647 </span><span class="lineCov">          1 :     for( i = 0; i &lt; projection-&gt;numargs; i++ ) {</span>
+<span class="lineNum">     648 </span>            :       strcat( pszProj4, &quot;+&quot; );
+<span class="lineNum">     649 </span><span class="lineCov">          1 :       strcat( pszProj4, projection-&gt;args[i] );</span>
+<span class="lineNum">     650 </span>            :       strcat( pszProj4, &quot; &quot; );
+<span class="lineNum">     651 </span>            :     }
+<span class="lineNum">     652 </span>            : 
+<span class="lineNum">     653 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     654 </span>            :     /*      Ingest the string into OGRSpatialReference.                     */
+<span class="lineNum">     655 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     656 </span><span class="lineCov">          1 :     eErr =  OSRImportFromProj4( hSRS, pszProj4 );</span>
+<span class="lineNum">     657 </span><span class="lineCov">          1 :     CPLFree( pszProj4 );</span>
+<span class="lineNum">     658 </span>            :   }
+<span class="lineNum">     659 </span>            : 
+<span class="lineNum">     660 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     661 </span>            :   /*      Export as a WKT string.                                         */
+<span class="lineNum">     662 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     663 </span><span class="lineCov">          1 :   if( eErr == OGRERR_NONE )</span>
+<span class="lineNum">     664 </span><span class="lineCov">          1 :     eErr = OSRExportToWkt( hSRS, &amp;pszWKT );</span>
+<span class="lineNum">     665 </span>            : 
+<span class="lineNum">     666 </span><span class="lineCov">          1 :   OSRDestroySpatialReference( hSRS );</span>
+<span class="lineNum">     667 </span>            : 
+<span class="lineNum">     668 </span><span class="lineCov">          1 :   if( pszWKT ) {</span>
+<span class="lineNum">     669 </span><span class="lineCov">          1 :     char *pszWKT2 = msStrdup(pszWKT);</span>
+<span class="lineNum">     670 </span><span class="lineCov">          1 :     CPLFree( pszWKT );</span>
+<span class="lineNum">     671 </span>            : 
+<span class="lineNum">     672 </span><span class="lineCov">          1 :     return pszWKT2;</span>
+<span class="lineNum">     673 </span>            :   } else
+<span class="lineNum">     674 </span>            :     return NULL;
+<span class="lineNum">     675 </span>            : #endif /* defined USE_GDAL or USE_OGR */
+<span class="lineNum">     676 </span>            : }
+<span class="lineNum">     677 </span>            : 
+<span class="lineNum">     678 </span>            : 
 </pre>
       </td>
     </tr>

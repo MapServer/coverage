@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">476</td>
-            <td class="headerCovTableEntry">550</td>
-            <td class="headerCovTableEntryMed">86.5 %</td>
+            <td class="headerCovTableEntry">482</td>
+            <td class="headerCovTableEntry">556</td>
+            <td class="headerCovTableEntryMed">86.7 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -850,716 +850,735 @@
 <span class="lineNum">     788 </span>            :     }
 <span class="lineNum">     789 </span>            : 
 <span class="lineNum">     790 </span><span class="lineCov">          1 :     msAcquireLock( TLOCK_GDAL );</span>
-<span class="lineNum">     791 </span><span class="lineCov">          1 :     hDS = GDALOpen(decrypted_path, GA_ReadOnly );</span>
-<span class="lineNum">     792 </span>            : 
-<span class="lineNum">     793 </span><span class="lineCov">          1 :     if( hDS == NULL ) {</span>
-<span class="lineNum">     794 </span><span class="lineNoCov">          0 :       int ignore_missing = msMapIgnoreMissingData( map );</span>
-<span class="lineNum">     795 </span><span class="lineNoCov">          0 :       const char *cpl_error_msg = msDrawRasterGetCPLErrorMsg(decrypted_path, szPath);</span>
-<span class="lineNum">     796 </span>            : 
-<span class="lineNum">     797 </span><span class="lineNoCov">          0 :       msFree( decrypted_path );</span>
-<span class="lineNum">     798 </span>            :       decrypted_path = NULL;
-<span class="lineNum">     799 </span>            : 
-<span class="lineNum">     800 </span><span class="lineNoCov">          0 :       msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">     801 </span>            : 
-<span class="lineNum">     802 </span><span class="lineNoCov">          0 :       if ( ignore_missing == MS_MISSING_DATA_FAIL ) {</span>
-<span class="lineNum">     803 </span><span class="lineNoCov">          0 :         if( layer-&gt;debug || map-&gt;debug )</span>
-<span class="lineNum">     804 </span><span class="lineNoCov">          0 :           msSetError( MS_IMGERR,</span>
-<span class="lineNum">     805 </span>            :                       &quot;Unable to open file %s for layer %s ... fatal error.\n%s&quot;,
-<span class="lineNum">     806 </span>            :                       &quot;msRasterQueryByRect()&quot;,
-<span class="lineNum">     807 </span>            :                       szPath, layer-&gt;name, cpl_error_msg);
-<span class="lineNum">     808 </span>            :         status = MS_FAILURE;
-<span class="lineNum">     809 </span>            :         goto cleanup;
-<span class="lineNum">     810 </span>            :       }
-<span class="lineNum">     811 </span><span class="lineNoCov">          0 :       if( ignore_missing == MS_MISSING_DATA_LOG ) {</span>
-<span class="lineNum">     812 </span><span class="lineNoCov">          0 :         if( layer-&gt;debug || map-&gt;debug )</span>
-<span class="lineNum">     813 </span><span class="lineNoCov">          0 :           msDebug( &quot;Unable to open file %s for layer %s ... ignoring this missing data.\n%s&quot;,</span>
-<span class="lineNum">     814 </span>            :                    filename, layer-&gt;name, cpl_error_msg );
-<span class="lineNum">     815 </span>            :       }
-<span class="lineNum">     816 </span><span class="lineNoCov">          0 :       continue;</span>
-<span class="lineNum">     817 </span>            :     }
-<span class="lineNum">     818 </span>            : 
-<span class="lineNum">     819 </span><span class="lineCov">          1 :     msFree( decrypted_path );</span>
-<span class="lineNum">     820 </span>            :     decrypted_path = NULL;
-<span class="lineNum">     821 </span>            : 
-<span class="lineNum">     822 </span><span class="lineCov">          1 :     if( msDrawRasterLoadProjection(layer, hDS, filename, tilesrsindex, tilesrsname) != MS_SUCCESS )</span>
-<span class="lineNum">     823 </span>            :     {
-<span class="lineNum">     824 </span><span class="lineNoCov">          0 :         msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">     825 </span>            :         status = MS_FAILURE;
-<span class="lineNum">     826 </span><span class="lineNoCov">          0 :         goto cleanup;</span>
-<span class="lineNum">     827 </span>            :     }
-<span class="lineNum">     828 </span>            : 
-<span class="lineNum">     829 </span>            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     830 </span>            :     /*      Perform actual query on this file.                              */
-<span class="lineNum">     831 </span>            :     /* -------------------------------------------------------------------- */
-<span class="lineNum">     832 </span><span class="lineCov">          1 :     if( status == MS_SUCCESS )</span>
-<span class="lineNum">     833 </span><span class="lineCov">          1 :       status = msRasterQueryByRectLow( map, layer, hDS, queryRect );</span>
+<span class="lineNum">     791 </span><span class="lineCov">          1 :     if( !layer-&gt;tileindex )</span>
+<span class="lineNum">     792 </span>            :     {
+<span class="lineNum">     793 </span><span class="lineCov">          1 :         char** connectionoptions = msGetStringListFromHashTable(&amp;(layer-&gt;connectionoptions));</span>
+<span class="lineNum">     794 </span><span class="lineCov">          1 :         hDS = GDALOpenEx(decrypted_path,</span>
+<span class="lineNum">     795 </span>            :                                     GDAL_OF_RASTER,
+<span class="lineNum">     796 </span>            :                                     NULL,
+<span class="lineNum">     797 </span>            :                                     (const char* const*)connectionoptions,
+<span class="lineNum">     798 </span>            :                                     NULL);
+<span class="lineNum">     799 </span><span class="lineCov">          1 :         CSLDestroy(connectionoptions);</span>
+<span class="lineNum">     800 </span>            :     }
+<span class="lineNum">     801 </span>            :     else
+<span class="lineNum">     802 </span>            :     {
+<span class="lineNum">     803 </span><span class="lineCov">          1 :         hDS = GDALOpen(decrypted_path, GA_ReadOnly );</span>
+<span class="lineNum">     804 </span>            :     }
+<span class="lineNum">     805 </span>            : 
+<span class="lineNum">     806 </span><span class="lineCov">          1 :     if( hDS == NULL ) {</span>
+<span class="lineNum">     807 </span><span class="lineNoCov">          0 :       int ignore_missing = msMapIgnoreMissingData( map );</span>
+<span class="lineNum">     808 </span><span class="lineNoCov">          0 :       const char *cpl_error_msg = msDrawRasterGetCPLErrorMsg(decrypted_path, szPath);</span>
+<span class="lineNum">     809 </span>            : 
+<span class="lineNum">     810 </span><span class="lineNoCov">          0 :       msFree( decrypted_path );</span>
+<span class="lineNum">     811 </span>            :       decrypted_path = NULL;
+<span class="lineNum">     812 </span>            : 
+<span class="lineNum">     813 </span><span class="lineNoCov">          0 :       msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">     814 </span>            : 
+<span class="lineNum">     815 </span><span class="lineNoCov">          0 :       if ( ignore_missing == MS_MISSING_DATA_FAIL ) {</span>
+<span class="lineNum">     816 </span><span class="lineNoCov">          0 :         if( layer-&gt;debug || map-&gt;debug )</span>
+<span class="lineNum">     817 </span><span class="lineNoCov">          0 :           msSetError( MS_IMGERR,</span>
+<span class="lineNum">     818 </span>            :                       &quot;Unable to open file %s for layer %s ... fatal error.\n%s&quot;,
+<span class="lineNum">     819 </span>            :                       &quot;msRasterQueryByRect()&quot;,
+<span class="lineNum">     820 </span>            :                       szPath, layer-&gt;name, cpl_error_msg);
+<span class="lineNum">     821 </span>            :         status = MS_FAILURE;
+<span class="lineNum">     822 </span>            :         goto cleanup;
+<span class="lineNum">     823 </span>            :       }
+<span class="lineNum">     824 </span><span class="lineNoCov">          0 :       if( ignore_missing == MS_MISSING_DATA_LOG ) {</span>
+<span class="lineNum">     825 </span><span class="lineNoCov">          0 :         if( layer-&gt;debug || map-&gt;debug )</span>
+<span class="lineNum">     826 </span><span class="lineNoCov">          0 :           msDebug( &quot;Unable to open file %s for layer %s ... ignoring this missing data.\n%s&quot;,</span>
+<span class="lineNum">     827 </span>            :                    filename, layer-&gt;name, cpl_error_msg );
+<span class="lineNum">     828 </span>            :       }
+<span class="lineNum">     829 </span><span class="lineNoCov">          0 :       continue;</span>
+<span class="lineNum">     830 </span>            :     }
+<span class="lineNum">     831 </span>            : 
+<span class="lineNum">     832 </span><span class="lineCov">          1 :     msFree( decrypted_path );</span>
+<span class="lineNum">     833 </span>            :     decrypted_path = NULL;
 <span class="lineNum">     834 </span>            : 
-<span class="lineNum">     835 </span><span class="lineCov">          1 :     GDALClose( hDS );</span>
-<span class="lineNum">     836 </span><span class="lineCov">          1 :     msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">     837 </span>            : 
-<span class="lineNum">     838 </span>            :   } /* next tile */
-<span class="lineNum">     839 </span>            : 
-<span class="lineNum">     840 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     841 </span>            :   /*      Cleanup tileindex if it is open.                                */
-<span class="lineNum">     842 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     843 </span>            : cleanup:
-<span class="lineNum">     844 </span><span class="lineCov">          1 :   if(layer-&gt;tileindex) { /* tiling clean-up */</span>
-<span class="lineNum">     845 </span><span class="lineCov">          1 :     msDrawRasterCleanupTileLayer(tlp, tilelayerindex);</span>
-<span class="lineNum">     846 </span>            :   } else {
-<span class="lineNum">     847 </span><span class="lineCov">          1 :     msLayerRestoreFromScaletokens(layer);</span>
-<span class="lineNum">     848 </span>            :   }
-<span class="lineNum">     849 </span>            : 
-<span class="lineNum">     850 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     851 </span>            :   /*      On failure, or empty result set, cleanup the rlinfo since we    */
-<span class="lineNum">     852 </span>            :   /*      likely won't ever have it accessed or cleaned up later.         */
+<span class="lineNum">     835 </span><span class="lineCov">          1 :     if( msDrawRasterLoadProjection(layer, hDS, filename, tilesrsindex, tilesrsname) != MS_SUCCESS )</span>
+<span class="lineNum">     836 </span>            :     {
+<span class="lineNum">     837 </span><span class="lineNoCov">          0 :         msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">     838 </span>            :         status = MS_FAILURE;
+<span class="lineNum">     839 </span><span class="lineNoCov">          0 :         goto cleanup;</span>
+<span class="lineNum">     840 </span>            :     }
+<span class="lineNum">     841 </span>            : 
+<span class="lineNum">     842 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     843 </span>            :     /*      Perform actual query on this file.                              */
+<span class="lineNum">     844 </span>            :     /* -------------------------------------------------------------------- */
+<span class="lineNum">     845 </span><span class="lineCov">          1 :     if( status == MS_SUCCESS )</span>
+<span class="lineNum">     846 </span><span class="lineCov">          1 :       status = msRasterQueryByRectLow( map, layer, hDS, queryRect );</span>
+<span class="lineNum">     847 </span>            : 
+<span class="lineNum">     848 </span><span class="lineCov">          1 :     GDALClose( hDS );</span>
+<span class="lineNum">     849 </span><span class="lineCov">          1 :     msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">     850 </span>            : 
+<span class="lineNum">     851 </span>            :   } /* next tile */
+<span class="lineNum">     852 </span>            : 
 <span class="lineNum">     853 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     854 </span><span class="lineCov">          1 :   if( status == MS_FAILURE || rlinfo-&gt;query_results == 0 ) {</span>
-<span class="lineNum">     855 </span><span class="lineCov">          1 :     if(destroy_on_failure) {</span>
-<span class="lineNum">     856 </span><span class="lineNoCov">          0 :       msRasterLayerInfoFree( layer );</span>
-<span class="lineNum">     857 </span>            :     }
-<span class="lineNum">     858 </span>            :   } else {
-<span class="lineNum">     859 </span>            :     /* populate the items/numitems layer-level values */
-<span class="lineNum">     860 </span><span class="lineCov">          1 :     msRASTERLayerGetItems(layer);</span>
+<span class="lineNum">     854 </span>            :   /*      Cleanup tileindex if it is open.                                */
+<span class="lineNum">     855 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     856 </span>            : cleanup:
+<span class="lineNum">     857 </span><span class="lineCov">          1 :   if(layer-&gt;tileindex) { /* tiling clean-up */</span>
+<span class="lineNum">     858 </span><span class="lineCov">          1 :     msDrawRasterCleanupTileLayer(tlp, tilelayerindex);</span>
+<span class="lineNum">     859 </span>            :   } else {
+<span class="lineNum">     860 </span><span class="lineCov">          1 :     msLayerRestoreFromScaletokens(layer);</span>
 <span class="lineNum">     861 </span>            :   }
 <span class="lineNum">     862 </span>            : 
-<span class="lineNum">     863 </span><span class="lineCov">          1 :   return status;</span>
-<span class="lineNum">     864 </span>            : #endif /* def USE_GDAL */
-<span class="lineNum">     865 </span>            : }
-<span class="lineNum">     866 </span>            : 
-<span class="lineNum">     867 </span>            : /************************************************************************/
-<span class="lineNum">     868 </span>            : /*                        msRasterQueryByShape()                        */
-<a name="869"><span class="lineNum">     869 </span>            : /************************************************************************/</a>
-<span class="lineNum">     870 </span>            : 
-<span class="lineNum">     871 </span><span class="lineCov">          1 : int msRasterQueryByShape(mapObj *map, layerObj *layer, shapeObj *selectshape)</span>
-<span class="lineNum">     872 </span>            : 
-<span class="lineNum">     873 </span>            : {
-<span class="lineNum">     874 </span>            : #ifndef USE_GDAL
-<span class="lineNum">     875 </span>            :   msSetError( MS_IMGERR,
-<span class="lineNum">     876 </span>            :               &quot;Rasters queries only supported with GDAL support enabled.&quot;,
-<span class="lineNum">     877 </span>            :               &quot;msRasterQueryByRect()&quot; );
-<span class="lineNum">     878 </span>            :   return MS_FAILURE;
-<span class="lineNum">     879 </span>            : #else
-<span class="lineNum">     880 </span>            :   rasterLayerInfo *rlinfo = NULL;
-<span class="lineNum">     881 </span>            :   int status;
-<span class="lineNum">     882 </span>            :   double tolerance;
-<span class="lineNum">     883 </span>            :   rectObj searchrect;
-<span class="lineNum">     884 </span>            : 
-<span class="lineNum">     885 </span><span class="lineCov">          1 :   msRasterLayerInfoInitialize( layer );</span>
-<span class="lineNum">     886 </span>            : 
-<span class="lineNum">     887 </span><span class="lineCov">          1 :   rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
-<span class="lineNum">     888 </span>            : 
-<span class="lineNum">     889 </span>            :   /* If the selection shape is point or line we use the default tolerance of
-<span class="lineNum">     890 </span>            :      3, but for polygons we require an exact hit. */
-<span class="lineNum">     891 </span><span class="lineCov">          1 :   if(layer-&gt;tolerance == -1) {</span>
-<span class="lineNum">     892 </span><span class="lineCov">          1 :     if(selectshape-&gt;type == MS_SHAPE_POINT ||</span>
-<span class="lineNum">     893 </span>            :         selectshape-&gt;type == MS_SHAPE_LINE)
-<span class="lineNum">     894 </span>            :       tolerance = 3;
-<span class="lineNum">     895 </span>            :     else
-<span class="lineNum">     896 </span>            :       tolerance = 0;
-<span class="lineNum">     897 </span>            :   } else
-<span class="lineNum">     898 </span>            :     tolerance = layer-&gt;tolerance;
+<span class="lineNum">     863 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     864 </span>            :   /*      On failure, or empty result set, cleanup the rlinfo since we    */
+<span class="lineNum">     865 </span>            :   /*      likely won't ever have it accessed or cleaned up later.         */
+<span class="lineNum">     866 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     867 </span><span class="lineCov">          1 :   if( status == MS_FAILURE || rlinfo-&gt;query_results == 0 ) {</span>
+<span class="lineNum">     868 </span><span class="lineCov">          1 :     if(destroy_on_failure) {</span>
+<span class="lineNum">     869 </span><span class="lineNoCov">          0 :       msRasterLayerInfoFree( layer );</span>
+<span class="lineNum">     870 </span>            :     }
+<span class="lineNum">     871 </span>            :   } else {
+<span class="lineNum">     872 </span>            :     /* populate the items/numitems layer-level values */
+<span class="lineNum">     873 </span><span class="lineCov">          1 :     msRASTERLayerGetItems(layer);</span>
+<span class="lineNum">     874 </span>            :   }
+<span class="lineNum">     875 </span>            : 
+<span class="lineNum">     876 </span><span class="lineCov">          1 :   return status;</span>
+<span class="lineNum">     877 </span>            : #endif /* def USE_GDAL */
+<span class="lineNum">     878 </span>            : }
+<span class="lineNum">     879 </span>            : 
+<span class="lineNum">     880 </span>            : /************************************************************************/
+<span class="lineNum">     881 </span>            : /*                        msRasterQueryByShape()                        */
+<a name="882"><span class="lineNum">     882 </span>            : /************************************************************************/</a>
+<span class="lineNum">     883 </span>            : 
+<span class="lineNum">     884 </span><span class="lineCov">          1 : int msRasterQueryByShape(mapObj *map, layerObj *layer, shapeObj *selectshape)</span>
+<span class="lineNum">     885 </span>            : 
+<span class="lineNum">     886 </span>            : {
+<span class="lineNum">     887 </span>            : #ifndef USE_GDAL
+<span class="lineNum">     888 </span>            :   msSetError( MS_IMGERR,
+<span class="lineNum">     889 </span>            :               &quot;Rasters queries only supported with GDAL support enabled.&quot;,
+<span class="lineNum">     890 </span>            :               &quot;msRasterQueryByRect()&quot; );
+<span class="lineNum">     891 </span>            :   return MS_FAILURE;
+<span class="lineNum">     892 </span>            : #else
+<span class="lineNum">     893 </span>            :   rasterLayerInfo *rlinfo = NULL;
+<span class="lineNum">     894 </span>            :   int status;
+<span class="lineNum">     895 </span>            :   double tolerance;
+<span class="lineNum">     896 </span>            :   rectObj searchrect;
+<span class="lineNum">     897 </span>            : 
+<span class="lineNum">     898 </span><span class="lineCov">          1 :   msRasterLayerInfoInitialize( layer );</span>
 <span class="lineNum">     899 </span>            : 
-<span class="lineNum">     900 </span><span class="lineCov">          1 :   if(layer-&gt;toleranceunits == MS_PIXELS)</span>
-<span class="lineNum">     901 </span><span class="lineCov">          1 :     tolerance = tolerance</span>
-<span class="lineNum">     902 </span><span class="lineCov">          1 :                 * msAdjustExtent(&amp;(map-&gt;extent), map-&gt;width, map-&gt;height);</span>
-<span class="lineNum">     903 </span>            :   else
-<span class="lineNum">     904 </span><span class="lineNoCov">          0 :     tolerance = tolerance</span>
-<span class="lineNum">     905 </span><span class="lineNoCov">          0 :                 * (msInchesPerUnit(layer-&gt;toleranceunits,0)</span>
-<span class="lineNum">     906 </span><span class="lineNoCov">          0 :                    / msInchesPerUnit(map-&gt;units,0));</span>
-<span class="lineNum">     907 </span>            : 
-<span class="lineNum">     908 </span><span class="lineCov">          1 :   rlinfo-&gt;searchshape = selectshape;</span>
-<span class="lineNum">     909 </span><span class="lineCov">          1 :   rlinfo-&gt;shape_tolerance = tolerance;</span>
-<span class="lineNum">     910 </span>            : 
-<span class="lineNum">     911 </span><span class="lineCov">          1 :   msComputeBounds( selectshape );</span>
-<span class="lineNum">     912 </span><span class="lineCov">          1 :   searchrect = selectshape-&gt;bounds;</span>
-<span class="lineNum">     913 </span>            : 
-<span class="lineNum">     914 </span><span class="lineCov">          1 :   searchrect.minx -= tolerance; /* expand the search box to account for layer tolerances (e.g. buffered searches) */</span>
-<span class="lineNum">     915 </span><span class="lineCov">          1 :   searchrect.maxx += tolerance;</span>
-<span class="lineNum">     916 </span><span class="lineCov">          1 :   searchrect.miny -= tolerance;</span>
-<span class="lineNum">     917 </span><span class="lineCov">          1 :   searchrect.maxy += tolerance;</span>
-<span class="lineNum">     918 </span>            : 
-<span class="lineNum">     919 </span><span class="lineCov">          1 :   status = msRasterQueryByRect( map, layer, searchrect );</span>
+<span class="lineNum">     900 </span><span class="lineCov">          1 :   rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     901 </span>            : 
+<span class="lineNum">     902 </span>            :   /* If the selection shape is point or line we use the default tolerance of
+<span class="lineNum">     903 </span>            :      3, but for polygons we require an exact hit. */
+<span class="lineNum">     904 </span><span class="lineCov">          1 :   if(layer-&gt;tolerance == -1) {</span>
+<span class="lineNum">     905 </span><span class="lineCov">          1 :     if(selectshape-&gt;type == MS_SHAPE_POINT ||</span>
+<span class="lineNum">     906 </span>            :         selectshape-&gt;type == MS_SHAPE_LINE)
+<span class="lineNum">     907 </span>            :       tolerance = 3;
+<span class="lineNum">     908 </span>            :     else
+<span class="lineNum">     909 </span>            :       tolerance = 0;
+<span class="lineNum">     910 </span>            :   } else
+<span class="lineNum">     911 </span>            :     tolerance = layer-&gt;tolerance;
+<span class="lineNum">     912 </span>            : 
+<span class="lineNum">     913 </span><span class="lineCov">          1 :   if(layer-&gt;toleranceunits == MS_PIXELS)</span>
+<span class="lineNum">     914 </span><span class="lineCov">          1 :     tolerance = tolerance</span>
+<span class="lineNum">     915 </span><span class="lineCov">          1 :                 * msAdjustExtent(&amp;(map-&gt;extent), map-&gt;width, map-&gt;height);</span>
+<span class="lineNum">     916 </span>            :   else
+<span class="lineNum">     917 </span><span class="lineNoCov">          0 :     tolerance = tolerance</span>
+<span class="lineNum">     918 </span><span class="lineNoCov">          0 :                 * (msInchesPerUnit(layer-&gt;toleranceunits,0)</span>
+<span class="lineNum">     919 </span><span class="lineNoCov">          0 :                    / msInchesPerUnit(map-&gt;units,0));</span>
 <span class="lineNum">     920 </span>            : 
-<span class="lineNum">     921 </span><span class="lineCov">          1 :   rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
-<span class="lineNum">     922 </span><span class="lineCov">          1 :   if( rlinfo )</span>
-<span class="lineNum">     923 </span><span class="lineCov">          1 :     rlinfo-&gt;searchshape = NULL;</span>
-<span class="lineNum">     924 </span>            : 
-<span class="lineNum">     925 </span><span class="lineCov">          1 :   return status;</span>
-<span class="lineNum">     926 </span>            : #endif /* USE_GDAL  */
-<span class="lineNum">     927 </span>            : }
-<span class="lineNum">     928 </span>            : 
-<span class="lineNum">     929 </span>            : /************************************************************************/
-<span class="lineNum">     930 </span>            : /*                        msRasterQueryByPoint()                        */
-<a name="931"><span class="lineNum">     931 </span>            : /************************************************************************/</a>
-<span class="lineNum">     932 </span>            : 
-<span class="lineNum">     933 </span><span class="lineCov">          1 : int msRasterQueryByPoint(mapObj *map, layerObj *layer, int mode, pointObj p,</span>
-<span class="lineNum">     934 </span>            :                          double buffer, int maxresults)
-<span class="lineNum">     935 </span>            : {
-<span class="lineNum">     936 </span>            : #ifndef USE_GDAL
-<span class="lineNum">     937 </span>            :   msSetError( MS_IMGERR,
-<span class="lineNum">     938 </span>            :               &quot;Rasters queries only supported with GDAL support enabled.&quot;,
-<span class="lineNum">     939 </span>            :               &quot;msRasterQueryByRect()&quot; );
-<span class="lineNum">     940 </span>            :   return MS_FAILURE;
-<span class="lineNum">     941 </span>            : #else
-<span class="lineNum">     942 </span>            :   int result;
-<span class="lineNum">     943 </span>            :   int previous_maxresults;
-<span class="lineNum">     944 </span>            :   double layer_tolerance;
-<span class="lineNum">     945 </span>            :   rectObj bufferRect;
-<span class="lineNum">     946 </span>            :   rasterLayerInfo *rlinfo = NULL;
-<span class="lineNum">     947 </span>            : 
-<span class="lineNum">     948 </span><span class="lineCov">          1 :   msRasterLayerInfoInitialize( layer );</span>
-<span class="lineNum">     949 </span>            : 
-<span class="lineNum">     950 </span><span class="lineCov">          1 :   rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
-<span class="lineNum">     951 </span>            : 
-<span class="lineNum">     952 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     953 </span>            :   /*      If the buffer is not set, then use layer tolerances             */
-<span class="lineNum">     954 </span>            :   /*      instead.   The &quot;buffer&quot; distince is now in georeferenced        */
-<span class="lineNum">     955 </span>            :   /*      units.  Note that tolerances in pixels are basically map        */
-<span class="lineNum">     956 </span>            :   /*      display pixels, not underlying raster pixels.  It isn't         */
-<span class="lineNum">     957 </span>            :   /*      clear that there is any way of requesting a buffer size in      */
-<span class="lineNum">     958 </span>            :   /*      underlying pixels.                                              */
-<span class="lineNum">     959 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     960 </span><span class="lineCov">          1 :   if(buffer &lt;= 0) { /* use layer tolerance */</span>
-<span class="lineNum">     961 </span><span class="lineCov">          1 :     if(layer-&gt;tolerance == -1)</span>
-<span class="lineNum">     962 </span>            :       layer_tolerance = 3;
-<span class="lineNum">     963 </span>            :     else
-<span class="lineNum">     964 </span>            :       layer_tolerance = layer-&gt;tolerance;
-<span class="lineNum">     965 </span>            : 
-<span class="lineNum">     966 </span><span class="lineCov">          1 :     if(layer-&gt;toleranceunits == MS_PIXELS)</span>
-<span class="lineNum">     967 </span><span class="lineCov">          1 :       buffer = layer_tolerance</span>
-<span class="lineNum">     968 </span><span class="lineCov">          1 :                * msAdjustExtent(&amp;(map-&gt;extent), map-&gt;width, map-&gt;height);</span>
-<span class="lineNum">     969 </span>            :     else
-<span class="lineNum">     970 </span><span class="lineNoCov">          0 :       buffer = layer_tolerance</span>
-<span class="lineNum">     971 </span><span class="lineNoCov">          0 :                * (msInchesPerUnit(layer-&gt;toleranceunits,0)</span>
-<span class="lineNum">     972 </span><span class="lineNoCov">          0 :                   / msInchesPerUnit(map-&gt;units,0));</span>
-<span class="lineNum">     973 </span>            :   }
-<span class="lineNum">     974 </span>            : 
-<span class="lineNum">     975 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     976 </span>            :   /*      Setup target point information, at this point they are in       */
-<span class="lineNum">     977 </span>            :   /*      map coordinates.                                                */
-<span class="lineNum">     978 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     979 </span><span class="lineCov">          1 :   rlinfo-&gt;range_dist = buffer * buffer;</span>
-<span class="lineNum">     980 </span><span class="lineCov">          1 :   rlinfo-&gt;target_point = p;</span>
-<span class="lineNum">     981 </span>            : 
-<span class="lineNum">     982 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     983 </span>            :   /*      if we are in the MS_QUERY_SINGLE mode, first try a query with   */
-<span class="lineNum">     984 </span>            :   /*      zero tolerance.  If this gets a raster pixel then we can be     */
-<span class="lineNum">     985 </span>            :   /*      reasonably assured that it is the closest to the query          */
-<span class="lineNum">     986 </span>            :   /*      point.  This will potentially be must more efficient than       */
-<span class="lineNum">     987 </span>            :   /*      processing all pixels within the tolerance.                     */
+<span class="lineNum">     921 </span><span class="lineCov">          1 :   rlinfo-&gt;searchshape = selectshape;</span>
+<span class="lineNum">     922 </span><span class="lineCov">          1 :   rlinfo-&gt;shape_tolerance = tolerance;</span>
+<span class="lineNum">     923 </span>            : 
+<span class="lineNum">     924 </span><span class="lineCov">          1 :   msComputeBounds( selectshape );</span>
+<span class="lineNum">     925 </span><span class="lineCov">          1 :   searchrect = selectshape-&gt;bounds;</span>
+<span class="lineNum">     926 </span>            : 
+<span class="lineNum">     927 </span><span class="lineCov">          1 :   searchrect.minx -= tolerance; /* expand the search box to account for layer tolerances (e.g. buffered searches) */</span>
+<span class="lineNum">     928 </span><span class="lineCov">          1 :   searchrect.maxx += tolerance;</span>
+<span class="lineNum">     929 </span><span class="lineCov">          1 :   searchrect.miny -= tolerance;</span>
+<span class="lineNum">     930 </span><span class="lineCov">          1 :   searchrect.maxy += tolerance;</span>
+<span class="lineNum">     931 </span>            : 
+<span class="lineNum">     932 </span><span class="lineCov">          1 :   status = msRasterQueryByRect( map, layer, searchrect );</span>
+<span class="lineNum">     933 </span>            : 
+<span class="lineNum">     934 </span><span class="lineCov">          1 :   rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     935 </span><span class="lineCov">          1 :   if( rlinfo )</span>
+<span class="lineNum">     936 </span><span class="lineCov">          1 :     rlinfo-&gt;searchshape = NULL;</span>
+<span class="lineNum">     937 </span>            : 
+<span class="lineNum">     938 </span><span class="lineCov">          1 :   return status;</span>
+<span class="lineNum">     939 </span>            : #endif /* USE_GDAL  */
+<span class="lineNum">     940 </span>            : }
+<span class="lineNum">     941 </span>            : 
+<span class="lineNum">     942 </span>            : /************************************************************************/
+<span class="lineNum">     943 </span>            : /*                        msRasterQueryByPoint()                        */
+<a name="944"><span class="lineNum">     944 </span>            : /************************************************************************/</a>
+<span class="lineNum">     945 </span>            : 
+<span class="lineNum">     946 </span><span class="lineCov">          1 : int msRasterQueryByPoint(mapObj *map, layerObj *layer, int mode, pointObj p,</span>
+<span class="lineNum">     947 </span>            :                          double buffer, int maxresults)
+<span class="lineNum">     948 </span>            : {
+<span class="lineNum">     949 </span>            : #ifndef USE_GDAL
+<span class="lineNum">     950 </span>            :   msSetError( MS_IMGERR,
+<span class="lineNum">     951 </span>            :               &quot;Rasters queries only supported with GDAL support enabled.&quot;,
+<span class="lineNum">     952 </span>            :               &quot;msRasterQueryByRect()&quot; );
+<span class="lineNum">     953 </span>            :   return MS_FAILURE;
+<span class="lineNum">     954 </span>            : #else
+<span class="lineNum">     955 </span>            :   int result;
+<span class="lineNum">     956 </span>            :   int previous_maxresults;
+<span class="lineNum">     957 </span>            :   double layer_tolerance;
+<span class="lineNum">     958 </span>            :   rectObj bufferRect;
+<span class="lineNum">     959 </span>            :   rasterLayerInfo *rlinfo = NULL;
+<span class="lineNum">     960 </span>            : 
+<span class="lineNum">     961 </span><span class="lineCov">          1 :   msRasterLayerInfoInitialize( layer );</span>
+<span class="lineNum">     962 </span>            : 
+<span class="lineNum">     963 </span><span class="lineCov">          1 :   rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">     964 </span>            : 
+<span class="lineNum">     965 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     966 </span>            :   /*      If the buffer is not set, then use layer tolerances             */
+<span class="lineNum">     967 </span>            :   /*      instead.   The &quot;buffer&quot; distince is now in georeferenced        */
+<span class="lineNum">     968 </span>            :   /*      units.  Note that tolerances in pixels are basically map        */
+<span class="lineNum">     969 </span>            :   /*      display pixels, not underlying raster pixels.  It isn't         */
+<span class="lineNum">     970 </span>            :   /*      clear that there is any way of requesting a buffer size in      */
+<span class="lineNum">     971 </span>            :   /*      underlying pixels.                                              */
+<span class="lineNum">     972 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     973 </span><span class="lineCov">          1 :   if(buffer &lt;= 0) { /* use layer tolerance */</span>
+<span class="lineNum">     974 </span><span class="lineCov">          1 :     if(layer-&gt;tolerance == -1)</span>
+<span class="lineNum">     975 </span>            :       layer_tolerance = 3;
+<span class="lineNum">     976 </span>            :     else
+<span class="lineNum">     977 </span>            :       layer_tolerance = layer-&gt;tolerance;
+<span class="lineNum">     978 </span>            : 
+<span class="lineNum">     979 </span><span class="lineCov">          1 :     if(layer-&gt;toleranceunits == MS_PIXELS)</span>
+<span class="lineNum">     980 </span><span class="lineCov">          1 :       buffer = layer_tolerance</span>
+<span class="lineNum">     981 </span><span class="lineCov">          1 :                * msAdjustExtent(&amp;(map-&gt;extent), map-&gt;width, map-&gt;height);</span>
+<span class="lineNum">     982 </span>            :     else
+<span class="lineNum">     983 </span><span class="lineNoCov">          0 :       buffer = layer_tolerance</span>
+<span class="lineNum">     984 </span><span class="lineNoCov">          0 :                * (msInchesPerUnit(layer-&gt;toleranceunits,0)</span>
+<span class="lineNum">     985 </span><span class="lineNoCov">          0 :                   / msInchesPerUnit(map-&gt;units,0));</span>
+<span class="lineNum">     986 </span>            :   }
+<span class="lineNum">     987 </span>            : 
 <span class="lineNum">     988 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">     989 </span><span class="lineCov">          1 :   if( mode == MS_QUERY_SINGLE ) {</span>
-<span class="lineNum">     990 </span>            :     rectObj pointRect;
-<span class="lineNum">     991 </span>            : 
-<span class="lineNum">     992 </span><span class="lineCov">          1 :     pointRect.minx = p.x;</span>
-<span class="lineNum">     993 </span><span class="lineCov">          1 :     pointRect.maxx = p.x;</span>
-<span class="lineNum">     994 </span><span class="lineCov">          1 :     pointRect.miny = p.y;</span>
-<span class="lineNum">     995 </span><span class="lineCov">          1 :     pointRect.maxy = p.y;</span>
-<span class="lineNum">     996 </span>            : 
-<span class="lineNum">     997 </span><span class="lineCov">          1 :     rlinfo-&gt;range_mode = MS_QUERY_SINGLE;</span>
-<span class="lineNum">     998 </span><span class="lineCov">          1 :     result = msRasterQueryByRect( map, layer, pointRect );</span>
-<span class="lineNum">     999 </span><span class="lineCov">          1 :     if( rlinfo-&gt;query_results &gt; 0 )</span>
-<span class="lineNum">    1000 </span><span class="lineCov">          1 :       return result;</span>
-<span class="lineNum">    1001 </span>            :   }
-<span class="lineNum">    1002 </span>            : 
-<span class="lineNum">    1003 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1004 </span>            :   /*      Setup a rectangle that is everything within the designated      */
-<span class="lineNum">    1005 </span>            :   /*      range and do a search against that.                             */
-<span class="lineNum">    1006 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1007 </span><span class="lineCov">          1 :   bufferRect.minx = p.x - buffer;</span>
-<span class="lineNum">    1008 </span><span class="lineCov">          1 :   bufferRect.maxx = p.x + buffer;</span>
-<span class="lineNum">    1009 </span><span class="lineCov">          1 :   bufferRect.miny = p.y - buffer;</span>
-<span class="lineNum">    1010 </span><span class="lineCov">          1 :   bufferRect.maxy = p.y + buffer;</span>
-<span class="lineNum">    1011 </span>            : 
-<span class="lineNum">    1012 </span><span class="lineCov">          1 :   rlinfo-&gt;range_mode = mode;</span>
-<span class="lineNum">    1013 </span>            : 
-<span class="lineNum">    1014 </span><span class="lineCov">          1 :   if( maxresults != 0 ) {</span>
-<span class="lineNum">    1015 </span><span class="lineCov">          1 :     previous_maxresults = rlinfo-&gt;query_result_hard_max;</span>
-<span class="lineNum">    1016 </span><span class="lineCov">          1 :     rlinfo-&gt;query_result_hard_max = maxresults;</span>
-<span class="lineNum">    1017 </span>            :   }
-<span class="lineNum">    1018 </span>            : 
-<span class="lineNum">    1019 </span><span class="lineCov">          1 :   result = msRasterQueryByRect( map, layer, bufferRect );</span>
-<span class="lineNum">    1020 </span>            : 
-<span class="lineNum">    1021 </span><span class="lineCov">          1 :   if( maxresults != 0 )</span>
-<span class="lineNum">    1022 </span><span class="lineCov">          1 :     rlinfo-&gt;query_result_hard_max = previous_maxresults;</span>
-<span class="lineNum">    1023 </span>            : 
-<span class="lineNum">    1024 </span><span class="lineCov">          1 :   return result;</span>
-<span class="lineNum">    1025 </span>            : #endif /* USE_GDAL  */
-<span class="lineNum">    1026 </span>            : }
-<span class="lineNum">    1027 </span>            : 
-<span class="lineNum">    1028 </span>            : /************************************************************************/
-<span class="lineNum">    1029 </span>            : /* ==================================================================== */
-<span class="lineNum">    1030 </span>            : /*                          RASTER Query Layer                          */
-<span class="lineNum">    1031 </span>            : /*                                                                      */
-<span class="lineNum">    1032 </span>            : /*      The results of a raster query are treated as a set of shapes    */
-<span class="lineNum">    1033 </span>            : /*      that can be accessed using the normal layer semantics.          */
-<span class="lineNum">    1034 </span>            : /* ==================================================================== */
-<span class="lineNum">    1035 </span>            : /************************************************************************/
+<span class="lineNum">     989 </span>            :   /*      Setup target point information, at this point they are in       */
+<span class="lineNum">     990 </span>            :   /*      map coordinates.                                                */
+<span class="lineNum">     991 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     992 </span><span class="lineCov">          1 :   rlinfo-&gt;range_dist = buffer * buffer;</span>
+<span class="lineNum">     993 </span><span class="lineCov">          1 :   rlinfo-&gt;target_point = p;</span>
+<span class="lineNum">     994 </span>            : 
+<span class="lineNum">     995 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">     996 </span>            :   /*      if we are in the MS_QUERY_SINGLE mode, first try a query with   */
+<span class="lineNum">     997 </span>            :   /*      zero tolerance.  If this gets a raster pixel then we can be     */
+<span class="lineNum">     998 </span>            :   /*      reasonably assured that it is the closest to the query          */
+<span class="lineNum">     999 </span>            :   /*      point.  This will potentially be must more efficient than       */
+<span class="lineNum">    1000 </span>            :   /*      processing all pixels within the tolerance.                     */
+<span class="lineNum">    1001 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1002 </span><span class="lineCov">          1 :   if( mode == MS_QUERY_SINGLE ) {</span>
+<span class="lineNum">    1003 </span>            :     rectObj pointRect;
+<span class="lineNum">    1004 </span>            : 
+<span class="lineNum">    1005 </span><span class="lineCov">          1 :     pointRect.minx = p.x;</span>
+<span class="lineNum">    1006 </span><span class="lineCov">          1 :     pointRect.maxx = p.x;</span>
+<span class="lineNum">    1007 </span><span class="lineCov">          1 :     pointRect.miny = p.y;</span>
+<span class="lineNum">    1008 </span><span class="lineCov">          1 :     pointRect.maxy = p.y;</span>
+<span class="lineNum">    1009 </span>            : 
+<span class="lineNum">    1010 </span><span class="lineCov">          1 :     rlinfo-&gt;range_mode = MS_QUERY_SINGLE;</span>
+<span class="lineNum">    1011 </span><span class="lineCov">          1 :     result = msRasterQueryByRect( map, layer, pointRect );</span>
+<span class="lineNum">    1012 </span><span class="lineCov">          1 :     if( rlinfo-&gt;query_results &gt; 0 )</span>
+<span class="lineNum">    1013 </span><span class="lineCov">          1 :       return result;</span>
+<span class="lineNum">    1014 </span>            :   }
+<span class="lineNum">    1015 </span>            : 
+<span class="lineNum">    1016 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1017 </span>            :   /*      Setup a rectangle that is everything within the designated      */
+<span class="lineNum">    1018 </span>            :   /*      range and do a search against that.                             */
+<span class="lineNum">    1019 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1020 </span><span class="lineCov">          1 :   bufferRect.minx = p.x - buffer;</span>
+<span class="lineNum">    1021 </span><span class="lineCov">          1 :   bufferRect.maxx = p.x + buffer;</span>
+<span class="lineNum">    1022 </span><span class="lineCov">          1 :   bufferRect.miny = p.y - buffer;</span>
+<span class="lineNum">    1023 </span><span class="lineCov">          1 :   bufferRect.maxy = p.y + buffer;</span>
+<span class="lineNum">    1024 </span>            : 
+<span class="lineNum">    1025 </span><span class="lineCov">          1 :   rlinfo-&gt;range_mode = mode;</span>
+<span class="lineNum">    1026 </span>            : 
+<span class="lineNum">    1027 </span><span class="lineCov">          1 :   if( maxresults != 0 ) {</span>
+<span class="lineNum">    1028 </span><span class="lineCov">          1 :     previous_maxresults = rlinfo-&gt;query_result_hard_max;</span>
+<span class="lineNum">    1029 </span><span class="lineCov">          1 :     rlinfo-&gt;query_result_hard_max = maxresults;</span>
+<span class="lineNum">    1030 </span>            :   }
+<span class="lineNum">    1031 </span>            : 
+<span class="lineNum">    1032 </span><span class="lineCov">          1 :   result = msRasterQueryByRect( map, layer, bufferRect );</span>
+<span class="lineNum">    1033 </span>            : 
+<span class="lineNum">    1034 </span><span class="lineCov">          1 :   if( maxresults != 0 )</span>
+<span class="lineNum">    1035 </span><span class="lineCov">          1 :     rlinfo-&gt;query_result_hard_max = previous_maxresults;</span>
 <span class="lineNum">    1036 </span>            : 
-<span class="lineNum">    1037 </span>            : /************************************************************************/
-<span class="lineNum">    1038 </span>            : /*                         msRASTERLayerOpen()                          */
-<a name="1039"><span class="lineNum">    1039 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1037 </span><span class="lineCov">          1 :   return result;</span>
+<span class="lineNum">    1038 </span>            : #endif /* USE_GDAL  */
+<span class="lineNum">    1039 </span>            : }
 <span class="lineNum">    1040 </span>            : 
-<span class="lineNum">    1041 </span><span class="lineCov">          1 : int msRASTERLayerOpen(layerObj *layer)</span>
-<span class="lineNum">    1042 </span>            : {
-<span class="lineNum">    1043 </span>            : #ifndef USE_GDAL
-<span class="lineNum">    1044 </span>            :   msSetError( MS_IMGERR,
-<span class="lineNum">    1045 </span>            :               &quot;Rasters queries only supported with GDAL support enabled.&quot;,
-<span class="lineNum">    1046 </span>            :               &quot;msRASTERLayerOpen()&quot; );
-<span class="lineNum">    1047 </span>            :   return MS_FAILURE;
-<span class="lineNum">    1048 </span>            : #else
-<span class="lineNum">    1049 </span>            :   rasterLayerInfo *rlinfo;
-<span class="lineNum">    1050 </span>            : 
-<span class="lineNum">    1051 </span>            :   /* If we don't have info, initialize an empty one now */
-<span class="lineNum">    1052 </span><span class="lineCov">          1 :   if( layer-&gt;layerinfo == NULL )</span>
-<span class="lineNum">    1053 </span><span class="lineCov">          1 :     msRasterLayerInfoInitialize( layer );</span>
-<span class="lineNum">    1054 </span>            : 
-<span class="lineNum">    1055 </span><span class="lineCov">          1 :   rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
-<span class="lineNum">    1056 </span>            : 
-<span class="lineNum">    1057 </span><span class="lineCov">          1 :   rlinfo-&gt;refcount = rlinfo-&gt;refcount + 1;</span>
-<span class="lineNum">    1058 </span>            : 
-<span class="lineNum">    1059 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1060 </span>            : #endif /* def USE_GDAL */
-<span class="lineNum">    1061 </span>            : }
-<span class="lineNum">    1062 </span>            : 
-<span class="lineNum">    1063 </span>            : /************************************************************************/
-<span class="lineNum">    1064 </span>            : /*                         msRASTERIsLayerOpen()                        */
-<a name="1065"><span class="lineNum">    1065 </span>            : /************************************************************************/</a>
-<span class="lineNum">    1066 </span>            : 
-<span class="lineNum">    1067 </span><span class="lineCov">          1 : int msRASTERLayerIsOpen(layerObj *layer)</span>
-<span class="lineNum">    1068 </span>            : {
-<span class="lineNum">    1069 </span>            : #ifndef USE_GDAL
-<span class="lineNum">    1070 </span>            :   msSetError( MS_IMGERR,
-<span class="lineNum">    1071 </span>            :               &quot;Rasters queries only supported with GDAL support enabled.&quot;,
-<span class="lineNum">    1072 </span>            :               &quot;msRasterLayerIsOpen()&quot; );
-<span class="lineNum">    1073 </span>            :   return MS_FALSE;
-<span class="lineNum">    1074 </span>            : #else
-<span class="lineNum">    1075 </span><span class="lineCov">          1 :   if (layer-&gt;layerinfo)</span>
-<span class="lineNum">    1076 </span>            :     return MS_TRUE;
-<span class="lineNum">    1077 </span><span class="lineCov">          1 :   return MS_FALSE;</span>
-<span class="lineNum">    1078 </span>            : #endif
-<span class="lineNum">    1079 </span>            : }
-<span class="lineNum">    1080 </span>            : 
-<span class="lineNum">    1081 </span>            : 
-<span class="lineNum">    1082 </span>            : /************************************************************************/
-<a name="1083"><span class="lineNum">    1083 </span>            : /*                     msRASTERLayerFreeItemInfo()                      */</a>
-<span class="lineNum">    1084 </span>            : /************************************************************************/
-<span class="lineNum">    1085 </span><span class="lineCov">          1 : void msRASTERLayerFreeItemInfo(layerObj *layer)</span>
-<span class="lineNum">    1086 </span><span class="lineCov">          1 : {}</span>
-<span class="lineNum">    1087 </span>            : 
-<span class="lineNum">    1088 </span>            : /************************************************************************/
-<span class="lineNum">    1089 </span>            : /*                     msRASTERLayerInitItemInfo()                      */
-<span class="lineNum">    1090 </span>            : /*                                                                      */
-<span class="lineNum">    1091 </span>            : /*      Perhaps we should be validating the requested items here?       */
-<a name="1092"><span class="lineNum">    1092 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1041 </span>            : /************************************************************************/
+<span class="lineNum">    1042 </span>            : /* ==================================================================== */
+<span class="lineNum">    1043 </span>            : /*                          RASTER Query Layer                          */
+<span class="lineNum">    1044 </span>            : /*                                                                      */
+<span class="lineNum">    1045 </span>            : /*      The results of a raster query are treated as a set of shapes    */
+<span class="lineNum">    1046 </span>            : /*      that can be accessed using the normal layer semantics.          */
+<span class="lineNum">    1047 </span>            : /* ==================================================================== */
+<span class="lineNum">    1048 </span>            : /************************************************************************/
+<span class="lineNum">    1049 </span>            : 
+<span class="lineNum">    1050 </span>            : /************************************************************************/
+<span class="lineNum">    1051 </span>            : /*                         msRASTERLayerOpen()                          */
+<a name="1052"><span class="lineNum">    1052 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1053 </span>            : 
+<span class="lineNum">    1054 </span><span class="lineCov">          1 : int msRASTERLayerOpen(layerObj *layer)</span>
+<span class="lineNum">    1055 </span>            : {
+<span class="lineNum">    1056 </span>            : #ifndef USE_GDAL
+<span class="lineNum">    1057 </span>            :   msSetError( MS_IMGERR,
+<span class="lineNum">    1058 </span>            :               &quot;Rasters queries only supported with GDAL support enabled.&quot;,
+<span class="lineNum">    1059 </span>            :               &quot;msRASTERLayerOpen()&quot; );
+<span class="lineNum">    1060 </span>            :   return MS_FAILURE;
+<span class="lineNum">    1061 </span>            : #else
+<span class="lineNum">    1062 </span>            :   rasterLayerInfo *rlinfo;
+<span class="lineNum">    1063 </span>            : 
+<span class="lineNum">    1064 </span>            :   /* If we don't have info, initialize an empty one now */
+<span class="lineNum">    1065 </span><span class="lineCov">          1 :   if( layer-&gt;layerinfo == NULL )</span>
+<span class="lineNum">    1066 </span><span class="lineCov">          1 :     msRasterLayerInfoInitialize( layer );</span>
+<span class="lineNum">    1067 </span>            : 
+<span class="lineNum">    1068 </span><span class="lineCov">          1 :   rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">    1069 </span>            : 
+<span class="lineNum">    1070 </span><span class="lineCov">          1 :   rlinfo-&gt;refcount = rlinfo-&gt;refcount + 1;</span>
+<span class="lineNum">    1071 </span>            : 
+<span class="lineNum">    1072 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1073 </span>            : #endif /* def USE_GDAL */
+<span class="lineNum">    1074 </span>            : }
+<span class="lineNum">    1075 </span>            : 
+<span class="lineNum">    1076 </span>            : /************************************************************************/
+<span class="lineNum">    1077 </span>            : /*                         msRASTERIsLayerOpen()                        */
+<a name="1078"><span class="lineNum">    1078 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1079 </span>            : 
+<span class="lineNum">    1080 </span><span class="lineCov">          1 : int msRASTERLayerIsOpen(layerObj *layer)</span>
+<span class="lineNum">    1081 </span>            : {
+<span class="lineNum">    1082 </span>            : #ifndef USE_GDAL
+<span class="lineNum">    1083 </span>            :   msSetError( MS_IMGERR,
+<span class="lineNum">    1084 </span>            :               &quot;Rasters queries only supported with GDAL support enabled.&quot;,
+<span class="lineNum">    1085 </span>            :               &quot;msRasterLayerIsOpen()&quot; );
+<span class="lineNum">    1086 </span>            :   return MS_FALSE;
+<span class="lineNum">    1087 </span>            : #else
+<span class="lineNum">    1088 </span><span class="lineCov">          1 :   if (layer-&gt;layerinfo)</span>
+<span class="lineNum">    1089 </span>            :     return MS_TRUE;
+<span class="lineNum">    1090 </span><span class="lineCov">          1 :   return MS_FALSE;</span>
+<span class="lineNum">    1091 </span>            : #endif
+<span class="lineNum">    1092 </span>            : }
 <span class="lineNum">    1093 </span>            : 
-<span class="lineNum">    1094 </span><span class="lineCov">          1 : int msRASTERLayerInitItemInfo(layerObj *layer)</span>
-<span class="lineNum">    1095 </span>            : {
-<span class="lineNum">    1096 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1097 </span>            : }
-<span class="lineNum">    1098 </span>            : 
-<span class="lineNum">    1099 </span>            : /************************************************************************/
-<a name="1100"><span class="lineNum">    1100 </span>            : /*                      msRASTERLayerWhichShapes()                      */</a>
+<span class="lineNum">    1094 </span>            : 
+<span class="lineNum">    1095 </span>            : /************************************************************************/
+<a name="1096"><span class="lineNum">    1096 </span>            : /*                     msRASTERLayerFreeItemInfo()                      */</a>
+<span class="lineNum">    1097 </span>            : /************************************************************************/
+<span class="lineNum">    1098 </span><span class="lineCov">          1 : void msRASTERLayerFreeItemInfo(layerObj *layer)</span>
+<span class="lineNum">    1099 </span><span class="lineCov">          1 : {}</span>
+<span class="lineNum">    1100 </span>            : 
 <span class="lineNum">    1101 </span>            : /************************************************************************/
-<span class="lineNum">    1102 </span><span class="lineNoCov">          0 : int msRASTERLayerWhichShapes(layerObj *layer, rectObj rect, int isQuery)</span>
-<span class="lineNum">    1103 </span>            : 
-<span class="lineNum">    1104 </span>            : {
-<span class="lineNum">    1105 </span>            : #ifndef USE_GDAL
-<span class="lineNum">    1106 </span>            :   return MS_FAILURE;
-<span class="lineNum">    1107 </span>            : #else
-<span class="lineNum">    1108 </span><span class="lineNoCov">          0 :   rasterLayerInfo *rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
-<span class="lineNum">    1109 </span>            : 
-<span class="lineNum">    1110 </span><span class="lineNoCov">          0 :   rlinfo-&gt;which_rect = rect;</span>
-<span class="lineNum">    1111 </span><span class="lineNoCov">          0 :   rlinfo-&gt;next_shape = 0;</span>
-<span class="lineNum">    1112 </span>            : 
-<span class="lineNum">    1113 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1114 </span>            : #endif /* def USE_GDAL */
-<span class="lineNum">    1115 </span>            : }
+<span class="lineNum">    1102 </span>            : /*                     msRASTERLayerInitItemInfo()                      */
+<span class="lineNum">    1103 </span>            : /*                                                                      */
+<span class="lineNum">    1104 </span>            : /*      Perhaps we should be validating the requested items here?       */
+<a name="1105"><span class="lineNum">    1105 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1106 </span>            : 
+<span class="lineNum">    1107 </span><span class="lineCov">          1 : int msRASTERLayerInitItemInfo(layerObj *layer)</span>
+<span class="lineNum">    1108 </span>            : {
+<span class="lineNum">    1109 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1110 </span>            : }
+<span class="lineNum">    1111 </span>            : 
+<span class="lineNum">    1112 </span>            : /************************************************************************/
+<a name="1113"><span class="lineNum">    1113 </span>            : /*                      msRASTERLayerWhichShapes()                      */</a>
+<span class="lineNum">    1114 </span>            : /************************************************************************/
+<span class="lineNum">    1115 </span><span class="lineNoCov">          0 : int msRASTERLayerWhichShapes(layerObj *layer, rectObj rect, int isQuery)</span>
 <span class="lineNum">    1116 </span>            : 
-<span class="lineNum">    1117 </span>            : /************************************************************************/
-<span class="lineNum">    1118 </span>            : /*                         msRASTERLayerClose()                         */
-<a name="1119"><span class="lineNum">    1119 </span>            : /************************************************************************/</a>
-<span class="lineNum">    1120 </span>            : 
-<span class="lineNum">    1121 </span><span class="lineCov">          1 : int msRASTERLayerClose(layerObj *layer)</span>
-<span class="lineNum">    1122 </span>            : {
-<span class="lineNum">    1123 </span>            : #ifndef USE_GDAL
-<span class="lineNum">    1124 </span>            :   return MS_FAILURE;
-<span class="lineNum">    1125 </span>            : #else
-<span class="lineNum">    1126 </span><span class="lineCov">          1 :   rasterLayerInfo *rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
-<span class="lineNum">    1127 </span>            : 
-<span class="lineNum">    1128 </span><span class="lineCov">          1 :   if( rlinfo != NULL ) {</span>
-<span class="lineNum">    1129 </span><span class="lineCov">          1 :     rlinfo-&gt;refcount--;</span>
-<span class="lineNum">    1130 </span>            : 
-<span class="lineNum">    1131 </span><span class="lineCov">          1 :     if( rlinfo-&gt;refcount &lt; 0 )</span>
-<span class="lineNum">    1132 </span><span class="lineCov">          1 :       msRasterLayerInfoFree( layer );</span>
-<span class="lineNum">    1133 </span>            :   }
-<span class="lineNum">    1134 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1135 </span>            : #endif /* def USE_GDAL */
-<span class="lineNum">    1136 </span>            : }
-<span class="lineNum">    1137 </span>            : 
-<span class="lineNum">    1138 </span>            : /************************************************************************/
-<span class="lineNum">    1139 </span>            : /*                       msRASTERLayerNextShape()                       */
-<a name="1140"><span class="lineNum">    1140 </span>            : /************************************************************************/</a>
-<span class="lineNum">    1141 </span>            : 
-<span class="lineNum">    1142 </span><span class="lineNoCov">          0 : int msRASTERLayerNextShape(layerObj *layer, shapeObj *shape)</span>
-<span class="lineNum">    1143 </span>            : {
-<span class="lineNum">    1144 </span>            : #ifndef USE_GDAL
-<span class="lineNum">    1145 </span>            :   return MS_FAILURE;
-<span class="lineNum">    1146 </span>            : #else
-<span class="lineNum">    1147 </span><span class="lineNoCov">          0 :   rasterLayerInfo *rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
-<span class="lineNum">    1148 </span>            : 
-<span class="lineNum">    1149 </span><span class="lineNoCov">          0 :   if( rlinfo-&gt;next_shape &lt; 0</span>
-<span class="lineNum">    1150 </span><span class="lineNoCov">          0 :       || rlinfo-&gt;next_shape &gt;= rlinfo-&gt;query_results ) {</span>
-<span class="lineNum">    1151 </span><span class="lineNoCov">          0 :     msFreeShape(shape);</span>
-<span class="lineNum">    1152 </span><span class="lineNoCov">          0 :     shape-&gt;type = MS_SHAPE_NULL;</span>
-<span class="lineNum">    1153 </span><span class="lineNoCov">          0 :     return MS_DONE;</span>
-<span class="lineNum">    1154 </span>            :   } else {
-<span class="lineNum">    1155 </span>            :     resultObj record;
-<span class="lineNum">    1156 </span>            : 
-<span class="lineNum">    1157 </span><span class="lineNoCov">          0 :     record.shapeindex = rlinfo-&gt;next_shape++;</span>
-<span class="lineNum">    1158 </span><span class="lineNoCov">          0 :     record.tileindex = 0;</span>
-<span class="lineNum">    1159 </span><span class="lineNoCov">          0 :     record.classindex = record.resultindex = -1;</span>
-<span class="lineNum">    1160 </span>            : 
-<span class="lineNum">    1161 </span><span class="lineNoCov">          0 :     return msRASTERLayerGetShape( layer, shape, &amp;record);</span>
-<span class="lineNum">    1162 </span>            :   }
-<span class="lineNum">    1163 </span>            : #endif /* def USE_GDAL */
-<span class="lineNum">    1164 </span>            : }
-<span class="lineNum">    1165 </span>            : 
-<span class="lineNum">    1166 </span>            : /************************************************************************/
-<span class="lineNum">    1167 </span>            : /*                       msRASTERLayerGetShape()                        */
-<a name="1168"><span class="lineNum">    1168 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1117 </span>            : {
+<span class="lineNum">    1118 </span>            : #ifndef USE_GDAL
+<span class="lineNum">    1119 </span>            :   return MS_FAILURE;
+<span class="lineNum">    1120 </span>            : #else
+<span class="lineNum">    1121 </span><span class="lineNoCov">          0 :   rasterLayerInfo *rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">    1122 </span>            : 
+<span class="lineNum">    1123 </span><span class="lineNoCov">          0 :   rlinfo-&gt;which_rect = rect;</span>
+<span class="lineNum">    1124 </span><span class="lineNoCov">          0 :   rlinfo-&gt;next_shape = 0;</span>
+<span class="lineNum">    1125 </span>            : 
+<span class="lineNum">    1126 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1127 </span>            : #endif /* def USE_GDAL */
+<span class="lineNum">    1128 </span>            : }
+<span class="lineNum">    1129 </span>            : 
+<span class="lineNum">    1130 </span>            : /************************************************************************/
+<span class="lineNum">    1131 </span>            : /*                         msRASTERLayerClose()                         */
+<a name="1132"><span class="lineNum">    1132 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1133 </span>            : 
+<span class="lineNum">    1134 </span><span class="lineCov">          1 : int msRASTERLayerClose(layerObj *layer)</span>
+<span class="lineNum">    1135 </span>            : {
+<span class="lineNum">    1136 </span>            : #ifndef USE_GDAL
+<span class="lineNum">    1137 </span>            :   return MS_FAILURE;
+<span class="lineNum">    1138 </span>            : #else
+<span class="lineNum">    1139 </span><span class="lineCov">          1 :   rasterLayerInfo *rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">    1140 </span>            : 
+<span class="lineNum">    1141 </span><span class="lineCov">          1 :   if( rlinfo != NULL ) {</span>
+<span class="lineNum">    1142 </span><span class="lineCov">          1 :     rlinfo-&gt;refcount--;</span>
+<span class="lineNum">    1143 </span>            : 
+<span class="lineNum">    1144 </span><span class="lineCov">          1 :     if( rlinfo-&gt;refcount &lt; 0 )</span>
+<span class="lineNum">    1145 </span><span class="lineCov">          1 :       msRasterLayerInfoFree( layer );</span>
+<span class="lineNum">    1146 </span>            :   }
+<span class="lineNum">    1147 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1148 </span>            : #endif /* def USE_GDAL */
+<span class="lineNum">    1149 </span>            : }
+<span class="lineNum">    1150 </span>            : 
+<span class="lineNum">    1151 </span>            : /************************************************************************/
+<span class="lineNum">    1152 </span>            : /*                       msRASTERLayerNextShape()                       */
+<a name="1153"><span class="lineNum">    1153 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1154 </span>            : 
+<span class="lineNum">    1155 </span><span class="lineNoCov">          0 : int msRASTERLayerNextShape(layerObj *layer, shapeObj *shape)</span>
+<span class="lineNum">    1156 </span>            : {
+<span class="lineNum">    1157 </span>            : #ifndef USE_GDAL
+<span class="lineNum">    1158 </span>            :   return MS_FAILURE;
+<span class="lineNum">    1159 </span>            : #else
+<span class="lineNum">    1160 </span><span class="lineNoCov">          0 :   rasterLayerInfo *rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">    1161 </span>            : 
+<span class="lineNum">    1162 </span><span class="lineNoCov">          0 :   if( rlinfo-&gt;next_shape &lt; 0</span>
+<span class="lineNum">    1163 </span><span class="lineNoCov">          0 :       || rlinfo-&gt;next_shape &gt;= rlinfo-&gt;query_results ) {</span>
+<span class="lineNum">    1164 </span><span class="lineNoCov">          0 :     msFreeShape(shape);</span>
+<span class="lineNum">    1165 </span><span class="lineNoCov">          0 :     shape-&gt;type = MS_SHAPE_NULL;</span>
+<span class="lineNum">    1166 </span><span class="lineNoCov">          0 :     return MS_DONE;</span>
+<span class="lineNum">    1167 </span>            :   } else {
+<span class="lineNum">    1168 </span>            :     resultObj record;
 <span class="lineNum">    1169 </span>            : 
-<span class="lineNum">    1170 </span><span class="lineCov">          1 : int msRASTERLayerGetShape(layerObj *layer, shapeObj *shape, resultObj *record)</span>
-<span class="lineNum">    1171 </span>            : {
-<span class="lineNum">    1172 </span>            : #ifndef USE_GDAL
-<span class="lineNum">    1173 </span>            :   return MS_FAILURE;
-<span class="lineNum">    1174 </span>            : #else
-<span class="lineNum">    1175 </span><span class="lineCov">          1 :   rasterLayerInfo *rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
-<span class="lineNum">    1176 </span>            :   int i;
-<span class="lineNum">    1177 </span>            : 
-<span class="lineNum">    1178 </span><span class="lineCov">          1 :   long shapeindex = record-&gt;shapeindex;</span>
-<span class="lineNum">    1179 </span>            : 
-<span class="lineNum">    1180 </span><span class="lineCov">          1 :   msFreeShape(shape);</span>
-<span class="lineNum">    1181 </span><span class="lineCov">          1 :   shape-&gt;type = MS_SHAPE_NULL;</span>
+<span class="lineNum">    1170 </span><span class="lineNoCov">          0 :     record.shapeindex = rlinfo-&gt;next_shape++;</span>
+<span class="lineNum">    1171 </span><span class="lineNoCov">          0 :     record.tileindex = 0;</span>
+<span class="lineNum">    1172 </span><span class="lineNoCov">          0 :     record.classindex = record.resultindex = -1;</span>
+<span class="lineNum">    1173 </span>            : 
+<span class="lineNum">    1174 </span><span class="lineNoCov">          0 :     return msRASTERLayerGetShape( layer, shape, &amp;record);</span>
+<span class="lineNum">    1175 </span>            :   }
+<span class="lineNum">    1176 </span>            : #endif /* def USE_GDAL */
+<span class="lineNum">    1177 </span>            : }
+<span class="lineNum">    1178 </span>            : 
+<span class="lineNum">    1179 </span>            : /************************************************************************/
+<span class="lineNum">    1180 </span>            : /*                       msRASTERLayerGetShape()                        */
+<a name="1181"><span class="lineNum">    1181 </span>            : /************************************************************************/</a>
 <span class="lineNum">    1182 </span>            : 
-<span class="lineNum">    1183 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1184 </span>            :   /*      Validate requested record id.                                   */
-<span class="lineNum">    1185 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1186 </span><span class="lineCov">          1 :   if( shapeindex &lt; 0 || shapeindex &gt;= rlinfo-&gt;query_results ) {</span>
-<span class="lineNum">    1187 </span><span class="lineNoCov">          0 :     msSetError(MS_MISCERR,</span>
-<span class="lineNum">    1188 </span>            :                &quot;Out of range shape index requested.  Requested %ld\n&quot;
-<span class="lineNum">    1189 </span>            :                &quot;but only %d shapes available.&quot;,
-<span class="lineNum">    1190 </span>            :                &quot;msRASTERLayerGetShape()&quot;,
-<span class="lineNum">    1191 </span>            :                shapeindex, rlinfo-&gt;query_results );
-<span class="lineNum">    1192 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1193 </span>            :   }
-<span class="lineNum">    1194 </span>            : 
-<span class="lineNum">    1195 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1196 </span>            :   /*      Apply the geometry.                                             */
-<span class="lineNum">    1197 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1198 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_x != NULL ) {</span>
-<span class="lineNum">    1199 </span>            :     lineObj line;
-<span class="lineNum">    1200 </span>            :     pointObj point;
-<span class="lineNum">    1201 </span>            : 
-<span class="lineNum">    1202 </span><span class="lineCov">          1 :     shape-&gt;type = MS_SHAPE_POINT;</span>
-<span class="lineNum">    1203 </span>            : 
-<span class="lineNum">    1204 </span><span class="lineCov">          1 :     line.numpoints = 1;</span>
-<span class="lineNum">    1205 </span><span class="lineCov">          1 :     line.point = &amp;point;</span>
-<span class="lineNum">    1206 </span>            : 
-<span class="lineNum">    1207 </span><span class="lineCov">          1 :     point.x = rlinfo-&gt;qc_x[shapeindex];</span>
-<span class="lineNum">    1208 </span><span class="lineCov">          1 :     point.y = rlinfo-&gt;qc_y[shapeindex];</span>
-<span class="lineNum">    1209 </span>            : #ifdef USE_POINT_Z_M
-<span class="lineNum">    1210 </span><span class="lineCov">          1 :     point.m = 0.0;</span>
-<span class="lineNum">    1211 </span>            : #endif
-<span class="lineNum">    1212 </span>            : 
-<span class="lineNum">    1213 </span><span class="lineCov">          1 :     msAddLine( shape, &amp;line );</span>
-<span class="lineNum">    1214 </span><span class="lineCov">          1 :     msComputeBounds( shape );</span>
-<span class="lineNum">    1215 </span>            :   }
+<span class="lineNum">    1183 </span><span class="lineCov">          1 : int msRASTERLayerGetShape(layerObj *layer, shapeObj *shape, resultObj *record)</span>
+<span class="lineNum">    1184 </span>            : {
+<span class="lineNum">    1185 </span>            : #ifndef USE_GDAL
+<span class="lineNum">    1186 </span>            :   return MS_FAILURE;
+<span class="lineNum">    1187 </span>            : #else
+<span class="lineNum">    1188 </span><span class="lineCov">          1 :   rasterLayerInfo *rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">    1189 </span>            :   int i;
+<span class="lineNum">    1190 </span>            : 
+<span class="lineNum">    1191 </span><span class="lineCov">          1 :   long shapeindex = record-&gt;shapeindex;</span>
+<span class="lineNum">    1192 </span>            : 
+<span class="lineNum">    1193 </span><span class="lineCov">          1 :   msFreeShape(shape);</span>
+<span class="lineNum">    1194 </span><span class="lineCov">          1 :   shape-&gt;type = MS_SHAPE_NULL;</span>
+<span class="lineNum">    1195 </span>            : 
+<span class="lineNum">    1196 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1197 </span>            :   /*      Validate requested record id.                                   */
+<span class="lineNum">    1198 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1199 </span><span class="lineCov">          1 :   if( shapeindex &lt; 0 || shapeindex &gt;= rlinfo-&gt;query_results ) {</span>
+<span class="lineNum">    1200 </span><span class="lineNoCov">          0 :     msSetError(MS_MISCERR,</span>
+<span class="lineNum">    1201 </span>            :                &quot;Out of range shape index requested.  Requested %ld\n&quot;
+<span class="lineNum">    1202 </span>            :                &quot;but only %d shapes available.&quot;,
+<span class="lineNum">    1203 </span>            :                &quot;msRASTERLayerGetShape()&quot;,
+<span class="lineNum">    1204 </span>            :                shapeindex, rlinfo-&gt;query_results );
+<span class="lineNum">    1205 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1206 </span>            :   }
+<span class="lineNum">    1207 </span>            : 
+<span class="lineNum">    1208 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1209 </span>            :   /*      Apply the geometry.                                             */
+<span class="lineNum">    1210 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1211 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_x != NULL ) {</span>
+<span class="lineNum">    1212 </span>            :     lineObj line;
+<span class="lineNum">    1213 </span>            :     pointObj point;
+<span class="lineNum">    1214 </span>            : 
+<span class="lineNum">    1215 </span><span class="lineCov">          1 :     shape-&gt;type = MS_SHAPE_POINT;</span>
 <span class="lineNum">    1216 </span>            : 
-<span class="lineNum">    1217 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1218 </span>            :   /*      Apply the requested items.                                      */
-<span class="lineNum">    1219 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1220 </span><span class="lineCov">          1 :   if( layer-&gt;numitems &gt; 0 ) {</span>
-<span class="lineNum">    1221 </span><span class="lineCov">          1 :     shape-&gt;values = (char **) msSmallMalloc(sizeof(char *) * layer-&gt;numitems);</span>
-<span class="lineNum">    1222 </span><span class="lineCov">          1 :     shape-&gt;numvalues = layer-&gt;numitems;</span>
-<span class="lineNum">    1223 </span>            : 
-<span class="lineNum">    1224 </span><span class="lineCov">          1 :     for( i = 0; i &lt; layer-&gt;numitems; i++ ) {</span>
-<span class="lineNum">    1225 </span>            :       const size_t bufferSize = 1000;
-<span class="lineNum">    1226 </span>            :       char szWork[1000];
-<span class="lineNum">    1227 </span>            : 
-<span class="lineNum">    1228 </span><span class="lineCov">          1 :       szWork[0] = '\0';</span>
-<span class="lineNum">    1229 </span><span class="lineCov">          1 :       if( EQUAL(layer-&gt;items[i],&quot;x&quot;) &amp;&amp; rlinfo-&gt;qc_x_reproj )</span>
-<span class="lineNum">    1230 </span><span class="lineCov">          1 :         snprintf( szWork, bufferSize, &quot;%.8g&quot;, rlinfo-&gt;qc_x_reproj[shapeindex] );</span>
-<span class="lineNum">    1231 </span><span class="lineCov">          1 :       else if( EQUAL(layer-&gt;items[i],&quot;y&quot;) &amp;&amp; rlinfo-&gt;qc_y_reproj )</span>
-<span class="lineNum">    1232 </span><span class="lineCov">          1 :         snprintf( szWork, bufferSize, &quot;%.8g&quot;, rlinfo-&gt;qc_y_reproj[shapeindex] );</span>
-<span class="lineNum">    1233 </span>            : 
-<span class="lineNum">    1234 </span><span class="lineCov">          1 :       else if( EQUAL(layer-&gt;items[i],&quot;value_list&quot;) &amp;&amp; rlinfo-&gt;qc_values ) {</span>
-<span class="lineNum">    1235 </span>            :         int iValue;
+<span class="lineNum">    1217 </span><span class="lineCov">          1 :     line.numpoints = 1;</span>
+<span class="lineNum">    1218 </span><span class="lineCov">          1 :     line.point = &amp;point;</span>
+<span class="lineNum">    1219 </span>            : 
+<span class="lineNum">    1220 </span><span class="lineCov">          1 :     point.x = rlinfo-&gt;qc_x[shapeindex];</span>
+<span class="lineNum">    1221 </span><span class="lineCov">          1 :     point.y = rlinfo-&gt;qc_y[shapeindex];</span>
+<span class="lineNum">    1222 </span>            : #ifdef USE_POINT_Z_M
+<span class="lineNum">    1223 </span><span class="lineCov">          1 :     point.m = 0.0;</span>
+<span class="lineNum">    1224 </span>            : #endif
+<span class="lineNum">    1225 </span>            : 
+<span class="lineNum">    1226 </span><span class="lineCov">          1 :     msAddLine( shape, &amp;line );</span>
+<span class="lineNum">    1227 </span><span class="lineCov">          1 :     msComputeBounds( shape );</span>
+<span class="lineNum">    1228 </span>            :   }
+<span class="lineNum">    1229 </span>            : 
+<span class="lineNum">    1230 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1231 </span>            :   /*      Apply the requested items.                                      */
+<span class="lineNum">    1232 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1233 </span><span class="lineCov">          1 :   if( layer-&gt;numitems &gt; 0 ) {</span>
+<span class="lineNum">    1234 </span><span class="lineCov">          1 :     shape-&gt;values = (char **) msSmallMalloc(sizeof(char *) * layer-&gt;numitems);</span>
+<span class="lineNum">    1235 </span><span class="lineCov">          1 :     shape-&gt;numvalues = layer-&gt;numitems;</span>
 <span class="lineNum">    1236 </span>            : 
-<span class="lineNum">    1237 </span><span class="lineCov">          1 :         for( iValue = 0; iValue &lt; rlinfo-&gt;band_count; iValue++ ) {</span>
-<span class="lineNum">    1238 </span><span class="lineCov">          1 :           if( iValue != 0 )</span>
-<span class="lineNum">    1239 </span><span class="lineCov">          1 :             strlcat( szWork, &quot;,&quot;, bufferSize);</span>
+<span class="lineNum">    1237 </span><span class="lineCov">          1 :     for( i = 0; i &lt; layer-&gt;numitems; i++ ) {</span>
+<span class="lineNum">    1238 </span>            :       const size_t bufferSize = 1000;
+<span class="lineNum">    1239 </span>            :       char szWork[1000];
 <span class="lineNum">    1240 </span>            : 
-<span class="lineNum">    1241 </span><span class="lineCov">          1 :           snprintf( szWork+strlen(szWork), bufferSize-strlen(szWork), &quot;%.8g&quot;,</span>
-<span class="lineNum">    1242 </span><span class="lineCov">          1 :                     rlinfo-&gt;qc_values[shapeindex * rlinfo-&gt;band_count</span>
-<span class="lineNum">    1243 </span><span class="lineCov">          1 :                                       + iValue] );</span>
-<span class="lineNum">    1244 </span>            :         }
-<span class="lineNum">    1245 </span><span class="lineCov">          1 :       } else if( EQUALN(layer-&gt;items[i],&quot;value_&quot;,6) &amp;&amp; rlinfo-&gt;qc_values ) {</span>
-<span class="lineNum">    1246 </span><span class="lineCov">          1 :         int iValue = atoi(layer-&gt;items[i]+6);</span>
-<span class="lineNum">    1247 </span><span class="lineCov">          1 :         snprintf( szWork, bufferSize, &quot;%.8g&quot;,</span>
-<span class="lineNum">    1248 </span><span class="lineCov">          1 :                   rlinfo-&gt;qc_values[shapeindex*rlinfo-&gt;band_count+iValue] );</span>
-<span class="lineNum">    1249 </span><span class="lineCov">          1 :       } else if( EQUAL(layer-&gt;items[i],&quot;class&quot;) &amp;&amp; rlinfo-&gt;qc_class ) {</span>
-<span class="lineNum">    1250 </span><span class="lineCov">          1 :         int p_class = rlinfo-&gt;qc_class[shapeindex];</span>
-<span class="lineNum">    1251 </span><span class="lineCov">          1 :         if( layer-&gt;class[p_class]-&gt;name != NULL )</span>
-<span class="lineNum">    1252 </span>            :           snprintf( szWork, bufferSize, &quot;%.999s&quot;, layer-&gt;class[p_class]-&gt;name );
-<span class="lineNum">    1253 </span>            :         else
-<span class="lineNum">    1254 </span>            :           snprintf( szWork, bufferSize, &quot;%d&quot;, p_class );
-<span class="lineNum">    1255 </span><span class="lineCov">          1 :       } else if( EQUAL(layer-&gt;items[i],&quot;red&quot;) &amp;&amp; rlinfo-&gt;qc_red )</span>
-<span class="lineNum">    1256 </span><span class="lineCov">          1 :         snprintf( szWork, bufferSize, &quot;%d&quot;, rlinfo-&gt;qc_red[shapeindex] );</span>
-<span class="lineNum">    1257 </span><span class="lineCov">          1 :       else if( EQUAL(layer-&gt;items[i],&quot;green&quot;) &amp;&amp; rlinfo-&gt;qc_green )</span>
-<span class="lineNum">    1258 </span><span class="lineCov">          1 :         snprintf( szWork, bufferSize, &quot;%d&quot;, rlinfo-&gt;qc_green[shapeindex] );</span>
-<span class="lineNum">    1259 </span><span class="lineCov">          1 :       else if( EQUAL(layer-&gt;items[i],&quot;blue&quot;) &amp;&amp; rlinfo-&gt;qc_blue )</span>
-<span class="lineNum">    1260 </span><span class="lineCov">          1 :         snprintf( szWork, bufferSize, &quot;%d&quot;, rlinfo-&gt;qc_blue[shapeindex] );</span>
-<span class="lineNum">    1261 </span><span class="lineNoCov">          0 :       else if( EQUAL(layer-&gt;items[i],&quot;count&quot;) &amp;&amp; rlinfo-&gt;qc_count )</span>
-<span class="lineNum">    1262 </span><span class="lineNoCov">          0 :         snprintf( szWork, bufferSize, &quot;%d&quot;, rlinfo-&gt;qc_count[shapeindex] );</span>
-<span class="lineNum">    1263 </span>            : 
-<span class="lineNum">    1264 </span><span class="lineCov">          1 :       shape-&gt;values[i] = msStrdup(szWork);</span>
-<span class="lineNum">    1265 </span>            :     }
-<span class="lineNum">    1266 </span>            :   }
-<span class="lineNum">    1267 </span>            : 
-<span class="lineNum">    1268 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1269 </span>            :   /*      Eventually we should likey apply the geometry properly but      */
-<span class="lineNum">    1270 </span>            :   /*      we don't really care about the geometry for query purposes.     */
-<span class="lineNum">    1271 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1272 </span>            : 
-<span class="lineNum">    1273 </span>            :   return MS_SUCCESS;
-<span class="lineNum">    1274 </span>            : #endif /* def USE_GDAL */
-<span class="lineNum">    1275 </span>            : }
+<span class="lineNum">    1241 </span><span class="lineCov">          1 :       szWork[0] = '\0';</span>
+<span class="lineNum">    1242 </span><span class="lineCov">          1 :       if( EQUAL(layer-&gt;items[i],&quot;x&quot;) &amp;&amp; rlinfo-&gt;qc_x_reproj )</span>
+<span class="lineNum">    1243 </span><span class="lineCov">          1 :         snprintf( szWork, bufferSize, &quot;%.8g&quot;, rlinfo-&gt;qc_x_reproj[shapeindex] );</span>
+<span class="lineNum">    1244 </span><span class="lineCov">          1 :       else if( EQUAL(layer-&gt;items[i],&quot;y&quot;) &amp;&amp; rlinfo-&gt;qc_y_reproj )</span>
+<span class="lineNum">    1245 </span><span class="lineCov">          1 :         snprintf( szWork, bufferSize, &quot;%.8g&quot;, rlinfo-&gt;qc_y_reproj[shapeindex] );</span>
+<span class="lineNum">    1246 </span>            : 
+<span class="lineNum">    1247 </span><span class="lineCov">          1 :       else if( EQUAL(layer-&gt;items[i],&quot;value_list&quot;) &amp;&amp; rlinfo-&gt;qc_values ) {</span>
+<span class="lineNum">    1248 </span>            :         int iValue;
+<span class="lineNum">    1249 </span>            : 
+<span class="lineNum">    1250 </span><span class="lineCov">          1 :         for( iValue = 0; iValue &lt; rlinfo-&gt;band_count; iValue++ ) {</span>
+<span class="lineNum">    1251 </span><span class="lineCov">          1 :           if( iValue != 0 )</span>
+<span class="lineNum">    1252 </span><span class="lineCov">          1 :             strlcat( szWork, &quot;,&quot;, bufferSize);</span>
+<span class="lineNum">    1253 </span>            : 
+<span class="lineNum">    1254 </span><span class="lineCov">          1 :           snprintf( szWork+strlen(szWork), bufferSize-strlen(szWork), &quot;%.8g&quot;,</span>
+<span class="lineNum">    1255 </span><span class="lineCov">          1 :                     rlinfo-&gt;qc_values[shapeindex * rlinfo-&gt;band_count</span>
+<span class="lineNum">    1256 </span><span class="lineCov">          1 :                                       + iValue] );</span>
+<span class="lineNum">    1257 </span>            :         }
+<span class="lineNum">    1258 </span><span class="lineCov">          1 :       } else if( EQUALN(layer-&gt;items[i],&quot;value_&quot;,6) &amp;&amp; rlinfo-&gt;qc_values ) {</span>
+<span class="lineNum">    1259 </span><span class="lineCov">          1 :         int iValue = atoi(layer-&gt;items[i]+6);</span>
+<span class="lineNum">    1260 </span><span class="lineCov">          1 :         snprintf( szWork, bufferSize, &quot;%.8g&quot;,</span>
+<span class="lineNum">    1261 </span><span class="lineCov">          1 :                   rlinfo-&gt;qc_values[shapeindex*rlinfo-&gt;band_count+iValue] );</span>
+<span class="lineNum">    1262 </span><span class="lineCov">          1 :       } else if( EQUAL(layer-&gt;items[i],&quot;class&quot;) &amp;&amp; rlinfo-&gt;qc_class ) {</span>
+<span class="lineNum">    1263 </span><span class="lineCov">          1 :         int p_class = rlinfo-&gt;qc_class[shapeindex];</span>
+<span class="lineNum">    1264 </span><span class="lineCov">          1 :         if( layer-&gt;class[p_class]-&gt;name != NULL )</span>
+<span class="lineNum">    1265 </span>            :           snprintf( szWork, bufferSize, &quot;%.999s&quot;, layer-&gt;class[p_class]-&gt;name );
+<span class="lineNum">    1266 </span>            :         else
+<span class="lineNum">    1267 </span>            :           snprintf( szWork, bufferSize, &quot;%d&quot;, p_class );
+<span class="lineNum">    1268 </span><span class="lineCov">          1 :       } else if( EQUAL(layer-&gt;items[i],&quot;red&quot;) &amp;&amp; rlinfo-&gt;qc_red )</span>
+<span class="lineNum">    1269 </span><span class="lineCov">          1 :         snprintf( szWork, bufferSize, &quot;%d&quot;, rlinfo-&gt;qc_red[shapeindex] );</span>
+<span class="lineNum">    1270 </span><span class="lineCov">          1 :       else if( EQUAL(layer-&gt;items[i],&quot;green&quot;) &amp;&amp; rlinfo-&gt;qc_green )</span>
+<span class="lineNum">    1271 </span><span class="lineCov">          1 :         snprintf( szWork, bufferSize, &quot;%d&quot;, rlinfo-&gt;qc_green[shapeindex] );</span>
+<span class="lineNum">    1272 </span><span class="lineCov">          1 :       else if( EQUAL(layer-&gt;items[i],&quot;blue&quot;) &amp;&amp; rlinfo-&gt;qc_blue )</span>
+<span class="lineNum">    1273 </span><span class="lineCov">          1 :         snprintf( szWork, bufferSize, &quot;%d&quot;, rlinfo-&gt;qc_blue[shapeindex] );</span>
+<span class="lineNum">    1274 </span><span class="lineNoCov">          0 :       else if( EQUAL(layer-&gt;items[i],&quot;count&quot;) &amp;&amp; rlinfo-&gt;qc_count )</span>
+<span class="lineNum">    1275 </span><span class="lineNoCov">          0 :         snprintf( szWork, bufferSize, &quot;%d&quot;, rlinfo-&gt;qc_count[shapeindex] );</span>
 <span class="lineNum">    1276 </span>            : 
-<span class="lineNum">    1277 </span>            : /************************************************************************/
-<span class="lineNum">    1278 </span>            : /*                       msRASTERLayerGetItems()                        */
-<a name="1279"><span class="lineNum">    1279 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1277 </span><span class="lineCov">          1 :       shape-&gt;values[i] = msStrdup(szWork);</span>
+<span class="lineNum">    1278 </span>            :     }
+<span class="lineNum">    1279 </span>            :   }
 <span class="lineNum">    1280 </span>            : 
-<span class="lineNum">    1281 </span><span class="lineCov">          1 : int msRASTERLayerGetItems(layerObj *layer)</span>
-<span class="lineNum">    1282 </span>            : {
-<span class="lineNum">    1283 </span>            : #ifndef USE_GDAL
-<span class="lineNum">    1284 </span>            :   return MS_FAILURE;
-<span class="lineNum">    1285 </span>            : #else
-<span class="lineNum">    1286 </span>            :   int maxnumitems = 0;
-<span class="lineNum">    1287 </span><span class="lineCov">          1 :   rasterLayerInfo *rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
-<span class="lineNum">    1288 </span>            : 
-<span class="lineNum">    1289 </span><span class="lineCov">          1 :   if( rlinfo == NULL )</span>
-<span class="lineNum">    1290 </span>            :     return MS_FAILURE;
-<span class="lineNum">    1291 </span>            : 
-<span class="lineNum">    1292 </span><span class="lineCov">          1 :   maxnumitems = 8 + (rlinfo-&gt;qc_values?rlinfo-&gt;band_count:0);</span>
-<span class="lineNum">    1293 </span><span class="lineCov">          1 :   layer-&gt;items = (char **) msSmallCalloc(sizeof(char *),maxnumitems);</span>
-<span class="lineNum">    1294 </span>            : 
-<span class="lineNum">    1295 </span><span class="lineCov">          1 :   layer-&gt;numitems = 0;</span>
-<span class="lineNum">    1296 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_x_reproj )</span>
-<span class="lineNum">    1297 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;x&quot;);</span>
-<span class="lineNum">    1298 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_y_reproj )</span>
-<span class="lineNum">    1299 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;y&quot;);</span>
-<span class="lineNum">    1300 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_values ) {</span>
-<span class="lineNum">    1301 </span>            :     int i;
-<span class="lineNum">    1302 </span><span class="lineCov">          1 :     for( i = 0; i &lt; rlinfo-&gt;band_count; i++ ) {</span>
-<span class="lineNum">    1303 </span>            :       char szName[100];
-<span class="lineNum">    1304 </span>            :       snprintf( szName, sizeof(szName), &quot;value_%d&quot;, i );
-<span class="lineNum">    1305 </span><span class="lineCov">          1 :       layer-&gt;items[layer-&gt;numitems++] = msStrdup(szName);</span>
-<span class="lineNum">    1306 </span>            :     }
-<span class="lineNum">    1307 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;value_list&quot;);</span>
-<span class="lineNum">    1308 </span>            :   }
-<span class="lineNum">    1309 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_class )</span>
-<span class="lineNum">    1310 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;class&quot;);</span>
-<span class="lineNum">    1311 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_red )</span>
-<span class="lineNum">    1312 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;red&quot;);</span>
-<span class="lineNum">    1313 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_green )</span>
-<span class="lineNum">    1314 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;green&quot;);</span>
-<span class="lineNum">    1315 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_blue )</span>
-<span class="lineNum">    1316 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;blue&quot;);</span>
-<span class="lineNum">    1317 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_count )</span>
-<span class="lineNum">    1318 </span><span class="lineNoCov">          0 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;count&quot;);</span>
-<span class="lineNum">    1319 </span>            : 
-<span class="lineNum">    1320 </span>            :   assert(layer-&gt;numitems &lt;= maxnumitems);
-<span class="lineNum">    1321 </span>            : 
-<span class="lineNum">    1322 </span><span class="lineCov">          1 :   return msRASTERLayerInitItemInfo(layer);</span>
-<span class="lineNum">    1323 </span>            : #endif /* def USE_GDAL */
-<span class="lineNum">    1324 </span>            : }
-<span class="lineNum">    1325 </span>            : 
-<span class="lineNum">    1326 </span>            : /************************************************************************/
-<span class="lineNum">    1327 </span>            : /*                       msRASTERLayerGetExtent()                       */
-<a name="1328"><span class="lineNum">    1328 </span>            : /************************************************************************/</a>
-<span class="lineNum">    1329 </span>            : 
-<span class="lineNum">    1330 </span><span class="lineCov">          1 : int msRASTERLayerGetExtent(layerObj *layer, rectObj *extent)</span>
-<span class="lineNum">    1331 </span>            : 
-<span class="lineNum">    1332 </span>            : {
-<span class="lineNum">    1333 </span>            : #ifndef USE_GDAL
-<span class="lineNum">    1334 </span>            :   return MS_FAILURE;
-<span class="lineNum">    1335 </span>            : #else
-<span class="lineNum">    1336 </span>            :   char szPath[MS_MAXPATHLEN];
-<span class="lineNum">    1337 </span><span class="lineCov">          1 :   mapObj *map = layer-&gt;map;</span>
-<span class="lineNum">    1338 </span>            :   double adfGeoTransform[6];
-<span class="lineNum">    1339 </span>            :   int nXSize, nYSize;
-<span class="lineNum">    1340 </span>            :   GDALDatasetH hDS;
-<span class="lineNum">    1341 </span>            :   shapefileObj *tileshpfile;
-<span class="lineNum">    1342 </span>            :   int tilelayerindex = -1;
-<span class="lineNum">    1343 </span>            :   CPLErr eErr = CE_Failure;
-<span class="lineNum">    1344 </span>            :   char *decrypted_path;
-<span class="lineNum">    1345 </span>            : 
-<span class="lineNum">    1346 </span><span class="lineCov">          1 :   if( (!layer-&gt;data || strlen(layer-&gt;data) == 0)</span>
-<span class="lineNum">    1347 </span><span class="lineCov">          1 :       &amp;&amp; layer-&gt;tileindex == NULL) {</span>
-<span class="lineNum">    1348 </span>            :     /* should we be issuing a specific error about not supporting
-<span class="lineNum">    1349 </span>            :        extents for tileindexed raster layers? */
-<span class="lineNum">    1350 </span>            :     return MS_FAILURE;
-<span class="lineNum">    1351 </span>            :   }
-<span class="lineNum">    1352 </span>            : 
-<span class="lineNum">    1353 </span><span class="lineCov">          1 :   if( map == NULL )</span>
-<span class="lineNum">    1354 </span>            :     return MS_FAILURE;
-<span class="lineNum">    1355 </span>            : 
-<span class="lineNum">    1356 </span>            :   /* If the layer use a tileindex, return the extent of the tileindex shapefile/referenced layer */
-<span class="lineNum">    1357 </span><span class="lineCov">          1 :   if (layer-&gt;tileindex) {</span>
-<span class="lineNum">    1358 </span><span class="lineCov">          1 :     tilelayerindex = msGetLayerIndex(map, layer-&gt;tileindex);</span>
-<span class="lineNum">    1359 </span><span class="lineCov">          1 :     if(tilelayerindex != -1) /* does the tileindex reference another layer */</span>
-<span class="lineNum">    1360 </span><span class="lineNoCov">          0 :       return msLayerGetExtent(GET_LAYER(map, tilelayerindex), extent);</span>
-<span class="lineNum">    1361 </span>            :     else {
-<span class="lineNum">    1362 </span><span class="lineCov">          1 :       tileshpfile = (shapefileObj *) malloc(sizeof(shapefileObj));</span>
-<span class="lineNum">    1363 </span><span class="lineCov">          1 :       MS_CHECK_ALLOC(tileshpfile, sizeof(shapefileObj), MS_FAILURE);</span>
-<span class="lineNum">    1364 </span>            : 
-<span class="lineNum">    1365 </span><span class="lineCov">          1 :       if(msShapefileOpen(tileshpfile, &quot;rb&quot;, msBuildPath3(szPath, map-&gt;mappath, map-&gt;shapepath, layer-&gt;tileindex), MS_TRUE) == -1)</span>
-<span class="lineNum">    1366 </span><span class="lineNoCov">          0 :         if(msShapefileOpen(tileshpfile, &quot;rb&quot;, msBuildPath(szPath, map-&gt;mappath, layer-&gt;tileindex), MS_TRUE) == -1)</span>
-<span class="lineNum">    1367 </span>            :           return MS_FAILURE;
+<span class="lineNum">    1281 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1282 </span>            :   /*      Eventually we should likey apply the geometry properly but      */
+<span class="lineNum">    1283 </span>            :   /*      we don't really care about the geometry for query purposes.     */
+<span class="lineNum">    1284 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1285 </span>            : 
+<span class="lineNum">    1286 </span>            :   return MS_SUCCESS;
+<span class="lineNum">    1287 </span>            : #endif /* def USE_GDAL */
+<span class="lineNum">    1288 </span>            : }
+<span class="lineNum">    1289 </span>            : 
+<span class="lineNum">    1290 </span>            : /************************************************************************/
+<span class="lineNum">    1291 </span>            : /*                       msRASTERLayerGetItems()                        */
+<a name="1292"><span class="lineNum">    1292 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1293 </span>            : 
+<span class="lineNum">    1294 </span><span class="lineCov">          1 : int msRASTERLayerGetItems(layerObj *layer)</span>
+<span class="lineNum">    1295 </span>            : {
+<span class="lineNum">    1296 </span>            : #ifndef USE_GDAL
+<span class="lineNum">    1297 </span>            :   return MS_FAILURE;
+<span class="lineNum">    1298 </span>            : #else
+<span class="lineNum">    1299 </span>            :   int maxnumitems = 0;
+<span class="lineNum">    1300 </span><span class="lineCov">          1 :   rasterLayerInfo *rlinfo = (rasterLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">    1301 </span>            : 
+<span class="lineNum">    1302 </span><span class="lineCov">          1 :   if( rlinfo == NULL )</span>
+<span class="lineNum">    1303 </span>            :     return MS_FAILURE;
+<span class="lineNum">    1304 </span>            : 
+<span class="lineNum">    1305 </span><span class="lineCov">          1 :   maxnumitems = 8 + (rlinfo-&gt;qc_values?rlinfo-&gt;band_count:0);</span>
+<span class="lineNum">    1306 </span><span class="lineCov">          1 :   layer-&gt;items = (char **) msSmallCalloc(sizeof(char *),maxnumitems);</span>
+<span class="lineNum">    1307 </span>            : 
+<span class="lineNum">    1308 </span><span class="lineCov">          1 :   layer-&gt;numitems = 0;</span>
+<span class="lineNum">    1309 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_x_reproj )</span>
+<span class="lineNum">    1310 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;x&quot;);</span>
+<span class="lineNum">    1311 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_y_reproj )</span>
+<span class="lineNum">    1312 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;y&quot;);</span>
+<span class="lineNum">    1313 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_values ) {</span>
+<span class="lineNum">    1314 </span>            :     int i;
+<span class="lineNum">    1315 </span><span class="lineCov">          1 :     for( i = 0; i &lt; rlinfo-&gt;band_count; i++ ) {</span>
+<span class="lineNum">    1316 </span>            :       char szName[100];
+<span class="lineNum">    1317 </span>            :       snprintf( szName, sizeof(szName), &quot;value_%d&quot;, i );
+<span class="lineNum">    1318 </span><span class="lineCov">          1 :       layer-&gt;items[layer-&gt;numitems++] = msStrdup(szName);</span>
+<span class="lineNum">    1319 </span>            :     }
+<span class="lineNum">    1320 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;value_list&quot;);</span>
+<span class="lineNum">    1321 </span>            :   }
+<span class="lineNum">    1322 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_class )</span>
+<span class="lineNum">    1323 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;class&quot;);</span>
+<span class="lineNum">    1324 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_red )</span>
+<span class="lineNum">    1325 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;red&quot;);</span>
+<span class="lineNum">    1326 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_green )</span>
+<span class="lineNum">    1327 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;green&quot;);</span>
+<span class="lineNum">    1328 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_blue )</span>
+<span class="lineNum">    1329 </span><span class="lineCov">          1 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;blue&quot;);</span>
+<span class="lineNum">    1330 </span><span class="lineCov">          1 :   if( rlinfo-&gt;qc_count )</span>
+<span class="lineNum">    1331 </span><span class="lineNoCov">          0 :     layer-&gt;items[layer-&gt;numitems++] = msStrdup(&quot;count&quot;);</span>
+<span class="lineNum">    1332 </span>            : 
+<span class="lineNum">    1333 </span>            :   assert(layer-&gt;numitems &lt;= maxnumitems);
+<span class="lineNum">    1334 </span>            : 
+<span class="lineNum">    1335 </span><span class="lineCov">          1 :   return msRASTERLayerInitItemInfo(layer);</span>
+<span class="lineNum">    1336 </span>            : #endif /* def USE_GDAL */
+<span class="lineNum">    1337 </span>            : }
+<span class="lineNum">    1338 </span>            : 
+<span class="lineNum">    1339 </span>            : /************************************************************************/
+<span class="lineNum">    1340 </span>            : /*                       msRASTERLayerGetExtent()                       */
+<a name="1341"><span class="lineNum">    1341 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1342 </span>            : 
+<span class="lineNum">    1343 </span><span class="lineCov">          1 : int msRASTERLayerGetExtent(layerObj *layer, rectObj *extent)</span>
+<span class="lineNum">    1344 </span>            : 
+<span class="lineNum">    1345 </span>            : {
+<span class="lineNum">    1346 </span>            : #ifndef USE_GDAL
+<span class="lineNum">    1347 </span>            :   return MS_FAILURE;
+<span class="lineNum">    1348 </span>            : #else
+<span class="lineNum">    1349 </span>            :   char szPath[MS_MAXPATHLEN];
+<span class="lineNum">    1350 </span><span class="lineCov">          1 :   mapObj *map = layer-&gt;map;</span>
+<span class="lineNum">    1351 </span>            :   double adfGeoTransform[6];
+<span class="lineNum">    1352 </span>            :   int nXSize, nYSize;
+<span class="lineNum">    1353 </span>            :   GDALDatasetH hDS;
+<span class="lineNum">    1354 </span>            :   shapefileObj *tileshpfile;
+<span class="lineNum">    1355 </span>            :   int tilelayerindex = -1;
+<span class="lineNum">    1356 </span>            :   CPLErr eErr = CE_Failure;
+<span class="lineNum">    1357 </span>            :   char *decrypted_path;
+<span class="lineNum">    1358 </span>            : 
+<span class="lineNum">    1359 </span><span class="lineCov">          1 :   if( (!layer-&gt;data || strlen(layer-&gt;data) == 0)</span>
+<span class="lineNum">    1360 </span><span class="lineCov">          1 :       &amp;&amp; layer-&gt;tileindex == NULL) {</span>
+<span class="lineNum">    1361 </span>            :     /* should we be issuing a specific error about not supporting
+<span class="lineNum">    1362 </span>            :        extents for tileindexed raster layers? */
+<span class="lineNum">    1363 </span>            :     return MS_FAILURE;
+<span class="lineNum">    1364 </span>            :   }
+<span class="lineNum">    1365 </span>            : 
+<span class="lineNum">    1366 </span><span class="lineCov">          1 :   if( map == NULL )</span>
+<span class="lineNum">    1367 </span>            :     return MS_FAILURE;
 <span class="lineNum">    1368 </span>            : 
-<span class="lineNum">    1369 </span><span class="lineCov">          1 :       *extent = tileshpfile-&gt;bounds;</span>
-<span class="lineNum">    1370 </span><span class="lineCov">          1 :       msShapefileClose(tileshpfile);</span>
-<span class="lineNum">    1371 </span><span class="lineCov">          1 :       free(tileshpfile);</span>
-<span class="lineNum">    1372 </span><span class="lineCov">          1 :       return MS_SUCCESS;</span>
-<span class="lineNum">    1373 </span>            :     }
-<span class="lineNum">    1374 </span>            :   }
-<span class="lineNum">    1375 </span>            : 
-<span class="lineNum">    1376 </span><span class="lineCov">          1 :   msTryBuildPath3(szPath, map-&gt;mappath, map-&gt;shapepath, layer-&gt;data);</span>
-<span class="lineNum">    1377 </span><span class="lineCov">          1 :   decrypted_path = msDecryptStringTokens( map, szPath );</span>
-<span class="lineNum">    1378 </span>            : 
-<span class="lineNum">    1379 </span><span class="lineCov">          1 :   msAcquireLock( TLOCK_GDAL );</span>
-<span class="lineNum">    1380 </span><span class="lineCov">          1 :   if( decrypted_path ) {</span>
-<span class="lineNum">    1381 </span><span class="lineCov">          1 :     hDS = GDALOpen(decrypted_path, GA_ReadOnly );</span>
-<span class="lineNum">    1382 </span><span class="lineCov">          1 :     msFree( decrypted_path );</span>
-<span class="lineNum">    1383 </span>            :   } else
-<span class="lineNum">    1384 </span>            :     hDS = NULL;
-<span class="lineNum">    1385 </span>            : 
-<span class="lineNum">    1386 </span><span class="lineCov">          1 :   if( hDS != NULL ) {</span>
-<span class="lineNum">    1387 </span><span class="lineCov">          1 :     nXSize = GDALGetRasterXSize( hDS );</span>
-<span class="lineNum">    1388 </span><span class="lineCov">          1 :     nYSize = GDALGetRasterYSize( hDS );</span>
-<span class="lineNum">    1389 </span><span class="lineCov">          1 :     eErr = GDALGetGeoTransform( hDS, adfGeoTransform );</span>
-<span class="lineNum">    1390 </span>            : 
-<span class="lineNum">    1391 </span><span class="lineCov">          1 :     GDALClose( hDS );</span>
-<span class="lineNum">    1392 </span>            :   }
-<span class="lineNum">    1393 </span>            : 
-<span class="lineNum">    1394 </span><span class="lineCov">          1 :   msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">    1395 </span>            : 
-<span class="lineNum">    1396 </span><span class="lineCov">          1 :   if( hDS == NULL || eErr != CE_None ) {</span>
-<span class="lineNum">    1397 </span>            :     return MS_FAILURE;
-<span class="lineNum">    1398 </span>            :   }
-<span class="lineNum">    1399 </span>            : 
-<span class="lineNum">    1400 </span>            :   /* If this appears to be an ungeoreferenced raster than flip it for
-<span class="lineNum">    1401 </span>            :      mapservers purposes. */
-<span class="lineNum">    1402 </span><span class="lineCov">          1 :   if( adfGeoTransform[5] == 1.0 &amp;&amp; adfGeoTransform[3] == 0.0 ) {</span>
-<span class="lineNum">    1403 </span><span class="lineNoCov">          0 :     adfGeoTransform[5] = -1.0;</span>
-<span class="lineNum">    1404 </span><span class="lineNoCov">          0 :     adfGeoTransform[3] = nYSize;</span>
-<span class="lineNum">    1405 </span>            :   }
-<span class="lineNum">    1406 </span>            : 
-<span class="lineNum">    1407 </span><span class="lineCov">          1 :   extent-&gt;minx = adfGeoTransform[0];</span>
-<span class="lineNum">    1408 </span><span class="lineCov">          1 :   extent-&gt;maxy = adfGeoTransform[3];</span>
+<span class="lineNum">    1369 </span>            :   /* If the layer use a tileindex, return the extent of the tileindex shapefile/referenced layer */
+<span class="lineNum">    1370 </span><span class="lineCov">          1 :   if (layer-&gt;tileindex) {</span>
+<span class="lineNum">    1371 </span><span class="lineCov">          1 :     tilelayerindex = msGetLayerIndex(map, layer-&gt;tileindex);</span>
+<span class="lineNum">    1372 </span><span class="lineCov">          1 :     if(tilelayerindex != -1) /* does the tileindex reference another layer */</span>
+<span class="lineNum">    1373 </span><span class="lineNoCov">          0 :       return msLayerGetExtent(GET_LAYER(map, tilelayerindex), extent);</span>
+<span class="lineNum">    1374 </span>            :     else {
+<span class="lineNum">    1375 </span><span class="lineCov">          1 :       tileshpfile = (shapefileObj *) malloc(sizeof(shapefileObj));</span>
+<span class="lineNum">    1376 </span><span class="lineCov">          1 :       MS_CHECK_ALLOC(tileshpfile, sizeof(shapefileObj), MS_FAILURE);</span>
+<span class="lineNum">    1377 </span>            : 
+<span class="lineNum">    1378 </span><span class="lineCov">          1 :       if(msShapefileOpen(tileshpfile, &quot;rb&quot;, msBuildPath3(szPath, map-&gt;mappath, map-&gt;shapepath, layer-&gt;tileindex), MS_TRUE) == -1)</span>
+<span class="lineNum">    1379 </span><span class="lineNoCov">          0 :         if(msShapefileOpen(tileshpfile, &quot;rb&quot;, msBuildPath(szPath, map-&gt;mappath, layer-&gt;tileindex), MS_TRUE) == -1)</span>
+<span class="lineNum">    1380 </span>            :           return MS_FAILURE;
+<span class="lineNum">    1381 </span>            : 
+<span class="lineNum">    1382 </span><span class="lineCov">          1 :       *extent = tileshpfile-&gt;bounds;</span>
+<span class="lineNum">    1383 </span><span class="lineCov">          1 :       msShapefileClose(tileshpfile);</span>
+<span class="lineNum">    1384 </span><span class="lineCov">          1 :       free(tileshpfile);</span>
+<span class="lineNum">    1385 </span><span class="lineCov">          1 :       return MS_SUCCESS;</span>
+<span class="lineNum">    1386 </span>            :     }
+<span class="lineNum">    1387 </span>            :   }
+<span class="lineNum">    1388 </span>            : 
+<span class="lineNum">    1389 </span><span class="lineCov">          1 :   msTryBuildPath3(szPath, map-&gt;mappath, map-&gt;shapepath, layer-&gt;data);</span>
+<span class="lineNum">    1390 </span><span class="lineCov">          1 :   decrypted_path = msDecryptStringTokens( map, szPath );</span>
+<span class="lineNum">    1391 </span>            : 
+<span class="lineNum">    1392 </span><span class="lineCov">          1 :   msAcquireLock( TLOCK_GDAL );</span>
+<span class="lineNum">    1393 </span><span class="lineCov">          1 :   if( decrypted_path ) {</span>
+<span class="lineNum">    1394 </span><span class="lineCov">          1 :     char** connectionoptions = msGetStringListFromHashTable(&amp;(layer-&gt;connectionoptions));</span>
+<span class="lineNum">    1395 </span><span class="lineCov">          1 :     hDS = GDALOpenEx(decrypted_path,</span>
+<span class="lineNum">    1396 </span>            :                                 GDAL_OF_RASTER,
+<span class="lineNum">    1397 </span>            :                                 NULL,
+<span class="lineNum">    1398 </span>            :                                 (const char* const*)connectionoptions,
+<span class="lineNum">    1399 </span>            :                                 NULL);
+<span class="lineNum">    1400 </span><span class="lineCov">          1 :     CSLDestroy(connectionoptions);</span>
+<span class="lineNum">    1401 </span><span class="lineCov">          1 :     msFree( decrypted_path );</span>
+<span class="lineNum">    1402 </span>            :   } else
+<span class="lineNum">    1403 </span>            :     hDS = NULL;
+<span class="lineNum">    1404 </span>            : 
+<span class="lineNum">    1405 </span><span class="lineCov">          1 :   if( hDS != NULL ) {</span>
+<span class="lineNum">    1406 </span><span class="lineCov">          1 :     nXSize = GDALGetRasterXSize( hDS );</span>
+<span class="lineNum">    1407 </span><span class="lineCov">          1 :     nYSize = GDALGetRasterYSize( hDS );</span>
+<span class="lineNum">    1408 </span><span class="lineCov">          1 :     eErr = GDALGetGeoTransform( hDS, adfGeoTransform );</span>
 <span class="lineNum">    1409 </span>            : 
-<span class="lineNum">    1410 </span><span class="lineCov">          1 :   extent-&gt;maxx = adfGeoTransform[0] + nXSize * adfGeoTransform[1];</span>
-<span class="lineNum">    1411 </span><span class="lineCov">          1 :   extent-&gt;miny = adfGeoTransform[3] + nYSize * adfGeoTransform[5];</span>
+<span class="lineNum">    1410 </span><span class="lineCov">          1 :     GDALClose( hDS );</span>
+<span class="lineNum">    1411 </span>            :   }
 <span class="lineNum">    1412 </span>            : 
-<span class="lineNum">    1413 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1414 </span>            : #endif /* def USE_GDAL */
-<span class="lineNum">    1415 </span>            : }
-<span class="lineNum">    1416 </span>            : 
-<span class="lineNum">    1417 </span>            : 
-<span class="lineNum">    1418 </span>            : /************************************************************************/
-<span class="lineNum">    1419 </span>            : /*                     msRASTERLayerSetTimeFilter()                     */
-<span class="lineNum">    1420 </span>            : /*                                                                      */
-<span class="lineNum">    1421 </span>            : /*      This function is actually just used in the context of           */
-<span class="lineNum">    1422 </span>            : /*      setting a filter on the tileindex for time based queries.       */
-<span class="lineNum">    1423 </span>            : /*      For instance via WMS requests.  So it isn't really related      */
-<span class="lineNum">    1424 </span>            : /*      to the &quot;raster query&quot; support at all.                           */
-<span class="lineNum">    1425 </span>            : /*                                                                      */
-<span class="lineNum">    1426 </span>            : /*      If a local shapefile tileindex is in use, we will set a         */
-<span class="lineNum">    1427 </span>            : /*      backtics filter (shapefile compatible).  If another layer is    */
-<span class="lineNum">    1428 </span>            : /*      being used as the tileindex then we will forward the            */
-<span class="lineNum">    1429 </span>            : /*      SetTimeFilter call to it.  If there is no tileindex in          */
-<span class="lineNum">    1430 </span>            : /*      place, we do nothing.                                           */
-<a name="1431"><span class="lineNum">    1431 </span>            : /************************************************************************/</a>
-<span class="lineNum">    1432 </span>            : 
-<span class="lineNum">    1433 </span><span class="lineNoCov">          0 : int msRASTERLayerSetTimeFilter(layerObj *layer, const char *timestring,</span>
-<span class="lineNum">    1434 </span>            :                                const char *timefield)
-<span class="lineNum">    1435 </span>            : {
-<span class="lineNum">    1436 </span>            :   int tilelayerindex;
-<span class="lineNum">    1437 </span>            : 
-<span class="lineNum">    1438 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1439 </span>            :   /*      If we don't have a tileindex the time filter has no effect.     */
-<span class="lineNum">    1440 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1441 </span><span class="lineNoCov">          0 :   if( layer-&gt;tileindex == NULL )</span>
-<span class="lineNum">    1442 </span>            :     return MS_SUCCESS;
-<span class="lineNum">    1443 </span>            : 
-<span class="lineNum">    1444 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1445 </span>            :   /*      Find the tileindex layer.                                       */
-<span class="lineNum">    1446 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1447 </span><span class="lineNoCov">          0 :   tilelayerindex = msGetLayerIndex(layer-&gt;map, layer-&gt;tileindex);</span>
-<span class="lineNum">    1448 </span>            : 
-<span class="lineNum">    1449 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1450 </span>            :   /*      If we are using a local shapefile as our tileindex (that is     */
-<span class="lineNum">    1451 </span>            :   /*      to say, the tileindex name is not of another layer), then we    */
-<span class="lineNum">    1452 </span>            :   /*      just install a backtics style filter on the raster layer.       */
-<span class="lineNum">    1453 </span>            :   /*      This is propogated to the &quot;working layer&quot; created for the       */
-<span class="lineNum">    1454 </span>            :   /*      tileindex by code in mapraster.c.                               */
-<span class="lineNum">    1455 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1456 </span><span class="lineNoCov">          0 :   if( tilelayerindex == -1 )</span>
-<span class="lineNum">    1457 </span><span class="lineNoCov">          0 :     return msLayerMakeBackticsTimeFilter( layer, timestring, timefield );</span>
-<span class="lineNum">    1458 </span>            : 
+<span class="lineNum">    1413 </span><span class="lineCov">          1 :   msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">    1414 </span>            : 
+<span class="lineNum">    1415 </span><span class="lineCov">          1 :   if( hDS == NULL || eErr != CE_None ) {</span>
+<span class="lineNum">    1416 </span>            :     return MS_FAILURE;
+<span class="lineNum">    1417 </span>            :   }
+<span class="lineNum">    1418 </span>            : 
+<span class="lineNum">    1419 </span>            :   /* If this appears to be an ungeoreferenced raster than flip it for
+<span class="lineNum">    1420 </span>            :      mapservers purposes. */
+<span class="lineNum">    1421 </span><span class="lineCov">          1 :   if( adfGeoTransform[5] == 1.0 &amp;&amp; adfGeoTransform[3] == 0.0 ) {</span>
+<span class="lineNum">    1422 </span><span class="lineNoCov">          0 :     adfGeoTransform[5] = -1.0;</span>
+<span class="lineNum">    1423 </span><span class="lineNoCov">          0 :     adfGeoTransform[3] = nYSize;</span>
+<span class="lineNum">    1424 </span>            :   }
+<span class="lineNum">    1425 </span>            : 
+<span class="lineNum">    1426 </span><span class="lineCov">          1 :   extent-&gt;minx = adfGeoTransform[0];</span>
+<span class="lineNum">    1427 </span><span class="lineCov">          1 :   extent-&gt;maxy = adfGeoTransform[3];</span>
+<span class="lineNum">    1428 </span>            : 
+<span class="lineNum">    1429 </span><span class="lineCov">          1 :   extent-&gt;maxx = adfGeoTransform[0] + nXSize * adfGeoTransform[1];</span>
+<span class="lineNum">    1430 </span><span class="lineCov">          1 :   extent-&gt;miny = adfGeoTransform[3] + nYSize * adfGeoTransform[5];</span>
+<span class="lineNum">    1431 </span>            : 
+<span class="lineNum">    1432 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1433 </span>            : #endif /* def USE_GDAL */
+<span class="lineNum">    1434 </span>            : }
+<span class="lineNum">    1435 </span>            : 
+<span class="lineNum">    1436 </span>            : 
+<span class="lineNum">    1437 </span>            : /************************************************************************/
+<span class="lineNum">    1438 </span>            : /*                     msRASTERLayerSetTimeFilter()                     */
+<span class="lineNum">    1439 </span>            : /*                                                                      */
+<span class="lineNum">    1440 </span>            : /*      This function is actually just used in the context of           */
+<span class="lineNum">    1441 </span>            : /*      setting a filter on the tileindex for time based queries.       */
+<span class="lineNum">    1442 </span>            : /*      For instance via WMS requests.  So it isn't really related      */
+<span class="lineNum">    1443 </span>            : /*      to the &quot;raster query&quot; support at all.                           */
+<span class="lineNum">    1444 </span>            : /*                                                                      */
+<span class="lineNum">    1445 </span>            : /*      If a local shapefile tileindex is in use, we will set a         */
+<span class="lineNum">    1446 </span>            : /*      backtics filter (shapefile compatible).  If another layer is    */
+<span class="lineNum">    1447 </span>            : /*      being used as the tileindex then we will forward the            */
+<span class="lineNum">    1448 </span>            : /*      SetTimeFilter call to it.  If there is no tileindex in          */
+<span class="lineNum">    1449 </span>            : /*      place, we do nothing.                                           */
+<a name="1450"><span class="lineNum">    1450 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1451 </span>            : 
+<span class="lineNum">    1452 </span><span class="lineNoCov">          0 : int msRASTERLayerSetTimeFilter(layerObj *layer, const char *timestring,</span>
+<span class="lineNum">    1453 </span>            :                                const char *timefield)
+<span class="lineNum">    1454 </span>            : {
+<span class="lineNum">    1455 </span>            :   int tilelayerindex;
+<span class="lineNum">    1456 </span>            : 
+<span class="lineNum">    1457 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1458 </span>            :   /*      If we don't have a tileindex the time filter has no effect.     */
 <span class="lineNum">    1459 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1460 </span>            :   /*      Otherwise we invoke the tileindex layers SetTimeFilter          */
-<span class="lineNum">    1461 </span>            :   /*      method.                                                         */
-<span class="lineNum">    1462 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1463 </span><span class="lineNoCov">          0 :   if ( msCheckParentPointer(layer-&gt;map,&quot;map&quot;)==MS_FAILURE )</span>
-<span class="lineNum">    1464 </span>            :     return MS_FAILURE;
-<span class="lineNum">    1465 </span><span class="lineNoCov">          0 :   return msLayerSetTimeFilter( layer-&gt;GET_LAYER(map,tilelayerindex),</span>
-<span class="lineNum">    1466 </span>            :                                timestring, timefield );
-<span class="lineNum">    1467 </span>            : }
-<span class="lineNum">    1468 </span>            : 
-<span class="lineNum">    1469 </span>            : /************************************************************************/
-<span class="lineNum">    1470 </span>            : /*                msRASTERLayerInitializeVirtualTable()                 */
-<span class="lineNum">    1471 </span>            : /************************************************************************/
-<a name="1472"><span class="lineNum">    1472 </span>            : </a>
-<span class="lineNum">    1473 </span>            : int
-<span class="lineNum">    1474 </span><span class="lineCov">          1 : msRASTERLayerInitializeVirtualTable(layerObj *layer)</span>
-<span class="lineNum">    1475 </span>            : {
-<span class="lineNum">    1476 </span>            :   assert(layer != NULL);
-<span class="lineNum">    1477 </span>            :   assert(layer-&gt;vtable != NULL);
-<span class="lineNum">    1478 </span>            : 
-<span class="lineNum">    1479 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msRASTERLayerInitItemInfo;</span>
-<span class="lineNum">    1480 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msRASTERLayerFreeItemInfo;</span>
-<span class="lineNum">    1481 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerOpen = msRASTERLayerOpen;</span>
-<span class="lineNum">    1482 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerIsOpen = msRASTERLayerIsOpen;</span>
-<span class="lineNum">    1483 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msRASTERLayerWhichShapes;</span>
-<span class="lineNum">    1484 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msRASTERLayerNextShape;</span>
-<span class="lineNum">    1485 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msRASTERLayerGetShape;</span>
-<span class="lineNum">    1486 </span>            :   /* layer-&gt;vtable-&gt;LayerGetShapeCount, use default */
-<span class="lineNum">    1487 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msRASTERLayerClose;</span>
-<span class="lineNum">    1488 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetItems = msRASTERLayerGetItems;</span>
-<span class="lineNum">    1489 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetExtent = msRASTERLayerGetExtent;</span>
-<span class="lineNum">    1490 </span>            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
-<span class="lineNum">    1491 </span>            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
-<span class="lineNum">    1492 </span>            :   /* layer-&gt;vtable-&gt;LayerCloseConnection = msRASTERLayerClose; */
-<span class="lineNum">    1493 </span>            :   /* we use backtics for proper tileindex shapefile functioning */
-<span class="lineNum">    1494 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msRASTERLayerSetTimeFilter;</span>
-<span class="lineNum">    1495 </span>            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
-<span class="lineNum">    1496 </span>            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
+<span class="lineNum">    1460 </span><span class="lineNoCov">          0 :   if( layer-&gt;tileindex == NULL )</span>
+<span class="lineNum">    1461 </span>            :     return MS_SUCCESS;
+<span class="lineNum">    1462 </span>            : 
+<span class="lineNum">    1463 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1464 </span>            :   /*      Find the tileindex layer.                                       */
+<span class="lineNum">    1465 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1466 </span><span class="lineNoCov">          0 :   tilelayerindex = msGetLayerIndex(layer-&gt;map, layer-&gt;tileindex);</span>
+<span class="lineNum">    1467 </span>            : 
+<span class="lineNum">    1468 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1469 </span>            :   /*      If we are using a local shapefile as our tileindex (that is     */
+<span class="lineNum">    1470 </span>            :   /*      to say, the tileindex name is not of another layer), then we    */
+<span class="lineNum">    1471 </span>            :   /*      just install a backtics style filter on the raster layer.       */
+<span class="lineNum">    1472 </span>            :   /*      This is propogated to the &quot;working layer&quot; created for the       */
+<span class="lineNum">    1473 </span>            :   /*      tileindex by code in mapraster.c.                               */
+<span class="lineNum">    1474 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1475 </span><span class="lineNoCov">          0 :   if( tilelayerindex == -1 )</span>
+<span class="lineNum">    1476 </span><span class="lineNoCov">          0 :     return msLayerMakeBackticsTimeFilter( layer, timestring, timefield );</span>
+<span class="lineNum">    1477 </span>            : 
+<span class="lineNum">    1478 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1479 </span>            :   /*      Otherwise we invoke the tileindex layers SetTimeFilter          */
+<span class="lineNum">    1480 </span>            :   /*      method.                                                         */
+<span class="lineNum">    1481 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1482 </span><span class="lineNoCov">          0 :   if ( msCheckParentPointer(layer-&gt;map,&quot;map&quot;)==MS_FAILURE )</span>
+<span class="lineNum">    1483 </span>            :     return MS_FAILURE;
+<span class="lineNum">    1484 </span><span class="lineNoCov">          0 :   return msLayerSetTimeFilter( layer-&gt;GET_LAYER(map,tilelayerindex),</span>
+<span class="lineNum">    1485 </span>            :                                timestring, timefield );
+<span class="lineNum">    1486 </span>            : }
+<span class="lineNum">    1487 </span>            : 
+<span class="lineNum">    1488 </span>            : /************************************************************************/
+<span class="lineNum">    1489 </span>            : /*                msRASTERLayerInitializeVirtualTable()                 */
+<span class="lineNum">    1490 </span>            : /************************************************************************/
+<a name="1491"><span class="lineNum">    1491 </span>            : </a>
+<span class="lineNum">    1492 </span>            : int
+<span class="lineNum">    1493 </span><span class="lineCov">          1 : msRASTERLayerInitializeVirtualTable(layerObj *layer)</span>
+<span class="lineNum">    1494 </span>            : {
+<span class="lineNum">    1495 </span>            :   assert(layer != NULL);
+<span class="lineNum">    1496 </span>            :   assert(layer-&gt;vtable != NULL);
 <span class="lineNum">    1497 </span>            : 
-<span class="lineNum">    1498 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1499 </span>            : }
-<span class="lineNum">    1500 </span>            : 
+<span class="lineNum">    1498 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msRASTERLayerInitItemInfo;</span>
+<span class="lineNum">    1499 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msRASTERLayerFreeItemInfo;</span>
+<span class="lineNum">    1500 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerOpen = msRASTERLayerOpen;</span>
+<span class="lineNum">    1501 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerIsOpen = msRASTERLayerIsOpen;</span>
+<span class="lineNum">    1502 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msRASTERLayerWhichShapes;</span>
+<span class="lineNum">    1503 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msRASTERLayerNextShape;</span>
+<span class="lineNum">    1504 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msRASTERLayerGetShape;</span>
+<span class="lineNum">    1505 </span>            :   /* layer-&gt;vtable-&gt;LayerGetShapeCount, use default */
+<span class="lineNum">    1506 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msRASTERLayerClose;</span>
+<span class="lineNum">    1507 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetItems = msRASTERLayerGetItems;</span>
+<span class="lineNum">    1508 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetExtent = msRASTERLayerGetExtent;</span>
+<span class="lineNum">    1509 </span>            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
+<span class="lineNum">    1510 </span>            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
+<span class="lineNum">    1511 </span>            :   /* layer-&gt;vtable-&gt;LayerCloseConnection = msRASTERLayerClose; */
+<span class="lineNum">    1512 </span>            :   /* we use backtics for proper tileindex shapefile functioning */
+<span class="lineNum">    1513 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msRASTERLayerSetTimeFilter;</span>
+<span class="lineNum">    1514 </span>            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
+<span class="lineNum">    1515 </span>            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
+<span class="lineNum">    1516 </span>            : 
+<span class="lineNum">    1517 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1518 </span>            : }
+<span class="lineNum">    1519 </span>            : 
 </pre>
       </td>
     </tr>

@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">993</td>
-            <td class="headerCovTableEntry">1338</td>
-            <td class="headerCovTableEntryLo">74.2 %</td>
+            <td class="headerCovTableEntry">995</td>
+            <td class="headerCovTableEntry">1340</td>
+            <td class="headerCovTableEntryLo">74.3 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -2774,107 +2774,111 @@
 <span class="lineNum">    2712 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
 <span class="lineNum">    2713 </span>            : 
 <span class="lineNum">    2714 </span><span class="lineCov">          1 :     msAcquireLock( TLOCK_GDAL );</span>
-<span class="lineNum">    2715 </span>            : 
-<span class="lineNum">    2716 </span><span class="lineCov">          1 :     hDS = GDALOpen( decrypted_path, GA_ReadOnly );</span>
-<span class="lineNum">    2717 </span><span class="lineCov">          1 :     if( hDS == NULL ) {</span>
-<span class="lineNum">    2718 </span><span class="lineNoCov">          0 :       const char *cpl_error_msg = CPLGetLastErrorMsg();</span>
-<span class="lineNum">    2719 </span>            : 
-<span class="lineNum">    2720 </span>            :       /* we wish to avoid reporting decrypted paths */
-<span class="lineNum">    2721 </span><span class="lineNoCov">          0 :       if( cpl_error_msg != NULL</span>
-<span class="lineNum">    2722 </span><span class="lineNoCov">          0 :           &amp;&amp; strstr(cpl_error_msg,decrypted_path) != NULL</span>
-<span class="lineNum">    2723 </span><span class="lineNoCov">          0 :           &amp;&amp; strcmp(decrypted_path,szPath) != 0 )</span>
-<span class="lineNum">    2724 </span>            :         cpl_error_msg = NULL;
-<span class="lineNum">    2725 </span>            : 
-<span class="lineNum">    2726 </span><span class="lineNoCov">          0 :       if( cpl_error_msg == NULL )</span>
-<span class="lineNum">    2727 </span>            :         cpl_error_msg = &quot;&quot;;
-<span class="lineNum">    2728 </span>            : 
-<span class="lineNum">    2729 </span><span class="lineNoCov">          0 :       msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">    2730 </span>            : 
-<span class="lineNum">    2731 </span><span class="lineNoCov">          0 :       msSetError( MS_IOERR, &quot;%s&quot;, &quot;msWCSGetCoverageMetadata()&quot;,</span>
-<span class="lineNum">    2732 </span>            :                   cpl_error_msg );
-<span class="lineNum">    2733 </span>            : 
-<span class="lineNum">    2734 </span><span class="lineNoCov">          0 :       msFree( decrypted_path );</span>
-<span class="lineNum">    2735 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">    2736 </span>            :     }
-<span class="lineNum">    2737 </span><span class="lineCov">          1 :     msFree( decrypted_path );</span>
-<span class="lineNum">    2738 </span>            : 
-<span class="lineNum">    2739 </span><span class="lineCov">          1 :     msGetGDALGeoTransform( hDS, layer-&gt;map, layer, cm-&gt;geotransform );</span>
-<span class="lineNum">    2740 </span>            : 
-<span class="lineNum">    2741 </span><span class="lineCov">          1 :     cm-&gt;xsize = GDALGetRasterXSize( hDS );</span>
-<span class="lineNum">    2742 </span><span class="lineCov">          1 :     cm-&gt;ysize = GDALGetRasterYSize( hDS );</span>
-<span class="lineNum">    2743 </span>            : 
-<span class="lineNum">    2744 </span><span class="lineCov">          1 :     cm-&gt;extent.minx = cm-&gt;geotransform[0];</span>
-<span class="lineNum">    2745 </span><span class="lineCov">          1 :     cm-&gt;extent.maxx = cm-&gt;geotransform[0] + cm-&gt;geotransform[1] * cm-&gt;xsize + cm-&gt;geotransform[2] * cm-&gt;ysize;</span>
-<span class="lineNum">    2746 </span><span class="lineCov">          1 :     cm-&gt;extent.miny = cm-&gt;geotransform[3] + cm-&gt;geotransform[4] * cm-&gt;xsize + cm-&gt;geotransform[5] * cm-&gt;ysize;</span>
-<span class="lineNum">    2747 </span><span class="lineCov">          1 :     cm-&gt;extent.maxy = cm-&gt;geotransform[3];</span>
-<span class="lineNum">    2748 </span>            : 
-<span class="lineNum">    2749 </span><span class="lineCov">          1 :     cm-&gt;xresolution = cm-&gt;geotransform[1];</span>
-<span class="lineNum">    2750 </span><span class="lineCov">          1 :     cm-&gt;yresolution = cm-&gt;geotransform[5];</span>
-<span class="lineNum">    2751 </span>            : 
-<span class="lineNum">    2752 </span>            :     /* TODO: need to set resolution */
-<span class="lineNum">    2753 </span>            : 
-<span class="lineNum">    2754 </span><span class="lineCov">          1 :     cm-&gt;bandcount = GDALGetRasterCount( hDS );</span>
+<span class="lineNum">    2715 </span>            :     {
+<span class="lineNum">    2716 </span><span class="lineCov">          1 :         char** connectionoptions = msGetStringListFromHashTable(&amp;(layer-&gt;connectionoptions));</span>
+<span class="lineNum">    2717 </span><span class="lineCov">          1 :         hDS = GDALOpenEx( decrypted_path, GDAL_OF_RASTER, NULL,</span>
+<span class="lineNum">    2718 </span>            :                           (const char* const*)connectionoptions, NULL);
+<span class="lineNum">    2719 </span><span class="lineCov">          1 :         CSLDestroy(connectionoptions);</span>
+<span class="lineNum">    2720 </span>            :     }
+<span class="lineNum">    2721 </span><span class="lineCov">          1 :     if( hDS == NULL ) {</span>
+<span class="lineNum">    2722 </span><span class="lineNoCov">          0 :       const char *cpl_error_msg = CPLGetLastErrorMsg();</span>
+<span class="lineNum">    2723 </span>            : 
+<span class="lineNum">    2724 </span>            :       /* we wish to avoid reporting decrypted paths */
+<span class="lineNum">    2725 </span><span class="lineNoCov">          0 :       if( cpl_error_msg != NULL</span>
+<span class="lineNum">    2726 </span><span class="lineNoCov">          0 :           &amp;&amp; strstr(cpl_error_msg,decrypted_path) != NULL</span>
+<span class="lineNum">    2727 </span><span class="lineNoCov">          0 :           &amp;&amp; strcmp(decrypted_path,szPath) != 0 )</span>
+<span class="lineNum">    2728 </span>            :         cpl_error_msg = NULL;
+<span class="lineNum">    2729 </span>            : 
+<span class="lineNum">    2730 </span><span class="lineNoCov">          0 :       if( cpl_error_msg == NULL )</span>
+<span class="lineNum">    2731 </span>            :         cpl_error_msg = &quot;&quot;;
+<span class="lineNum">    2732 </span>            : 
+<span class="lineNum">    2733 </span><span class="lineNoCov">          0 :       msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">    2734 </span>            : 
+<span class="lineNum">    2735 </span><span class="lineNoCov">          0 :       msSetError( MS_IOERR, &quot;%s&quot;, &quot;msWCSGetCoverageMetadata()&quot;,</span>
+<span class="lineNum">    2736 </span>            :                   cpl_error_msg );
+<span class="lineNum">    2737 </span>            : 
+<span class="lineNum">    2738 </span><span class="lineNoCov">          0 :       msFree( decrypted_path );</span>
+<span class="lineNum">    2739 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    2740 </span>            :     }
+<span class="lineNum">    2741 </span><span class="lineCov">          1 :     msFree( decrypted_path );</span>
+<span class="lineNum">    2742 </span>            : 
+<span class="lineNum">    2743 </span><span class="lineCov">          1 :     msGetGDALGeoTransform( hDS, layer-&gt;map, layer, cm-&gt;geotransform );</span>
+<span class="lineNum">    2744 </span>            : 
+<span class="lineNum">    2745 </span><span class="lineCov">          1 :     cm-&gt;xsize = GDALGetRasterXSize( hDS );</span>
+<span class="lineNum">    2746 </span><span class="lineCov">          1 :     cm-&gt;ysize = GDALGetRasterYSize( hDS );</span>
+<span class="lineNum">    2747 </span>            : 
+<span class="lineNum">    2748 </span><span class="lineCov">          1 :     cm-&gt;extent.minx = cm-&gt;geotransform[0];</span>
+<span class="lineNum">    2749 </span><span class="lineCov">          1 :     cm-&gt;extent.maxx = cm-&gt;geotransform[0] + cm-&gt;geotransform[1] * cm-&gt;xsize + cm-&gt;geotransform[2] * cm-&gt;ysize;</span>
+<span class="lineNum">    2750 </span><span class="lineCov">          1 :     cm-&gt;extent.miny = cm-&gt;geotransform[3] + cm-&gt;geotransform[4] * cm-&gt;xsize + cm-&gt;geotransform[5] * cm-&gt;ysize;</span>
+<span class="lineNum">    2751 </span><span class="lineCov">          1 :     cm-&gt;extent.maxy = cm-&gt;geotransform[3];</span>
+<span class="lineNum">    2752 </span>            : 
+<span class="lineNum">    2753 </span><span class="lineCov">          1 :     cm-&gt;xresolution = cm-&gt;geotransform[1];</span>
+<span class="lineNum">    2754 </span><span class="lineCov">          1 :     cm-&gt;yresolution = cm-&gt;geotransform[5];</span>
 <span class="lineNum">    2755 </span>            : 
-<span class="lineNum">    2756 </span><span class="lineCov">          1 :     if( cm-&gt;bandcount == 0 ) {</span>
-<span class="lineNum">    2757 </span><span class="lineNoCov">          0 :       msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">    2758 </span><span class="lineNoCov">          0 :       msSetError( MS_WCSERR, &quot;Raster file %s has no raster bands.  This cannot be used in a layer.&quot;, &quot;msWCSGetCoverageMetadata()&quot;, layer-&gt;data );</span>
-<span class="lineNum">    2759 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">    2760 </span>            :     }
-<span class="lineNum">    2761 </span>            : 
-<span class="lineNum">    2762 </span><span class="lineCov">          1 :     hBand = GDALGetRasterBand( hDS, 1 );</span>
-<span class="lineNum">    2763 </span><span class="lineCov">          1 :     switch( GDALGetRasterDataType( hBand ) ) {</span>
-<span class="lineNum">    2764 </span>            :       case GDT_Byte:
-<span class="lineNum">    2765 </span><span class="lineCov">          1 :         cm-&gt;imagemode = MS_IMAGEMODE_BYTE;</span>
-<span class="lineNum">    2766 </span><span class="lineCov">          1 :         break;</span>
-<span class="lineNum">    2767 </span>            :       case GDT_Int16:
-<span class="lineNum">    2768 </span><span class="lineNoCov">          0 :         cm-&gt;imagemode = MS_IMAGEMODE_INT16;</span>
-<span class="lineNum">    2769 </span><span class="lineNoCov">          0 :         break;</span>
-<span class="lineNum">    2770 </span>            :       default:
-<span class="lineNum">    2771 </span><span class="lineNoCov">          0 :         cm-&gt;imagemode = MS_IMAGEMODE_FLOAT32;</span>
-<span class="lineNum">    2772 </span><span class="lineNoCov">          0 :         break;</span>
-<span class="lineNum">    2773 </span>            :     }
-<span class="lineNum">    2774 </span>            : 
-<span class="lineNum">    2775 </span>            :     /* color interpretation */
-<span class="lineNum">    2776 </span><span class="lineCov">          1 :     for(i = 1; i &lt;= 10 &amp;&amp; i &lt;= cm-&gt;bandcount; ++i) {</span>
-<span class="lineNum">    2777 </span>            :       GDALColorInterp colorInterp;
-<span class="lineNum">    2778 </span><span class="lineCov">          1 :       hBand = GDALGetRasterBand( hDS, i );</span>
-<span class="lineNum">    2779 </span><span class="lineCov">          1 :       colorInterp = GDALGetRasterColorInterpretation(hBand);</span>
-<span class="lineNum">    2780 </span><span class="lineCov">          1 :       cm-&gt;bandinterpretation[i-1] = GDALGetColorInterpretationName(colorInterp);</span>
-<span class="lineNum">    2781 </span>            :     }
-<span class="lineNum">    2782 </span>            : 
-<span class="lineNum">    2783 </span><span class="lineCov">          1 :     GDALClose( hDS );</span>
-<span class="lineNum">    2784 </span><span class="lineCov">          1 :     msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">    2785 </span>            :   }
+<span class="lineNum">    2756 </span>            :     /* TODO: need to set resolution */
+<span class="lineNum">    2757 </span>            : 
+<span class="lineNum">    2758 </span><span class="lineCov">          1 :     cm-&gt;bandcount = GDALGetRasterCount( hDS );</span>
+<span class="lineNum">    2759 </span>            : 
+<span class="lineNum">    2760 </span><span class="lineCov">          1 :     if( cm-&gt;bandcount == 0 ) {</span>
+<span class="lineNum">    2761 </span><span class="lineNoCov">          0 :       msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">    2762 </span><span class="lineNoCov">          0 :       msSetError( MS_WCSERR, &quot;Raster file %s has no raster bands.  This cannot be used in a layer.&quot;, &quot;msWCSGetCoverageMetadata()&quot;, layer-&gt;data );</span>
+<span class="lineNum">    2763 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    2764 </span>            :     }
+<span class="lineNum">    2765 </span>            : 
+<span class="lineNum">    2766 </span><span class="lineCov">          1 :     hBand = GDALGetRasterBand( hDS, 1 );</span>
+<span class="lineNum">    2767 </span><span class="lineCov">          1 :     switch( GDALGetRasterDataType( hBand ) ) {</span>
+<span class="lineNum">    2768 </span>            :       case GDT_Byte:
+<span class="lineNum">    2769 </span><span class="lineCov">          1 :         cm-&gt;imagemode = MS_IMAGEMODE_BYTE;</span>
+<span class="lineNum">    2770 </span><span class="lineCov">          1 :         break;</span>
+<span class="lineNum">    2771 </span>            :       case GDT_Int16:
+<span class="lineNum">    2772 </span><span class="lineNoCov">          0 :         cm-&gt;imagemode = MS_IMAGEMODE_INT16;</span>
+<span class="lineNum">    2773 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">    2774 </span>            :       default:
+<span class="lineNum">    2775 </span><span class="lineNoCov">          0 :         cm-&gt;imagemode = MS_IMAGEMODE_FLOAT32;</span>
+<span class="lineNum">    2776 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">    2777 </span>            :     }
+<span class="lineNum">    2778 </span>            : 
+<span class="lineNum">    2779 </span>            :     /* color interpretation */
+<span class="lineNum">    2780 </span><span class="lineCov">          1 :     for(i = 1; i &lt;= 10 &amp;&amp; i &lt;= cm-&gt;bandcount; ++i) {</span>
+<span class="lineNum">    2781 </span>            :       GDALColorInterp colorInterp;
+<span class="lineNum">    2782 </span><span class="lineCov">          1 :       hBand = GDALGetRasterBand( hDS, i );</span>
+<span class="lineNum">    2783 </span><span class="lineCov">          1 :       colorInterp = GDALGetRasterColorInterpretation(hBand);</span>
+<span class="lineNum">    2784 </span><span class="lineCov">          1 :       cm-&gt;bandinterpretation[i-1] = GDALGetColorInterpretationName(colorInterp);</span>
+<span class="lineNum">    2785 </span>            :     }
 <span class="lineNum">    2786 </span>            : 
-<span class="lineNum">    2787 </span>            :   /* we must have the bounding box in lat/lon [WGS84(DD)/EPSG:4326] */
-<span class="lineNum">    2788 </span><span class="lineCov">          1 :   cm-&gt;llextent = cm-&gt;extent;</span>
-<span class="lineNum">    2789 </span>            : 
-<span class="lineNum">    2790 </span>            :   /* Already in latlong .. use directly. */
-<span class="lineNum">    2791 </span><span class="lineCov">          1 :   if( layer-&gt;projection.proj != NULL &amp;&amp; pj_is_latlong(layer-&gt;projection.proj)) {</span>
-<span class="lineNum">    2792 </span>            :     /* no change */
-<span class="lineNum">    2793 </span>            :   }
-<span class="lineNum">    2794 </span>            : 
-<span class="lineNum">    2795 </span><span class="lineCov">          1 :   else if (layer-&gt;projection.numargs &gt; 0 &amp;&amp; !pj_is_latlong(layer-&gt;projection.proj)) /* check the layer projection */</span>
-<span class="lineNum">    2796 </span><span class="lineCov">          1 :     msProjectRect(&amp;(layer-&gt;projection), NULL, &amp;(cm-&gt;llextent));</span>
-<span class="lineNum">    2797 </span>            : 
-<span class="lineNum">    2798 </span><span class="lineNoCov">          0 :   else if (layer-&gt;map-&gt;projection.numargs &gt; 0 &amp;&amp; !pj_is_latlong(layer-&gt;map-&gt;projection.proj)) /* check the map projection */</span>
-<span class="lineNum">    2799 </span><span class="lineNoCov">          0 :     msProjectRect(&amp;(layer-&gt;map-&gt;projection), NULL, &amp;(cm-&gt;llextent));</span>
-<span class="lineNum">    2800 </span>            : 
-<span class="lineNum">    2801 </span>            :   else { /* projection was specified in the metadata only (EPSG:... only at the moment)  */
-<span class="lineNum">    2802 </span>            :     projectionObj proj;
-<span class="lineNum">    2803 </span>            :     char projstring[32];
+<span class="lineNum">    2787 </span><span class="lineCov">          1 :     GDALClose( hDS );</span>
+<span class="lineNum">    2788 </span><span class="lineCov">          1 :     msReleaseLock( TLOCK_GDAL );</span>
+<span class="lineNum">    2789 </span>            :   }
+<span class="lineNum">    2790 </span>            : 
+<span class="lineNum">    2791 </span>            :   /* we must have the bounding box in lat/lon [WGS84(DD)/EPSG:4326] */
+<span class="lineNum">    2792 </span><span class="lineCov">          1 :   cm-&gt;llextent = cm-&gt;extent;</span>
+<span class="lineNum">    2793 </span>            : 
+<span class="lineNum">    2794 </span>            :   /* Already in latlong .. use directly. */
+<span class="lineNum">    2795 </span><span class="lineCov">          1 :   if( layer-&gt;projection.proj != NULL &amp;&amp; pj_is_latlong(layer-&gt;projection.proj)) {</span>
+<span class="lineNum">    2796 </span>            :     /* no change */
+<span class="lineNum">    2797 </span>            :   }
+<span class="lineNum">    2798 </span>            : 
+<span class="lineNum">    2799 </span><span class="lineCov">          1 :   else if (layer-&gt;projection.numargs &gt; 0 &amp;&amp; !pj_is_latlong(layer-&gt;projection.proj)) /* check the layer projection */</span>
+<span class="lineNum">    2800 </span><span class="lineCov">          1 :     msProjectRect(&amp;(layer-&gt;projection), NULL, &amp;(cm-&gt;llextent));</span>
+<span class="lineNum">    2801 </span>            : 
+<span class="lineNum">    2802 </span><span class="lineNoCov">          0 :   else if (layer-&gt;map-&gt;projection.numargs &gt; 0 &amp;&amp; !pj_is_latlong(layer-&gt;map-&gt;projection.proj)) /* check the map projection */</span>
+<span class="lineNum">    2803 </span><span class="lineNoCov">          0 :     msProjectRect(&amp;(layer-&gt;map-&gt;projection), NULL, &amp;(cm-&gt;llextent));</span>
 <span class="lineNum">    2804 </span>            : 
-<span class="lineNum">    2805 </span><span class="lineNoCov">          0 :     msInitProjection(&amp;proj); /* or bad things happen */</span>
-<span class="lineNum">    2806 </span>            : 
-<span class="lineNum">    2807 </span><span class="lineNoCov">          0 :     snprintf(projstring, sizeof(projstring), &quot;init=epsg:%.20s&quot;, cm-&gt;srs_epsg+5);</span>
-<span class="lineNum">    2808 </span><span class="lineNoCov">          0 :     if (msLoadProjectionString(&amp;proj, projstring) != 0) return MS_FAILURE;</span>
-<span class="lineNum">    2809 </span><span class="lineNoCov">          0 :     msProjectRect(&amp;proj, NULL, &amp;(cm-&gt;llextent));</span>
-<span class="lineNum">    2810 </span>            :   }
-<span class="lineNum">    2811 </span>            : 
-<span class="lineNum">    2812 </span>            :   return MS_SUCCESS;
-<span class="lineNum">    2813 </span>            : }
-<span class="lineNum">    2814 </span>            : #endif /* def USE_WCS_SVR */
+<span class="lineNum">    2805 </span>            :   else { /* projection was specified in the metadata only (EPSG:... only at the moment)  */
+<span class="lineNum">    2806 </span>            :     projectionObj proj;
+<span class="lineNum">    2807 </span>            :     char projstring[32];
+<span class="lineNum">    2808 </span>            : 
+<span class="lineNum">    2809 </span><span class="lineNoCov">          0 :     msInitProjection(&amp;proj); /* or bad things happen */</span>
+<span class="lineNum">    2810 </span>            : 
+<span class="lineNum">    2811 </span><span class="lineNoCov">          0 :     snprintf(projstring, sizeof(projstring), &quot;init=epsg:%.20s&quot;, cm-&gt;srs_epsg+5);</span>
+<span class="lineNum">    2812 </span><span class="lineNoCov">          0 :     if (msLoadProjectionString(&amp;proj, projstring) != 0) return MS_FAILURE;</span>
+<span class="lineNum">    2813 </span><span class="lineNoCov">          0 :     msProjectRect(&amp;proj, NULL, &amp;(cm-&gt;llextent));</span>
+<span class="lineNum">    2814 </span>            :   }
 <span class="lineNum">    2815 </span>            : 
+<span class="lineNum">    2816 </span>            :   return MS_SUCCESS;
+<span class="lineNum">    2817 </span>            : }
+<span class="lineNum">    2818 </span>            : #endif /* def USE_WCS_SVR */
+<span class="lineNum">    2819 </span>            : 
 </pre>
       </td>
     </tr>
