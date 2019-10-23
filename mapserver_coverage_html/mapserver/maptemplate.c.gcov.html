@@ -31,8 +31,8 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">767</td>
-            <td class="headerCovTableEntry">2200</td>
+            <td class="headerCovTableEntry">768</td>
+            <td class="headerCovTableEntry">2201</td>
             <td class="headerCovTableEntryLo">34.9 %</td>
           </tr>
           <tr>
@@ -4675,300 +4675,301 @@
 <span class="lineNum">    4613 </span><span class="lineCov">          1 :   mapserv-&gt;QueryString=NULL;</span>
 <span class="lineNum">    4614 </span><span class="lineCov">          1 :   mapserv-&gt;ShapeIndex=-1;</span>
 <span class="lineNum">    4615 </span><span class="lineCov">          1 :   mapserv-&gt;TileIndex=-1;</span>
-<span class="lineNum">    4616 </span><span class="lineCov">          1 :   mapserv-&gt;QueryCoordSource=NONE;</span>
-<span class="lineNum">    4617 </span><span class="lineCov">          1 :   mapserv-&gt;ZoomSize=0; /* zoom absolute magnitude (i.e. &gt; 0) */</span>
-<span class="lineNum">    4618 </span>            : 
-<span class="lineNum">    4619 </span><span class="lineCov">          1 :   mapserv-&gt;hittest = NULL;</span>
-<span class="lineNum">    4620 </span>            : 
-<span class="lineNum">    4621 </span><span class="lineCov">          1 :   return mapserv;</span>
-<a name="4622"><span class="lineNum">    4622 </span>            : }</a>
-<span class="lineNum">    4623 </span>            : 
-<span class="lineNum">    4624 </span><span class="lineCov">          1 : void msFreeMapServObj(mapservObj* mapserv)</span>
-<span class="lineNum">    4625 </span>            : {
-<span class="lineNum">    4626 </span>            :   int i;
-<span class="lineNum">    4627 </span>            : 
-<span class="lineNum">    4628 </span><span class="lineCov">          1 :   if(mapserv) {</span>
-<span class="lineNum">    4629 </span><span class="lineCov">          1 :     if( mapserv-&gt;map ) {</span>
-<span class="lineNum">    4630 </span><span class="lineCov">          1 :       if(mapserv-&gt;hittest) {</span>
-<span class="lineNum">    4631 </span><span class="lineCov">          1 :         freeMapHitTests(mapserv-&gt;map,mapserv-&gt;hittest);</span>
-<span class="lineNum">    4632 </span><span class="lineCov">          1 :         free(mapserv-&gt;hittest);</span>
-<span class="lineNum">    4633 </span>            :       }
-<span class="lineNum">    4634 </span><span class="lineCov">          1 :       msFreeMap(mapserv-&gt;map);</span>
-<span class="lineNum">    4635 </span><span class="lineCov">          1 :       mapserv-&gt;map = NULL;</span>
-<span class="lineNum">    4636 </span>            :     }
-<span class="lineNum">    4637 </span>            : 
-<span class="lineNum">    4638 </span><span class="lineCov">          1 :     if( mapserv-&gt;request ) {</span>
-<span class="lineNum">    4639 </span><span class="lineCov">          1 :       msFreeCgiObj(mapserv-&gt;request);</span>
-<span class="lineNum">    4640 </span><span class="lineCov">          1 :       mapserv-&gt;request = NULL;</span>
-<span class="lineNum">    4641 </span>            :     }
-<span class="lineNum">    4642 </span>            : 
-<span class="lineNum">    4643 </span><span class="lineCov">          1 :     for(i=0; i&lt;mapserv-&gt;NumLayers; i++)</span>
-<span class="lineNum">    4644 </span><span class="lineCov">          1 :       msFree(mapserv-&gt;Layers[i]);</span>
-<span class="lineNum">    4645 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;Layers);</span>
-<span class="lineNum">    4646 </span>            : 
-<span class="lineNum">    4647 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;icon);</span>
-<span class="lineNum">    4648 </span>            : 
-<span class="lineNum">    4649 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;QueryItem);</span>
-<span class="lineNum">    4650 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;QueryString);</span>
-<span class="lineNum">    4651 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;QueryLayer);</span>
-<span class="lineNum">    4652 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;SelectLayer);</span>
-<span class="lineNum">    4653 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;QueryFile);</span>
-<span class="lineNum">    4654 </span>            : 
-<span class="lineNum">    4655 </span><span class="lineCov">          1 :     msFree(mapserv);</span>
-<span class="lineNum">    4656 </span>            :   }
-<span class="lineNum">    4657 </span><span class="lineCov">          1 : }</span>
-<span class="lineNum">    4658 </span>            : 
-<span class="lineNum">    4659 </span>            : /*
-<span class="lineNum">    4660 </span>            : ** Ensure there is at least one free entry in the Layers array.
-<span class="lineNum">    4661 </span>            : **
-<span class="lineNum">    4662 </span>            : ** This function is safe to use for the initial allocation of the Layers[]
-<span class="lineNum">    4663 </span>            : ** array as well (i.e. when MaxLayers==0 and Layers==NULL)
-<span class="lineNum">    4664 </span>            : **
-<a name="4665"><span class="lineNum">    4665 </span>            : ** Returns MS_SUCCESS/MS_FAILURE</a>
-<span class="lineNum">    4666 </span>            : */
-<span class="lineNum">    4667 </span><span class="lineCov">          1 : int msGrowMapservLayers( mapservObj* mapserv )</span>
-<span class="lineNum">    4668 </span>            : {
-<span class="lineNum">    4669 </span>            :   /* Do we need to increase the size of Layers[] by MS_LAYER_ALLOCSIZE? */
-<span class="lineNum">    4670 </span><span class="lineCov">          1 :   if(mapserv-&gt;NumLayers == mapserv-&gt;MaxLayers) {</span>
-<span class="lineNum">    4671 </span>            :     int i;
-<span class="lineNum">    4672 </span>            : 
-<span class="lineNum">    4673 </span><span class="lineCov">          1 :     if(mapserv-&gt;MaxLayers == 0) {</span>
-<span class="lineNum">    4674 </span>            :       /* initial allocation of array */
-<span class="lineNum">    4675 </span><span class="lineCov">          1 :       mapserv-&gt;MaxLayers += MS_LAYER_ALLOCSIZE;</span>
-<span class="lineNum">    4676 </span><span class="lineCov">          1 :       mapserv-&gt;NumLayers = 0;</span>
-<span class="lineNum">    4677 </span><span class="lineCov">          1 :       mapserv-&gt;Layers = (char**)msSmallMalloc(mapserv-&gt;MaxLayers*sizeof(char*));</span>
-<span class="lineNum">    4678 </span>            :     } else {
-<span class="lineNum">    4679 </span>            :       /* realloc existing array */
-<span class="lineNum">    4680 </span><span class="lineNoCov">          0 :       mapserv-&gt;MaxLayers += MS_LAYER_ALLOCSIZE;</span>
-<span class="lineNum">    4681 </span><span class="lineNoCov">          0 :       mapserv-&gt;Layers = (char**)msSmallRealloc(mapserv-&gt;Layers, mapserv-&gt;MaxLayers*sizeof(char*));</span>
-<span class="lineNum">    4682 </span>            :     }
-<span class="lineNum">    4683 </span>            : 
-<span class="lineNum">    4684 </span><span class="lineCov">          1 :     if(mapserv-&gt;Layers == NULL) {</span>
-<span class="lineNum">    4685 </span><span class="lineNoCov">          0 :       msSetError(MS_MEMERR, &quot;Failed to allocate memory for Layers array.&quot;, &quot;msGrowMappservLayers()&quot;);</span>
-<span class="lineNum">    4686 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">    4687 </span>            :     }
-<span class="lineNum">    4688 </span>            : 
-<span class="lineNum">    4689 </span><span class="lineCov">          1 :     for(i=mapserv-&gt;NumLayers; i&lt;mapserv-&gt;MaxLayers; i++) {</span>
-<span class="lineNum">    4690 </span><span class="lineCov">          1 :       mapserv-&gt;Layers[i] = NULL;</span>
-<span class="lineNum">    4691 </span>            :     }
-<span class="lineNum">    4692 </span>            :   }
-<span class="lineNum">    4693 </span>            : 
-<span class="lineNum">    4694 </span>            :   return MS_SUCCESS;
-<span class="lineNum">    4695 </span>            : }
-<span class="lineNum">    4696 </span>            : 
-<span class="lineNum">    4697 </span>            : /*
-<span class="lineNum">    4698 </span>            : ** Utility function to generate map, legend, scalebar and reference images.
-<span class="lineNum">    4699 </span>            : **
-<span class="lineNum">    4700 </span>            : ** Parameters:
-<span class="lineNum">    4701 </span>            : **   - mapserv: mapserv object (used to extract the map object).
-<span class="lineNum">    4702 </span>            : **   - bQueryMap: if set to TRUE a query map will be created instead of a regular map.
-<a name="4703"><span class="lineNum">    4703 </span>            : **   - bReturnOnError: if set to TRUE, the function will return on the first error, else it will try to generate all the images.</a>
-<span class="lineNum">    4704 </span>            : */
-<span class="lineNum">    4705 </span><span class="lineCov">          1 : int msGenerateImages(mapservObj *mapserv, int bQueryMap, int bReturnOnError)</span>
-<span class="lineNum">    4706 </span>            : {
-<span class="lineNum">    4707 </span>            :   char buffer[1024];
-<span class="lineNum">    4708 </span>            : 
-<span class="lineNum">    4709 </span><span class="lineCov">          1 :   if(mapserv) {</span>
-<span class="lineNum">    4710 </span>            : 
-<span class="lineNum">    4711 </span>            :     /* render the map OR query map */
-<span class="lineNum">    4712 </span><span class="lineCov">          1 :     if((!bQueryMap &amp;&amp; mapserv-&gt;map-&gt;status == MS_ON) || (bQueryMap &amp;&amp; mapserv-&gt;map-&gt;querymap.status == MS_ON)) {</span>
-<span class="lineNum">    4713 </span>            :       imageObj *image = NULL;
-<span class="lineNum">    4714 </span>            : 
-<span class="lineNum">    4715 </span><span class="lineCov">          1 :       image = msDrawMap(mapserv-&gt;map, bQueryMap);</span>
-<span class="lineNum">    4716 </span><span class="lineCov">          1 :       if(image) {</span>
-<span class="lineNum">    4717 </span><span class="lineCov">          1 :         snprintf(buffer, sizeof(buffer), &quot;%s%s%s.%s&quot;, mapserv-&gt;map-&gt;web.imagepath, mapserv-&gt;map-&gt;name, mapserv-&gt;Id, MS_IMAGE_EXTENSION(mapserv-&gt;map-&gt;outputformat));</span>
-<span class="lineNum">    4718 </span>            : 
-<span class="lineNum">    4719 </span><span class="lineCov">          1 :         if(msSaveImage(mapserv-&gt;map, image, buffer) != MS_SUCCESS &amp;&amp; bReturnOnError) {</span>
-<span class="lineNum">    4720 </span><span class="lineNoCov">          0 :           msFreeImage(image);</span>
-<span class="lineNum">    4721 </span><span class="lineNoCov">          0 :           return MS_FAILURE;</span>
-<span class="lineNum">    4722 </span>            :         }
-<span class="lineNum">    4723 </span><span class="lineCov">          1 :         msFreeImage(image);</span>
-<span class="lineNum">    4724 </span><span class="lineNoCov">          0 :       } else if(bReturnOnError)</span>
-<span class="lineNum">    4725 </span>            :         return MS_FAILURE;
-<span class="lineNum">    4726 </span>            :     }
-<span class="lineNum">    4727 </span>            : 
-<span class="lineNum">    4728 </span>            :     /* render the legend */
-<span class="lineNum">    4729 </span><span class="lineCov">          1 :     if(mapserv-&gt;map-&gt;legend.status == MS_ON) {</span>
-<span class="lineNum">    4730 </span>            :       imageObj *image = NULL;
-<span class="lineNum">    4731 </span><span class="lineNoCov">          0 :       image = msDrawLegend(mapserv-&gt;map, MS_FALSE, NULL);</span>
-<span class="lineNum">    4732 </span><span class="lineNoCov">          0 :       if(image) {</span>
-<span class="lineNum">    4733 </span><span class="lineNoCov">          0 :         snprintf(buffer, sizeof(buffer), &quot;%s%sleg%s.%s&quot;, mapserv-&gt;map-&gt;web.imagepath, mapserv-&gt;map-&gt;name, mapserv-&gt;Id, MS_IMAGE_EXTENSION(mapserv-&gt;map-&gt;outputformat));</span>
-<span class="lineNum">    4734 </span>            : 
-<span class="lineNum">    4735 </span><span class="lineNoCov">          0 :         if(msSaveImage(mapserv-&gt;map, image, buffer) != MS_SUCCESS &amp;&amp; bReturnOnError) {</span>
-<span class="lineNum">    4736 </span><span class="lineNoCov">          0 :           msFreeImage(image);</span>
-<span class="lineNum">    4737 </span><span class="lineNoCov">          0 :           return MS_FAILURE;</span>
-<span class="lineNum">    4738 </span>            :         }
-<span class="lineNum">    4739 </span><span class="lineNoCov">          0 :         msFreeImage(image);</span>
-<span class="lineNum">    4740 </span><span class="lineNoCov">          0 :       } else if(bReturnOnError)</span>
-<span class="lineNum">    4741 </span>            :         return MS_FAILURE;
-<span class="lineNum">    4742 </span>            :     }
-<span class="lineNum">    4743 </span>            : 
-<span class="lineNum">    4744 </span>            :     /* render the scalebar */
-<span class="lineNum">    4745 </span><span class="lineCov">          1 :     if(mapserv-&gt;map-&gt;scalebar.status == MS_ON) {</span>
-<span class="lineNum">    4746 </span>            :       imageObj *image = NULL;
-<span class="lineNum">    4747 </span><span class="lineNoCov">          0 :       image = msDrawScalebar(mapserv-&gt;map);</span>
-<span class="lineNum">    4748 </span><span class="lineNoCov">          0 :       if(image) {</span>
-<span class="lineNum">    4749 </span><span class="lineNoCov">          0 :         snprintf(buffer, sizeof(buffer), &quot;%s%ssb%s.%s&quot;, mapserv-&gt;map-&gt;web.imagepath, mapserv-&gt;map-&gt;name, mapserv-&gt;Id, MS_IMAGE_EXTENSION(mapserv-&gt;map-&gt;outputformat));</span>
-<span class="lineNum">    4750 </span><span class="lineNoCov">          0 :         if(msSaveImage(mapserv-&gt;map, image, buffer) != MS_SUCCESS &amp;&amp; bReturnOnError) {</span>
-<span class="lineNum">    4751 </span><span class="lineNoCov">          0 :           msFreeImage(image);</span>
-<span class="lineNum">    4752 </span><span class="lineNoCov">          0 :           return MS_FAILURE;</span>
-<span class="lineNum">    4753 </span>            :         }
-<span class="lineNum">    4754 </span><span class="lineNoCov">          0 :         msFreeImage(image);</span>
-<span class="lineNum">    4755 </span><span class="lineNoCov">          0 :       } else if(bReturnOnError)</span>
-<span class="lineNum">    4756 </span>            :         return MS_FAILURE;
-<span class="lineNum">    4757 </span>            :     }
-<span class="lineNum">    4758 </span>            : 
-<span class="lineNum">    4759 </span>            :     /* render the reference map */
-<span class="lineNum">    4760 </span><span class="lineCov">          1 :     if(mapserv-&gt;map-&gt;reference.status == MS_ON) {</span>
-<span class="lineNum">    4761 </span>            :       imageObj *image;
-<span class="lineNum">    4762 </span><span class="lineNoCov">          0 :       image = msDrawReferenceMap(mapserv-&gt;map);</span>
-<span class="lineNum">    4763 </span><span class="lineNoCov">          0 :       if(image) {</span>
-<span class="lineNum">    4764 </span><span class="lineNoCov">          0 :         snprintf(buffer, sizeof(buffer), &quot;%s%sref%s.%s&quot;, mapserv-&gt;map-&gt;web.imagepath, mapserv-&gt;map-&gt;name, mapserv-&gt;Id, MS_IMAGE_EXTENSION(mapserv-&gt;map-&gt;outputformat));</span>
-<span class="lineNum">    4765 </span><span class="lineNoCov">          0 :         if(msSaveImage(mapserv-&gt;map, image, buffer) != MS_SUCCESS &amp;&amp; bReturnOnError) {</span>
-<span class="lineNum">    4766 </span><span class="lineNoCov">          0 :           msFreeImage(image);</span>
-<span class="lineNum">    4767 </span><span class="lineNoCov">          0 :           return MS_FAILURE;</span>
-<span class="lineNum">    4768 </span>            :         }
-<span class="lineNum">    4769 </span><span class="lineNoCov">          0 :         msFreeImage(image);</span>
-<span class="lineNum">    4770 </span><span class="lineNoCov">          0 :       } else if(bReturnOnError)</span>
-<span class="lineNum">    4771 </span>            :         return MS_FAILURE;
-<span class="lineNum">    4772 </span>            :     }
-<span class="lineNum">    4773 </span>            : 
-<span class="lineNum">    4774 </span>            :   }
-<span class="lineNum">    4775 </span>            : 
-<span class="lineNum">    4776 </span>            :   return MS_SUCCESS;
-<span class="lineNum">    4777 </span>            : }
-<span class="lineNum">    4778 </span>            : 
-<span class="lineNum">    4779 </span>            : /*
-<span class="lineNum">    4780 </span>            : ** Utility function to open a template file, process it and
-<span class="lineNum">    4781 </span>            : ** and return into a buffer the processed template. Uses the
-<span class="lineNum">    4782 </span>            : ** template file from the web object. Returns NULL if there is
-<a name="4783"><span class="lineNum">    4783 </span>            : ** an error.</a>
-<span class="lineNum">    4784 </span>            : */
-<span class="lineNum">    4785 </span><span class="lineNoCov">          0 : char *msProcessTemplate(mapObj *map, int bGenerateImages, char **names, char **values, int numentries)</span>
-<span class="lineNum">    4786 </span>            : {
-<span class="lineNum">    4787 </span><span class="lineNoCov">          0 :   char *pszBuffer = NULL;</span>
-<span class="lineNum">    4788 </span>            : 
-<span class="lineNum">    4789 </span><span class="lineNoCov">          0 :   if(map) {</span>
-<span class="lineNum">    4790 </span>            : 
-<span class="lineNum">    4791 </span>            :     /* Initialize object and set appropriate defaults. */
-<span class="lineNum">    4792 </span>            :     mapservObj  *mapserv  = NULL;
-<span class="lineNum">    4793 </span><span class="lineNoCov">          0 :     mapserv = msAllocMapServObj();</span>
-<span class="lineNum">    4794 </span>            : 
-<span class="lineNum">    4795 </span><span class="lineNoCov">          0 :     mapserv-&gt;map = map;</span>
-<span class="lineNum">    4796 </span><span class="lineNoCov">          0 :     mapserv-&gt;Mode = BROWSE;</span>
-<span class="lineNum">    4797 </span>            : 
-<span class="lineNum">    4798 </span><span class="lineNoCov">          0 :     if(names &amp;&amp; values &amp;&amp; numentries &gt; 0) {</span>
-<span class="lineNum">    4799 </span><span class="lineNoCov">          0 :       msFreeCharArray(mapserv-&gt;request-&gt;ParamNames, mapserv-&gt;request-&gt;NumParams);</span>
-<span class="lineNum">    4800 </span><span class="lineNoCov">          0 :       msFreeCharArray(mapserv-&gt;request-&gt;ParamValues, mapserv-&gt;request-&gt;NumParams);</span>
-<span class="lineNum">    4801 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;ParamNames = names;</span>
-<span class="lineNum">    4802 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;ParamValues = values;</span>
-<span class="lineNum">    4803 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;NumParams = numentries;</span>
-<span class="lineNum">    4804 </span>            :     }
-<span class="lineNum">    4805 </span>            : 
-<span class="lineNum">    4806 </span>            :     /*
-<span class="lineNum">    4807 </span>            :     ** ISSUE/TODO : some of the name/values should be extracted and
-<span class="lineNum">    4808 </span>            :     ** processed (ex imgext, layers, ...) as it is done in function
-<span class="lineNum">    4809 </span>            :     ** loadform.
-<span class="lineNum">    4810 </span>            :     */
-<span class="lineNum">    4811 </span>            : 
-<span class="lineNum">    4812 </span><span class="lineNoCov">          0 :     if(bGenerateImages)</span>
-<span class="lineNum">    4813 </span><span class="lineNoCov">          0 :       msGenerateImages(mapserv, MS_FALSE, MS_FALSE);</span>
-<span class="lineNum">    4814 </span>            : 
-<span class="lineNum">    4815 </span>            :     /*
-<span class="lineNum">    4816 </span>            :     ** Process the template.
-<span class="lineNum">    4817 </span>            :     **
-<span class="lineNum">    4818 </span>            :     ** TODO : use web minscaledenom/maxscaledenom depending on the scale.
-<span class="lineNum">    4819 </span>            :     */
-<span class="lineNum">    4820 </span><span class="lineNoCov">          0 :     if(msReturnPage(mapserv, mapserv-&gt;map-&gt;web.template, BROWSE, &amp;pszBuffer) != MS_SUCCESS) {</span>
-<span class="lineNum">    4821 </span><span class="lineNoCov">          0 :       msFree(pszBuffer);</span>
-<span class="lineNum">    4822 </span><span class="lineNoCov">          0 :       pszBuffer = NULL;</span>
-<span class="lineNum">    4823 </span>            :     }
-<span class="lineNum">    4824 </span>            : 
-<span class="lineNum">    4825 </span>            :     /* Don't free the map and names and values arrays since they were passed by reference. */
-<span class="lineNum">    4826 </span><span class="lineNoCov">          0 :     mapserv-&gt;map = NULL;</span>
-<span class="lineNum">    4827 </span><span class="lineNoCov">          0 :     mapserv-&gt;request-&gt;ParamNames = mapserv-&gt;request-&gt;ParamValues = NULL;</span>
-<span class="lineNum">    4828 </span><span class="lineNoCov">          0 :     mapserv-&gt;request-&gt;NumParams = 0;</span>
-<span class="lineNum">    4829 </span><span class="lineNoCov">          0 :     msFreeMapServObj(mapserv);</span>
-<span class="lineNum">    4830 </span>            :   }
-<span class="lineNum">    4831 </span>            : 
-<span class="lineNum">    4832 </span><span class="lineNoCov">          0 :   return pszBuffer;</span>
-<span class="lineNum">    4833 </span>            : }
-<span class="lineNum">    4834 </span>            : 
-<span class="lineNum">    4835 </span>            : /*
-<a name="4836"><span class="lineNum">    4836 </span>            : ** Utility method to process the legend template.</a>
-<span class="lineNum">    4837 </span>            : */
-<span class="lineNum">    4838 </span><span class="lineNoCov">          0 : char *msProcessLegendTemplate(mapObj *map, char **names, char **values, int numentries)</span>
-<span class="lineNum">    4839 </span>            : {
-<span class="lineNum">    4840 </span>            :   char *pszOutBuf = NULL;
-<span class="lineNum">    4841 </span>            : 
-<span class="lineNum">    4842 </span><span class="lineNoCov">          0 :   if(map &amp;&amp; map-&gt;legend.template) {</span>
-<span class="lineNum">    4843 </span>            : 
-<span class="lineNum">    4844 </span>            :     /* Initialize object and set appropriate defaults. */
-<span class="lineNum">    4845 </span>            :     mapservObj  *mapserv  = NULL;
-<span class="lineNum">    4846 </span><span class="lineNoCov">          0 :     mapserv = msAllocMapServObj();</span>
-<span class="lineNum">    4847 </span>            : 
-<span class="lineNum">    4848 </span><span class="lineNoCov">          0 :     mapserv-&gt;map = map;</span>
-<span class="lineNum">    4849 </span><span class="lineNoCov">          0 :     mapserv-&gt;Mode = BROWSE;</span>
-<span class="lineNum">    4850 </span>            : 
-<span class="lineNum">    4851 </span><span class="lineNoCov">          0 :     if(names &amp;&amp; values &amp;&amp; numentries &gt; 0) {</span>
-<span class="lineNum">    4852 </span><span class="lineNoCov">          0 :       msFreeCharArray(mapserv-&gt;request-&gt;ParamNames, mapserv-&gt;request-&gt;NumParams);</span>
-<span class="lineNum">    4853 </span><span class="lineNoCov">          0 :       msFreeCharArray(mapserv-&gt;request-&gt;ParamValues, mapserv-&gt;request-&gt;NumParams);</span>
-<span class="lineNum">    4854 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;ParamNames = names;</span>
-<span class="lineNum">    4855 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;ParamValues = values;</span>
-<span class="lineNum">    4856 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;NumParams = numentries;</span>
-<span class="lineNum">    4857 </span>            :     }
-<span class="lineNum">    4858 </span>            : 
-<span class="lineNum">    4859 </span><span class="lineNoCov">          0 :     pszOutBuf = generateLegendTemplate(mapserv);</span>
-<span class="lineNum">    4860 </span>            : 
-<span class="lineNum">    4861 </span>            :     /* Don't free the map and names and values arrays since they were passed by reference. */
-<span class="lineNum">    4862 </span><span class="lineNoCov">          0 :     mapserv-&gt;map = NULL;</span>
-<span class="lineNum">    4863 </span><span class="lineNoCov">          0 :     mapserv-&gt;request-&gt;ParamNames = mapserv-&gt;request-&gt;ParamValues = NULL;</span>
-<span class="lineNum">    4864 </span><span class="lineNoCov">          0 :     mapserv-&gt;request-&gt;NumParams = 0;</span>
-<span class="lineNum">    4865 </span><span class="lineNoCov">          0 :     msFreeMapServObj(mapserv);</span>
-<span class="lineNum">    4866 </span>            :   }
-<span class="lineNum">    4867 </span>            : 
-<span class="lineNum">    4868 </span><span class="lineNoCov">          0 :   return pszOutBuf;</span>
-<span class="lineNum">    4869 </span>            : }
-<span class="lineNum">    4870 </span>            : 
-<span class="lineNum">    4871 </span>            : /*
-<span class="lineNum">    4872 </span>            : ** Utility function that process a template file(s) used in the
-<a name="4873"><span class="lineNum">    4873 </span>            : ** query and return the processed template(s) in a buffer.</a>
-<span class="lineNum">    4874 </span>            : */
-<span class="lineNum">    4875 </span><span class="lineNoCov">          0 : char *msProcessQueryTemplate(mapObj *map, int bGenerateImages, char **names, char **values, int numentries)</span>
-<span class="lineNum">    4876 </span>            : {
-<span class="lineNum">    4877 </span><span class="lineNoCov">          0 :   char *pszBuffer = NULL;</span>
-<span class="lineNum">    4878 </span>            : 
-<span class="lineNum">    4879 </span><span class="lineNoCov">          0 :   if(map) {</span>
-<span class="lineNum">    4880 </span>            : 
-<span class="lineNum">    4881 </span>            :     /* Initialize object and set appropriate defaults. */
-<span class="lineNum">    4882 </span>            :     mapservObj *mapserv = NULL;
-<span class="lineNum">    4883 </span><span class="lineNoCov">          0 :     mapserv = msAllocMapServObj();</span>
-<span class="lineNum">    4884 </span>            : 
-<span class="lineNum">    4885 </span><span class="lineNoCov">          0 :     mapserv-&gt;map = map;</span>
-<span class="lineNum">    4886 </span><span class="lineNoCov">          0 :     mapserv-&gt;Mode = QUERY;</span>
-<span class="lineNum">    4887 </span>            : 
-<span class="lineNum">    4888 </span><span class="lineNoCov">          0 :     if(names &amp;&amp; values &amp;&amp; numentries &gt; 0) {</span>
-<span class="lineNum">    4889 </span><span class="lineNoCov">          0 :       msFreeCharArray(mapserv-&gt;request-&gt;ParamNames, mapserv-&gt;request-&gt;NumParams);</span>
-<span class="lineNum">    4890 </span><span class="lineNoCov">          0 :       msFreeCharArray(mapserv-&gt;request-&gt;ParamValues, mapserv-&gt;request-&gt;NumParams);</span>
-<span class="lineNum">    4891 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;ParamNames = names;</span>
-<span class="lineNum">    4892 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;ParamValues = values;</span>
-<span class="lineNum">    4893 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;NumParams = numentries;</span>
-<span class="lineNum">    4894 </span>            :     }
-<span class="lineNum">    4895 </span>            : 
-<span class="lineNum">    4896 </span><span class="lineNoCov">          0 :     if(bGenerateImages)</span>
-<span class="lineNum">    4897 </span><span class="lineNoCov">          0 :       msGenerateImages(mapserv, MS_TRUE, MS_FALSE);</span>
-<span class="lineNum">    4898 </span>            : 
-<span class="lineNum">    4899 </span><span class="lineNoCov">          0 :     mapserv-&gt;sendheaders = MS_FALSE;</span>
-<span class="lineNum">    4900 </span><span class="lineNoCov">          0 :     msReturnTemplateQuery(mapserv, mapserv-&gt;map-&gt;web.queryformat, &amp;pszBuffer);</span>
-<span class="lineNum">    4901 </span>            : 
-<span class="lineNum">    4902 </span><span class="lineNoCov">          0 :     mapserv-&gt;map = NULL;</span>
-<span class="lineNum">    4903 </span><span class="lineNoCov">          0 :     mapserv-&gt;request-&gt;ParamNames = mapserv-&gt;request-&gt;ParamValues = NULL;</span>
-<span class="lineNum">    4904 </span><span class="lineNoCov">          0 :     mapserv-&gt;request-&gt;NumParams = 0;</span>
-<span class="lineNum">    4905 </span><span class="lineNoCov">          0 :     msFreeMapServObj(mapserv);</span>
-<span class="lineNum">    4906 </span>            :   }
-<span class="lineNum">    4907 </span>            : 
-<span class="lineNum">    4908 </span><span class="lineNoCov">          0 :   return pszBuffer;</span>
-<span class="lineNum">    4909 </span>            : }
+<span class="lineNum">    4616 </span><span class="lineCov">          1 :   mapserv-&gt;TileMode=TILE_GMAP;</span>
+<span class="lineNum">    4617 </span><span class="lineCov">          1 :   mapserv-&gt;QueryCoordSource=NONE;</span>
+<span class="lineNum">    4618 </span><span class="lineCov">          1 :   mapserv-&gt;ZoomSize=0; /* zoom absolute magnitude (i.e. &gt; 0) */</span>
+<span class="lineNum">    4619 </span>            : 
+<span class="lineNum">    4620 </span><span class="lineCov">          1 :   mapserv-&gt;hittest = NULL;</span>
+<span class="lineNum">    4621 </span>            : 
+<span class="lineNum">    4622 </span><span class="lineCov">          1 :   return mapserv;</span>
+<a name="4623"><span class="lineNum">    4623 </span>            : }</a>
+<span class="lineNum">    4624 </span>            : 
+<span class="lineNum">    4625 </span><span class="lineCov">          1 : void msFreeMapServObj(mapservObj* mapserv)</span>
+<span class="lineNum">    4626 </span>            : {
+<span class="lineNum">    4627 </span>            :   int i;
+<span class="lineNum">    4628 </span>            : 
+<span class="lineNum">    4629 </span><span class="lineCov">          1 :   if(mapserv) {</span>
+<span class="lineNum">    4630 </span><span class="lineCov">          1 :     if( mapserv-&gt;map ) {</span>
+<span class="lineNum">    4631 </span><span class="lineCov">          1 :       if(mapserv-&gt;hittest) {</span>
+<span class="lineNum">    4632 </span><span class="lineCov">          1 :         freeMapHitTests(mapserv-&gt;map,mapserv-&gt;hittest);</span>
+<span class="lineNum">    4633 </span><span class="lineCov">          1 :         free(mapserv-&gt;hittest);</span>
+<span class="lineNum">    4634 </span>            :       }
+<span class="lineNum">    4635 </span><span class="lineCov">          1 :       msFreeMap(mapserv-&gt;map);</span>
+<span class="lineNum">    4636 </span><span class="lineCov">          1 :       mapserv-&gt;map = NULL;</span>
+<span class="lineNum">    4637 </span>            :     }
+<span class="lineNum">    4638 </span>            : 
+<span class="lineNum">    4639 </span><span class="lineCov">          1 :     if( mapserv-&gt;request ) {</span>
+<span class="lineNum">    4640 </span><span class="lineCov">          1 :       msFreeCgiObj(mapserv-&gt;request);</span>
+<span class="lineNum">    4641 </span><span class="lineCov">          1 :       mapserv-&gt;request = NULL;</span>
+<span class="lineNum">    4642 </span>            :     }
+<span class="lineNum">    4643 </span>            : 
+<span class="lineNum">    4644 </span><span class="lineCov">          1 :     for(i=0; i&lt;mapserv-&gt;NumLayers; i++)</span>
+<span class="lineNum">    4645 </span><span class="lineCov">          1 :       msFree(mapserv-&gt;Layers[i]);</span>
+<span class="lineNum">    4646 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;Layers);</span>
+<span class="lineNum">    4647 </span>            : 
+<span class="lineNum">    4648 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;icon);</span>
+<span class="lineNum">    4649 </span>            : 
+<span class="lineNum">    4650 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;QueryItem);</span>
+<span class="lineNum">    4651 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;QueryString);</span>
+<span class="lineNum">    4652 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;QueryLayer);</span>
+<span class="lineNum">    4653 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;SelectLayer);</span>
+<span class="lineNum">    4654 </span><span class="lineCov">          1 :     msFree(mapserv-&gt;QueryFile);</span>
+<span class="lineNum">    4655 </span>            : 
+<span class="lineNum">    4656 </span><span class="lineCov">          1 :     msFree(mapserv);</span>
+<span class="lineNum">    4657 </span>            :   }
+<span class="lineNum">    4658 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">    4659 </span>            : 
+<span class="lineNum">    4660 </span>            : /*
+<span class="lineNum">    4661 </span>            : ** Ensure there is at least one free entry in the Layers array.
+<span class="lineNum">    4662 </span>            : **
+<span class="lineNum">    4663 </span>            : ** This function is safe to use for the initial allocation of the Layers[]
+<span class="lineNum">    4664 </span>            : ** array as well (i.e. when MaxLayers==0 and Layers==NULL)
+<span class="lineNum">    4665 </span>            : **
+<a name="4666"><span class="lineNum">    4666 </span>            : ** Returns MS_SUCCESS/MS_FAILURE</a>
+<span class="lineNum">    4667 </span>            : */
+<span class="lineNum">    4668 </span><span class="lineCov">          1 : int msGrowMapservLayers( mapservObj* mapserv )</span>
+<span class="lineNum">    4669 </span>            : {
+<span class="lineNum">    4670 </span>            :   /* Do we need to increase the size of Layers[] by MS_LAYER_ALLOCSIZE? */
+<span class="lineNum">    4671 </span><span class="lineCov">          1 :   if(mapserv-&gt;NumLayers == mapserv-&gt;MaxLayers) {</span>
+<span class="lineNum">    4672 </span>            :     int i;
+<span class="lineNum">    4673 </span>            : 
+<span class="lineNum">    4674 </span><span class="lineCov">          1 :     if(mapserv-&gt;MaxLayers == 0) {</span>
+<span class="lineNum">    4675 </span>            :       /* initial allocation of array */
+<span class="lineNum">    4676 </span><span class="lineCov">          1 :       mapserv-&gt;MaxLayers += MS_LAYER_ALLOCSIZE;</span>
+<span class="lineNum">    4677 </span><span class="lineCov">          1 :       mapserv-&gt;NumLayers = 0;</span>
+<span class="lineNum">    4678 </span><span class="lineCov">          1 :       mapserv-&gt;Layers = (char**)msSmallMalloc(mapserv-&gt;MaxLayers*sizeof(char*));</span>
+<span class="lineNum">    4679 </span>            :     } else {
+<span class="lineNum">    4680 </span>            :       /* realloc existing array */
+<span class="lineNum">    4681 </span><span class="lineNoCov">          0 :       mapserv-&gt;MaxLayers += MS_LAYER_ALLOCSIZE;</span>
+<span class="lineNum">    4682 </span><span class="lineNoCov">          0 :       mapserv-&gt;Layers = (char**)msSmallRealloc(mapserv-&gt;Layers, mapserv-&gt;MaxLayers*sizeof(char*));</span>
+<span class="lineNum">    4683 </span>            :     }
+<span class="lineNum">    4684 </span>            : 
+<span class="lineNum">    4685 </span><span class="lineCov">          1 :     if(mapserv-&gt;Layers == NULL) {</span>
+<span class="lineNum">    4686 </span><span class="lineNoCov">          0 :       msSetError(MS_MEMERR, &quot;Failed to allocate memory for Layers array.&quot;, &quot;msGrowMappservLayers()&quot;);</span>
+<span class="lineNum">    4687 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    4688 </span>            :     }
+<span class="lineNum">    4689 </span>            : 
+<span class="lineNum">    4690 </span><span class="lineCov">          1 :     for(i=mapserv-&gt;NumLayers; i&lt;mapserv-&gt;MaxLayers; i++) {</span>
+<span class="lineNum">    4691 </span><span class="lineCov">          1 :       mapserv-&gt;Layers[i] = NULL;</span>
+<span class="lineNum">    4692 </span>            :     }
+<span class="lineNum">    4693 </span>            :   }
+<span class="lineNum">    4694 </span>            : 
+<span class="lineNum">    4695 </span>            :   return MS_SUCCESS;
+<span class="lineNum">    4696 </span>            : }
+<span class="lineNum">    4697 </span>            : 
+<span class="lineNum">    4698 </span>            : /*
+<span class="lineNum">    4699 </span>            : ** Utility function to generate map, legend, scalebar and reference images.
+<span class="lineNum">    4700 </span>            : **
+<span class="lineNum">    4701 </span>            : ** Parameters:
+<span class="lineNum">    4702 </span>            : **   - mapserv: mapserv object (used to extract the map object).
+<span class="lineNum">    4703 </span>            : **   - bQueryMap: if set to TRUE a query map will be created instead of a regular map.
+<a name="4704"><span class="lineNum">    4704 </span>            : **   - bReturnOnError: if set to TRUE, the function will return on the first error, else it will try to generate all the images.</a>
+<span class="lineNum">    4705 </span>            : */
+<span class="lineNum">    4706 </span><span class="lineCov">          1 : int msGenerateImages(mapservObj *mapserv, int bQueryMap, int bReturnOnError)</span>
+<span class="lineNum">    4707 </span>            : {
+<span class="lineNum">    4708 </span>            :   char buffer[1024];
+<span class="lineNum">    4709 </span>            : 
+<span class="lineNum">    4710 </span><span class="lineCov">          1 :   if(mapserv) {</span>
+<span class="lineNum">    4711 </span>            : 
+<span class="lineNum">    4712 </span>            :     /* render the map OR query map */
+<span class="lineNum">    4713 </span><span class="lineCov">          1 :     if((!bQueryMap &amp;&amp; mapserv-&gt;map-&gt;status == MS_ON) || (bQueryMap &amp;&amp; mapserv-&gt;map-&gt;querymap.status == MS_ON)) {</span>
+<span class="lineNum">    4714 </span>            :       imageObj *image = NULL;
+<span class="lineNum">    4715 </span>            : 
+<span class="lineNum">    4716 </span><span class="lineCov">          1 :       image = msDrawMap(mapserv-&gt;map, bQueryMap);</span>
+<span class="lineNum">    4717 </span><span class="lineCov">          1 :       if(image) {</span>
+<span class="lineNum">    4718 </span><span class="lineCov">          1 :         snprintf(buffer, sizeof(buffer), &quot;%s%s%s.%s&quot;, mapserv-&gt;map-&gt;web.imagepath, mapserv-&gt;map-&gt;name, mapserv-&gt;Id, MS_IMAGE_EXTENSION(mapserv-&gt;map-&gt;outputformat));</span>
+<span class="lineNum">    4719 </span>            : 
+<span class="lineNum">    4720 </span><span class="lineCov">          1 :         if(msSaveImage(mapserv-&gt;map, image, buffer) != MS_SUCCESS &amp;&amp; bReturnOnError) {</span>
+<span class="lineNum">    4721 </span><span class="lineNoCov">          0 :           msFreeImage(image);</span>
+<span class="lineNum">    4722 </span><span class="lineNoCov">          0 :           return MS_FAILURE;</span>
+<span class="lineNum">    4723 </span>            :         }
+<span class="lineNum">    4724 </span><span class="lineCov">          1 :         msFreeImage(image);</span>
+<span class="lineNum">    4725 </span><span class="lineNoCov">          0 :       } else if(bReturnOnError)</span>
+<span class="lineNum">    4726 </span>            :         return MS_FAILURE;
+<span class="lineNum">    4727 </span>            :     }
+<span class="lineNum">    4728 </span>            : 
+<span class="lineNum">    4729 </span>            :     /* render the legend */
+<span class="lineNum">    4730 </span><span class="lineCov">          1 :     if(mapserv-&gt;map-&gt;legend.status == MS_ON) {</span>
+<span class="lineNum">    4731 </span>            :       imageObj *image = NULL;
+<span class="lineNum">    4732 </span><span class="lineNoCov">          0 :       image = msDrawLegend(mapserv-&gt;map, MS_FALSE, NULL);</span>
+<span class="lineNum">    4733 </span><span class="lineNoCov">          0 :       if(image) {</span>
+<span class="lineNum">    4734 </span><span class="lineNoCov">          0 :         snprintf(buffer, sizeof(buffer), &quot;%s%sleg%s.%s&quot;, mapserv-&gt;map-&gt;web.imagepath, mapserv-&gt;map-&gt;name, mapserv-&gt;Id, MS_IMAGE_EXTENSION(mapserv-&gt;map-&gt;outputformat));</span>
+<span class="lineNum">    4735 </span>            : 
+<span class="lineNum">    4736 </span><span class="lineNoCov">          0 :         if(msSaveImage(mapserv-&gt;map, image, buffer) != MS_SUCCESS &amp;&amp; bReturnOnError) {</span>
+<span class="lineNum">    4737 </span><span class="lineNoCov">          0 :           msFreeImage(image);</span>
+<span class="lineNum">    4738 </span><span class="lineNoCov">          0 :           return MS_FAILURE;</span>
+<span class="lineNum">    4739 </span>            :         }
+<span class="lineNum">    4740 </span><span class="lineNoCov">          0 :         msFreeImage(image);</span>
+<span class="lineNum">    4741 </span><span class="lineNoCov">          0 :       } else if(bReturnOnError)</span>
+<span class="lineNum">    4742 </span>            :         return MS_FAILURE;
+<span class="lineNum">    4743 </span>            :     }
+<span class="lineNum">    4744 </span>            : 
+<span class="lineNum">    4745 </span>            :     /* render the scalebar */
+<span class="lineNum">    4746 </span><span class="lineCov">          1 :     if(mapserv-&gt;map-&gt;scalebar.status == MS_ON) {</span>
+<span class="lineNum">    4747 </span>            :       imageObj *image = NULL;
+<span class="lineNum">    4748 </span><span class="lineNoCov">          0 :       image = msDrawScalebar(mapserv-&gt;map);</span>
+<span class="lineNum">    4749 </span><span class="lineNoCov">          0 :       if(image) {</span>
+<span class="lineNum">    4750 </span><span class="lineNoCov">          0 :         snprintf(buffer, sizeof(buffer), &quot;%s%ssb%s.%s&quot;, mapserv-&gt;map-&gt;web.imagepath, mapserv-&gt;map-&gt;name, mapserv-&gt;Id, MS_IMAGE_EXTENSION(mapserv-&gt;map-&gt;outputformat));</span>
+<span class="lineNum">    4751 </span><span class="lineNoCov">          0 :         if(msSaveImage(mapserv-&gt;map, image, buffer) != MS_SUCCESS &amp;&amp; bReturnOnError) {</span>
+<span class="lineNum">    4752 </span><span class="lineNoCov">          0 :           msFreeImage(image);</span>
+<span class="lineNum">    4753 </span><span class="lineNoCov">          0 :           return MS_FAILURE;</span>
+<span class="lineNum">    4754 </span>            :         }
+<span class="lineNum">    4755 </span><span class="lineNoCov">          0 :         msFreeImage(image);</span>
+<span class="lineNum">    4756 </span><span class="lineNoCov">          0 :       } else if(bReturnOnError)</span>
+<span class="lineNum">    4757 </span>            :         return MS_FAILURE;
+<span class="lineNum">    4758 </span>            :     }
+<span class="lineNum">    4759 </span>            : 
+<span class="lineNum">    4760 </span>            :     /* render the reference map */
+<span class="lineNum">    4761 </span><span class="lineCov">          1 :     if(mapserv-&gt;map-&gt;reference.status == MS_ON) {</span>
+<span class="lineNum">    4762 </span>            :       imageObj *image;
+<span class="lineNum">    4763 </span><span class="lineNoCov">          0 :       image = msDrawReferenceMap(mapserv-&gt;map);</span>
+<span class="lineNum">    4764 </span><span class="lineNoCov">          0 :       if(image) {</span>
+<span class="lineNum">    4765 </span><span class="lineNoCov">          0 :         snprintf(buffer, sizeof(buffer), &quot;%s%sref%s.%s&quot;, mapserv-&gt;map-&gt;web.imagepath, mapserv-&gt;map-&gt;name, mapserv-&gt;Id, MS_IMAGE_EXTENSION(mapserv-&gt;map-&gt;outputformat));</span>
+<span class="lineNum">    4766 </span><span class="lineNoCov">          0 :         if(msSaveImage(mapserv-&gt;map, image, buffer) != MS_SUCCESS &amp;&amp; bReturnOnError) {</span>
+<span class="lineNum">    4767 </span><span class="lineNoCov">          0 :           msFreeImage(image);</span>
+<span class="lineNum">    4768 </span><span class="lineNoCov">          0 :           return MS_FAILURE;</span>
+<span class="lineNum">    4769 </span>            :         }
+<span class="lineNum">    4770 </span><span class="lineNoCov">          0 :         msFreeImage(image);</span>
+<span class="lineNum">    4771 </span><span class="lineNoCov">          0 :       } else if(bReturnOnError)</span>
+<span class="lineNum">    4772 </span>            :         return MS_FAILURE;
+<span class="lineNum">    4773 </span>            :     }
+<span class="lineNum">    4774 </span>            : 
+<span class="lineNum">    4775 </span>            :   }
+<span class="lineNum">    4776 </span>            : 
+<span class="lineNum">    4777 </span>            :   return MS_SUCCESS;
+<span class="lineNum">    4778 </span>            : }
+<span class="lineNum">    4779 </span>            : 
+<span class="lineNum">    4780 </span>            : /*
+<span class="lineNum">    4781 </span>            : ** Utility function to open a template file, process it and
+<span class="lineNum">    4782 </span>            : ** and return into a buffer the processed template. Uses the
+<span class="lineNum">    4783 </span>            : ** template file from the web object. Returns NULL if there is
+<a name="4784"><span class="lineNum">    4784 </span>            : ** an error.</a>
+<span class="lineNum">    4785 </span>            : */
+<span class="lineNum">    4786 </span><span class="lineNoCov">          0 : char *msProcessTemplate(mapObj *map, int bGenerateImages, char **names, char **values, int numentries)</span>
+<span class="lineNum">    4787 </span>            : {
+<span class="lineNum">    4788 </span><span class="lineNoCov">          0 :   char *pszBuffer = NULL;</span>
+<span class="lineNum">    4789 </span>            : 
+<span class="lineNum">    4790 </span><span class="lineNoCov">          0 :   if(map) {</span>
+<span class="lineNum">    4791 </span>            : 
+<span class="lineNum">    4792 </span>            :     /* Initialize object and set appropriate defaults. */
+<span class="lineNum">    4793 </span>            :     mapservObj  *mapserv  = NULL;
+<span class="lineNum">    4794 </span><span class="lineNoCov">          0 :     mapserv = msAllocMapServObj();</span>
+<span class="lineNum">    4795 </span>            : 
+<span class="lineNum">    4796 </span><span class="lineNoCov">          0 :     mapserv-&gt;map = map;</span>
+<span class="lineNum">    4797 </span><span class="lineNoCov">          0 :     mapserv-&gt;Mode = BROWSE;</span>
+<span class="lineNum">    4798 </span>            : 
+<span class="lineNum">    4799 </span><span class="lineNoCov">          0 :     if(names &amp;&amp; values &amp;&amp; numentries &gt; 0) {</span>
+<span class="lineNum">    4800 </span><span class="lineNoCov">          0 :       msFreeCharArray(mapserv-&gt;request-&gt;ParamNames, mapserv-&gt;request-&gt;NumParams);</span>
+<span class="lineNum">    4801 </span><span class="lineNoCov">          0 :       msFreeCharArray(mapserv-&gt;request-&gt;ParamValues, mapserv-&gt;request-&gt;NumParams);</span>
+<span class="lineNum">    4802 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;ParamNames = names;</span>
+<span class="lineNum">    4803 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;ParamValues = values;</span>
+<span class="lineNum">    4804 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;NumParams = numentries;</span>
+<span class="lineNum">    4805 </span>            :     }
+<span class="lineNum">    4806 </span>            : 
+<span class="lineNum">    4807 </span>            :     /*
+<span class="lineNum">    4808 </span>            :     ** ISSUE/TODO : some of the name/values should be extracted and
+<span class="lineNum">    4809 </span>            :     ** processed (ex imgext, layers, ...) as it is done in function
+<span class="lineNum">    4810 </span>            :     ** loadform.
+<span class="lineNum">    4811 </span>            :     */
+<span class="lineNum">    4812 </span>            : 
+<span class="lineNum">    4813 </span><span class="lineNoCov">          0 :     if(bGenerateImages)</span>
+<span class="lineNum">    4814 </span><span class="lineNoCov">          0 :       msGenerateImages(mapserv, MS_FALSE, MS_FALSE);</span>
+<span class="lineNum">    4815 </span>            : 
+<span class="lineNum">    4816 </span>            :     /*
+<span class="lineNum">    4817 </span>            :     ** Process the template.
+<span class="lineNum">    4818 </span>            :     **
+<span class="lineNum">    4819 </span>            :     ** TODO : use web minscaledenom/maxscaledenom depending on the scale.
+<span class="lineNum">    4820 </span>            :     */
+<span class="lineNum">    4821 </span><span class="lineNoCov">          0 :     if(msReturnPage(mapserv, mapserv-&gt;map-&gt;web.template, BROWSE, &amp;pszBuffer) != MS_SUCCESS) {</span>
+<span class="lineNum">    4822 </span><span class="lineNoCov">          0 :       msFree(pszBuffer);</span>
+<span class="lineNum">    4823 </span><span class="lineNoCov">          0 :       pszBuffer = NULL;</span>
+<span class="lineNum">    4824 </span>            :     }
+<span class="lineNum">    4825 </span>            : 
+<span class="lineNum">    4826 </span>            :     /* Don't free the map and names and values arrays since they were passed by reference. */
+<span class="lineNum">    4827 </span><span class="lineNoCov">          0 :     mapserv-&gt;map = NULL;</span>
+<span class="lineNum">    4828 </span><span class="lineNoCov">          0 :     mapserv-&gt;request-&gt;ParamNames = mapserv-&gt;request-&gt;ParamValues = NULL;</span>
+<span class="lineNum">    4829 </span><span class="lineNoCov">          0 :     mapserv-&gt;request-&gt;NumParams = 0;</span>
+<span class="lineNum">    4830 </span><span class="lineNoCov">          0 :     msFreeMapServObj(mapserv);</span>
+<span class="lineNum">    4831 </span>            :   }
+<span class="lineNum">    4832 </span>            : 
+<span class="lineNum">    4833 </span><span class="lineNoCov">          0 :   return pszBuffer;</span>
+<span class="lineNum">    4834 </span>            : }
+<span class="lineNum">    4835 </span>            : 
+<span class="lineNum">    4836 </span>            : /*
+<a name="4837"><span class="lineNum">    4837 </span>            : ** Utility method to process the legend template.</a>
+<span class="lineNum">    4838 </span>            : */
+<span class="lineNum">    4839 </span><span class="lineNoCov">          0 : char *msProcessLegendTemplate(mapObj *map, char **names, char **values, int numentries)</span>
+<span class="lineNum">    4840 </span>            : {
+<span class="lineNum">    4841 </span>            :   char *pszOutBuf = NULL;
+<span class="lineNum">    4842 </span>            : 
+<span class="lineNum">    4843 </span><span class="lineNoCov">          0 :   if(map &amp;&amp; map-&gt;legend.template) {</span>
+<span class="lineNum">    4844 </span>            : 
+<span class="lineNum">    4845 </span>            :     /* Initialize object and set appropriate defaults. */
+<span class="lineNum">    4846 </span>            :     mapservObj  *mapserv  = NULL;
+<span class="lineNum">    4847 </span><span class="lineNoCov">          0 :     mapserv = msAllocMapServObj();</span>
+<span class="lineNum">    4848 </span>            : 
+<span class="lineNum">    4849 </span><span class="lineNoCov">          0 :     mapserv-&gt;map = map;</span>
+<span class="lineNum">    4850 </span><span class="lineNoCov">          0 :     mapserv-&gt;Mode = BROWSE;</span>
+<span class="lineNum">    4851 </span>            : 
+<span class="lineNum">    4852 </span><span class="lineNoCov">          0 :     if(names &amp;&amp; values &amp;&amp; numentries &gt; 0) {</span>
+<span class="lineNum">    4853 </span><span class="lineNoCov">          0 :       msFreeCharArray(mapserv-&gt;request-&gt;ParamNames, mapserv-&gt;request-&gt;NumParams);</span>
+<span class="lineNum">    4854 </span><span class="lineNoCov">          0 :       msFreeCharArray(mapserv-&gt;request-&gt;ParamValues, mapserv-&gt;request-&gt;NumParams);</span>
+<span class="lineNum">    4855 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;ParamNames = names;</span>
+<span class="lineNum">    4856 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;ParamValues = values;</span>
+<span class="lineNum">    4857 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;NumParams = numentries;</span>
+<span class="lineNum">    4858 </span>            :     }
+<span class="lineNum">    4859 </span>            : 
+<span class="lineNum">    4860 </span><span class="lineNoCov">          0 :     pszOutBuf = generateLegendTemplate(mapserv);</span>
+<span class="lineNum">    4861 </span>            : 
+<span class="lineNum">    4862 </span>            :     /* Don't free the map and names and values arrays since they were passed by reference. */
+<span class="lineNum">    4863 </span><span class="lineNoCov">          0 :     mapserv-&gt;map = NULL;</span>
+<span class="lineNum">    4864 </span><span class="lineNoCov">          0 :     mapserv-&gt;request-&gt;ParamNames = mapserv-&gt;request-&gt;ParamValues = NULL;</span>
+<span class="lineNum">    4865 </span><span class="lineNoCov">          0 :     mapserv-&gt;request-&gt;NumParams = 0;</span>
+<span class="lineNum">    4866 </span><span class="lineNoCov">          0 :     msFreeMapServObj(mapserv);</span>
+<span class="lineNum">    4867 </span>            :   }
+<span class="lineNum">    4868 </span>            : 
+<span class="lineNum">    4869 </span><span class="lineNoCov">          0 :   return pszOutBuf;</span>
+<span class="lineNum">    4870 </span>            : }
+<span class="lineNum">    4871 </span>            : 
+<span class="lineNum">    4872 </span>            : /*
+<span class="lineNum">    4873 </span>            : ** Utility function that process a template file(s) used in the
+<a name="4874"><span class="lineNum">    4874 </span>            : ** query and return the processed template(s) in a buffer.</a>
+<span class="lineNum">    4875 </span>            : */
+<span class="lineNum">    4876 </span><span class="lineNoCov">          0 : char *msProcessQueryTemplate(mapObj *map, int bGenerateImages, char **names, char **values, int numentries)</span>
+<span class="lineNum">    4877 </span>            : {
+<span class="lineNum">    4878 </span><span class="lineNoCov">          0 :   char *pszBuffer = NULL;</span>
+<span class="lineNum">    4879 </span>            : 
+<span class="lineNum">    4880 </span><span class="lineNoCov">          0 :   if(map) {</span>
+<span class="lineNum">    4881 </span>            : 
+<span class="lineNum">    4882 </span>            :     /* Initialize object and set appropriate defaults. */
+<span class="lineNum">    4883 </span>            :     mapservObj *mapserv = NULL;
+<span class="lineNum">    4884 </span><span class="lineNoCov">          0 :     mapserv = msAllocMapServObj();</span>
+<span class="lineNum">    4885 </span>            : 
+<span class="lineNum">    4886 </span><span class="lineNoCov">          0 :     mapserv-&gt;map = map;</span>
+<span class="lineNum">    4887 </span><span class="lineNoCov">          0 :     mapserv-&gt;Mode = QUERY;</span>
+<span class="lineNum">    4888 </span>            : 
+<span class="lineNum">    4889 </span><span class="lineNoCov">          0 :     if(names &amp;&amp; values &amp;&amp; numentries &gt; 0) {</span>
+<span class="lineNum">    4890 </span><span class="lineNoCov">          0 :       msFreeCharArray(mapserv-&gt;request-&gt;ParamNames, mapserv-&gt;request-&gt;NumParams);</span>
+<span class="lineNum">    4891 </span><span class="lineNoCov">          0 :       msFreeCharArray(mapserv-&gt;request-&gt;ParamValues, mapserv-&gt;request-&gt;NumParams);</span>
+<span class="lineNum">    4892 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;ParamNames = names;</span>
+<span class="lineNum">    4893 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;ParamValues = values;</span>
+<span class="lineNum">    4894 </span><span class="lineNoCov">          0 :       mapserv-&gt;request-&gt;NumParams = numentries;</span>
+<span class="lineNum">    4895 </span>            :     }
+<span class="lineNum">    4896 </span>            : 
+<span class="lineNum">    4897 </span><span class="lineNoCov">          0 :     if(bGenerateImages)</span>
+<span class="lineNum">    4898 </span><span class="lineNoCov">          0 :       msGenerateImages(mapserv, MS_TRUE, MS_FALSE);</span>
+<span class="lineNum">    4899 </span>            : 
+<span class="lineNum">    4900 </span><span class="lineNoCov">          0 :     mapserv-&gt;sendheaders = MS_FALSE;</span>
+<span class="lineNum">    4901 </span><span class="lineNoCov">          0 :     msReturnTemplateQuery(mapserv, mapserv-&gt;map-&gt;web.queryformat, &amp;pszBuffer);</span>
+<span class="lineNum">    4902 </span>            : 
+<span class="lineNum">    4903 </span><span class="lineNoCov">          0 :     mapserv-&gt;map = NULL;</span>
+<span class="lineNum">    4904 </span><span class="lineNoCov">          0 :     mapserv-&gt;request-&gt;ParamNames = mapserv-&gt;request-&gt;ParamValues = NULL;</span>
+<span class="lineNum">    4905 </span><span class="lineNoCov">          0 :     mapserv-&gt;request-&gt;NumParams = 0;</span>
+<span class="lineNum">    4906 </span><span class="lineNoCov">          0 :     msFreeMapServObj(mapserv);</span>
+<span class="lineNum">    4907 </span>            :   }
+<span class="lineNum">    4908 </span>            : 
+<span class="lineNum">    4909 </span><span class="lineNoCov">          0 :   return pszBuffer;</span>
+<span class="lineNum">    4910 </span>            : }
 </pre>
       </td>
     </tr>
