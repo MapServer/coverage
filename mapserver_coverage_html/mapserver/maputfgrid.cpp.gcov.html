@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">288</td>
-            <td class="headerCovTableEntry">313</td>
-            <td class="headerCovTableEntryHi">92.0 %</td>
+            <td class="headerCovTableEntry">298</td>
+            <td class="headerCovTableEntry">323</td>
+            <td class="headerCovTableEntryHi">92.3 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -841,45 +841,76 @@
 <span class="lineNum">     779 </span>            :   return MS_SUCCESS;
 <a name="780"><span class="lineNum">     780 </span>            : }</a>
 <span class="lineNum">     781 </span>            : 
-<span class="lineNum">     782 </span><span class="lineCov">          1 : int utfgridRenderGlyphs(imageObj *img, textPathObj *tp, colorObj *c, colorObj *oc, int ow) {</span>
-<span class="lineNum">     783 </span><span class="lineCov">          1 :    return MS_SUCCESS;</span>
-<a name="784"><span class="lineNum">     784 </span>            : }</a>
+<span class="lineNum">     782 </span><span class="lineCov">          1 : int utfgridRenderGlyphs(imageObj *img, textPathObj *tp, colorObj *c, colorObj *oc, int ow, int isMarker) {</span>
+<span class="lineNum">     783 </span>            : 
+<span class="lineNum">     784 </span><span class="lineCov">          1 :   UTFGridRenderer *r = UTFGRID_RENDERER(img);</span>
 <span class="lineNum">     785 </span>            : 
-<span class="lineNum">     786 </span><span class="lineCov">          1 : int utfgridFreeSymbol(symbolObj * symbol)</span>
-<span class="lineNum">     787 </span>            : {
-<span class="lineNum">     788 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     789 </span>            : }
-<span class="lineNum">     790 </span>            : 
-<span class="lineNum">     791 </span>            : /*
-<a name="792"><span class="lineNum">     792 </span>            :  * Add the necessary functions for UTFGrid to the renderer VTable.</a>
-<span class="lineNum">     793 </span>            :  */
-<span class="lineNum">     794 </span><span class="lineCov">          1 : int msPopulateRendererVTableUTFGrid( rendererVTableObj *renderer )</span>
-<span class="lineNum">     795 </span>            : {
-<span class="lineNum">     796 </span><span class="lineCov">          1 :   renderer-&gt;default_transform_mode = MS_TRANSFORM_SIMPLIFY;</span>
+<span class="lineNum">     786 </span>            :   /* If it's not a marker then it's a label or other thing and we dont
+<span class="lineNum">     787 </span>            :    *  want to draw it on the map
+<span class="lineNum">     788 </span>            :    */
+<span class="lineNum">     789 </span><span class="lineCov">          1 :   if(!isMarker) {</span>
+<span class="lineNum">     790 </span>            :     return MS_SUCCESS; //Stop the rendering with no errors
+<span class="lineNum">     791 </span>            :   }
+<span class="lineNum">     792 </span>            : 
+<span class="lineNum">     793 </span>            :   /* utfvalue is set to 0 if the shape isn't in the table. */
+<span class="lineNum">     794 </span><span class="lineCov">          1 :   if(r-&gt;utfvalue == 0) {</span>
+<span class="lineNum">     795 </span>            :     return MS_SUCCESS; //Stop the rendering with no errors
+<span class="lineNum">     796 </span>            :   }
 <span class="lineNum">     797 </span>            : 
-<span class="lineNum">     798 </span><span class="lineCov">          1 :   renderer-&gt;createImage = &amp;utfgridCreateImage;</span>
-<span class="lineNum">     799 </span><span class="lineCov">          1 :   renderer-&gt;freeImage = &amp;utfgridFreeImage;</span>
-<span class="lineNum">     800 </span><span class="lineCov">          1 :   renderer-&gt;saveImage = &amp;utfgridSaveImage;</span>
-<span class="lineNum">     801 </span>            : 
-<span class="lineNum">     802 </span><span class="lineCov">          1 :   renderer-&gt;startLayer = &amp;utfgridStartLayer;</span>
-<span class="lineNum">     803 </span><span class="lineCov">          1 :   renderer-&gt;endLayer = &amp;utfgridEndLayer;</span>
-<span class="lineNum">     804 </span>            : 
-<span class="lineNum">     805 </span><span class="lineCov">          1 :   renderer-&gt;startShape = &amp;utfgridStartShape;</span>
-<span class="lineNum">     806 </span><span class="lineCov">          1 :   renderer-&gt;endShape = &amp;utfgridEndShape;</span>
-<span class="lineNum">     807 </span>            : 
-<span class="lineNum">     808 </span><span class="lineCov">          1 :   renderer-&gt;renderPolygon = &amp;utfgridRenderPolygon;</span>
-<span class="lineNum">     809 </span><span class="lineCov">          1 :   renderer-&gt;renderGlyphs = &amp;utfgridRenderGlyphs;</span>
-<span class="lineNum">     810 </span><span class="lineCov">          1 :   renderer-&gt;renderLine = &amp;utfgridRenderLine;</span>
-<span class="lineNum">     811 </span><span class="lineCov">          1 :   renderer-&gt;renderVectorSymbol = &amp;utfgridRenderVectorSymbol;</span>
-<span class="lineNum">     812 </span><span class="lineCov">          1 :   renderer-&gt;renderPixmapSymbol = &amp;utfgridRenderPixmapSymbol;</span>
-<span class="lineNum">     813 </span><span class="lineCov">          1 :   renderer-&gt;renderEllipseSymbol = &amp;utfgridRenderEllipseSymbol;</span>
-<span class="lineNum">     814 </span>            : 
-<span class="lineNum">     815 </span><span class="lineCov">          1 :   renderer-&gt;freeSymbol = &amp;utfgridFreeSymbol;</span>
+<span class="lineNum">     798 </span>            :   /* Pathing the symbol BBox */
+<span class="lineNum">     799 </span>            :   mapserver::path_storage box;
+<span class="lineNum">     800 </span>            :   double size, x, y;
+<span class="lineNum">     801 </span>            :   
+<span class="lineNum">     802 </span><span class="lineCov">          1 :   size = tp-&gt;glyph_size;;</span>
+<span class="lineNum">     803 </span><span class="lineCov">          1 :   x = tp-&gt;glyphs-&gt;pnt.x;</span>
+<span class="lineNum">     804 </span><span class="lineCov">          1 :   y = tp-&gt;glyphs-&gt;pnt.y;</span>
+<span class="lineNum">     805 </span>            :   
+<span class="lineNum">     806 </span><span class="lineCov">          1 :   box.move_to((x)/r-&gt;utfresolution,(y)/r-&gt;utfresolution);</span>
+<span class="lineNum">     807 </span><span class="lineCov">          1 :   box.line_to((x+size)/r-&gt;utfresolution,(y)/r-&gt;utfresolution);</span>
+<span class="lineNum">     808 </span><span class="lineCov">          1 :   box.line_to((x+size)/r-&gt;utfresolution,(y-size)/r-&gt;utfresolution);</span>
+<span class="lineNum">     809 </span><span class="lineCov">          1 :   box.line_to((x)/r-&gt;utfresolution,(y-size)/r-&gt;utfresolution);</span>
+<span class="lineNum">     810 </span>            : 
+<span class="lineNum">     811 </span>            :   /* Rendering the symbol */
+<span class="lineNum">     812 </span><span class="lineCov">          1 :   utfgridRenderPath(img, box);</span>
+<span class="lineNum">     813 </span>            : 
+<span class="lineNum">     814 </span>            :   return MS_SUCCESS;
+<a name="815"><span class="lineNum">     815 </span>            : }</a>
 <span class="lineNum">     816 </span>            : 
-<span class="lineNum">     817 </span><span class="lineCov">          1 :   renderer-&gt;loadImageFromFile = msLoadMSRasterBufferFromFile;</span>
-<a name="818"><span class="lineNum">     818 </span>            : </a>
+<span class="lineNum">     817 </span><span class="lineCov">          1 : int utfgridFreeSymbol(symbolObj * symbol)</span>
+<span class="lineNum">     818 </span>            : {
 <span class="lineNum">     819 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">     820 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     820 </span>            : }
+<span class="lineNum">     821 </span>            : 
+<span class="lineNum">     822 </span>            : /*
+<a name="823"><span class="lineNum">     823 </span>            :  * Add the necessary functions for UTFGrid to the renderer VTable.</a>
+<span class="lineNum">     824 </span>            :  */
+<span class="lineNum">     825 </span><span class="lineCov">          1 : int msPopulateRendererVTableUTFGrid( rendererVTableObj *renderer )</span>
+<span class="lineNum">     826 </span>            : {
+<span class="lineNum">     827 </span><span class="lineCov">          1 :   renderer-&gt;default_transform_mode = MS_TRANSFORM_SIMPLIFY;</span>
+<span class="lineNum">     828 </span>            : 
+<span class="lineNum">     829 </span><span class="lineCov">          1 :   renderer-&gt;createImage = &amp;utfgridCreateImage;</span>
+<span class="lineNum">     830 </span><span class="lineCov">          1 :   renderer-&gt;freeImage = &amp;utfgridFreeImage;</span>
+<span class="lineNum">     831 </span><span class="lineCov">          1 :   renderer-&gt;saveImage = &amp;utfgridSaveImage;</span>
+<span class="lineNum">     832 </span>            : 
+<span class="lineNum">     833 </span><span class="lineCov">          1 :   renderer-&gt;startLayer = &amp;utfgridStartLayer;</span>
+<span class="lineNum">     834 </span><span class="lineCov">          1 :   renderer-&gt;endLayer = &amp;utfgridEndLayer;</span>
+<span class="lineNum">     835 </span>            : 
+<span class="lineNum">     836 </span><span class="lineCov">          1 :   renderer-&gt;startShape = &amp;utfgridStartShape;</span>
+<span class="lineNum">     837 </span><span class="lineCov">          1 :   renderer-&gt;endShape = &amp;utfgridEndShape;</span>
+<span class="lineNum">     838 </span>            : 
+<span class="lineNum">     839 </span><span class="lineCov">          1 :   renderer-&gt;renderPolygon = &amp;utfgridRenderPolygon;</span>
+<span class="lineNum">     840 </span><span class="lineCov">          1 :   renderer-&gt;renderGlyphs = &amp;utfgridRenderGlyphs;</span>
+<span class="lineNum">     841 </span><span class="lineCov">          1 :   renderer-&gt;renderLine = &amp;utfgridRenderLine;</span>
+<span class="lineNum">     842 </span><span class="lineCov">          1 :   renderer-&gt;renderVectorSymbol = &amp;utfgridRenderVectorSymbol;</span>
+<span class="lineNum">     843 </span><span class="lineCov">          1 :   renderer-&gt;renderPixmapSymbol = &amp;utfgridRenderPixmapSymbol;</span>
+<span class="lineNum">     844 </span><span class="lineCov">          1 :   renderer-&gt;renderEllipseSymbol = &amp;utfgridRenderEllipseSymbol;</span>
+<span class="lineNum">     845 </span>            : 
+<span class="lineNum">     846 </span><span class="lineCov">          1 :   renderer-&gt;freeSymbol = &amp;utfgridFreeSymbol;</span>
+<span class="lineNum">     847 </span>            : 
+<span class="lineNum">     848 </span><span class="lineCov">          1 :   renderer-&gt;loadImageFromFile = msLoadMSRasterBufferFromFile;</span>
+<a name="849"><span class="lineNum">     849 </span>            : </a>
+<span class="lineNum">     850 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     851 </span><span class="lineCov">          1 : }</span>
 </pre>
       </td>
     </tr>
