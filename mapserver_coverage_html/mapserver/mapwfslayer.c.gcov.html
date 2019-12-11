@@ -870,494 +870,493 @@
 <span class="lineNum">     808 </span>            :   /* way we work with layers right now the bbox is unlikely to change */
 <span class="lineNum">     809 </span>            :   /* between now and the time whichshapes() would have been called by */
 <span class="lineNum">     810 </span>            :   /* the MapServer core. */
-<span class="lineNum">     811 </span>            : #ifdef USE_PROJ
+<span class="lineNum">     811 </span>            : 
 <span class="lineNum">     812 </span><span class="lineNoCov">          0 :   if((lp-&gt;map-&gt;projection.numargs &gt; 0) &amp;&amp; (lp-&gt;projection.numargs &gt; 0))</span>
 <span class="lineNum">     813 </span><span class="lineNoCov">          0 :     msProjectRect(&amp;lp-&gt;map-&gt;projection, &amp;lp-&gt;projection, &amp;psInfo-&gt;rect); /* project the searchrect to source coords */</span>
-<span class="lineNum">     814 </span>            : #endif
-<span class="lineNum">     815 </span>            : 
-<span class="lineNum">     816 </span><span class="lineNoCov">          0 :   if (msWFSLayerWhichShapes(lp, psInfo-&gt;rect, MS_FALSE) == MS_FAILURE)  /* no access to context (draw vs. query) here, although I doubt it matters... */</span>
-<span class="lineNum">     817 </span>            :     status = MS_FAILURE;
+<span class="lineNum">     814 </span>            : 
+<span class="lineNum">     815 </span><span class="lineNoCov">          0 :   if (msWFSLayerWhichShapes(lp, psInfo-&gt;rect, MS_FALSE) == MS_FAILURE)  /* no access to context (draw vs. query) here, although I doubt it matters... */</span>
+<span class="lineNum">     816 </span>            :     status = MS_FAILURE;
+<span class="lineNum">     817 </span>            : 
 <span class="lineNum">     818 </span>            : 
-<span class="lineNum">     819 </span>            : 
-<span class="lineNum">     820 </span><span class="lineNoCov">          0 :   return status;</span>
-<span class="lineNum">     821 </span>            : #else
-<span class="lineNum">     822 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">     823 </span>            :    * WFS CONNECTION Support not included...
-<span class="lineNum">     824 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">     825 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
-<span class="lineNum">     826 </span>            :              &quot;msWFSLayerOpen()&quot;);
-<span class="lineNum">     827 </span>            :   return(MS_FAILURE);
-<span class="lineNum">     828 </span>            : 
-<span class="lineNum">     829 </span>            : #endif /* USE_WFS_LYR */
-<span class="lineNum">     830 </span>            : }
-<span class="lineNum">     831 </span>            : 
-<span class="lineNum">     832 </span>            : /**********************************************************************
-<span class="lineNum">     833 </span>            :  *                          msWFSLayerOpenVT()
-<span class="lineNum">     834 </span>            :  *
-<span class="lineNum">     835 </span>            :  * Overloaded version of msWFSLayerOpen for virtual table architecture
-<a name="836"><span class="lineNum">     836 </span>            :  **********************************************************************/</a>
-<span class="lineNum">     837 </span>            : int
-<span class="lineNum">     838 </span><span class="lineNoCov">          0 : msWFSLayerOpenVT(layerObj *lp)</span>
-<span class="lineNum">     839 </span>            : {
-<span class="lineNum">     840 </span><span class="lineNoCov">          0 :   return msWFSLayerOpen(lp, NULL, NULL);</span>
-<span class="lineNum">     841 </span>            : }
-<span class="lineNum">     842 </span>            : 
-<span class="lineNum">     843 </span>            : /**********************************************************************
-<span class="lineNum">     844 </span>            :  *                          msWFSLayerIsOpen()
-<span class="lineNum">     845 </span>            :  *
-<span class="lineNum">     846 </span>            :  * Returns MS_TRUE if layer is already open, MS_FALSE otherwise.
-<span class="lineNum">     847 </span>            :  *
-<a name="848"><span class="lineNum">     848 </span>            :  **********************************************************************/</a>
-<span class="lineNum">     849 </span>            : 
-<span class="lineNum">     850 </span><span class="lineNoCov">          0 : int msWFSLayerIsOpen(layerObj *lp)</span>
-<span class="lineNum">     851 </span>            : {
-<span class="lineNum">     852 </span>            : #ifdef USE_WFS_LYR
-<span class="lineNum">     853 </span><span class="lineNoCov">          0 :   if (lp-&gt;wfslayerinfo != NULL)</span>
-<span class="lineNum">     854 </span>            :     return MS_TRUE;
-<span class="lineNum">     855 </span>            : 
-<span class="lineNum">     856 </span><span class="lineNoCov">          0 :   return MS_FALSE;</span>
-<span class="lineNum">     857 </span>            : #else
-<span class="lineNum">     858 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">     859 </span>            :    * WFS CONNECTION Support not included...
-<span class="lineNum">     860 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">     861 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
-<span class="lineNum">     862 </span>            :              &quot;msWFSLayerIsOpen()&quot;);
-<span class="lineNum">     863 </span>            :   return(MS_FALSE);
-<span class="lineNum">     864 </span>            : 
-<span class="lineNum">     865 </span>            : #endif /* USE_WFS_LYR */
-<span class="lineNum">     866 </span>            : }
-<span class="lineNum">     867 </span>            : 
-<span class="lineNum">     868 </span>            : /**********************************************************************
-<span class="lineNum">     869 </span>            :  *                          msWFSLayerInitItemInfo()
-<span class="lineNum">     870 </span>            :  *
-<a name="871"><span class="lineNum">     871 </span>            :  **********************************************************************/</a>
-<span class="lineNum">     872 </span>            : 
-<span class="lineNum">     873 </span><span class="lineNoCov">          0 : int msWFSLayerInitItemInfo(layerObj *layer)</span>
-<span class="lineNum">     874 </span>            : {
-<span class="lineNum">     875 </span>            :   /* Nothing to do here.  OGR will do its own initialization when it */
-<span class="lineNum">     876 </span>            :   /* opens the actual file. */
-<span class="lineNum">     877 </span>            :   /* Note that we didn't implement our own msWFSLayerFreeItemInfo() */
-<span class="lineNum">     878 </span>            :   /* so that the OGR one gets called. */
-<span class="lineNum">     879 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">     880 </span>            : }
-<span class="lineNum">     881 </span>            : 
-<span class="lineNum">     882 </span>            : /**********************************************************************
-<span class="lineNum">     883 </span>            :  *                          msWFSLayerGetShape()
-<a name="884"><span class="lineNum">     884 </span>            :  *</a>
-<span class="lineNum">     885 </span>            :  **********************************************************************/
-<span class="lineNum">     886 </span><span class="lineNoCov">          0 : int msWFSLayerGetShape(layerObj *layer, shapeObj *shape, resultObj *record)</span>
-<span class="lineNum">     887 </span>            : {
-<span class="lineNum">     888 </span>            : #ifdef USE_WFS_LYR
-<span class="lineNum">     889 </span>            :   msWFSLayerInfo* psInfo = NULL;
-<span class="lineNum">     890 </span>            : 
-<span class="lineNum">     891 </span><span class="lineNoCov">          0 :   if(layer != NULL &amp;&amp; layer-&gt;wfslayerinfo != NULL)</span>
-<span class="lineNum">     892 </span>            :     psInfo = (msWFSLayerInfo*)layer-&gt;wfslayerinfo;
-<span class="lineNum">     893 </span>            :   else {
-<span class="lineNum">     894 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSERR, &quot;Layer is not opened.&quot;, &quot;msWFSLayerGetShape()&quot;);</span>
-<span class="lineNum">     895 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     896 </span>            :   }
-<span class="lineNum">     897 </span>            : 
-<span class="lineNum">     898 </span><span class="lineNoCov">          0 :   if(psInfo-&gt;bLayerHasValidGML)</span>
-<span class="lineNum">     899 </span><span class="lineNoCov">          0 :     return msOGRLayerGetShape(layer, shape, record);</span>
-<span class="lineNum">     900 </span>            :   else {
-<span class="lineNum">     901 </span>            :     /* Layer is successful, but there is no data to process */
-<span class="lineNum">     902 </span><span class="lineNoCov">          0 :     msFreeShape(shape);</span>
-<span class="lineNum">     903 </span><span class="lineNoCov">          0 :     shape-&gt;type = MS_SHAPE_NULL;</span>
-<span class="lineNum">     904 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     905 </span>            :   }
-<span class="lineNum">     906 </span>            : #else
-<span class="lineNum">     907 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">     908 </span>            :    * WFS CONNECTION Support not included...
-<span class="lineNum">     909 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">     910 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
-<span class="lineNum">     911 </span>            :              &quot;msWFSLayerGetShape()&quot;);
-<span class="lineNum">     912 </span>            :   return(MS_FAILURE);
-<span class="lineNum">     913 </span>            : #endif /* USE_WFS_LYR */
-<span class="lineNum">     914 </span>            : 
-<span class="lineNum">     915 </span>            : }
-<span class="lineNum">     916 </span>            : 
-<span class="lineNum">     917 </span>            : /**********************************************************************
-<span class="lineNum">     918 </span>            :  *                          msWFSLayerGetNextShape()
-<a name="919"><span class="lineNum">     919 </span>            :  *</a>
-<span class="lineNum">     920 </span>            :  **********************************************************************/
-<span class="lineNum">     921 </span><span class="lineNoCov">          0 : int msWFSLayerNextShape(layerObj *layer, shapeObj *shape)</span>
-<span class="lineNum">     922 </span>            : {
-<span class="lineNum">     923 </span>            : #ifdef USE_WFS_LYR
-<span class="lineNum">     924 </span>            :   msWFSLayerInfo* psInfo = NULL;
-<span class="lineNum">     925 </span>            : 
-<span class="lineNum">     926 </span><span class="lineNoCov">          0 :   if(layer != NULL &amp;&amp; layer-&gt;wfslayerinfo != NULL)</span>
-<span class="lineNum">     927 </span>            :     psInfo = (msWFSLayerInfo*)layer-&gt;wfslayerinfo;
-<span class="lineNum">     928 </span>            :   else {
-<span class="lineNum">     929 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSERR, &quot;Layer is not opened.&quot;, &quot;msWFSLayerNextShape()&quot;);</span>
-<span class="lineNum">     930 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     931 </span>            :   }
-<span class="lineNum">     932 </span>            : 
-<span class="lineNum">     933 </span><span class="lineNoCov">          0 :   if(psInfo-&gt;bLayerHasValidGML)</span>
-<span class="lineNum">     934 </span><span class="lineNoCov">          0 :     return msOGRLayerNextShape(layer, shape);</span>
-<span class="lineNum">     935 </span>            :   else {
-<span class="lineNum">     936 </span>            :     /* Layer is successful, but there is no data to process */
-<span class="lineNum">     937 </span><span class="lineNoCov">          0 :     msFreeShape(shape);</span>
-<span class="lineNum">     938 </span><span class="lineNoCov">          0 :     shape-&gt;type = MS_SHAPE_NULL;</span>
-<span class="lineNum">     939 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     940 </span>            :   }
-<span class="lineNum">     941 </span>            : #else
-<span class="lineNum">     942 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">     943 </span>            :    * WFS CONNECTION Support not included...
-<span class="lineNum">     944 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">     945 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
-<span class="lineNum">     946 </span>            :              &quot;msWFSLayerNextShape()&quot;);
-<span class="lineNum">     947 </span>            :   return(MS_FAILURE);
-<span class="lineNum">     948 </span>            : #endif /* USE_WFS_LYR */
-<span class="lineNum">     949 </span>            : 
-<span class="lineNum">     950 </span>            : }
-<span class="lineNum">     951 </span>            : 
-<span class="lineNum">     952 </span>            : /**********************************************************************
-<span class="lineNum">     953 </span>            :  *                          msWFSLayerGetExtent()
-<a name="954"><span class="lineNum">     954 </span>            :  *</a>
-<span class="lineNum">     955 </span>            :  **********************************************************************/
-<span class="lineNum">     956 </span><span class="lineNoCov">          0 : int msWFSLayerGetExtent(layerObj *layer, rectObj *extent)</span>
-<span class="lineNum">     957 </span>            : {
-<span class="lineNum">     958 </span>            : #ifdef USE_WFS_LYR
-<span class="lineNum">     959 </span>            :   msWFSLayerInfo* psInfo = NULL;
-<span class="lineNum">     960 </span>            : 
-<span class="lineNum">     961 </span><span class="lineNoCov">          0 :   if(layer != NULL &amp;&amp; layer-&gt;wfslayerinfo != NULL)</span>
-<span class="lineNum">     962 </span>            :     psInfo = (msWFSLayerInfo*)layer-&gt;wfslayerinfo;
-<span class="lineNum">     963 </span>            :   else {
-<span class="lineNum">     964 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSERR, &quot;Layer is not opened.&quot;, &quot;msWFSLayerGetExtent()&quot;);</span>
-<span class="lineNum">     965 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     966 </span>            :   }
-<span class="lineNum">     967 </span>            : 
-<span class="lineNum">     968 </span><span class="lineNoCov">          0 :   if(psInfo-&gt;bLayerHasValidGML)</span>
-<span class="lineNum">     969 </span><span class="lineNoCov">          0 :     return msOGRLayerGetExtent(layer, extent);</span>
-<span class="lineNum">     970 </span>            :   else {
-<span class="lineNum">     971 </span>            :     /* Layer is successful, but there is no data to process */
-<span class="lineNum">     972 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSERR, &quot;Unable to get extents for this layer.&quot;, &quot;msWFSLayerGetExtent()&quot;);</span>
-<span class="lineNum">     973 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     974 </span>            :   }
-<span class="lineNum">     975 </span>            : #else
-<span class="lineNum">     976 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">     977 </span>            :    * WFS CONNECTION Support not included...
-<span class="lineNum">     978 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">     979 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
-<span class="lineNum">     980 </span>            :              &quot;msWFSLayerGetExtent()&quot;);
-<span class="lineNum">     981 </span>            :   return(MS_FAILURE);
-<span class="lineNum">     982 </span>            : #endif /* USE_WFS_LYR */
-<span class="lineNum">     983 </span>            : 
-<span class="lineNum">     984 </span>            : }
-<span class="lineNum">     985 </span>            : 
-<span class="lineNum">     986 </span>            : /**********************************************************************
-<span class="lineNum">     987 </span>            :  *                          msWFSLayerGetItems()
-<span class="lineNum">     988 </span>            :  *
-<a name="989"><span class="lineNum">     989 </span>            :  **********************************************************************/</a>
-<span class="lineNum">     990 </span>            : 
-<span class="lineNum">     991 </span><span class="lineNoCov">          0 : int msWFSLayerGetItems(layerObj *layer)</span>
-<span class="lineNum">     992 </span>            : {
-<span class="lineNum">     993 </span>            : #ifdef USE_WFS_LYR
-<span class="lineNum">     994 </span>            :   /* For now this method simply lets OGR parse the GML and figure the  */
-<span class="lineNum">     995 </span>            :   /* schema itself. */
-<span class="lineNum">     996 </span>            :   /* It could also be implemented to call DescribeFeatureType for */
-<span class="lineNum">     997 </span>            :   /* this layer, but we don't need to do it so why waste resources? */
-<span class="lineNum">     998 </span>            : 
-<span class="lineNum">     999 </span>            :   msWFSLayerInfo* psInfo = NULL;
-<span class="lineNum">    1000 </span>            : 
-<span class="lineNum">    1001 </span><span class="lineNoCov">          0 :   if(layer != NULL &amp;&amp; layer-&gt;wfslayerinfo != NULL)</span>
-<span class="lineNum">    1002 </span>            :     psInfo = (msWFSLayerInfo*)layer-&gt;wfslayerinfo;
-<span class="lineNum">    1003 </span>            :   else {
-<span class="lineNum">    1004 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSERR, &quot;Layer is not opened.&quot;, &quot;msWFSLayerGetItems()&quot;);</span>
-<span class="lineNum">    1005 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1006 </span>            :   }
-<span class="lineNum">    1007 </span>            : 
-<span class="lineNum">    1008 </span><span class="lineNoCov">          0 :   if(psInfo-&gt;bLayerHasValidGML)</span>
-<span class="lineNum">    1009 </span><span class="lineNoCov">          0 :     return msOGRLayerGetItems(layer);</span>
-<span class="lineNum">    1010 </span>            :   else {
-<span class="lineNum">    1011 </span>            :     /* Layer is successful, but there is no data to process */
-<span class="lineNum">    1012 </span><span class="lineNoCov">          0 :     layer-&gt;numitems = 0;</span>
-<span class="lineNum">    1013 </span><span class="lineNoCov">          0 :     layer-&gt;items = NULL;</span>
-<span class="lineNum">    1014 </span><span class="lineNoCov">          0 :     return MS_SUCCESS;</span>
-<span class="lineNum">    1015 </span>            :   }
-<span class="lineNum">    1016 </span>            : #else
-<span class="lineNum">    1017 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1018 </span>            :    * WFS CONNECTION Support not included...
-<span class="lineNum">    1019 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1020 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
-<span class="lineNum">    1021 </span>            :              &quot;msWFSLayerGetItems()&quot;);
-<span class="lineNum">    1022 </span>            :   return(MS_FAILURE);
-<span class="lineNum">    1023 </span>            : #endif /* USE_WFS_LYR */
-<span class="lineNum">    1024 </span>            : 
-<span class="lineNum">    1025 </span>            : }
-<span class="lineNum">    1026 </span>            : 
-<span class="lineNum">    1027 </span>            : /**********************************************************************
-<span class="lineNum">    1028 </span>            :  *                          msWFSLayerWhichShapes()
-<span class="lineNum">    1029 </span>            :  *
-<a name="1030"><span class="lineNum">    1030 </span>            :  **********************************************************************/</a>
-<span class="lineNum">    1031 </span>            : 
-<span class="lineNum">    1032 </span><span class="lineNoCov">          0 : int msWFSLayerWhichShapes(layerObj *lp, rectObj rect, int isQuery)</span>
-<span class="lineNum">    1033 </span>            : {
-<span class="lineNum">    1034 </span>            : #ifdef USE_WFS_LYR
-<span class="lineNum">    1035 </span>            :   msWFSLayerInfo *psInfo;
-<span class="lineNum">    1036 </span>            :   int status = MS_SUCCESS;
-<span class="lineNum">    1037 </span>            :   const char *pszTmp;
-<span class="lineNum">    1038 </span>            :   FILE *fp;
-<span class="lineNum">    1039 </span>            : 
-<span class="lineNum">    1040 </span><span class="lineNoCov">          0 :   if ( msCheckParentPointer(lp-&gt;map,&quot;map&quot;)==MS_FAILURE )</span>
-<span class="lineNum">    1041 </span>            :     return MS_FAILURE;
+<span class="lineNum">     819 </span><span class="lineNoCov">          0 :   return status;</span>
+<span class="lineNum">     820 </span>            : #else
+<span class="lineNum">     821 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">     822 </span>            :    * WFS CONNECTION Support not included...
+<span class="lineNum">     823 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">     824 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
+<span class="lineNum">     825 </span>            :              &quot;msWFSLayerOpen()&quot;);
+<span class="lineNum">     826 </span>            :   return(MS_FAILURE);
+<span class="lineNum">     827 </span>            : 
+<span class="lineNum">     828 </span>            : #endif /* USE_WFS_LYR */
+<span class="lineNum">     829 </span>            : }
+<span class="lineNum">     830 </span>            : 
+<span class="lineNum">     831 </span>            : /**********************************************************************
+<span class="lineNum">     832 </span>            :  *                          msWFSLayerOpenVT()
+<span class="lineNum">     833 </span>            :  *
+<span class="lineNum">     834 </span>            :  * Overloaded version of msWFSLayerOpen for virtual table architecture
+<a name="835"><span class="lineNum">     835 </span>            :  **********************************************************************/</a>
+<span class="lineNum">     836 </span>            : int
+<span class="lineNum">     837 </span><span class="lineNoCov">          0 : msWFSLayerOpenVT(layerObj *lp)</span>
+<span class="lineNum">     838 </span>            : {
+<span class="lineNum">     839 </span><span class="lineNoCov">          0 :   return msWFSLayerOpen(lp, NULL, NULL);</span>
+<span class="lineNum">     840 </span>            : }
+<span class="lineNum">     841 </span>            : 
+<span class="lineNum">     842 </span>            : /**********************************************************************
+<span class="lineNum">     843 </span>            :  *                          msWFSLayerIsOpen()
+<span class="lineNum">     844 </span>            :  *
+<span class="lineNum">     845 </span>            :  * Returns MS_TRUE if layer is already open, MS_FALSE otherwise.
+<span class="lineNum">     846 </span>            :  *
+<a name="847"><span class="lineNum">     847 </span>            :  **********************************************************************/</a>
+<span class="lineNum">     848 </span>            : 
+<span class="lineNum">     849 </span><span class="lineNoCov">          0 : int msWFSLayerIsOpen(layerObj *lp)</span>
+<span class="lineNum">     850 </span>            : {
+<span class="lineNum">     851 </span>            : #ifdef USE_WFS_LYR
+<span class="lineNum">     852 </span><span class="lineNoCov">          0 :   if (lp-&gt;wfslayerinfo != NULL)</span>
+<span class="lineNum">     853 </span>            :     return MS_TRUE;
+<span class="lineNum">     854 </span>            : 
+<span class="lineNum">     855 </span><span class="lineNoCov">          0 :   return MS_FALSE;</span>
+<span class="lineNum">     856 </span>            : #else
+<span class="lineNum">     857 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">     858 </span>            :    * WFS CONNECTION Support not included...
+<span class="lineNum">     859 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">     860 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
+<span class="lineNum">     861 </span>            :              &quot;msWFSLayerIsOpen()&quot;);
+<span class="lineNum">     862 </span>            :   return(MS_FALSE);
+<span class="lineNum">     863 </span>            : 
+<span class="lineNum">     864 </span>            : #endif /* USE_WFS_LYR */
+<span class="lineNum">     865 </span>            : }
+<span class="lineNum">     866 </span>            : 
+<span class="lineNum">     867 </span>            : /**********************************************************************
+<span class="lineNum">     868 </span>            :  *                          msWFSLayerInitItemInfo()
+<span class="lineNum">     869 </span>            :  *
+<a name="870"><span class="lineNum">     870 </span>            :  **********************************************************************/</a>
+<span class="lineNum">     871 </span>            : 
+<span class="lineNum">     872 </span><span class="lineNoCov">          0 : int msWFSLayerInitItemInfo(layerObj *layer)</span>
+<span class="lineNum">     873 </span>            : {
+<span class="lineNum">     874 </span>            :   /* Nothing to do here.  OGR will do its own initialization when it */
+<span class="lineNum">     875 </span>            :   /* opens the actual file. */
+<span class="lineNum">     876 </span>            :   /* Note that we didn't implement our own msWFSLayerFreeItemInfo() */
+<span class="lineNum">     877 </span>            :   /* so that the OGR one gets called. */
+<span class="lineNum">     878 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">     879 </span>            : }
+<span class="lineNum">     880 </span>            : 
+<span class="lineNum">     881 </span>            : /**********************************************************************
+<span class="lineNum">     882 </span>            :  *                          msWFSLayerGetShape()
+<a name="883"><span class="lineNum">     883 </span>            :  *</a>
+<span class="lineNum">     884 </span>            :  **********************************************************************/
+<span class="lineNum">     885 </span><span class="lineNoCov">          0 : int msWFSLayerGetShape(layerObj *layer, shapeObj *shape, resultObj *record)</span>
+<span class="lineNum">     886 </span>            : {
+<span class="lineNum">     887 </span>            : #ifdef USE_WFS_LYR
+<span class="lineNum">     888 </span>            :   msWFSLayerInfo* psInfo = NULL;
+<span class="lineNum">     889 </span>            : 
+<span class="lineNum">     890 </span><span class="lineNoCov">          0 :   if(layer != NULL &amp;&amp; layer-&gt;wfslayerinfo != NULL)</span>
+<span class="lineNum">     891 </span>            :     psInfo = (msWFSLayerInfo*)layer-&gt;wfslayerinfo;
+<span class="lineNum">     892 </span>            :   else {
+<span class="lineNum">     893 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSERR, &quot;Layer is not opened.&quot;, &quot;msWFSLayerGetShape()&quot;);</span>
+<span class="lineNum">     894 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     895 </span>            :   }
+<span class="lineNum">     896 </span>            : 
+<span class="lineNum">     897 </span><span class="lineNoCov">          0 :   if(psInfo-&gt;bLayerHasValidGML)</span>
+<span class="lineNum">     898 </span><span class="lineNoCov">          0 :     return msOGRLayerGetShape(layer, shape, record);</span>
+<span class="lineNum">     899 </span>            :   else {
+<span class="lineNum">     900 </span>            :     /* Layer is successful, but there is no data to process */
+<span class="lineNum">     901 </span><span class="lineNoCov">          0 :     msFreeShape(shape);</span>
+<span class="lineNum">     902 </span><span class="lineNoCov">          0 :     shape-&gt;type = MS_SHAPE_NULL;</span>
+<span class="lineNum">     903 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     904 </span>            :   }
+<span class="lineNum">     905 </span>            : #else
+<span class="lineNum">     906 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">     907 </span>            :    * WFS CONNECTION Support not included...
+<span class="lineNum">     908 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">     909 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
+<span class="lineNum">     910 </span>            :              &quot;msWFSLayerGetShape()&quot;);
+<span class="lineNum">     911 </span>            :   return(MS_FAILURE);
+<span class="lineNum">     912 </span>            : #endif /* USE_WFS_LYR */
+<span class="lineNum">     913 </span>            : 
+<span class="lineNum">     914 </span>            : }
+<span class="lineNum">     915 </span>            : 
+<span class="lineNum">     916 </span>            : /**********************************************************************
+<span class="lineNum">     917 </span>            :  *                          msWFSLayerGetNextShape()
+<a name="918"><span class="lineNum">     918 </span>            :  *</a>
+<span class="lineNum">     919 </span>            :  **********************************************************************/
+<span class="lineNum">     920 </span><span class="lineNoCov">          0 : int msWFSLayerNextShape(layerObj *layer, shapeObj *shape)</span>
+<span class="lineNum">     921 </span>            : {
+<span class="lineNum">     922 </span>            : #ifdef USE_WFS_LYR
+<span class="lineNum">     923 </span>            :   msWFSLayerInfo* psInfo = NULL;
+<span class="lineNum">     924 </span>            : 
+<span class="lineNum">     925 </span><span class="lineNoCov">          0 :   if(layer != NULL &amp;&amp; layer-&gt;wfslayerinfo != NULL)</span>
+<span class="lineNum">     926 </span>            :     psInfo = (msWFSLayerInfo*)layer-&gt;wfslayerinfo;
+<span class="lineNum">     927 </span>            :   else {
+<span class="lineNum">     928 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSERR, &quot;Layer is not opened.&quot;, &quot;msWFSLayerNextShape()&quot;);</span>
+<span class="lineNum">     929 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     930 </span>            :   }
+<span class="lineNum">     931 </span>            : 
+<span class="lineNum">     932 </span><span class="lineNoCov">          0 :   if(psInfo-&gt;bLayerHasValidGML)</span>
+<span class="lineNum">     933 </span><span class="lineNoCov">          0 :     return msOGRLayerNextShape(layer, shape);</span>
+<span class="lineNum">     934 </span>            :   else {
+<span class="lineNum">     935 </span>            :     /* Layer is successful, but there is no data to process */
+<span class="lineNum">     936 </span><span class="lineNoCov">          0 :     msFreeShape(shape);</span>
+<span class="lineNum">     937 </span><span class="lineNoCov">          0 :     shape-&gt;type = MS_SHAPE_NULL;</span>
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     939 </span>            :   }
+<span class="lineNum">     940 </span>            : #else
+<span class="lineNum">     941 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">     942 </span>            :    * WFS CONNECTION Support not included...
+<span class="lineNum">     943 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">     944 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
+<span class="lineNum">     945 </span>            :              &quot;msWFSLayerNextShape()&quot;);
+<span class="lineNum">     946 </span>            :   return(MS_FAILURE);
+<span class="lineNum">     947 </span>            : #endif /* USE_WFS_LYR */
+<span class="lineNum">     948 </span>            : 
+<span class="lineNum">     949 </span>            : }
+<span class="lineNum">     950 </span>            : 
+<span class="lineNum">     951 </span>            : /**********************************************************************
+<span class="lineNum">     952 </span>            :  *                          msWFSLayerGetExtent()
+<a name="953"><span class="lineNum">     953 </span>            :  *</a>
+<span class="lineNum">     954 </span>            :  **********************************************************************/
+<span class="lineNum">     955 </span><span class="lineNoCov">          0 : int msWFSLayerGetExtent(layerObj *layer, rectObj *extent)</span>
+<span class="lineNum">     956 </span>            : {
+<span class="lineNum">     957 </span>            : #ifdef USE_WFS_LYR
+<span class="lineNum">     958 </span>            :   msWFSLayerInfo* psInfo = NULL;
+<span class="lineNum">     959 </span>            : 
+<span class="lineNum">     960 </span><span class="lineNoCov">          0 :   if(layer != NULL &amp;&amp; layer-&gt;wfslayerinfo != NULL)</span>
+<span class="lineNum">     961 </span>            :     psInfo = (msWFSLayerInfo*)layer-&gt;wfslayerinfo;
+<span class="lineNum">     962 </span>            :   else {
+<span class="lineNum">     963 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSERR, &quot;Layer is not opened.&quot;, &quot;msWFSLayerGetExtent()&quot;);</span>
+<span class="lineNum">     964 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     965 </span>            :   }
+<span class="lineNum">     966 </span>            : 
+<span class="lineNum">     967 </span><span class="lineNoCov">          0 :   if(psInfo-&gt;bLayerHasValidGML)</span>
+<span class="lineNum">     968 </span><span class="lineNoCov">          0 :     return msOGRLayerGetExtent(layer, extent);</span>
+<span class="lineNum">     969 </span>            :   else {
+<span class="lineNum">     970 </span>            :     /* Layer is successful, but there is no data to process */
+<span class="lineNum">     971 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSERR, &quot;Unable to get extents for this layer.&quot;, &quot;msWFSLayerGetExtent()&quot;);</span>
+<span class="lineNum">     972 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     973 </span>            :   }
+<span class="lineNum">     974 </span>            : #else
+<span class="lineNum">     975 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">     976 </span>            :    * WFS CONNECTION Support not included...
+<span class="lineNum">     977 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">     978 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
+<span class="lineNum">     979 </span>            :              &quot;msWFSLayerGetExtent()&quot;);
+<span class="lineNum">     980 </span>            :   return(MS_FAILURE);
+<span class="lineNum">     981 </span>            : #endif /* USE_WFS_LYR */
+<span class="lineNum">     982 </span>            : 
+<span class="lineNum">     983 </span>            : }
+<span class="lineNum">     984 </span>            : 
+<span class="lineNum">     985 </span>            : /**********************************************************************
+<span class="lineNum">     986 </span>            :  *                          msWFSLayerGetItems()
+<span class="lineNum">     987 </span>            :  *
+<a name="988"><span class="lineNum">     988 </span>            :  **********************************************************************/</a>
+<span class="lineNum">     989 </span>            : 
+<span class="lineNum">     990 </span><span class="lineNoCov">          0 : int msWFSLayerGetItems(layerObj *layer)</span>
+<span class="lineNum">     991 </span>            : {
+<span class="lineNum">     992 </span>            : #ifdef USE_WFS_LYR
+<span class="lineNum">     993 </span>            :   /* For now this method simply lets OGR parse the GML and figure the  */
+<span class="lineNum">     994 </span>            :   /* schema itself. */
+<span class="lineNum">     995 </span>            :   /* It could also be implemented to call DescribeFeatureType for */
+<span class="lineNum">     996 </span>            :   /* this layer, but we don't need to do it so why waste resources? */
+<span class="lineNum">     997 </span>            : 
+<span class="lineNum">     998 </span>            :   msWFSLayerInfo* psInfo = NULL;
+<span class="lineNum">     999 </span>            : 
+<span class="lineNum">    1000 </span><span class="lineNoCov">          0 :   if(layer != NULL &amp;&amp; layer-&gt;wfslayerinfo != NULL)</span>
+<span class="lineNum">    1001 </span>            :     psInfo = (msWFSLayerInfo*)layer-&gt;wfslayerinfo;
+<span class="lineNum">    1002 </span>            :   else {
+<span class="lineNum">    1003 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSERR, &quot;Layer is not opened.&quot;, &quot;msWFSLayerGetItems()&quot;);</span>
+<span class="lineNum">    1004 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1005 </span>            :   }
+<span class="lineNum">    1006 </span>            : 
+<span class="lineNum">    1007 </span><span class="lineNoCov">          0 :   if(psInfo-&gt;bLayerHasValidGML)</span>
+<span class="lineNum">    1008 </span><span class="lineNoCov">          0 :     return msOGRLayerGetItems(layer);</span>
+<span class="lineNum">    1009 </span>            :   else {
+<span class="lineNum">    1010 </span>            :     /* Layer is successful, but there is no data to process */
+<span class="lineNum">    1011 </span><span class="lineNoCov">          0 :     layer-&gt;numitems = 0;</span>
+<span class="lineNum">    1012 </span><span class="lineNoCov">          0 :     layer-&gt;items = NULL;</span>
+<span class="lineNum">    1013 </span><span class="lineNoCov">          0 :     return MS_SUCCESS;</span>
+<span class="lineNum">    1014 </span>            :   }
+<span class="lineNum">    1015 </span>            : #else
+<span class="lineNum">    1016 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1017 </span>            :    * WFS CONNECTION Support not included...
+<span class="lineNum">    1018 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1019 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
+<span class="lineNum">    1020 </span>            :              &quot;msWFSLayerGetItems()&quot;);
+<span class="lineNum">    1021 </span>            :   return(MS_FAILURE);
+<span class="lineNum">    1022 </span>            : #endif /* USE_WFS_LYR */
+<span class="lineNum">    1023 </span>            : 
+<span class="lineNum">    1024 </span>            : }
+<span class="lineNum">    1025 </span>            : 
+<span class="lineNum">    1026 </span>            : /**********************************************************************
+<span class="lineNum">    1027 </span>            :  *                          msWFSLayerWhichShapes()
+<span class="lineNum">    1028 </span>            :  *
+<a name="1029"><span class="lineNum">    1029 </span>            :  **********************************************************************/</a>
+<span class="lineNum">    1030 </span>            : 
+<span class="lineNum">    1031 </span><span class="lineNoCov">          0 : int msWFSLayerWhichShapes(layerObj *lp, rectObj rect, int isQuery)</span>
+<span class="lineNum">    1032 </span>            : {
+<span class="lineNum">    1033 </span>            : #ifdef USE_WFS_LYR
+<span class="lineNum">    1034 </span>            :   msWFSLayerInfo *psInfo;
+<span class="lineNum">    1035 </span>            :   int status = MS_SUCCESS;
+<span class="lineNum">    1036 </span>            :   const char *pszTmp;
+<span class="lineNum">    1037 </span>            :   FILE *fp;
+<span class="lineNum">    1038 </span>            : 
+<span class="lineNum">    1039 </span><span class="lineNoCov">          0 :   if ( msCheckParentPointer(lp-&gt;map,&quot;map&quot;)==MS_FAILURE )</span>
+<span class="lineNum">    1040 </span>            :     return MS_FAILURE;
+<span class="lineNum">    1041 </span>            : 
 <span class="lineNum">    1042 </span>            : 
-<span class="lineNum">    1043 </span>            : 
-<span class="lineNum">    1044 </span><span class="lineNoCov">          0 :   psInfo =(msWFSLayerInfo*)lp-&gt;wfslayerinfo;</span>
-<span class="lineNum">    1045 </span>            : 
-<span class="lineNum">    1046 </span><span class="lineNoCov">          0 :   if (psInfo == NULL) {</span>
-<span class="lineNum">    1047 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSCONNERR, &quot;Assertion failed: WFS layer not opened!!!&quot;,</span>
-<span class="lineNum">    1048 </span>            :                &quot;msWFSLayerWhichShapes()&quot;);
-<span class="lineNum">    1049 </span><span class="lineNoCov">          0 :     return(MS_FAILURE);</span>
-<span class="lineNum">    1050 </span>            :   }
-<span class="lineNum">    1051 </span>            : 
-<span class="lineNum">    1052 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1053 </span>            :    * Check if layer overlaps current view window (using wfs_latlonboundingbox)
-<span class="lineNum">    1054 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1055 </span><span class="lineNoCov">          0 :   if ((pszTmp = msOWSLookupMetadata(&amp;(lp-&gt;metadata),</span>
-<span class="lineNum">    1056 </span>            :                                     &quot;FO&quot;, &quot;latlonboundingbox&quot;)) != NULL) {
-<span class="lineNum">    1057 </span>            :     char **tokens;
-<span class="lineNum">    1058 </span>            :     int n;
-<span class="lineNum">    1059 </span>            :     rectObj ext;
-<span class="lineNum">    1060 </span>            : 
-<span class="lineNum">    1061 </span><span class="lineNoCov">          0 :     tokens = msStringSplit(pszTmp, ' ', &amp;n);</span>
-<span class="lineNum">    1062 </span><span class="lineNoCov">          0 :     if (tokens==NULL || n != 4) {</span>
-<span class="lineNum">    1063 </span><span class="lineNoCov">          0 :       msSetError(MS_WFSCONNERR, &quot;Wrong number of values in 'wfs_latlonboundingbox' metadata.&quot;,</span>
-<span class="lineNum">    1064 </span>            :                  &quot;msWFSLayerWhichShapes()&quot;);
-<span class="lineNum">    1065 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">    1066 </span>            :     }
-<span class="lineNum">    1067 </span>            : 
-<span class="lineNum">    1068 </span><span class="lineNoCov">          0 :     ext.minx = atof(tokens[0]);</span>
-<span class="lineNum">    1069 </span><span class="lineNoCov">          0 :     ext.miny = atof(tokens[1]);</span>
-<span class="lineNum">    1070 </span><span class="lineNoCov">          0 :     ext.maxx = atof(tokens[2]);</span>
-<span class="lineNum">    1071 </span><span class="lineNoCov">          0 :     ext.maxy = atof(tokens[3]);</span>
-<span class="lineNum">    1072 </span>            : 
-<span class="lineNum">    1073 </span><span class="lineNoCov">          0 :     msFreeCharArray(tokens, n);</span>
-<span class="lineNum">    1074 </span>            : 
-<span class="lineNum">    1075 </span>            :     /* Reproject latlonboundingbox to the selected SRS for the layer and */
-<span class="lineNum">    1076 </span>            :     /* check if it overlaps the bbox that we calculated for the request */
-<span class="lineNum">    1077 </span>            : 
-<span class="lineNum">    1078 </span><span class="lineNoCov">          0 :     msProjectRect(&amp;(lp-&gt;map-&gt;latlon), &amp;(lp-&gt;projection), &amp;ext);</span>
-<span class="lineNum">    1079 </span><span class="lineNoCov">          0 :     if (!msRectOverlap(&amp;rect, &amp;ext)) {</span>
-<span class="lineNum">    1080 </span>            :       /* No overlap... nothing to do. If layer was never opened, go open it.*/
-<span class="lineNum">    1081 </span><span class="lineNoCov">          0 :       if (lp-&gt;layerinfo)</span>
-<span class="lineNum">    1082 </span>            :         return MS_DONE;  /* No overlap. */
-<span class="lineNum">    1083 </span>            :     }
-<span class="lineNum">    1084 </span>            :   }
+<span class="lineNum">    1043 </span><span class="lineNoCov">          0 :   psInfo =(msWFSLayerInfo*)lp-&gt;wfslayerinfo;</span>
+<span class="lineNum">    1044 </span>            : 
+<span class="lineNum">    1045 </span><span class="lineNoCov">          0 :   if (psInfo == NULL) {</span>
+<span class="lineNum">    1046 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSCONNERR, &quot;Assertion failed: WFS layer not opened!!!&quot;,</span>
+<span class="lineNum">    1047 </span>            :                &quot;msWFSLayerWhichShapes()&quot;);
+<span class="lineNum">    1048 </span><span class="lineNoCov">          0 :     return(MS_FAILURE);</span>
+<span class="lineNum">    1049 </span>            :   }
+<span class="lineNum">    1050 </span>            : 
+<span class="lineNum">    1051 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1052 </span>            :    * Check if layer overlaps current view window (using wfs_latlonboundingbox)
+<span class="lineNum">    1053 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1054 </span><span class="lineNoCov">          0 :   if ((pszTmp = msOWSLookupMetadata(&amp;(lp-&gt;metadata),</span>
+<span class="lineNum">    1055 </span>            :                                     &quot;FO&quot;, &quot;latlonboundingbox&quot;)) != NULL) {
+<span class="lineNum">    1056 </span>            :     char **tokens;
+<span class="lineNum">    1057 </span>            :     int n;
+<span class="lineNum">    1058 </span>            :     rectObj ext;
+<span class="lineNum">    1059 </span>            : 
+<span class="lineNum">    1060 </span><span class="lineNoCov">          0 :     tokens = msStringSplit(pszTmp, ' ', &amp;n);</span>
+<span class="lineNum">    1061 </span><span class="lineNoCov">          0 :     if (tokens==NULL || n != 4) {</span>
+<span class="lineNum">    1062 </span><span class="lineNoCov">          0 :       msSetError(MS_WFSCONNERR, &quot;Wrong number of values in 'wfs_latlonboundingbox' metadata.&quot;,</span>
+<span class="lineNum">    1063 </span>            :                  &quot;msWFSLayerWhichShapes()&quot;);
+<span class="lineNum">    1064 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    1065 </span>            :     }
+<span class="lineNum">    1066 </span>            : 
+<span class="lineNum">    1067 </span><span class="lineNoCov">          0 :     ext.minx = atof(tokens[0]);</span>
+<span class="lineNum">    1068 </span><span class="lineNoCov">          0 :     ext.miny = atof(tokens[1]);</span>
+<span class="lineNum">    1069 </span><span class="lineNoCov">          0 :     ext.maxx = atof(tokens[2]);</span>
+<span class="lineNum">    1070 </span><span class="lineNoCov">          0 :     ext.maxy = atof(tokens[3]);</span>
+<span class="lineNum">    1071 </span>            : 
+<span class="lineNum">    1072 </span><span class="lineNoCov">          0 :     msFreeCharArray(tokens, n);</span>
+<span class="lineNum">    1073 </span>            : 
+<span class="lineNum">    1074 </span>            :     /* Reproject latlonboundingbox to the selected SRS for the layer and */
+<span class="lineNum">    1075 </span>            :     /* check if it overlaps the bbox that we calculated for the request */
+<span class="lineNum">    1076 </span>            : 
+<span class="lineNum">    1077 </span><span class="lineNoCov">          0 :     msProjectRect(&amp;(lp-&gt;map-&gt;latlon), &amp;(lp-&gt;projection), &amp;ext);</span>
+<span class="lineNum">    1078 </span><span class="lineNoCov">          0 :     if (!msRectOverlap(&amp;rect, &amp;ext)) {</span>
+<span class="lineNum">    1079 </span>            :       /* No overlap... nothing to do. If layer was never opened, go open it.*/
+<span class="lineNum">    1080 </span><span class="lineNoCov">          0 :       if (lp-&gt;layerinfo)</span>
+<span class="lineNum">    1081 </span>            :         return MS_DONE;  /* No overlap. */
+<span class="lineNum">    1082 </span>            :     }
+<span class="lineNum">    1083 </span>            :   }
+<span class="lineNum">    1084 </span>            : 
 <span class="lineNum">    1085 </span>            : 
-<span class="lineNum">    1086 </span>            : 
-<span class="lineNum">    1087 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1088 </span>            :    * __TODO__ If new bbox differs from current one then we should
-<span class="lineNum">    1089 </span>            :    * invalidate current GML file in cache
-<span class="lineNum">    1090 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1091 </span><span class="lineNoCov">          0 :   psInfo-&gt;rect = rect;</span>
+<span class="lineNum">    1086 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1087 </span>            :    * __TODO__ If new bbox differs from current one then we should
+<span class="lineNum">    1088 </span>            :    * invalidate current GML file in cache
+<span class="lineNum">    1089 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1090 </span><span class="lineNoCov">          0 :   psInfo-&gt;rect = rect;</span>
+<span class="lineNum">    1091 </span>            : 
 <span class="lineNum">    1092 </span>            : 
-<span class="lineNum">    1093 </span>            : 
-<span class="lineNum">    1094 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1095 </span>            :    * If file not downloaded yet then do it now.
-<span class="lineNum">    1096 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1097 </span><span class="lineNoCov">          0 :   if (psInfo-&gt;nStatus == 0) {</span>
-<span class="lineNum">    1098 </span>            :     httpRequestObj asReqInfo[2];
-<span class="lineNum">    1099 </span><span class="lineNoCov">          0 :     int numReq = 0;</span>
-<span class="lineNum">    1100 </span>            : 
-<span class="lineNum">    1101 </span><span class="lineNoCov">          0 :     msHTTPInitRequestObj(asReqInfo, 2);</span>
-<span class="lineNum">    1102 </span>            : 
-<span class="lineNum">    1103 </span><span class="lineNoCov">          0 :     if ( msPrepareWFSLayerRequest(-1, lp-&gt;map, lp,</span>
-<span class="lineNum">    1104 </span><span class="lineNoCov">          0 :                                   asReqInfo, &amp;numReq) == MS_FAILURE  ||</span>
-<span class="lineNum">    1105 </span><span class="lineNoCov">          0 :          msOWSExecuteRequests(asReqInfo, numReq,</span>
-<span class="lineNum">    1106 </span><span class="lineNoCov">          0 :                               lp-&gt;map, MS_TRUE) == MS_FAILURE ) {</span>
-<span class="lineNum">    1107 </span>            :       /* Delete tmp file... we don't want it to stick around. */
-<span class="lineNum">    1108 </span><span class="lineNoCov">          0 :       unlink(asReqInfo[0].pszOutputFile);</span>
-<span class="lineNum">    1109 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">    1110 </span>            :     }
-<span class="lineNum">    1111 </span>            : 
-<span class="lineNum">    1112 </span>            :     /* Cleanup */
-<span class="lineNum">    1113 </span><span class="lineNoCov">          0 :     msHTTPFreeRequestObj(asReqInfo, numReq);</span>
-<span class="lineNum">    1114 </span>            : 
-<span class="lineNum">    1115 </span>            :   }
-<span class="lineNum">    1116 </span>            : 
-<span class="lineNum">    1117 </span><span class="lineNoCov">          0 :   if ( !MS_HTTP_SUCCESS( psInfo-&gt;nStatus ) ) {</span>
-<span class="lineNum">    1118 </span>            :     /* Delete tmp file... we don't want it to stick around. */
-<span class="lineNum">    1119 </span><span class="lineNoCov">          0 :     unlink(psInfo-&gt;pszGMLFilename);</span>
-<span class="lineNum">    1120 </span>            : 
-<span class="lineNum">    1121 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSCONNERR,</span>
-<span class="lineNum">    1122 </span>            :                &quot;Got HTTP status %d downloading WFS layer %s&quot;,
-<span class="lineNum">    1123 </span>            :                &quot;msWFSLayerWhichShapes()&quot;,
-<span class="lineNum">    1124 </span><span class="lineNoCov">          0 :                psInfo-&gt;nStatus, lp-&gt;name?lp-&gt;name:&quot;(null)&quot;);</span>
-<span class="lineNum">    1125 </span><span class="lineNoCov">          0 :     return(MS_FAILURE);</span>
-<span class="lineNum">    1126 </span>            :   }
-<span class="lineNum">    1127 </span>            : 
-<span class="lineNum">    1128 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1129 </span>            :    * Check that file is really GML... it could be an exception, or just junk.
-<span class="lineNum">    1130 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1131 </span><span class="lineNoCov">          0 :   if ((fp = fopen(psInfo-&gt;pszGMLFilename, &quot;r&quot;)) != NULL) {</span>
-<span class="lineNum">    1132 </span>            :     char szHeader[2000];
-<span class="lineNum">    1133 </span>            :     int  nBytes = 0;
-<span class="lineNum">    1134 </span>            : 
-<span class="lineNum">    1135 </span><span class="lineNoCov">          0 :     nBytes = fread( szHeader, 1, sizeof(szHeader)-1, fp );</span>
-<span class="lineNum">    1136 </span><span class="lineNoCov">          0 :     fclose(fp);</span>
-<span class="lineNum">    1137 </span>            : 
-<span class="lineNum">    1138 </span><span class="lineNoCov">          0 :     if (nBytes &lt; 0)</span>
-<span class="lineNum">    1139 </span>            :       nBytes = 0;
-<span class="lineNum">    1140 </span><span class="lineNoCov">          0 :     szHeader[nBytes] = '\0';</span>
-<span class="lineNum">    1141 </span>            : 
-<span class="lineNum">    1142 </span><span class="lineNoCov">          0 :     if ( nBytes == 0 ) {</span>
-<span class="lineNum">    1143 </span><span class="lineNoCov">          0 :       msSetError(MS_WFSCONNERR,</span>
-<span class="lineNum">    1144 </span>            :                  &quot;WFS request produced no oputput for layer %s.&quot;,
-<span class="lineNum">    1145 </span>            :                  &quot;msWFSLayerWhichShapes()&quot;,
-<span class="lineNum">    1146 </span><span class="lineNoCov">          0 :                  lp-&gt;name?lp-&gt;name:&quot;(null)&quot;);</span>
-<span class="lineNum">    1147 </span><span class="lineNoCov">          0 :       return(MS_FAILURE);</span>
-<span class="lineNum">    1148 </span>            : 
-<span class="lineNum">    1149 </span>            :     }
-<span class="lineNum">    1150 </span><span class="lineNoCov">          0 :     if ( strstr(szHeader, &quot;&lt;WFS_Exception&gt;&quot;) ||</span>
-<span class="lineNum">    1151 </span><span class="lineNoCov">          0 :          strstr(szHeader, &quot;&lt;ServiceExceptionReport&gt;&quot;) ) {</span>
-<span class="lineNum">    1152 </span><span class="lineNoCov">          0 :       msOWSProcessException(lp, psInfo-&gt;pszGMLFilename,</span>
-<span class="lineNum">    1153 </span>            :                             MS_WFSCONNERR, &quot;msWFSLayerWhichShapes()&quot; );
-<span class="lineNum">    1154 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">    1155 </span><span class="lineNoCov">          0 :     } else if ( strstr(szHeader,&quot;opengis.net/gml&quot;) &amp;&amp;</span>
-<span class="lineNum">    1156 </span><span class="lineNoCov">          0 :                 strstr(szHeader,&quot;featureMember&gt;&quot;) == NULL ) {</span>
-<span class="lineNum">    1157 </span>            :       /* This looks like valid GML, but contains 0 features. */
-<span class="lineNum">    1158 </span>            :       return MS_DONE;
-<span class="lineNum">    1159 </span><span class="lineNoCov">          0 :     } else if ( strstr(szHeader,&quot;opengis.net/gml&quot;) == NULL ||</span>
-<span class="lineNum">    1160 </span><span class="lineNoCov">          0 :                 strstr(szHeader,&quot;featureMember&gt;&quot;) == NULL ) {</span>
-<span class="lineNum">    1161 </span>            :       /* This is probably just junk. */
-<span class="lineNum">    1162 </span><span class="lineNoCov">          0 :       msSetError(MS_WFSCONNERR,</span>
-<span class="lineNum">    1163 </span>            :                  &quot;WFS request produced unexpected output (junk?) for layer %s.&quot;,
-<span class="lineNum">    1164 </span>            :                  &quot;msWFSLayerWhichShapes()&quot;,
-<span class="lineNum">    1165 </span><span class="lineNoCov">          0 :                  lp-&gt;name?lp-&gt;name:&quot;(null)&quot;);</span>
-<span class="lineNum">    1166 </span><span class="lineNoCov">          0 :       return(MS_FAILURE);</span>
-<span class="lineNum">    1167 </span>            :     }
-<span class="lineNum">    1168 </span>            : 
-<span class="lineNum">    1169 </span>            :     /* If we got this far, it must be a valid GML dataset... keep going */
-<span class="lineNum">    1170 </span>            :   }
+<span class="lineNum">    1093 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1094 </span>            :    * If file not downloaded yet then do it now.
+<span class="lineNum">    1095 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1096 </span><span class="lineNoCov">          0 :   if (psInfo-&gt;nStatus == 0) {</span>
+<span class="lineNum">    1097 </span>            :     httpRequestObj asReqInfo[2];
+<span class="lineNum">    1098 </span><span class="lineNoCov">          0 :     int numReq = 0;</span>
+<span class="lineNum">    1099 </span>            : 
+<span class="lineNum">    1100 </span><span class="lineNoCov">          0 :     msHTTPInitRequestObj(asReqInfo, 2);</span>
+<span class="lineNum">    1101 </span>            : 
+<span class="lineNum">    1102 </span><span class="lineNoCov">          0 :     if ( msPrepareWFSLayerRequest(-1, lp-&gt;map, lp,</span>
+<span class="lineNum">    1103 </span><span class="lineNoCov">          0 :                                   asReqInfo, &amp;numReq) == MS_FAILURE  ||</span>
+<span class="lineNum">    1104 </span><span class="lineNoCov">          0 :          msOWSExecuteRequests(asReqInfo, numReq,</span>
+<span class="lineNum">    1105 </span><span class="lineNoCov">          0 :                               lp-&gt;map, MS_TRUE) == MS_FAILURE ) {</span>
+<span class="lineNum">    1106 </span>            :       /* Delete tmp file... we don't want it to stick around. */
+<span class="lineNum">    1107 </span><span class="lineNoCov">          0 :       unlink(asReqInfo[0].pszOutputFile);</span>
+<span class="lineNum">    1108 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    1109 </span>            :     }
+<span class="lineNum">    1110 </span>            : 
+<span class="lineNum">    1111 </span>            :     /* Cleanup */
+<span class="lineNum">    1112 </span><span class="lineNoCov">          0 :     msHTTPFreeRequestObj(asReqInfo, numReq);</span>
+<span class="lineNum">    1113 </span>            : 
+<span class="lineNum">    1114 </span>            :   }
+<span class="lineNum">    1115 </span>            : 
+<span class="lineNum">    1116 </span><span class="lineNoCov">          0 :   if ( !MS_HTTP_SUCCESS( psInfo-&gt;nStatus ) ) {</span>
+<span class="lineNum">    1117 </span>            :     /* Delete tmp file... we don't want it to stick around. */
+<span class="lineNum">    1118 </span><span class="lineNoCov">          0 :     unlink(psInfo-&gt;pszGMLFilename);</span>
+<span class="lineNum">    1119 </span>            : 
+<span class="lineNum">    1120 </span><span class="lineNoCov">          0 :     msSetError(MS_WFSCONNERR,</span>
+<span class="lineNum">    1121 </span>            :                &quot;Got HTTP status %d downloading WFS layer %s&quot;,
+<span class="lineNum">    1122 </span>            :                &quot;msWFSLayerWhichShapes()&quot;,
+<span class="lineNum">    1123 </span><span class="lineNoCov">          0 :                psInfo-&gt;nStatus, lp-&gt;name?lp-&gt;name:&quot;(null)&quot;);</span>
+<span class="lineNum">    1124 </span><span class="lineNoCov">          0 :     return(MS_FAILURE);</span>
+<span class="lineNum">    1125 </span>            :   }
+<span class="lineNum">    1126 </span>            : 
+<span class="lineNum">    1127 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1128 </span>            :    * Check that file is really GML... it could be an exception, or just junk.
+<span class="lineNum">    1129 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1130 </span><span class="lineNoCov">          0 :   if ((fp = fopen(psInfo-&gt;pszGMLFilename, &quot;r&quot;)) != NULL) {</span>
+<span class="lineNum">    1131 </span>            :     char szHeader[2000];
+<span class="lineNum">    1132 </span>            :     int  nBytes = 0;
+<span class="lineNum">    1133 </span>            : 
+<span class="lineNum">    1134 </span><span class="lineNoCov">          0 :     nBytes = fread( szHeader, 1, sizeof(szHeader)-1, fp );</span>
+<span class="lineNum">    1135 </span><span class="lineNoCov">          0 :     fclose(fp);</span>
+<span class="lineNum">    1136 </span>            : 
+<span class="lineNum">    1137 </span><span class="lineNoCov">          0 :     if (nBytes &lt; 0)</span>
+<span class="lineNum">    1138 </span>            :       nBytes = 0;
+<span class="lineNum">    1139 </span><span class="lineNoCov">          0 :     szHeader[nBytes] = '\0';</span>
+<span class="lineNum">    1140 </span>            : 
+<span class="lineNum">    1141 </span><span class="lineNoCov">          0 :     if ( nBytes == 0 ) {</span>
+<span class="lineNum">    1142 </span><span class="lineNoCov">          0 :       msSetError(MS_WFSCONNERR,</span>
+<span class="lineNum">    1143 </span>            :                  &quot;WFS request produced no oputput for layer %s.&quot;,
+<span class="lineNum">    1144 </span>            :                  &quot;msWFSLayerWhichShapes()&quot;,
+<span class="lineNum">    1145 </span><span class="lineNoCov">          0 :                  lp-&gt;name?lp-&gt;name:&quot;(null)&quot;);</span>
+<span class="lineNum">    1146 </span><span class="lineNoCov">          0 :       return(MS_FAILURE);</span>
+<span class="lineNum">    1147 </span>            : 
+<span class="lineNum">    1148 </span>            :     }
+<span class="lineNum">    1149 </span><span class="lineNoCov">          0 :     if ( strstr(szHeader, &quot;&lt;WFS_Exception&gt;&quot;) ||</span>
+<span class="lineNum">    1150 </span><span class="lineNoCov">          0 :          strstr(szHeader, &quot;&lt;ServiceExceptionReport&gt;&quot;) ) {</span>
+<span class="lineNum">    1151 </span><span class="lineNoCov">          0 :       msOWSProcessException(lp, psInfo-&gt;pszGMLFilename,</span>
+<span class="lineNum">    1152 </span>            :                             MS_WFSCONNERR, &quot;msWFSLayerWhichShapes()&quot; );
+<span class="lineNum">    1153 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    1154 </span><span class="lineNoCov">          0 :     } else if ( strstr(szHeader,&quot;opengis.net/gml&quot;) &amp;&amp;</span>
+<span class="lineNum">    1155 </span><span class="lineNoCov">          0 :                 strstr(szHeader,&quot;featureMember&gt;&quot;) == NULL ) {</span>
+<span class="lineNum">    1156 </span>            :       /* This looks like valid GML, but contains 0 features. */
+<span class="lineNum">    1157 </span>            :       return MS_DONE;
+<span class="lineNum">    1158 </span><span class="lineNoCov">          0 :     } else if ( strstr(szHeader,&quot;opengis.net/gml&quot;) == NULL ||</span>
+<span class="lineNum">    1159 </span><span class="lineNoCov">          0 :                 strstr(szHeader,&quot;featureMember&gt;&quot;) == NULL ) {</span>
+<span class="lineNum">    1160 </span>            :       /* This is probably just junk. */
+<span class="lineNum">    1161 </span><span class="lineNoCov">          0 :       msSetError(MS_WFSCONNERR,</span>
+<span class="lineNum">    1162 </span>            :                  &quot;WFS request produced unexpected output (junk?) for layer %s.&quot;,
+<span class="lineNum">    1163 </span>            :                  &quot;msWFSLayerWhichShapes()&quot;,
+<span class="lineNum">    1164 </span><span class="lineNoCov">          0 :                  lp-&gt;name?lp-&gt;name:&quot;(null)&quot;);</span>
+<span class="lineNum">    1165 </span><span class="lineNoCov">          0 :       return(MS_FAILURE);</span>
+<span class="lineNum">    1166 </span>            :     }
+<span class="lineNum">    1167 </span>            : 
+<span class="lineNum">    1168 </span>            :     /* If we got this far, it must be a valid GML dataset... keep going */
+<span class="lineNum">    1169 </span>            :   }
+<span class="lineNum">    1170 </span>            : 
 <span class="lineNum">    1171 </span>            : 
-<span class="lineNum">    1172 </span>            : 
-<span class="lineNum">    1173 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1174 </span>            :    * Open GML file using OGR.
-<span class="lineNum">    1175 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1176 </span><span class="lineNoCov">          0 :   if ((status = msOGRLayerOpen(lp, psInfo-&gt;pszGMLFilename)) != MS_SUCCESS)</span>
-<span class="lineNum">    1177 </span>            :     return status;
-<span class="lineNum">    1178 </span>            : 
-<span class="lineNum">    1179 </span><span class="lineNoCov">          0 :   status = msOGRLayerWhichShapes(lp, rect, isQuery);</span>
-<span class="lineNum">    1180 </span>            : 
-<span class="lineNum">    1181 </span>            :   /* Mark that the OGR Layer is valid */
-<span class="lineNum">    1182 </span><span class="lineNoCov">          0 :   psInfo-&gt;bLayerHasValidGML = MS_TRUE;</span>
-<span class="lineNum">    1183 </span>            : 
-<span class="lineNum">    1184 </span><span class="lineNoCov">          0 :   return status;</span>
-<span class="lineNum">    1185 </span>            : #else
-<span class="lineNum">    1186 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1187 </span>            :    * WFS CONNECTION Support not included...
-<span class="lineNum">    1188 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1189 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
-<span class="lineNum">    1190 </span>            :              &quot;msWFSLayerWhichShapes()&quot;);
-<span class="lineNum">    1191 </span>            :   return(MS_FAILURE);
-<span class="lineNum">    1192 </span>            : 
-<span class="lineNum">    1193 </span>            : #endif /* USE_WFS_LYR */
-<span class="lineNum">    1194 </span>            : }
+<span class="lineNum">    1172 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1173 </span>            :    * Open GML file using OGR.
+<span class="lineNum">    1174 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1175 </span><span class="lineNoCov">          0 :   if ((status = msOGRLayerOpen(lp, psInfo-&gt;pszGMLFilename)) != MS_SUCCESS)</span>
+<span class="lineNum">    1176 </span>            :     return status;
+<span class="lineNum">    1177 </span>            : 
+<span class="lineNum">    1178 </span><span class="lineNoCov">          0 :   status = msOGRLayerWhichShapes(lp, rect, isQuery);</span>
+<span class="lineNum">    1179 </span>            : 
+<span class="lineNum">    1180 </span>            :   /* Mark that the OGR Layer is valid */
+<span class="lineNum">    1181 </span><span class="lineNoCov">          0 :   psInfo-&gt;bLayerHasValidGML = MS_TRUE;</span>
+<span class="lineNum">    1182 </span>            : 
+<span class="lineNum">    1183 </span><span class="lineNoCov">          0 :   return status;</span>
+<span class="lineNum">    1184 </span>            : #else
+<span class="lineNum">    1185 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1186 </span>            :    * WFS CONNECTION Support not included...
+<span class="lineNum">    1187 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1188 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
+<span class="lineNum">    1189 </span>            :              &quot;msWFSLayerWhichShapes()&quot;);
+<span class="lineNum">    1190 </span>            :   return(MS_FAILURE);
+<span class="lineNum">    1191 </span>            : 
+<span class="lineNum">    1192 </span>            : #endif /* USE_WFS_LYR */
+<span class="lineNum">    1193 </span>            : }
+<span class="lineNum">    1194 </span>            : 
 <span class="lineNum">    1195 </span>            : 
 <span class="lineNum">    1196 </span>            : 
-<span class="lineNum">    1197 </span>            : 
-<span class="lineNum">    1198 </span>            : /**********************************************************************
-<span class="lineNum">    1199 </span>            :  *                          msWFSLayerClose()
-<span class="lineNum">    1200 </span>            :  *
-<a name="1201"><span class="lineNum">    1201 </span>            :  **********************************************************************/</a>
-<span class="lineNum">    1202 </span>            : 
-<span class="lineNum">    1203 </span><span class="lineNoCov">          0 : int msWFSLayerClose(layerObj *lp)</span>
-<span class="lineNum">    1204 </span>            : {
-<span class="lineNum">    1205 </span>            : #ifdef USE_WFS_LYR
-<span class="lineNum">    1206 </span>            : 
-<span class="lineNum">    1207 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1208 </span>            :    * Cleanup OGR connection
-<span class="lineNum">    1209 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1210 </span><span class="lineNoCov">          0 :   if (lp-&gt;layerinfo)</span>
-<span class="lineNum">    1211 </span><span class="lineNoCov">          0 :     msOGRLayerClose(lp);</span>
-<span class="lineNum">    1212 </span>            : 
-<span class="lineNum">    1213 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1214 </span>            :    * Cleanup WFS connection info.
-<span class="lineNum">    1215 </span>            :    * __TODO__ For now we flush everything, but we should try to cache some stuff
-<span class="lineNum">    1216 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1217 </span>            :   /* __TODO__ unlink()  .gml file and OGR's schema file if they exist */
-<span class="lineNum">    1218 </span>            :   /* unlink( */
-<span class="lineNum">    1219 </span>            : 
-<span class="lineNum">    1220 </span><span class="lineNoCov">          0 :   msFreeWFSLayerInfo(lp-&gt;wfslayerinfo);</span>
-<span class="lineNum">    1221 </span><span class="lineNoCov">          0 :   lp-&gt;wfslayerinfo = NULL;</span>
-<span class="lineNum">    1222 </span>            : 
-<span class="lineNum">    1223 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1224 </span>            : 
-<span class="lineNum">    1225 </span>            : #else
-<span class="lineNum">    1226 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1227 </span>            :    * WFS CONNECTION Support not included...
-<span class="lineNum">    1228 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1229 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
-<span class="lineNum">    1230 </span>            :              &quot;msWFSLayerClose()&quot;);
-<span class="lineNum">    1231 </span>            :   return(MS_FAILURE);
-<span class="lineNum">    1232 </span>            : 
-<span class="lineNum">    1233 </span>            : #endif /* USE_WFS_LYR */
-<span class="lineNum">    1234 </span>            : 
-<span class="lineNum">    1235 </span>            : }
-<span class="lineNum">    1236 </span>            : 
-<span class="lineNum">    1237 </span>            : /**********************************************************************
-<span class="lineNum">    1238 </span>            :  *                          msWFSExecuteGetFeature()
-<a name="1239"><span class="lineNum">    1239 </span>            :  * Returns the temporary gml file name. User shpuld free the return string.</a>
-<span class="lineNum">    1240 </span>            :  **********************************************************************/
-<span class="lineNum">    1241 </span><span class="lineNoCov">          0 : char *msWFSExecuteGetFeature(layerObj *lp)</span>
-<span class="lineNum">    1242 </span>            : {
-<span class="lineNum">    1243 </span>            : #ifdef USE_WFS_LYR
-<span class="lineNum">    1244 </span>            :   char *gmltmpfile = NULL;
-<span class="lineNum">    1245 </span>            :   msWFSLayerInfo *psInfo = NULL;
-<span class="lineNum">    1246 </span>            : 
-<span class="lineNum">    1247 </span><span class="lineNoCov">          0 :   if (lp == NULL || lp-&gt;connectiontype != MS_WFS)</span>
-<span class="lineNum">    1248 </span>            :     return NULL;
-<span class="lineNum">    1249 </span>            : 
-<span class="lineNum">    1250 </span><span class="lineNoCov">          0 :   msWFSLayerOpen(lp, NULL, NULL);</span>
-<span class="lineNum">    1251 </span><span class="lineNoCov">          0 :   psInfo =(msWFSLayerInfo*)lp-&gt;wfslayerinfo;</span>
-<span class="lineNum">    1252 </span><span class="lineNoCov">          0 :   if (psInfo &amp;&amp;  psInfo-&gt;pszGMLFilename)</span>
-<span class="lineNum">    1253 </span><span class="lineNoCov">          0 :     gmltmpfile = msStrdup(psInfo-&gt;pszGMLFilename);</span>
-<span class="lineNum">    1254 </span><span class="lineNoCov">          0 :   msWFSLayerClose(lp);</span>
-<span class="lineNum">    1255 </span>            : 
-<span class="lineNum">    1256 </span><span class="lineNoCov">          0 :   return gmltmpfile;</span>
-<span class="lineNum">    1257 </span>            : 
-<span class="lineNum">    1258 </span>            : #else
-<span class="lineNum">    1259 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1260 </span>            :    * WFS CONNECTION Support not included...
-<span class="lineNum">    1261 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1262 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
-<span class="lineNum">    1263 </span>            :              &quot;msExecuteWFSGetFeature()&quot;);
-<span class="lineNum">    1264 </span>            :   return NULL;
-<span class="lineNum">    1265 </span>            : 
-<span class="lineNum">    1266 </span>            : #endif /* USE_WFS_LYR */
-<span class="lineNum">    1267 </span>            : 
-<span class="lineNum">    1268 </span>            : }
-<a name="1269"><span class="lineNum">    1269 </span>            : </a>
-<span class="lineNum">    1270 </span>            : int
-<span class="lineNum">    1271 </span><span class="lineNoCov">          0 : msWFSLayerInitializeVirtualTable(layerObj *layer)</span>
-<span class="lineNum">    1272 </span>            : {
-<span class="lineNum">    1273 </span>            :   assert(layer != NULL);
-<span class="lineNum">    1274 </span>            :   assert(layer-&gt;vtable != NULL);
-<span class="lineNum">    1275 </span>            : 
-<span class="lineNum">    1276 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msWFSLayerInitItemInfo;</span>
-<span class="lineNum">    1277 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msOGRLayerFreeItemInfo; /* yes, OGR */</span>
-<span class="lineNum">    1278 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerOpen = msWFSLayerOpenVT;</span>
-<span class="lineNum">    1279 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerIsOpen = msWFSLayerIsOpen;</span>
-<span class="lineNum">    1280 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerWhichShapes = msWFSLayerWhichShapes;</span>
-<span class="lineNum">    1281 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerNextShape = msWFSLayerNextShape;</span>
-<span class="lineNum">    1282 </span>            :   /* layer-&gt;vtable-&gt;LayerResultsGetShape = msWFSLayerResultGetShape; */
-<span class="lineNum">    1283 </span>            :   /* layer-&gt;vtable-&gt;LayerGetShapeCount, use default */
-<span class="lineNum">    1284 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerGetShape = msWFSLayerGetShape;</span>
-<span class="lineNum">    1285 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerClose = msWFSLayerClose;</span>
-<span class="lineNum">    1286 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerGetItems = msWFSLayerGetItems;</span>
-<span class="lineNum">    1287 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerGetExtent = msWFSLayerGetExtent;</span>
-<span class="lineNum">    1288 </span>            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
-<span class="lineNum">    1289 </span>            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
-<span class="lineNum">    1290 </span>            :   /* layer-&gt;vtable-&gt;LayerCloseConnection, use default */
-<span class="lineNum">    1291 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msLayerMakePlainTimeFilter;</span>
-<span class="lineNum">    1292 </span>            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
-<span class="lineNum">    1293 </span>            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
-<span class="lineNum">    1294 </span>            :   /* layer-&gt;vtable-&gt;LayerGetAutoProjection, use defaut*/
-<span class="lineNum">    1295 </span>            : 
-<span class="lineNum">    1296 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1297 </span>            : }
-<span class="lineNum">    1298 </span>            : 
+<span class="lineNum">    1197 </span>            : /**********************************************************************
+<span class="lineNum">    1198 </span>            :  *                          msWFSLayerClose()
+<span class="lineNum">    1199 </span>            :  *
+<a name="1200"><span class="lineNum">    1200 </span>            :  **********************************************************************/</a>
+<span class="lineNum">    1201 </span>            : 
+<span class="lineNum">    1202 </span><span class="lineNoCov">          0 : int msWFSLayerClose(layerObj *lp)</span>
+<span class="lineNum">    1203 </span>            : {
+<span class="lineNum">    1204 </span>            : #ifdef USE_WFS_LYR
+<span class="lineNum">    1205 </span>            : 
+<span class="lineNum">    1206 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1207 </span>            :    * Cleanup OGR connection
+<span class="lineNum">    1208 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1209 </span><span class="lineNoCov">          0 :   if (lp-&gt;layerinfo)</span>
+<span class="lineNum">    1210 </span><span class="lineNoCov">          0 :     msOGRLayerClose(lp);</span>
+<span class="lineNum">    1211 </span>            : 
+<span class="lineNum">    1212 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1213 </span>            :    * Cleanup WFS connection info.
+<span class="lineNum">    1214 </span>            :    * __TODO__ For now we flush everything, but we should try to cache some stuff
+<span class="lineNum">    1215 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1216 </span>            :   /* __TODO__ unlink()  .gml file and OGR's schema file if they exist */
+<span class="lineNum">    1217 </span>            :   /* unlink( */
+<span class="lineNum">    1218 </span>            : 
+<span class="lineNum">    1219 </span><span class="lineNoCov">          0 :   msFreeWFSLayerInfo(lp-&gt;wfslayerinfo);</span>
+<span class="lineNum">    1220 </span><span class="lineNoCov">          0 :   lp-&gt;wfslayerinfo = NULL;</span>
+<span class="lineNum">    1221 </span>            : 
+<span class="lineNum">    1222 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1223 </span>            : 
+<span class="lineNum">    1224 </span>            : #else
+<span class="lineNum">    1225 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1226 </span>            :    * WFS CONNECTION Support not included...
+<span class="lineNum">    1227 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1228 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
+<span class="lineNum">    1229 </span>            :              &quot;msWFSLayerClose()&quot;);
+<span class="lineNum">    1230 </span>            :   return(MS_FAILURE);
+<span class="lineNum">    1231 </span>            : 
+<span class="lineNum">    1232 </span>            : #endif /* USE_WFS_LYR */
+<span class="lineNum">    1233 </span>            : 
+<span class="lineNum">    1234 </span>            : }
+<span class="lineNum">    1235 </span>            : 
+<span class="lineNum">    1236 </span>            : /**********************************************************************
+<span class="lineNum">    1237 </span>            :  *                          msWFSExecuteGetFeature()
+<a name="1238"><span class="lineNum">    1238 </span>            :  * Returns the temporary gml file name. User shpuld free the return string.</a>
+<span class="lineNum">    1239 </span>            :  **********************************************************************/
+<span class="lineNum">    1240 </span><span class="lineNoCov">          0 : char *msWFSExecuteGetFeature(layerObj *lp)</span>
+<span class="lineNum">    1241 </span>            : {
+<span class="lineNum">    1242 </span>            : #ifdef USE_WFS_LYR
+<span class="lineNum">    1243 </span>            :   char *gmltmpfile = NULL;
+<span class="lineNum">    1244 </span>            :   msWFSLayerInfo *psInfo = NULL;
+<span class="lineNum">    1245 </span>            : 
+<span class="lineNum">    1246 </span><span class="lineNoCov">          0 :   if (lp == NULL || lp-&gt;connectiontype != MS_WFS)</span>
+<span class="lineNum">    1247 </span>            :     return NULL;
+<span class="lineNum">    1248 </span>            : 
+<span class="lineNum">    1249 </span><span class="lineNoCov">          0 :   msWFSLayerOpen(lp, NULL, NULL);</span>
+<span class="lineNum">    1250 </span><span class="lineNoCov">          0 :   psInfo =(msWFSLayerInfo*)lp-&gt;wfslayerinfo;</span>
+<span class="lineNum">    1251 </span><span class="lineNoCov">          0 :   if (psInfo &amp;&amp;  psInfo-&gt;pszGMLFilename)</span>
+<span class="lineNum">    1252 </span><span class="lineNoCov">          0 :     gmltmpfile = msStrdup(psInfo-&gt;pszGMLFilename);</span>
+<span class="lineNum">    1253 </span><span class="lineNoCov">          0 :   msWFSLayerClose(lp);</span>
+<span class="lineNum">    1254 </span>            : 
+<span class="lineNum">    1255 </span><span class="lineNoCov">          0 :   return gmltmpfile;</span>
+<span class="lineNum">    1256 </span>            : 
+<span class="lineNum">    1257 </span>            : #else
+<span class="lineNum">    1258 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1259 </span>            :    * WFS CONNECTION Support not included...
+<span class="lineNum">    1260 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1261 </span>            :   msSetError(MS_WFSCONNERR, &quot;WFS CLIENT CONNECTION support is not available.&quot;,
+<span class="lineNum">    1262 </span>            :              &quot;msExecuteWFSGetFeature()&quot;);
+<span class="lineNum">    1263 </span>            :   return NULL;
+<span class="lineNum">    1264 </span>            : 
+<span class="lineNum">    1265 </span>            : #endif /* USE_WFS_LYR */
+<span class="lineNum">    1266 </span>            : 
+<span class="lineNum">    1267 </span>            : }
+<a name="1268"><span class="lineNum">    1268 </span>            : </a>
+<span class="lineNum">    1269 </span>            : int
+<span class="lineNum">    1270 </span><span class="lineNoCov">          0 : msWFSLayerInitializeVirtualTable(layerObj *layer)</span>
+<span class="lineNum">    1271 </span>            : {
+<span class="lineNum">    1272 </span>            :   assert(layer != NULL);
+<span class="lineNum">    1273 </span>            :   assert(layer-&gt;vtable != NULL);
+<span class="lineNum">    1274 </span>            : 
+<span class="lineNum">    1275 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msWFSLayerInitItemInfo;</span>
+<span class="lineNum">    1276 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msOGRLayerFreeItemInfo; /* yes, OGR */</span>
+<span class="lineNum">    1277 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerOpen = msWFSLayerOpenVT;</span>
+<span class="lineNum">    1278 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerIsOpen = msWFSLayerIsOpen;</span>
+<span class="lineNum">    1279 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerWhichShapes = msWFSLayerWhichShapes;</span>
+<span class="lineNum">    1280 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerNextShape = msWFSLayerNextShape;</span>
+<span class="lineNum">    1281 </span>            :   /* layer-&gt;vtable-&gt;LayerResultsGetShape = msWFSLayerResultGetShape; */
+<span class="lineNum">    1282 </span>            :   /* layer-&gt;vtable-&gt;LayerGetShapeCount, use default */
+<span class="lineNum">    1283 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerGetShape = msWFSLayerGetShape;</span>
+<span class="lineNum">    1284 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerClose = msWFSLayerClose;</span>
+<span class="lineNum">    1285 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerGetItems = msWFSLayerGetItems;</span>
+<span class="lineNum">    1286 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerGetExtent = msWFSLayerGetExtent;</span>
+<span class="lineNum">    1287 </span>            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
+<span class="lineNum">    1288 </span>            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
+<span class="lineNum">    1289 </span>            :   /* layer-&gt;vtable-&gt;LayerCloseConnection, use default */
+<span class="lineNum">    1290 </span><span class="lineNoCov">          0 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msLayerMakePlainTimeFilter;</span>
+<span class="lineNum">    1291 </span>            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
+<span class="lineNum">    1292 </span>            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
+<span class="lineNum">    1293 </span>            :   /* layer-&gt;vtable-&gt;LayerGetAutoProjection, use defaut*/
+<span class="lineNum">    1294 </span>            : 
+<span class="lineNum">    1295 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1296 </span>            : }
+<span class="lineNum">    1297 </span>            : 
 </pre>
       </td>
     </tr>

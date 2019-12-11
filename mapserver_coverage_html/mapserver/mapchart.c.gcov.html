@@ -311,7 +311,7 @@
 <span class="lineNum">     249 </span>            :   int c;
 <span class="lineNum">     250 </span><span class="lineCov">          1 :   status = msLayerNextShape(layer, shape);</span>
 <span class="lineNum">     251 </span><span class="lineCov">          1 :   if(status == MS_SUCCESS) {</span>
-<span class="lineNum">     252 </span>            : #ifdef USE_PROJ
+<span class="lineNum">     252 </span>            : 
 <span class="lineNum">     253 </span><span class="lineCov">          1 :     if(layer-&gt;project)</span>
 <span class="lineNum">     254 </span>            :     {
 <span class="lineNum">     255 </span><span class="lineNoCov">          0 :       if( layer-&gt;reprojectorLayerToMap == NULL )</span>
@@ -325,412 +325,409 @@
 <span class="lineNum">     263 </span>            :       }
 <span class="lineNum">     264 </span><span class="lineNoCov">          0 :       msProjectShapeEx(layer-&gt;reprojectorLayerToMap, shape);</span>
 <span class="lineNum">     265 </span>            :     }
-<span class="lineNum">     266 </span>            : #endif
-<span class="lineNum">     267 </span>            : 
-<span class="lineNum">     268 </span><span class="lineCov">          1 :     if(msBindLayerToShape(layer, shape, MS_DRAWMODE_FEATURES|MS_DRAWMODE_LABELS) != MS_SUCCESS)</span>
-<span class="lineNum">     269 </span>            :       return MS_FAILURE; /* error message is set in msBindLayerToShape() */
-<span class="lineNum">     270 </span>            : 
-<span class="lineNum">     271 </span><span class="lineCov">          1 :     *nvalues = 0;</span>
-<span class="lineNum">     272 </span><span class="lineCov">          1 :     for(c=0; c&lt;layer-&gt;numclasses; c++) {</span>
-<span class="lineNum">     273 </span><span class="lineCov">          1 :       if(msEvalExpression(layer, shape, &amp;(layer-&gt;class[c]-&gt;expression), layer-&gt;classitemindex) == MS_TRUE) {</span>
-<span class="lineNum">     274 </span><span class="lineCov">          1 :         values[*nvalues]=(layer-&gt;class[c]-&gt;styles[0]-&gt;size);</span>
-<span class="lineNum">     275 </span><span class="lineCov">          1 :         styles[*nvalues]=layer-&gt;class[c]-&gt;styles[0];</span>
-<span class="lineNum">     276 </span><span class="lineCov">          1 :         (*nvalues)++;</span>
-<span class="lineNum">     277 </span>            :       }
-<span class="lineNum">     278 </span>            :     }
-<span class="lineNum">     279 </span>            :   }
-<span class="lineNum">     280 </span><span class="lineCov">          1 :   return status;</span>
-<span class="lineNum">     281 </span>            : }
-<a name="282"><span class="lineNum">     282 </span>            : </a>
-<span class="lineNum">     283 </span>            : /* eventually add a class to the layer to get the diameter from an attribute */
-<span class="lineNum">     284 </span><span class="lineCov">          1 : int pieLayerProcessDynamicDiameter(layerObj *layer)</span>
-<span class="lineNum">     285 </span>            : {
-<span class="lineNum">     286 </span>            :   const char *chartRangeProcessingKey=NULL;
-<span class="lineNum">     287 </span>            :   char *attrib;
-<span class="lineNum">     288 </span><span class="lineCov">          1 :   double mindiameter=-1, maxdiameter, minvalue, maxvalue;</span>
-<span class="lineNum">     289 </span>            :   classObj *newclass;
-<span class="lineNum">     290 </span>            :   styleObj *newstyle;
-<span class="lineNum">     291 </span><span class="lineCov">          1 :   const char *chartSizeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SIZE&quot; );</span>
-<span class="lineNum">     292 </span><span class="lineCov">          1 :   if(chartSizeProcessingKey != NULL)</span>
-<span class="lineNum">     293 </span>            :     return MS_FALSE;
-<span class="lineNum">     294 </span><span class="lineCov">          1 :   chartRangeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SIZE_RANGE&quot; );</span>
-<span class="lineNum">     295 </span><span class="lineCov">          1 :   if(chartRangeProcessingKey==NULL)</span>
-<span class="lineNum">     296 </span>            :     return MS_FALSE;
-<span class="lineNum">     297 </span><span class="lineCov">          1 :   attrib = msSmallMalloc(strlen(chartRangeProcessingKey)+1);</span>
-<span class="lineNum">     298 </span><span class="lineCov">          1 :   switch(sscanf(chartRangeProcessingKey,&quot;%s %lf %lf %lf %lf&quot;,attrib,</span>
-<span class="lineNum">     299 </span>            :                 &amp;mindiameter,&amp;maxdiameter,&amp;minvalue,&amp;maxvalue)) {
-<span class="lineNum">     300 </span>            :     case 1: /*we only have the attribute*/
-<span class="lineNum">     301 </span>            :     case 5: /*we have the attribute and the four range values*/
-<span class="lineNum">     302 </span>            :       break;
-<span class="lineNum">     303 </span>            :     default:
-<span class="lineNum">     304 </span><span class="lineNoCov">          0 :       free(attrib);</span>
-<span class="lineNum">     305 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Chart Layer format error for processing key \&quot;CHART_RANGE\&quot;&quot;, &quot;msDrawChartLayer()&quot;);</span>
-<span class="lineNum">     306 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">     307 </span>            :   }
-<span class="lineNum">     308 </span>            :   /*create a new class in the layer containing the wanted attribute
-<span class="lineNum">     309 </span>            :    * as the SIZE of its first STYLE*/
-<span class="lineNum">     310 </span><span class="lineCov">          1 :   newclass=msGrowLayerClasses(layer);</span>
-<span class="lineNum">     311 </span><span class="lineCov">          1 :   if(newclass==NULL) {</span>
-<span class="lineNum">     312 </span><span class="lineNoCov">          0 :     free(attrib);</span>
-<span class="lineNum">     313 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     314 </span>            :   }
-<span class="lineNum">     315 </span><span class="lineCov">          1 :   initClass(newclass);</span>
-<span class="lineNum">     316 </span><span class="lineCov">          1 :   layer-&gt;numclasses++;</span>
-<span class="lineNum">     317 </span>            : 
-<span class="lineNum">     318 </span>            :   /*create and attach a new styleObj to our temp class
-<span class="lineNum">     319 </span>            :    * and bind the wanted attribute to its SIZE
-<span class="lineNum">     320 </span>            :    */
-<span class="lineNum">     321 </span><span class="lineCov">          1 :   newstyle=msGrowClassStyles(newclass);</span>
-<span class="lineNum">     322 </span><span class="lineCov">          1 :   if(newstyle==NULL) {</span>
-<span class="lineNum">     323 </span><span class="lineNoCov">          0 :     free(attrib);</span>
-<span class="lineNum">     324 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     325 </span>            :   }
-<span class="lineNum">     326 </span><span class="lineCov">          1 :   initStyle(newstyle);</span>
-<span class="lineNum">     327 </span><span class="lineCov">          1 :   newclass-&gt;numstyles++;</span>
-<span class="lineNum">     328 </span><span class="lineCov">          1 :   newclass-&gt;name=(char*)msStrdup(&quot;__MS_SIZE_ATTRIBUTE_&quot;);</span>
-<span class="lineNum">     329 </span><span class="lineCov">          1 :   newstyle-&gt;bindings[MS_STYLE_BINDING_SIZE].item=msStrdup(attrib);</span>
-<span class="lineNum">     330 </span><span class="lineCov">          1 :   newstyle-&gt;numbindings++;</span>
-<span class="lineNum">     331 </span><span class="lineCov">          1 :   free(attrib);</span>
-<span class="lineNum">     332 </span>            : 
-<span class="lineNum">     333 </span><span class="lineCov">          1 :   return MS_TRUE;</span>
-<span class="lineNum">     334 </span>            : 
-<span class="lineNum">     335 </span>            : }
-<a name="336"><span class="lineNum">     336 </span>            : </a>
-<span class="lineNum">     337 </span>            : /* clean up the class added temporarily */
-<span class="lineNum">     338 </span><span class="lineCov">          1 : static void pieLayerCleanupDynamicDiameter(layerObj *layer)</span>
-<span class="lineNum">     339 </span>            : {
-<span class="lineNum">     340 </span><span class="lineCov">          1 :   if( layer-&gt;numclasses &gt; 0 &amp;&amp; EQUALN(layer-&gt;class[layer-&gt;numclasses - 1]-&gt;name, &quot;__MS_SIZE_ATTRIBUTE_&quot;, 20) ) {</span>
-<span class="lineNum">     341 </span><span class="lineCov">          1 :     classObj *c=msRemoveClass(layer, layer-&gt;numclasses - 1);</span>
-<span class="lineNum">     342 </span><span class="lineCov">          1 :     freeClass(c);</span>
-<span class="lineNum">     343 </span><span class="lineCov">          1 :     msFree(c);</span>
-<span class="lineNum">     344 </span>            :   }
-<span class="lineNum">     345 </span><span class="lineCov">          1 : }</span>
-<a name="346"><span class="lineNum">     346 </span>            : </a>
-<span class="lineNum">     347 </span>            : 
-<span class="lineNum">     348 </span><span class="lineCov">          1 : int msDrawPieChartLayer(mapObj *map, layerObj *layer, imageObj *image)</span>
-<span class="lineNum">     349 </span>            : {
-<span class="lineNum">     350 </span>            :   shapeObj    shape;
-<span class="lineNum">     351 </span>            :   int         status=MS_SUCCESS;
-<span class="lineNum">     352 </span>            :   const char *chartRangeProcessingKey=NULL;
-<span class="lineNum">     353 </span><span class="lineCov">          1 :   const char *chartSizeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SIZE&quot; );</span>
-<span class="lineNum">     354 </span><span class="lineCov">          1 :   double diameter, mindiameter=-1, maxdiameter, minvalue, maxvalue, exponent=0;</span>
-<span class="lineNum">     355 </span>            :   double *values;
-<span class="lineNum">     356 </span>            :   styleObj **styles;
-<span class="lineNum">     357 </span>            :   pointObj center;
-<span class="lineNum">     358 </span><span class="lineCov">          1 :   int numvalues = layer-&gt;numclasses; /* the number of classes to represent in the graph */</span>
-<span class="lineNum">     359 </span><span class="lineCov">          1 :   int numvalues_for_shape = 0;</span>
-<span class="lineNum">     360 </span>            : 
-<span class="lineNum">     361 </span><span class="lineCov">          1 :   if(chartSizeProcessingKey==NULL) {</span>
-<span class="lineNum">     362 </span><span class="lineCov">          1 :     chartRangeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SIZE_RANGE&quot; );</span>
-<span class="lineNum">     363 </span><span class="lineCov">          1 :     if(chartRangeProcessingKey==NULL)</span>
-<span class="lineNum">     364 </span><span class="lineNoCov">          0 :       diameter=20;</span>
-<span class="lineNum">     365 </span>            :     else {
-<span class="lineNum">     366 </span><span class="lineCov">          1 :       sscanf(chartRangeProcessingKey,&quot;%*s %lf %lf %lf %lf %lf&quot;,</span>
-<span class="lineNum">     367 </span>            :              &amp;mindiameter,&amp;maxdiameter,&amp;minvalue,&amp;maxvalue,&amp;exponent);
-<span class="lineNum">     368 </span>            :     }
-<span class="lineNum">     369 </span>            :   } else {
-<span class="lineNum">     370 </span><span class="lineCov">          1 :     if(sscanf(chartSizeProcessingKey ,&quot;%lf&quot;,&amp;diameter)!=1) {</span>
-<span class="lineNum">     371 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;msDrawChart format error for processing key \&quot;CHART_SIZE\&quot;&quot;, &quot;msDrawPieChartLayer()&quot;);</span>
-<span class="lineNum">     372 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">     373 </span>            :     }
-<span class="lineNum">     374 </span>            :   }
-<span class="lineNum">     375 </span>            : #ifdef USE_PROJ
-<span class="lineNum">     376 </span><span class="lineCov">          1 :   layer-&gt;project = msProjectionsDiffer(&amp;(layer-&gt;projection), &amp;(map-&gt;projection));</span>
-<span class="lineNum">     377 </span>            : #endif
-<span class="lineNum">     378 </span>            :   /* step through the target shapes */
-<span class="lineNum">     379 </span><span class="lineCov">          1 :   msInitShape(&amp;shape);</span>
-<span class="lineNum">     380 </span>            : 
-<span class="lineNum">     381 </span><span class="lineCov">          1 :   values=(double*)calloc(numvalues,sizeof(double));</span>
-<span class="lineNum">     382 </span><span class="lineCov">          1 :   MS_CHECK_ALLOC(values, numvalues*sizeof(double), MS_FAILURE);</span>
-<span class="lineNum">     383 </span><span class="lineCov">          1 :   styles = (styleObj**)malloc((numvalues)*sizeof(styleObj*));</span>
-<span class="lineNum">     384 </span><span class="lineCov">          1 :   if (styles == NULL) {</span>
-<span class="lineNum">     385 </span><span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;%s: %d: Out of memory allocating %u bytes.\n&quot;, &quot;msDrawPieChartLayer()&quot;,</span>
-<span class="lineNum">     386 </span>            :                __FILE__, __LINE__, (unsigned int)(numvalues*sizeof(styleObj*)));
-<span class="lineNum">     387 </span><span class="lineNoCov">          0 :     free(values);</span>
-<span class="lineNum">     388 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     389 </span>            :   }
-<span class="lineNum">     390 </span>            : 
-<span class="lineNum">     391 </span><span class="lineCov">          1 :   while(MS_SUCCESS == getNextShape(map,layer,values,&amp;numvalues_for_shape,styles,&amp;shape)) {</span>
-<span class="lineNum">     392 </span><span class="lineCov">          1 :     if(chartRangeProcessingKey!=NULL)</span>
-<span class="lineNum">     393 </span><span class="lineCov">          1 :       numvalues_for_shape--;</span>
-<span class="lineNum">     394 </span><span class="lineCov">          1 :     if(numvalues_for_shape == 0) {</span>
-<span class="lineNum">     395 </span><span class="lineCov">          1 :       msFreeShape(&amp;shape);</span>
-<span class="lineNum">     396 </span><span class="lineCov">          1 :       continue;</span>
-<span class="lineNum">     397 </span>            :     }
-<span class="lineNum">     398 </span><span class="lineCov">          1 :     msDrawStartShape(map, layer, image, &amp;shape);</span>
-<span class="lineNum">     399 </span><span class="lineCov">          1 :     if(chartRangeProcessingKey!=NULL) {</span>
-<span class="lineNum">     400 </span><span class="lineCov">          1 :       diameter = values[numvalues_for_shape];</span>
-<span class="lineNum">     401 </span><span class="lineCov">          1 :       if(mindiameter&gt;=0) {</span>
-<span class="lineNum">     402 </span><span class="lineCov">          1 :         if(diameter&lt;=minvalue)</span>
-<span class="lineNum">     403 </span><span class="lineNoCov">          0 :           diameter=mindiameter;</span>
-<span class="lineNum">     404 </span><span class="lineCov">          1 :         else if(diameter&gt;=maxvalue)</span>
-<span class="lineNum">     405 </span><span class="lineNoCov">          0 :           diameter=maxdiameter;</span>
-<span class="lineNum">     406 </span>            :         else {
-<span class="lineNum">     407 </span><span class="lineCov">          1 :           if (exponent &lt;= 0)</span>
-<span class="lineNum">     408 </span><span class="lineCov">          1 :             diameter=MS_NINT(</span>
-<span class="lineNum">     409 </span>            :                        mindiameter+
-<span class="lineNum">     410 </span>            :                        ((diameter-minvalue)/(maxvalue-minvalue))*
-<span class="lineNum">     411 </span>            :                        (maxdiameter-mindiameter)
-<span class="lineNum">     412 </span>            :                      );
-<span class="lineNum">     413 </span>            :           else
-<span class="lineNum">     414 </span><span class="lineNoCov">          0 :             diameter=MS_NINT(</span>
-<span class="lineNum">     415 </span>            :                        mindiameter+
-<span class="lineNum">     416 </span>            :                        pow((diameter-minvalue)/(maxvalue-minvalue),1.0/exponent)*
-<span class="lineNum">     417 </span>            :                        (maxdiameter-mindiameter)
-<span class="lineNum">     418 </span>            :                      );
-<span class="lineNum">     419 </span>            :         }
-<span class="lineNum">     420 </span>            :       }
-<span class="lineNum">     421 </span>            :     }
-<span class="lineNum">     422 </span><span class="lineCov">          1 :     if(findChartPoint(map, &amp;shape, diameter, diameter, &amp;center) == MS_SUCCESS) {</span>
-<span class="lineNum">     423 </span><span class="lineCov">          1 :       status = msDrawPieChart(map,image, &amp;center, diameter,</span>
-<span class="lineNum">     424 </span>            :                               values,styles,numvalues_for_shape);
-<span class="lineNum">     425 </span>            :     }
-<span class="lineNum">     426 </span><span class="lineCov">          1 :     msDrawEndShape(map,layer,image,&amp;shape);</span>
-<span class="lineNum">     427 </span><span class="lineCov">          1 :     msFreeShape(&amp;shape);</span>
-<span class="lineNum">     428 </span>            :   }
-<span class="lineNum">     429 </span><span class="lineCov">          1 :   free(values);</span>
-<span class="lineNum">     430 </span><span class="lineCov">          1 :   free(styles);</span>
-<span class="lineNum">     431 </span><span class="lineCov">          1 :   return status;</span>
-<a name="432"><span class="lineNum">     432 </span>            : }</a>
-<span class="lineNum">     433 </span>            : 
-<span class="lineNum">     434 </span><span class="lineCov">          1 : int msDrawVBarChartLayer(mapObj *map, layerObj *layer, imageObj *image)</span>
-<span class="lineNum">     435 </span>            : {
-<span class="lineNum">     436 </span>            :   shapeObj    shape;
-<span class="lineNum">     437 </span>            :   int         status=MS_SUCCESS;
-<span class="lineNum">     438 </span><span class="lineCov">          1 :   const char *chartSizeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SIZE&quot; );</span>
-<span class="lineNum">     439 </span><span class="lineCov">          1 :   const char *chartScaleProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SCALE&quot; );</span>
-<span class="lineNum">     440 </span><span class="lineCov">          1 :   double barWidth,scale=1.0;</span>
-<span class="lineNum">     441 </span>            :   double *values;
-<span class="lineNum">     442 </span>            :   styleObj **styles;
-<span class="lineNum">     443 </span>            :   pointObj center;
-<span class="lineNum">     444 </span><span class="lineCov">          1 :   int numvalues = layer-&gt;numclasses;</span>
-<span class="lineNum">     445 </span>            :   int numvalues_for_shape;
-<span class="lineNum">     446 </span><span class="lineCov">          1 :   if(chartSizeProcessingKey==NULL) {</span>
-<span class="lineNum">     447 </span><span class="lineNoCov">          0 :     barWidth=20;</span>
-<span class="lineNum">     448 </span>            :   } else {
-<span class="lineNum">     449 </span><span class="lineCov">          1 :     if(sscanf(chartSizeProcessingKey ,&quot;%lf&quot;,&amp;barWidth) != 1) {</span>
-<span class="lineNum">     450 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;msDrawChart format error for processing key \&quot;CHART_SIZE\&quot;&quot;, &quot;msDrawVBarChartLayer()&quot;);</span>
-<span class="lineNum">     451 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">     452 </span>            :     }
-<span class="lineNum">     453 </span>            :   }
-<span class="lineNum">     454 </span>            : 
-<span class="lineNum">     455 </span><span class="lineCov">          1 :   if(chartScaleProcessingKey) {</span>
-<span class="lineNum">     456 </span><span class="lineCov">          1 :     if(sscanf(chartScaleProcessingKey,&quot;%lf&quot;,&amp;scale)!=1) {</span>
-<span class="lineNum">     457 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Error reading value for processing key \&quot;CHART_SCALE\&quot;&quot;, &quot;msDrawVBarChartLayer()&quot;);</span>
-<span class="lineNum">     458 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">     459 </span>            :     }
-<span class="lineNum">     460 </span>            :   }
-<span class="lineNum">     461 </span><span class="lineCov">          1 :   msInitShape(&amp;shape);</span>
-<span class="lineNum">     462 </span>            : 
-<span class="lineNum">     463 </span><span class="lineCov">          1 :   values=(double*)calloc(numvalues,sizeof(double));</span>
-<span class="lineNum">     464 </span><span class="lineCov">          1 :   MS_CHECK_ALLOC(values, numvalues*sizeof(double), MS_FAILURE);</span>
-<span class="lineNum">     465 </span><span class="lineCov">          1 :   styles = (styleObj**)malloc(numvalues*sizeof(styleObj*));</span>
-<span class="lineNum">     466 </span><span class="lineCov">          1 :   if (styles == NULL) {</span>
-<span class="lineNum">     467 </span><span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;%s: %d: Out of memory allocating %u bytes.\n&quot;, &quot;msDrawVBarChartLayer()&quot;,</span>
-<span class="lineNum">     468 </span>            :                __FILE__, __LINE__, (unsigned int)(numvalues*sizeof(styleObj*)));
-<span class="lineNum">     469 </span><span class="lineNoCov">          0 :     free(values);</span>
-<span class="lineNum">     470 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     471 </span>            :   }
-<span class="lineNum">     472 </span>            : 
-<span class="lineNum">     473 </span><span class="lineCov">          1 :   while(MS_SUCCESS == getNextShape(map,layer,values,&amp;numvalues_for_shape,styles,&amp;shape)) {</span>
-<span class="lineNum">     474 </span>            :     int i;
-<span class="lineNum">     475 </span>            :     double h=0;
-<span class="lineNum">     476 </span><span class="lineCov">          1 :     if(numvalues_for_shape == 0) {</span>
-<span class="lineNum">     477 </span><span class="lineNoCov">          0 :       continue;</span>
-<span class="lineNum">     478 </span>            :     }
-<span class="lineNum">     479 </span><span class="lineCov">          1 :     for(i=0; i&lt;numvalues_for_shape; i++) {</span>
-<span class="lineNum">     480 </span><span class="lineCov">          1 :       values[i]*=scale;</span>
-<span class="lineNum">     481 </span><span class="lineCov">          1 :       h += values[i];</span>
-<span class="lineNum">     482 </span>            :     }
-<span class="lineNum">     483 </span><span class="lineCov">          1 :     msDrawStartShape(map, layer, image, &amp;shape);</span>
-<span class="lineNum">     484 </span><span class="lineCov">          1 :     if(findChartPoint(map, &amp;shape, barWidth,h, &amp;center)==MS_SUCCESS) {</span>
-<span class="lineNum">     485 </span><span class="lineCov">          1 :       status = msDrawVBarChart(map,image,</span>
-<span class="lineNum">     486 </span>            :                                &amp;center,
-<span class="lineNum">     487 </span>            :                                values, styles, numvalues_for_shape,
-<span class="lineNum">     488 </span>            :                                barWidth);
-<span class="lineNum">     489 </span>            :     }
-<span class="lineNum">     490 </span><span class="lineCov">          1 :     msDrawEndShape(map,layer,image,&amp;shape);</span>
-<span class="lineNum">     491 </span><span class="lineCov">          1 :     msFreeShape(&amp;shape);</span>
-<span class="lineNum">     492 </span>            :   }
-<span class="lineNum">     493 </span><span class="lineCov">          1 :   free(values);</span>
-<span class="lineNum">     494 </span><span class="lineCov">          1 :   free(styles);</span>
-<span class="lineNum">     495 </span><span class="lineCov">          1 :   return status;</span>
-<span class="lineNum">     496 </span>            : }
-<a name="497"><span class="lineNum">     497 </span>            : </a>
-<span class="lineNum">     498 </span>            : 
-<span class="lineNum">     499 </span><span class="lineCov">          1 : int msDrawBarChartLayer(mapObj *map, layerObj *layer, imageObj *image)</span>
-<span class="lineNum">     500 </span>            : {
-<span class="lineNum">     501 </span>            :   shapeObj    shape;
-<span class="lineNum">     502 </span>            :   int         status=MS_SUCCESS;
-<span class="lineNum">     503 </span><span class="lineCov">          1 :   const char *chartSizeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SIZE&quot; );</span>
-<span class="lineNum">     504 </span><span class="lineCov">          1 :   const char *barMax=msLayerGetProcessingKey( layer,&quot;CHART_BAR_MAXVAL&quot; );</span>
-<span class="lineNum">     505 </span><span class="lineCov">          1 :   const char *barMin=msLayerGetProcessingKey( layer,&quot;CHART_BAR_MINVAL&quot; );</span>
-<span class="lineNum">     506 </span>            :   double width,height;
-<span class="lineNum">     507 </span>            :   double barWidth;
-<span class="lineNum">     508 </span>            :   double *values;
-<span class="lineNum">     509 </span>            :   styleObj **styles;
-<span class="lineNum">     510 </span>            :   pointObj center;
-<span class="lineNum">     511 </span>            :   double barMaxVal,barMinVal;
-<span class="lineNum">     512 </span><span class="lineCov">          1 :   int numvalues = layer-&gt;numclasses;</span>
-<span class="lineNum">     513 </span>            :   int numvalues_for_shape;
-<span class="lineNum">     514 </span><span class="lineCov">          1 :   if(chartSizeProcessingKey==NULL) {</span>
-<span class="lineNum">     515 </span><span class="lineNoCov">          0 :     width=height=20;</span>
-<span class="lineNum">     516 </span>            :   } else {
-<span class="lineNum">     517 </span><span class="lineCov">          1 :     switch(sscanf(chartSizeProcessingKey ,&quot;%lf %lf&quot;,&amp;width,&amp;height)) {</span>
-<span class="lineNum">     518 </span>            :       case 2:
-<span class="lineNum">     519 </span>            :         break;
-<span class="lineNum">     520 </span>            :       case 1:
-<span class="lineNum">     521 </span><span class="lineCov">          1 :         height = width;</span>
-<span class="lineNum">     522 </span><span class="lineCov">          1 :         break;</span>
-<span class="lineNum">     523 </span>            :       default:
-<span class="lineNum">     524 </span><span class="lineNoCov">          0 :         msSetError(MS_MISCERR, &quot;msDrawChart format error for processing key \&quot;CHART_SIZE\&quot;&quot;, &quot;msDrawBarChartLayer()&quot;);</span>
-<span class="lineNum">     525 </span><span class="lineNoCov">          0 :         return MS_FAILURE;</span>
-<span class="lineNum">     526 </span>            :     }
-<span class="lineNum">     527 </span>            :   }
-<span class="lineNum">     528 </span>            : 
-<span class="lineNum">     529 </span><span class="lineCov">          1 :   if(barMax) {</span>
-<span class="lineNum">     530 </span><span class="lineNoCov">          0 :     if(sscanf(barMax,&quot;%lf&quot;,&amp;barMaxVal)!=1) {</span>
-<span class="lineNum">     531 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Error reading value for processing key \&quot;CHART_BAR_MAXVAL\&quot;&quot;, &quot;msDrawBarChartLayer()&quot;);</span>
-<span class="lineNum">     532 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">     533 </span>            :     }
-<span class="lineNum">     534 </span>            :   }
-<span class="lineNum">     535 </span><span class="lineCov">          1 :   if(barMin) {</span>
-<span class="lineNum">     536 </span><span class="lineNoCov">          0 :     if(sscanf(barMin,&quot;%lf&quot;,&amp;barMinVal)!=1) {</span>
-<span class="lineNum">     537 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Error reading value for processing key \&quot;CHART_BAR_MINVAL\&quot;&quot;, &quot;msDrawBarChartLayer()&quot;);</span>
-<span class="lineNum">     538 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">     539 </span>            :     }
-<span class="lineNum">     540 </span>            :   }
-<span class="lineNum">     541 </span><span class="lineCov">          1 :   if(barMin &amp;&amp; barMax &amp;&amp; barMinVal&gt;=barMaxVal) {</span>
-<span class="lineNum">     542 </span><span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;\&quot;CHART_BAR_MINVAL\&quot; must be less than \&quot;CHART_BAR_MAXVAL\&quot;&quot;, &quot;msDrawBarChartLayer()&quot;);</span>
-<span class="lineNum">     543 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     544 </span>            :   }
-<span class="lineNum">     545 </span><span class="lineCov">          1 :   barWidth=(double)width/(double)layer-&gt;numclasses;</span>
-<span class="lineNum">     546 </span><span class="lineCov">          1 :   if(!barWidth) {</span>
-<span class="lineNum">     547 </span><span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Specified width of chart too small to fit given number of classes&quot;, &quot;msDrawBarChartLayer()&quot;);</span>
-<span class="lineNum">     548 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     549 </span>            :   }
-<span class="lineNum">     550 </span>            : 
-<span class="lineNum">     551 </span><span class="lineCov">          1 :   msInitShape(&amp;shape);</span>
-<span class="lineNum">     552 </span>            : 
-<span class="lineNum">     553 </span><span class="lineCov">          1 :   values=(double*)calloc(numvalues,sizeof(double));</span>
-<span class="lineNum">     554 </span><span class="lineCov">          1 :   MS_CHECK_ALLOC(values, numvalues*sizeof(double), MS_FAILURE);</span>
-<span class="lineNum">     555 </span><span class="lineCov">          1 :   styles = (styleObj**)malloc(numvalues*sizeof(styleObj*));</span>
-<span class="lineNum">     556 </span><span class="lineCov">          1 :   if (styles == NULL) {</span>
-<span class="lineNum">     557 </span><span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;%s: %d: Out of memory allocating %u bytes.\n&quot;, &quot;msDrawBarChartLayer()&quot;,</span>
-<span class="lineNum">     558 </span>            :                __FILE__, __LINE__, (unsigned int)(numvalues*sizeof(styleObj*)));
-<span class="lineNum">     559 </span><span class="lineNoCov">          0 :     free(values);</span>
-<span class="lineNum">     560 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">     561 </span>            :   }
-<span class="lineNum">     562 </span>            : 
-<span class="lineNum">     563 </span><span class="lineCov">          1 :   while(MS_SUCCESS == getNextShape(map,layer,values,&amp;numvalues_for_shape,styles,&amp;shape)) {</span>
-<span class="lineNum">     564 </span><span class="lineCov">          1 :     if(numvalues_for_shape == 0 ) continue;</span>
-<span class="lineNum">     565 </span><span class="lineCov">          1 :     msDrawStartShape(map, layer, image, &amp;shape);</span>
-<span class="lineNum">     566 </span><span class="lineCov">          1 :     if(findChartPoint(map, &amp;shape, width,height, &amp;center)==MS_SUCCESS) {</span>
-<span class="lineNum">     567 </span><span class="lineCov">          1 :       status = msDrawBarChart(map,image,</span>
-<span class="lineNum">     568 </span>            :                               &amp;center,
-<span class="lineNum">     569 </span>            :                               values, styles, numvalues_for_shape,
-<span class="lineNum">     570 </span>            :                               width,height,
-<span class="lineNum">     571 </span>            :                               (barMax!=NULL)?&amp;barMaxVal:NULL,
-<span class="lineNum">     572 </span>            :                               (barMin!=NULL)?&amp;barMinVal:NULL,
-<span class="lineNum">     573 </span>            :                               barWidth);
-<span class="lineNum">     574 </span>            :     }
-<span class="lineNum">     575 </span><span class="lineCov">          1 :     msDrawEndShape(map,layer,image,&amp;shape);</span>
-<span class="lineNum">     576 </span><span class="lineCov">          1 :     msFreeShape(&amp;shape);</span>
-<span class="lineNum">     577 </span>            :   }
-<span class="lineNum">     578 </span><span class="lineCov">          1 :   free(values);</span>
-<span class="lineNum">     579 </span><span class="lineCov">          1 :   free(styles);</span>
-<span class="lineNum">     580 </span><span class="lineCov">          1 :   return status;</span>
-<span class="lineNum">     581 </span>            : }
-<span class="lineNum">     582 </span>            : 
-<span class="lineNum">     583 </span>            : /**
-<a name="584"><span class="lineNum">     584 </span>            :  * Generic function to render chart layers.</a>
-<span class="lineNum">     585 </span>            :  */
-<span class="lineNum">     586 </span><span class="lineCov">          1 : int msDrawChartLayer(mapObj *map, layerObj *layer, imageObj *image)</span>
-<span class="lineNum">     587 </span>            : {
-<span class="lineNum">     588 </span>            : 
-<span class="lineNum">     589 </span>            :   rectObj     searchrect;
-<span class="lineNum">     590 </span><span class="lineCov">          1 :   const char *chartTypeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_TYPE&quot; );</span>
-<span class="lineNum">     591 </span>            :   int chartType=MS_CHART_TYPE_PIE;
-<span class="lineNum">     592 </span>            :   int status = MS_FAILURE;
-<span class="lineNum">     593 </span>            : 
-<span class="lineNum">     594 </span><span class="lineCov">          1 :   if (image &amp;&amp; map &amp;&amp; layer) {</span>
-<span class="lineNum">     595 </span><span class="lineCov">          1 :     if( !(MS_RENDERER_PLUGIN(image-&gt;format) )) {</span>
-<span class="lineNum">     596 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;chart drawing currently only supports GD and AGG renderers&quot;, &quot;msDrawChartLayer()&quot;);</span>
-<span class="lineNum">     597 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">     598 </span>            :     }
-<span class="lineNum">     599 </span>            : 
-<span class="lineNum">     600 </span><span class="lineCov">          1 :     if(chartTypeProcessingKey!=NULL) {</span>
-<span class="lineNum">     601 </span><span class="lineCov">          1 :       if( strcasecmp(chartTypeProcessingKey,&quot;PIE&quot;) == 0 ) {</span>
-<span class="lineNum">     602 </span>            :         chartType=MS_CHART_TYPE_PIE;
-<span class="lineNum">     603 </span><span class="lineCov">          1 :       } else if( strcasecmp(chartTypeProcessingKey,&quot;BAR&quot;) == 0 ) {</span>
-<span class="lineNum">     604 </span>            :         chartType=MS_CHART_TYPE_BAR;
-<span class="lineNum">     605 </span><span class="lineCov">          1 :       } else if( strcasecmp(chartTypeProcessingKey,&quot;VBAR&quot;) == 0 ) {</span>
-<span class="lineNum">     606 </span>            :         chartType=MS_CHART_TYPE_VBAR;
-<span class="lineNum">     607 </span>            :       } else {
-<span class="lineNum">     608 </span><span class="lineNoCov">          0 :         msSetError(MS_MISCERR,&quot;unknown chart type for processing key \&quot;CHART_TYPE\&quot;, must be one of \&quot;PIE\&quot; or \&quot;BAR\&quot;&quot;, &quot;msDrawChartLayer()&quot;);</span>
-<span class="lineNum">     609 </span><span class="lineNoCov">          0 :         return MS_FAILURE;</span>
-<span class="lineNum">     610 </span>            :       }
-<span class="lineNum">     611 </span>            :     }
-<span class="lineNum">     612 </span><span class="lineCov">          1 :     if(chartType == MS_CHART_TYPE_PIE) {</span>
-<span class="lineNum">     613 </span><span class="lineCov">          1 :       pieLayerProcessDynamicDiameter(layer);</span>
-<span class="lineNum">     614 </span>            :     }
-<span class="lineNum">     615 </span>            : 
-<span class="lineNum">     616 </span>            :     /* open this layer */
-<span class="lineNum">     617 </span><span class="lineCov">          1 :     status = msLayerOpen(layer);</span>
-<span class="lineNum">     618 </span><span class="lineCov">          1 :     if(status != MS_SUCCESS) return MS_FAILURE;</span>
-<span class="lineNum">     619 </span>            : 
-<span class="lineNum">     620 </span><span class="lineCov">          1 :     status = msLayerWhichItems(layer, MS_FALSE, NULL);</span>
-<span class="lineNum">     621 </span><span class="lineCov">          1 :     if(status != MS_SUCCESS) {</span>
-<span class="lineNum">     622 </span><span class="lineNoCov">          0 :       msLayerClose(layer);</span>
-<span class="lineNum">     623 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">     624 </span>            :     }
-<span class="lineNum">     625 </span>            :     /* identify target shapes */
-<span class="lineNum">     626 </span><span class="lineCov">          1 :     if(layer-&gt;transform == MS_TRUE)</span>
-<span class="lineNum">     627 </span><span class="lineCov">          1 :       searchrect = map-&gt;extent;</span>
-<span class="lineNum">     628 </span>            :     else {
-<span class="lineNum">     629 </span><span class="lineNoCov">          0 :       searchrect.minx = searchrect.miny = 0;</span>
-<span class="lineNum">     630 </span><span class="lineNoCov">          0 :       searchrect.maxx = map-&gt;width-1;</span>
-<span class="lineNum">     631 </span><span class="lineNoCov">          0 :       searchrect.maxy = map-&gt;height-1;</span>
-<span class="lineNum">     632 </span>            :     }
-<span class="lineNum">     633 </span>            : 
-<span class="lineNum">     634 </span>            : #ifdef USE_PROJ
-<span class="lineNum">     635 </span><span class="lineCov">          1 :     if((map-&gt;projection.numargs &gt; 0) &amp;&amp; (layer-&gt;projection.numargs &gt; 0))</span>
-<span class="lineNum">     636 </span><span class="lineNoCov">          0 :       msProjectRect(&amp;map-&gt;projection, &amp;layer-&gt;projection, &amp;searchrect); /* project the searchrect to source coords */</span>
-<span class="lineNum">     637 </span>            : #endif
-<span class="lineNum">     638 </span>            : 
-<span class="lineNum">     639 </span><span class="lineCov">          1 :     status = msLayerWhichShapes(layer, searchrect, MS_FALSE);</span>
-<span class="lineNum">     640 </span><span class="lineCov">          1 :     if(status == MS_DONE) { /* no overlap */</span>
-<span class="lineNum">     641 </span><span class="lineNoCov">          0 :       msLayerClose(layer);</span>
-<span class="lineNum">     642 </span><span class="lineNoCov">          0 :       if(chartType == MS_CHART_TYPE_PIE)</span>
-<span class="lineNum">     643 </span><span class="lineNoCov">          0 :         pieLayerCleanupDynamicDiameter(layer);</span>
-<span class="lineNum">     644 </span>            :       return MS_SUCCESS;
-<span class="lineNum">     645 </span><span class="lineCov">          1 :     } else if(status != MS_SUCCESS) {</span>
-<span class="lineNum">     646 </span><span class="lineNoCov">          0 :       msLayerClose(layer);</span>
-<span class="lineNum">     647 </span><span class="lineNoCov">          0 :       if(chartType == MS_CHART_TYPE_PIE)</span>
-<span class="lineNum">     648 </span><span class="lineNoCov">          0 :         pieLayerCleanupDynamicDiameter(layer);</span>
-<span class="lineNum">     649 </span>            :       return MS_FAILURE;
-<span class="lineNum">     650 </span>            :     }
-<span class="lineNum">     651 </span><span class="lineCov">          1 :     switch(chartType) {</span>
-<span class="lineNum">     652 </span>            :       case MS_CHART_TYPE_PIE:
-<span class="lineNum">     653 </span><span class="lineCov">          1 :         status = msDrawPieChartLayer(map, layer, image);</span>
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span><span class="lineCov">          1 :     if(msBindLayerToShape(layer, shape, MS_DRAWMODE_FEATURES|MS_DRAWMODE_LABELS) != MS_SUCCESS)</span>
+<span class="lineNum">     268 </span>            :       return MS_FAILURE; /* error message is set in msBindLayerToShape() */
+<span class="lineNum">     269 </span>            : 
+<span class="lineNum">     270 </span><span class="lineCov">          1 :     *nvalues = 0;</span>
+<span class="lineNum">     271 </span><span class="lineCov">          1 :     for(c=0; c&lt;layer-&gt;numclasses; c++) {</span>
+<span class="lineNum">     272 </span><span class="lineCov">          1 :       if(msEvalExpression(layer, shape, &amp;(layer-&gt;class[c]-&gt;expression), layer-&gt;classitemindex) == MS_TRUE) {</span>
+<span class="lineNum">     273 </span><span class="lineCov">          1 :         values[*nvalues]=(layer-&gt;class[c]-&gt;styles[0]-&gt;size);</span>
+<span class="lineNum">     274 </span><span class="lineCov">          1 :         styles[*nvalues]=layer-&gt;class[c]-&gt;styles[0];</span>
+<span class="lineNum">     275 </span><span class="lineCov">          1 :         (*nvalues)++;</span>
+<span class="lineNum">     276 </span>            :       }
+<span class="lineNum">     277 </span>            :     }
+<span class="lineNum">     278 </span>            :   }
+<span class="lineNum">     279 </span><span class="lineCov">          1 :   return status;</span>
+<span class="lineNum">     280 </span>            : }
+<a name="281"><span class="lineNum">     281 </span>            : </a>
+<span class="lineNum">     282 </span>            : /* eventually add a class to the layer to get the diameter from an attribute */
+<span class="lineNum">     283 </span><span class="lineCov">          1 : int pieLayerProcessDynamicDiameter(layerObj *layer)</span>
+<span class="lineNum">     284 </span>            : {
+<span class="lineNum">     285 </span>            :   const char *chartRangeProcessingKey=NULL;
+<span class="lineNum">     286 </span>            :   char *attrib;
+<span class="lineNum">     287 </span><span class="lineCov">          1 :   double mindiameter=-1, maxdiameter, minvalue, maxvalue;</span>
+<span class="lineNum">     288 </span>            :   classObj *newclass;
+<span class="lineNum">     289 </span>            :   styleObj *newstyle;
+<span class="lineNum">     290 </span><span class="lineCov">          1 :   const char *chartSizeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SIZE&quot; );</span>
+<span class="lineNum">     291 </span><span class="lineCov">          1 :   if(chartSizeProcessingKey != NULL)</span>
+<span class="lineNum">     292 </span>            :     return MS_FALSE;
+<span class="lineNum">     293 </span><span class="lineCov">          1 :   chartRangeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SIZE_RANGE&quot; );</span>
+<span class="lineNum">     294 </span><span class="lineCov">          1 :   if(chartRangeProcessingKey==NULL)</span>
+<span class="lineNum">     295 </span>            :     return MS_FALSE;
+<span class="lineNum">     296 </span><span class="lineCov">          1 :   attrib = msSmallMalloc(strlen(chartRangeProcessingKey)+1);</span>
+<span class="lineNum">     297 </span><span class="lineCov">          1 :   switch(sscanf(chartRangeProcessingKey,&quot;%s %lf %lf %lf %lf&quot;,attrib,</span>
+<span class="lineNum">     298 </span>            :                 &amp;mindiameter,&amp;maxdiameter,&amp;minvalue,&amp;maxvalue)) {
+<span class="lineNum">     299 </span>            :     case 1: /*we only have the attribute*/
+<span class="lineNum">     300 </span>            :     case 5: /*we have the attribute and the four range values*/
+<span class="lineNum">     301 </span>            :       break;
+<span class="lineNum">     302 </span>            :     default:
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :       free(attrib);</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Chart Layer format error for processing key \&quot;CHART_RANGE\&quot;&quot;, &quot;msDrawChartLayer()&quot;);</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     306 </span>            :   }
+<span class="lineNum">     307 </span>            :   /*create a new class in the layer containing the wanted attribute
+<span class="lineNum">     308 </span>            :    * as the SIZE of its first STYLE*/
+<span class="lineNum">     309 </span><span class="lineCov">          1 :   newclass=msGrowLayerClasses(layer);</span>
+<span class="lineNum">     310 </span><span class="lineCov">          1 :   if(newclass==NULL) {</span>
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :     free(attrib);</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     313 </span>            :   }
+<span class="lineNum">     314 </span><span class="lineCov">          1 :   initClass(newclass);</span>
+<span class="lineNum">     315 </span><span class="lineCov">          1 :   layer-&gt;numclasses++;</span>
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span>            :   /*create and attach a new styleObj to our temp class
+<span class="lineNum">     318 </span>            :    * and bind the wanted attribute to its SIZE
+<span class="lineNum">     319 </span>            :    */
+<span class="lineNum">     320 </span><span class="lineCov">          1 :   newstyle=msGrowClassStyles(newclass);</span>
+<span class="lineNum">     321 </span><span class="lineCov">          1 :   if(newstyle==NULL) {</span>
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :     free(attrib);</span>
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     324 </span>            :   }
+<span class="lineNum">     325 </span><span class="lineCov">          1 :   initStyle(newstyle);</span>
+<span class="lineNum">     326 </span><span class="lineCov">          1 :   newclass-&gt;numstyles++;</span>
+<span class="lineNum">     327 </span><span class="lineCov">          1 :   newclass-&gt;name=(char*)msStrdup(&quot;__MS_SIZE_ATTRIBUTE_&quot;);</span>
+<span class="lineNum">     328 </span><span class="lineCov">          1 :   newstyle-&gt;bindings[MS_STYLE_BINDING_SIZE].item=msStrdup(attrib);</span>
+<span class="lineNum">     329 </span><span class="lineCov">          1 :   newstyle-&gt;numbindings++;</span>
+<span class="lineNum">     330 </span><span class="lineCov">          1 :   free(attrib);</span>
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span><span class="lineCov">          1 :   return MS_TRUE;</span>
+<span class="lineNum">     333 </span>            : 
+<span class="lineNum">     334 </span>            : }
+<a name="335"><span class="lineNum">     335 </span>            : </a>
+<span class="lineNum">     336 </span>            : /* clean up the class added temporarily */
+<span class="lineNum">     337 </span><span class="lineCov">          1 : static void pieLayerCleanupDynamicDiameter(layerObj *layer)</span>
+<span class="lineNum">     338 </span>            : {
+<span class="lineNum">     339 </span><span class="lineCov">          1 :   if( layer-&gt;numclasses &gt; 0 &amp;&amp; EQUALN(layer-&gt;class[layer-&gt;numclasses - 1]-&gt;name, &quot;__MS_SIZE_ATTRIBUTE_&quot;, 20) ) {</span>
+<span class="lineNum">     340 </span><span class="lineCov">          1 :     classObj *c=msRemoveClass(layer, layer-&gt;numclasses - 1);</span>
+<span class="lineNum">     341 </span><span class="lineCov">          1 :     freeClass(c);</span>
+<span class="lineNum">     342 </span><span class="lineCov">          1 :     msFree(c);</span>
+<span class="lineNum">     343 </span>            :   }
+<span class="lineNum">     344 </span><span class="lineCov">          1 : }</span>
+<a name="345"><span class="lineNum">     345 </span>            : </a>
+<span class="lineNum">     346 </span>            : 
+<span class="lineNum">     347 </span><span class="lineCov">          1 : int msDrawPieChartLayer(mapObj *map, layerObj *layer, imageObj *image)</span>
+<span class="lineNum">     348 </span>            : {
+<span class="lineNum">     349 </span>            :   shapeObj    shape;
+<span class="lineNum">     350 </span>            :   int         status=MS_SUCCESS;
+<span class="lineNum">     351 </span>            :   const char *chartRangeProcessingKey=NULL;
+<span class="lineNum">     352 </span><span class="lineCov">          1 :   const char *chartSizeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SIZE&quot; );</span>
+<span class="lineNum">     353 </span><span class="lineCov">          1 :   double diameter, mindiameter=-1, maxdiameter, minvalue, maxvalue, exponent=0;</span>
+<span class="lineNum">     354 </span>            :   double *values;
+<span class="lineNum">     355 </span>            :   styleObj **styles;
+<span class="lineNum">     356 </span>            :   pointObj center;
+<span class="lineNum">     357 </span><span class="lineCov">          1 :   int numvalues = layer-&gt;numclasses; /* the number of classes to represent in the graph */</span>
+<span class="lineNum">     358 </span><span class="lineCov">          1 :   int numvalues_for_shape = 0;</span>
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span><span class="lineCov">          1 :   if(chartSizeProcessingKey==NULL) {</span>
+<span class="lineNum">     361 </span><span class="lineCov">          1 :     chartRangeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SIZE_RANGE&quot; );</span>
+<span class="lineNum">     362 </span><span class="lineCov">          1 :     if(chartRangeProcessingKey==NULL)</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :       diameter=20;</span>
+<span class="lineNum">     364 </span>            :     else {
+<span class="lineNum">     365 </span><span class="lineCov">          1 :       sscanf(chartRangeProcessingKey,&quot;%*s %lf %lf %lf %lf %lf&quot;,</span>
+<span class="lineNum">     366 </span>            :              &amp;mindiameter,&amp;maxdiameter,&amp;minvalue,&amp;maxvalue,&amp;exponent);
+<span class="lineNum">     367 </span>            :     }
+<span class="lineNum">     368 </span>            :   } else {
+<span class="lineNum">     369 </span><span class="lineCov">          1 :     if(sscanf(chartSizeProcessingKey ,&quot;%lf&quot;,&amp;diameter)!=1) {</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;msDrawChart format error for processing key \&quot;CHART_SIZE\&quot;&quot;, &quot;msDrawPieChartLayer()&quot;);</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     372 </span>            :     }
+<span class="lineNum">     373 </span>            :   }
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span><span class="lineCov">          1 :   layer-&gt;project = msProjectionsDiffer(&amp;(layer-&gt;projection), &amp;(map-&gt;projection));</span>
+<span class="lineNum">     376 </span>            : 
+<span class="lineNum">     377 </span>            :   /* step through the target shapes */
+<span class="lineNum">     378 </span><span class="lineCov">          1 :   msInitShape(&amp;shape);</span>
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span><span class="lineCov">          1 :   values=(double*)calloc(numvalues,sizeof(double));</span>
+<span class="lineNum">     381 </span><span class="lineCov">          1 :   MS_CHECK_ALLOC(values, numvalues*sizeof(double), MS_FAILURE);</span>
+<span class="lineNum">     382 </span><span class="lineCov">          1 :   styles = (styleObj**)malloc((numvalues)*sizeof(styleObj*));</span>
+<span class="lineNum">     383 </span><span class="lineCov">          1 :   if (styles == NULL) {</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;%s: %d: Out of memory allocating %u bytes.\n&quot;, &quot;msDrawPieChartLayer()&quot;,</span>
+<span class="lineNum">     385 </span>            :                __FILE__, __LINE__, (unsigned int)(numvalues*sizeof(styleObj*)));
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :     free(values);</span>
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     388 </span>            :   }
+<span class="lineNum">     389 </span>            : 
+<span class="lineNum">     390 </span><span class="lineCov">          1 :   while(MS_SUCCESS == getNextShape(map,layer,values,&amp;numvalues_for_shape,styles,&amp;shape)) {</span>
+<span class="lineNum">     391 </span><span class="lineCov">          1 :     if(chartRangeProcessingKey!=NULL)</span>
+<span class="lineNum">     392 </span><span class="lineCov">          1 :       numvalues_for_shape--;</span>
+<span class="lineNum">     393 </span><span class="lineCov">          1 :     if(numvalues_for_shape == 0) {</span>
+<span class="lineNum">     394 </span><span class="lineCov">          1 :       msFreeShape(&amp;shape);</span>
+<span class="lineNum">     395 </span><span class="lineCov">          1 :       continue;</span>
+<span class="lineNum">     396 </span>            :     }
+<span class="lineNum">     397 </span><span class="lineCov">          1 :     msDrawStartShape(map, layer, image, &amp;shape);</span>
+<span class="lineNum">     398 </span><span class="lineCov">          1 :     if(chartRangeProcessingKey!=NULL) {</span>
+<span class="lineNum">     399 </span><span class="lineCov">          1 :       diameter = values[numvalues_for_shape];</span>
+<span class="lineNum">     400 </span><span class="lineCov">          1 :       if(mindiameter&gt;=0) {</span>
+<span class="lineNum">     401 </span><span class="lineCov">          1 :         if(diameter&lt;=minvalue)</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :           diameter=mindiameter;</span>
+<span class="lineNum">     403 </span><span class="lineCov">          1 :         else if(diameter&gt;=maxvalue)</span>
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :           diameter=maxdiameter;</span>
+<span class="lineNum">     405 </span>            :         else {
+<span class="lineNum">     406 </span><span class="lineCov">          1 :           if (exponent &lt;= 0)</span>
+<span class="lineNum">     407 </span><span class="lineCov">          1 :             diameter=MS_NINT(</span>
+<span class="lineNum">     408 </span>            :                        mindiameter+
+<span class="lineNum">     409 </span>            :                        ((diameter-minvalue)/(maxvalue-minvalue))*
+<span class="lineNum">     410 </span>            :                        (maxdiameter-mindiameter)
+<span class="lineNum">     411 </span>            :                      );
+<span class="lineNum">     412 </span>            :           else
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :             diameter=MS_NINT(</span>
+<span class="lineNum">     414 </span>            :                        mindiameter+
+<span class="lineNum">     415 </span>            :                        pow((diameter-minvalue)/(maxvalue-minvalue),1.0/exponent)*
+<span class="lineNum">     416 </span>            :                        (maxdiameter-mindiameter)
+<span class="lineNum">     417 </span>            :                      );
+<span class="lineNum">     418 </span>            :         }
+<span class="lineNum">     419 </span>            :       }
+<span class="lineNum">     420 </span>            :     }
+<span class="lineNum">     421 </span><span class="lineCov">          1 :     if(findChartPoint(map, &amp;shape, diameter, diameter, &amp;center) == MS_SUCCESS) {</span>
+<span class="lineNum">     422 </span><span class="lineCov">          1 :       status = msDrawPieChart(map,image, &amp;center, diameter,</span>
+<span class="lineNum">     423 </span>            :                               values,styles,numvalues_for_shape);
+<span class="lineNum">     424 </span>            :     }
+<span class="lineNum">     425 </span><span class="lineCov">          1 :     msDrawEndShape(map,layer,image,&amp;shape);</span>
+<span class="lineNum">     426 </span><span class="lineCov">          1 :     msFreeShape(&amp;shape);</span>
+<span class="lineNum">     427 </span>            :   }
+<span class="lineNum">     428 </span><span class="lineCov">          1 :   free(values);</span>
+<span class="lineNum">     429 </span><span class="lineCov">          1 :   free(styles);</span>
+<span class="lineNum">     430 </span><span class="lineCov">          1 :   return status;</span>
+<a name="431"><span class="lineNum">     431 </span>            : }</a>
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span><span class="lineCov">          1 : int msDrawVBarChartLayer(mapObj *map, layerObj *layer, imageObj *image)</span>
+<span class="lineNum">     434 </span>            : {
+<span class="lineNum">     435 </span>            :   shapeObj    shape;
+<span class="lineNum">     436 </span>            :   int         status=MS_SUCCESS;
+<span class="lineNum">     437 </span><span class="lineCov">          1 :   const char *chartSizeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SIZE&quot; );</span>
+<span class="lineNum">     438 </span><span class="lineCov">          1 :   const char *chartScaleProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SCALE&quot; );</span>
+<span class="lineNum">     439 </span><span class="lineCov">          1 :   double barWidth,scale=1.0;</span>
+<span class="lineNum">     440 </span>            :   double *values;
+<span class="lineNum">     441 </span>            :   styleObj **styles;
+<span class="lineNum">     442 </span>            :   pointObj center;
+<span class="lineNum">     443 </span><span class="lineCov">          1 :   int numvalues = layer-&gt;numclasses;</span>
+<span class="lineNum">     444 </span>            :   int numvalues_for_shape;
+<span class="lineNum">     445 </span><span class="lineCov">          1 :   if(chartSizeProcessingKey==NULL) {</span>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :     barWidth=20;</span>
+<span class="lineNum">     447 </span>            :   } else {
+<span class="lineNum">     448 </span><span class="lineCov">          1 :     if(sscanf(chartSizeProcessingKey ,&quot;%lf&quot;,&amp;barWidth) != 1) {</span>
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;msDrawChart format error for processing key \&quot;CHART_SIZE\&quot;&quot;, &quot;msDrawVBarChartLayer()&quot;);</span>
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     451 </span>            :     }
+<span class="lineNum">     452 </span>            :   }
+<span class="lineNum">     453 </span>            : 
+<span class="lineNum">     454 </span><span class="lineCov">          1 :   if(chartScaleProcessingKey) {</span>
+<span class="lineNum">     455 </span><span class="lineCov">          1 :     if(sscanf(chartScaleProcessingKey,&quot;%lf&quot;,&amp;scale)!=1) {</span>
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Error reading value for processing key \&quot;CHART_SCALE\&quot;&quot;, &quot;msDrawVBarChartLayer()&quot;);</span>
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     458 </span>            :     }
+<span class="lineNum">     459 </span>            :   }
+<span class="lineNum">     460 </span><span class="lineCov">          1 :   msInitShape(&amp;shape);</span>
+<span class="lineNum">     461 </span>            : 
+<span class="lineNum">     462 </span><span class="lineCov">          1 :   values=(double*)calloc(numvalues,sizeof(double));</span>
+<span class="lineNum">     463 </span><span class="lineCov">          1 :   MS_CHECK_ALLOC(values, numvalues*sizeof(double), MS_FAILURE);</span>
+<span class="lineNum">     464 </span><span class="lineCov">          1 :   styles = (styleObj**)malloc(numvalues*sizeof(styleObj*));</span>
+<span class="lineNum">     465 </span><span class="lineCov">          1 :   if (styles == NULL) {</span>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;%s: %d: Out of memory allocating %u bytes.\n&quot;, &quot;msDrawVBarChartLayer()&quot;,</span>
+<span class="lineNum">     467 </span>            :                __FILE__, __LINE__, (unsigned int)(numvalues*sizeof(styleObj*)));
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :     free(values);</span>
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     470 </span>            :   }
+<span class="lineNum">     471 </span>            : 
+<span class="lineNum">     472 </span><span class="lineCov">          1 :   while(MS_SUCCESS == getNextShape(map,layer,values,&amp;numvalues_for_shape,styles,&amp;shape)) {</span>
+<span class="lineNum">     473 </span>            :     int i;
+<span class="lineNum">     474 </span>            :     double h=0;
+<span class="lineNum">     475 </span><span class="lineCov">          1 :     if(numvalues_for_shape == 0) {</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :       continue;</span>
+<span class="lineNum">     477 </span>            :     }
+<span class="lineNum">     478 </span><span class="lineCov">          1 :     for(i=0; i&lt;numvalues_for_shape; i++) {</span>
+<span class="lineNum">     479 </span><span class="lineCov">          1 :       values[i]*=scale;</span>
+<span class="lineNum">     480 </span><span class="lineCov">          1 :       h += values[i];</span>
+<span class="lineNum">     481 </span>            :     }
+<span class="lineNum">     482 </span><span class="lineCov">          1 :     msDrawStartShape(map, layer, image, &amp;shape);</span>
+<span class="lineNum">     483 </span><span class="lineCov">          1 :     if(findChartPoint(map, &amp;shape, barWidth,h, &amp;center)==MS_SUCCESS) {</span>
+<span class="lineNum">     484 </span><span class="lineCov">          1 :       status = msDrawVBarChart(map,image,</span>
+<span class="lineNum">     485 </span>            :                                &amp;center,
+<span class="lineNum">     486 </span>            :                                values, styles, numvalues_for_shape,
+<span class="lineNum">     487 </span>            :                                barWidth);
+<span class="lineNum">     488 </span>            :     }
+<span class="lineNum">     489 </span><span class="lineCov">          1 :     msDrawEndShape(map,layer,image,&amp;shape);</span>
+<span class="lineNum">     490 </span><span class="lineCov">          1 :     msFreeShape(&amp;shape);</span>
+<span class="lineNum">     491 </span>            :   }
+<span class="lineNum">     492 </span><span class="lineCov">          1 :   free(values);</span>
+<span class="lineNum">     493 </span><span class="lineCov">          1 :   free(styles);</span>
+<span class="lineNum">     494 </span><span class="lineCov">          1 :   return status;</span>
+<span class="lineNum">     495 </span>            : }
+<a name="496"><span class="lineNum">     496 </span>            : </a>
+<span class="lineNum">     497 </span>            : 
+<span class="lineNum">     498 </span><span class="lineCov">          1 : int msDrawBarChartLayer(mapObj *map, layerObj *layer, imageObj *image)</span>
+<span class="lineNum">     499 </span>            : {
+<span class="lineNum">     500 </span>            :   shapeObj    shape;
+<span class="lineNum">     501 </span>            :   int         status=MS_SUCCESS;
+<span class="lineNum">     502 </span><span class="lineCov">          1 :   const char *chartSizeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_SIZE&quot; );</span>
+<span class="lineNum">     503 </span><span class="lineCov">          1 :   const char *barMax=msLayerGetProcessingKey( layer,&quot;CHART_BAR_MAXVAL&quot; );</span>
+<span class="lineNum">     504 </span><span class="lineCov">          1 :   const char *barMin=msLayerGetProcessingKey( layer,&quot;CHART_BAR_MINVAL&quot; );</span>
+<span class="lineNum">     505 </span>            :   double width,height;
+<span class="lineNum">     506 </span>            :   double barWidth;
+<span class="lineNum">     507 </span>            :   double *values;
+<span class="lineNum">     508 </span>            :   styleObj **styles;
+<span class="lineNum">     509 </span>            :   pointObj center;
+<span class="lineNum">     510 </span>            :   double barMaxVal,barMinVal;
+<span class="lineNum">     511 </span><span class="lineCov">          1 :   int numvalues = layer-&gt;numclasses;</span>
+<span class="lineNum">     512 </span>            :   int numvalues_for_shape;
+<span class="lineNum">     513 </span><span class="lineCov">          1 :   if(chartSizeProcessingKey==NULL) {</span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :     width=height=20;</span>
+<span class="lineNum">     515 </span>            :   } else {
+<span class="lineNum">     516 </span><span class="lineCov">          1 :     switch(sscanf(chartSizeProcessingKey ,&quot;%lf %lf&quot;,&amp;width,&amp;height)) {</span>
+<span class="lineNum">     517 </span>            :       case 2:
+<span class="lineNum">     518 </span>            :         break;
+<span class="lineNum">     519 </span>            :       case 1:
+<span class="lineNum">     520 </span><span class="lineCov">          1 :         height = width;</span>
+<span class="lineNum">     521 </span><span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     522 </span>            :       default:
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :         msSetError(MS_MISCERR, &quot;msDrawChart format error for processing key \&quot;CHART_SIZE\&quot;&quot;, &quot;msDrawBarChartLayer()&quot;);</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">     525 </span>            :     }
+<span class="lineNum">     526 </span>            :   }
+<span class="lineNum">     527 </span>            : 
+<span class="lineNum">     528 </span><span class="lineCov">          1 :   if(barMax) {</span>
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :     if(sscanf(barMax,&quot;%lf&quot;,&amp;barMaxVal)!=1) {</span>
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Error reading value for processing key \&quot;CHART_BAR_MAXVAL\&quot;&quot;, &quot;msDrawBarChartLayer()&quot;);</span>
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     532 </span>            :     }
+<span class="lineNum">     533 </span>            :   }
+<span class="lineNum">     534 </span><span class="lineCov">          1 :   if(barMin) {</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :     if(sscanf(barMin,&quot;%lf&quot;,&amp;barMinVal)!=1) {</span>
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Error reading value for processing key \&quot;CHART_BAR_MINVAL\&quot;&quot;, &quot;msDrawBarChartLayer()&quot;);</span>
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     538 </span>            :     }
+<span class="lineNum">     539 </span>            :   }
+<span class="lineNum">     540 </span><span class="lineCov">          1 :   if(barMin &amp;&amp; barMax &amp;&amp; barMinVal&gt;=barMaxVal) {</span>
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;\&quot;CHART_BAR_MINVAL\&quot; must be less than \&quot;CHART_BAR_MAXVAL\&quot;&quot;, &quot;msDrawBarChartLayer()&quot;);</span>
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     543 </span>            :   }
+<span class="lineNum">     544 </span><span class="lineCov">          1 :   barWidth=(double)width/(double)layer-&gt;numclasses;</span>
+<span class="lineNum">     545 </span><span class="lineCov">          1 :   if(!barWidth) {</span>
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Specified width of chart too small to fit given number of classes&quot;, &quot;msDrawBarChartLayer()&quot;);</span>
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     548 </span>            :   }
+<span class="lineNum">     549 </span>            : 
+<span class="lineNum">     550 </span><span class="lineCov">          1 :   msInitShape(&amp;shape);</span>
+<span class="lineNum">     551 </span>            : 
+<span class="lineNum">     552 </span><span class="lineCov">          1 :   values=(double*)calloc(numvalues,sizeof(double));</span>
+<span class="lineNum">     553 </span><span class="lineCov">          1 :   MS_CHECK_ALLOC(values, numvalues*sizeof(double), MS_FAILURE);</span>
+<span class="lineNum">     554 </span><span class="lineCov">          1 :   styles = (styleObj**)malloc(numvalues*sizeof(styleObj*));</span>
+<span class="lineNum">     555 </span><span class="lineCov">          1 :   if (styles == NULL) {</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;%s: %d: Out of memory allocating %u bytes.\n&quot;, &quot;msDrawBarChartLayer()&quot;,</span>
+<span class="lineNum">     557 </span>            :                __FILE__, __LINE__, (unsigned int)(numvalues*sizeof(styleObj*)));
+<span class="lineNum">     558 </span><span class="lineNoCov">          0 :     free(values);</span>
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     560 </span>            :   }
+<span class="lineNum">     561 </span>            : 
+<span class="lineNum">     562 </span><span class="lineCov">          1 :   while(MS_SUCCESS == getNextShape(map,layer,values,&amp;numvalues_for_shape,styles,&amp;shape)) {</span>
+<span class="lineNum">     563 </span><span class="lineCov">          1 :     if(numvalues_for_shape == 0 ) continue;</span>
+<span class="lineNum">     564 </span><span class="lineCov">          1 :     msDrawStartShape(map, layer, image, &amp;shape);</span>
+<span class="lineNum">     565 </span><span class="lineCov">          1 :     if(findChartPoint(map, &amp;shape, width,height, &amp;center)==MS_SUCCESS) {</span>
+<span class="lineNum">     566 </span><span class="lineCov">          1 :       status = msDrawBarChart(map,image,</span>
+<span class="lineNum">     567 </span>            :                               &amp;center,
+<span class="lineNum">     568 </span>            :                               values, styles, numvalues_for_shape,
+<span class="lineNum">     569 </span>            :                               width,height,
+<span class="lineNum">     570 </span>            :                               (barMax!=NULL)?&amp;barMaxVal:NULL,
+<span class="lineNum">     571 </span>            :                               (barMin!=NULL)?&amp;barMinVal:NULL,
+<span class="lineNum">     572 </span>            :                               barWidth);
+<span class="lineNum">     573 </span>            :     }
+<span class="lineNum">     574 </span><span class="lineCov">          1 :     msDrawEndShape(map,layer,image,&amp;shape);</span>
+<span class="lineNum">     575 </span><span class="lineCov">          1 :     msFreeShape(&amp;shape);</span>
+<span class="lineNum">     576 </span>            :   }
+<span class="lineNum">     577 </span><span class="lineCov">          1 :   free(values);</span>
+<span class="lineNum">     578 </span><span class="lineCov">          1 :   free(styles);</span>
+<span class="lineNum">     579 </span><span class="lineCov">          1 :   return status;</span>
+<span class="lineNum">     580 </span>            : }
+<span class="lineNum">     581 </span>            : 
+<span class="lineNum">     582 </span>            : /**
+<a name="583"><span class="lineNum">     583 </span>            :  * Generic function to render chart layers.</a>
+<span class="lineNum">     584 </span>            :  */
+<span class="lineNum">     585 </span><span class="lineCov">          1 : int msDrawChartLayer(mapObj *map, layerObj *layer, imageObj *image)</span>
+<span class="lineNum">     586 </span>            : {
+<span class="lineNum">     587 </span>            : 
+<span class="lineNum">     588 </span>            :   rectObj     searchrect;
+<span class="lineNum">     589 </span><span class="lineCov">          1 :   const char *chartTypeProcessingKey=msLayerGetProcessingKey( layer,&quot;CHART_TYPE&quot; );</span>
+<span class="lineNum">     590 </span>            :   int chartType=MS_CHART_TYPE_PIE;
+<span class="lineNum">     591 </span>            :   int status = MS_FAILURE;
+<span class="lineNum">     592 </span>            : 
+<span class="lineNum">     593 </span><span class="lineCov">          1 :   if (image &amp;&amp; map &amp;&amp; layer) {</span>
+<span class="lineNum">     594 </span><span class="lineCov">          1 :     if( !(MS_RENDERER_PLUGIN(image-&gt;format) )) {</span>
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;chart drawing currently only supports GD and AGG renderers&quot;, &quot;msDrawChartLayer()&quot;);</span>
+<span class="lineNum">     596 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     597 </span>            :     }
+<span class="lineNum">     598 </span>            : 
+<span class="lineNum">     599 </span><span class="lineCov">          1 :     if(chartTypeProcessingKey!=NULL) {</span>
+<span class="lineNum">     600 </span><span class="lineCov">          1 :       if( strcasecmp(chartTypeProcessingKey,&quot;PIE&quot;) == 0 ) {</span>
+<span class="lineNum">     601 </span>            :         chartType=MS_CHART_TYPE_PIE;
+<span class="lineNum">     602 </span><span class="lineCov">          1 :       } else if( strcasecmp(chartTypeProcessingKey,&quot;BAR&quot;) == 0 ) {</span>
+<span class="lineNum">     603 </span>            :         chartType=MS_CHART_TYPE_BAR;
+<span class="lineNum">     604 </span><span class="lineCov">          1 :       } else if( strcasecmp(chartTypeProcessingKey,&quot;VBAR&quot;) == 0 ) {</span>
+<span class="lineNum">     605 </span>            :         chartType=MS_CHART_TYPE_VBAR;
+<span class="lineNum">     606 </span>            :       } else {
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :         msSetError(MS_MISCERR,&quot;unknown chart type for processing key \&quot;CHART_TYPE\&quot;, must be one of \&quot;PIE\&quot; or \&quot;BAR\&quot;&quot;, &quot;msDrawChartLayer()&quot;);</span>
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">     609 </span>            :       }
+<span class="lineNum">     610 </span>            :     }
+<span class="lineNum">     611 </span><span class="lineCov">          1 :     if(chartType == MS_CHART_TYPE_PIE) {</span>
+<span class="lineNum">     612 </span><span class="lineCov">          1 :       pieLayerProcessDynamicDiameter(layer);</span>
+<span class="lineNum">     613 </span>            :     }
+<span class="lineNum">     614 </span>            : 
+<span class="lineNum">     615 </span>            :     /* open this layer */
+<span class="lineNum">     616 </span><span class="lineCov">          1 :     status = msLayerOpen(layer);</span>
+<span class="lineNum">     617 </span><span class="lineCov">          1 :     if(status != MS_SUCCESS) return MS_FAILURE;</span>
+<span class="lineNum">     618 </span>            : 
+<span class="lineNum">     619 </span><span class="lineCov">          1 :     status = msLayerWhichItems(layer, MS_FALSE, NULL);</span>
+<span class="lineNum">     620 </span><span class="lineCov">          1 :     if(status != MS_SUCCESS) {</span>
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :       msLayerClose(layer);</span>
+<span class="lineNum">     622 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">     623 </span>            :     }
+<span class="lineNum">     624 </span>            :     /* identify target shapes */
+<span class="lineNum">     625 </span><span class="lineCov">          1 :     if(layer-&gt;transform == MS_TRUE)</span>
+<span class="lineNum">     626 </span><span class="lineCov">          1 :       searchrect = map-&gt;extent;</span>
+<span class="lineNum">     627 </span>            :     else {
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :       searchrect.minx = searchrect.miny = 0;</span>
+<span class="lineNum">     629 </span><span class="lineNoCov">          0 :       searchrect.maxx = map-&gt;width-1;</span>
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :       searchrect.maxy = map-&gt;height-1;</span>
+<span class="lineNum">     631 </span>            :     }
+<span class="lineNum">     632 </span>            : 
+<span class="lineNum">     633 </span><span class="lineCov">          1 :     if((map-&gt;projection.numargs &gt; 0) &amp;&amp; (layer-&gt;projection.numargs &gt; 0))</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :       msProjectRect(&amp;map-&gt;projection, &amp;layer-&gt;projection, &amp;searchrect); /* project the searchrect to source coords */</span>
+<span class="lineNum">     635 </span>            : 
+<span class="lineNum">     636 </span><span class="lineCov">          1 :     status = msLayerWhichShapes(layer, searchrect, MS_FALSE);</span>
+<span class="lineNum">     637 </span><span class="lineCov">          1 :     if(status == MS_DONE) { /* no overlap */</span>
+<span class="lineNum">     638 </span><span class="lineNoCov">          0 :       msLayerClose(layer);</span>
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :       if(chartType == MS_CHART_TYPE_PIE)</span>
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :         pieLayerCleanupDynamicDiameter(layer);</span>
+<span class="lineNum">     641 </span>            :       return MS_SUCCESS;
+<span class="lineNum">     642 </span><span class="lineCov">          1 :     } else if(status != MS_SUCCESS) {</span>
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :       msLayerClose(layer);</span>
+<span class="lineNum">     644 </span><span class="lineNoCov">          0 :       if(chartType == MS_CHART_TYPE_PIE)</span>
+<span class="lineNum">     645 </span><span class="lineNoCov">          0 :         pieLayerCleanupDynamicDiameter(layer);</span>
+<span class="lineNum">     646 </span>            :       return MS_FAILURE;
+<span class="lineNum">     647 </span>            :     }
+<span class="lineNum">     648 </span><span class="lineCov">          1 :     switch(chartType) {</span>
+<span class="lineNum">     649 </span>            :       case MS_CHART_TYPE_PIE:
+<span class="lineNum">     650 </span><span class="lineCov">          1 :         status = msDrawPieChartLayer(map, layer, image);</span>
+<span class="lineNum">     651 </span><span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     652 </span>            :       case MS_CHART_TYPE_BAR:
+<span class="lineNum">     653 </span><span class="lineCov">          1 :         status = msDrawBarChartLayer(map, layer, image);</span>
 <span class="lineNum">     654 </span><span class="lineCov">          1 :         break;</span>
-<span class="lineNum">     655 </span>            :       case MS_CHART_TYPE_BAR:
-<span class="lineNum">     656 </span><span class="lineCov">          1 :         status = msDrawBarChartLayer(map, layer, image);</span>
+<span class="lineNum">     655 </span>            :       case MS_CHART_TYPE_VBAR:
+<span class="lineNum">     656 </span><span class="lineCov">          1 :         status = msDrawVBarChartLayer(map, layer, image);</span>
 <span class="lineNum">     657 </span><span class="lineCov">          1 :         break;</span>
-<span class="lineNum">     658 </span>            :       case MS_CHART_TYPE_VBAR:
-<span class="lineNum">     659 </span><span class="lineCov">          1 :         status = msDrawVBarChartLayer(map, layer, image);</span>
-<span class="lineNum">     660 </span><span class="lineCov">          1 :         break;</span>
-<span class="lineNum">     661 </span>            :       default:
-<span class="lineNum">     662 </span>            :         return MS_FAILURE;/*shouldn't be here anyways*/
-<span class="lineNum">     663 </span>            :     }
-<span class="lineNum">     664 </span>            : 
-<span class="lineNum">     665 </span><span class="lineCov">          1 :     msLayerClose(layer);</span>
-<span class="lineNum">     666 </span>            : 
-<span class="lineNum">     667 </span><span class="lineCov">          1 :     if(chartType == MS_CHART_TYPE_PIE)</span>
-<span class="lineNum">     668 </span><span class="lineCov">          1 :       pieLayerCleanupDynamicDiameter(layer);</span>
-<span class="lineNum">     669 </span>            :   }
-<span class="lineNum">     670 </span><span class="lineCov">          1 :   return status;</span>
-<span class="lineNum">     671 </span>            : }
+<span class="lineNum">     658 </span>            :       default:
+<span class="lineNum">     659 </span>            :         return MS_FAILURE;/*shouldn't be here anyways*/
+<span class="lineNum">     660 </span>            :     }
+<span class="lineNum">     661 </span>            : 
+<span class="lineNum">     662 </span><span class="lineCov">          1 :     msLayerClose(layer);</span>
+<span class="lineNum">     663 </span>            : 
+<span class="lineNum">     664 </span><span class="lineCov">          1 :     if(chartType == MS_CHART_TYPE_PIE)</span>
+<span class="lineNum">     665 </span><span class="lineCov">          1 :       pieLayerCleanupDynamicDiameter(layer);</span>
+<span class="lineNum">     666 </span>            :   }
+<span class="lineNum">     667 </span><span class="lineCov">          1 :   return status;</span>
+<span class="lineNum">     668 </span>            : }
 </pre>
       </td>
     </tr>
