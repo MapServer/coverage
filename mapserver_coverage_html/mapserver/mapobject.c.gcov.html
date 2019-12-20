@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">205</td>
-            <td class="headerCovTableEntry">284</td>
-            <td class="headerCovTableEntryLo">72.2 %</td>
+            <td class="headerCovTableEntry">203</td>
+            <td class="headerCovTableEntry">282</td>
+            <td class="headerCovTableEntryLo">72.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -821,37 +821,35 @@
 <span class="lineNum">     759 </span>            :   int result, i = 0;
 <span class="lineNum">     760 </span>            :   owsRequestObj ows_request;
 <span class="lineNum">     761 </span>            : 
-<span class="lineNum">     762 </span><span class="lineCov">          1 :   ows_request.numlayers = 0;</span>
-<span class="lineNum">     763 </span><span class="lineCov">          1 :   ows_request.enabled_layers = NULL;</span>
+<span class="lineNum">     762 </span><span class="lineCov">          1 :   msOWSInitRequestObj(&amp;ows_request);</span>
+<span class="lineNum">     763 </span>            : 
 <span class="lineNum">     764 </span>            : 
-<span class="lineNum">     765 </span>            : 
-<span class="lineNum">     766 </span><span class="lineCov">          1 :   version = msOWSParseVersionString(wmtver);</span>
-<span class="lineNum">     767 </span><span class="lineCov">          1 :   for(i=0; i&lt;request-&gt;NumParams; i++) {</span>
-<span class="lineNum">     768 </span><span class="lineCov">          1 :     if (strcasecmp(request-&gt;ParamNames[i], &quot;EXCEPTIONS&quot;) == 0)</span>
-<span class="lineNum">     769 </span><span class="lineNoCov">          0 :       wms_exception_format = request-&gt;ParamValues[i];</span>
-<span class="lineNum">     770 </span><span class="lineCov">          1 :     else if (strcasecmp(request-&gt;ParamNames[i], &quot;REQUEST&quot;) == 0)</span>
-<span class="lineNum">     771 </span><span class="lineCov">          1 :       wms_request = request-&gt;ParamValues[i];</span>
-<span class="lineNum">     772 </span>            : 
-<span class="lineNum">     773 </span>            :   }
-<span class="lineNum">     774 </span>            : 
-<span class="lineNum">     775 </span><span class="lineCov">          1 :   msOWSRequestLayersEnabled(map, &quot;M&quot;, wms_request, &amp;ows_request);</span>
-<span class="lineNum">     776 </span>            : 
-<span class="lineNum">     777 </span><span class="lineCov">          1 :   result = msWMSLoadGetMapParams(map, version, request-&gt;ParamNames,</span>
-<span class="lineNum">     778 </span>            :                                  request-&gt;ParamValues, request-&gt;NumParams,  wms_exception_format,
-<span class="lineNum">     779 </span>            :                                  wms_request, &amp;ows_request);
-<span class="lineNum">     780 </span>            : 
-<span class="lineNum">     781 </span><span class="lineCov">          1 :   if (ows_request.numlayers &gt; 0)</span>
-<span class="lineNum">     782 </span><span class="lineCov">          1 :     msFree(ows_request.enabled_layers);</span>
+<span class="lineNum">     765 </span><span class="lineCov">          1 :   version = msOWSParseVersionString(wmtver);</span>
+<span class="lineNum">     766 </span><span class="lineCov">          1 :   for(i=0; i&lt;request-&gt;NumParams; i++) {</span>
+<span class="lineNum">     767 </span><span class="lineCov">          1 :     if (strcasecmp(request-&gt;ParamNames[i], &quot;EXCEPTIONS&quot;) == 0)</span>
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :       wms_exception_format = request-&gt;ParamValues[i];</span>
+<span class="lineNum">     769 </span><span class="lineCov">          1 :     else if (strcasecmp(request-&gt;ParamNames[i], &quot;REQUEST&quot;) == 0)</span>
+<span class="lineNum">     770 </span><span class="lineCov">          1 :       wms_request = request-&gt;ParamValues[i];</span>
+<span class="lineNum">     771 </span>            : 
+<span class="lineNum">     772 </span>            :   }
+<span class="lineNum">     773 </span>            : 
+<span class="lineNum">     774 </span><span class="lineCov">          1 :   msOWSRequestLayersEnabled(map, &quot;M&quot;, wms_request, &amp;ows_request);</span>
+<span class="lineNum">     775 </span>            : 
+<span class="lineNum">     776 </span><span class="lineCov">          1 :   result = msWMSLoadGetMapParams(map, version, request-&gt;ParamNames,</span>
+<span class="lineNum">     777 </span>            :                                  request-&gt;ParamValues, request-&gt;NumParams,  wms_exception_format,
+<span class="lineNum">     778 </span>            :                                  wms_request, &amp;ows_request);
+<span class="lineNum">     779 </span>            : 
+<span class="lineNum">     780 </span><span class="lineCov">          1 :   msOWSClearRequestObj(&amp;ows_request);</span>
+<span class="lineNum">     781 </span>            : 
+<span class="lineNum">     782 </span><span class="lineCov">          1 :   return result;</span>
 <span class="lineNum">     783 </span>            : 
-<span class="lineNum">     784 </span><span class="lineCov">          1 :   return result;</span>
-<span class="lineNum">     785 </span>            : 
-<span class="lineNum">     786 </span>            : #else
-<span class="lineNum">     787 </span>            :   msSetError(MS_WMSERR, &quot;WMS server support is not available.&quot;,
-<span class="lineNum">     788 </span>            :              &quot;msMapLoadOWSParameters()&quot;);
-<span class="lineNum">     789 </span>            :   return MS_FAILURE;
-<span class="lineNum">     790 </span>            : #endif
-<span class="lineNum">     791 </span>            : }
-<span class="lineNum">     792 </span>            : 
+<span class="lineNum">     784 </span>            : #else
+<span class="lineNum">     785 </span>            :   msSetError(MS_WMSERR, &quot;WMS server support is not available.&quot;,
+<span class="lineNum">     786 </span>            :              &quot;msMapLoadOWSParameters()&quot;);
+<span class="lineNum">     787 </span>            :   return MS_FAILURE;
+<span class="lineNum">     788 </span>            : #endif
+<span class="lineNum">     789 </span>            : }
+<span class="lineNum">     790 </span>            : 
 </pre>
       </td>
     </tr>
