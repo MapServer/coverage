@@ -31,8 +31,8 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">761</td>
-            <td class="headerCovTableEntry">1110</td>
+            <td class="headerCovTableEntry">764</td>
+            <td class="headerCovTableEntry">1113</td>
             <td class="headerCovTableEntryLo">68.6 %</td>
           </tr>
           <tr>
@@ -993,7 +993,7 @@
 <span class="lineNum">     931 </span>            : {
 <span class="lineNum">     932 </span>            :   int nReturnVal = MS_FAILURE;
 <span class="lineNum">     933 </span>            :   char szPath[MS_MAXPATHLEN];
-<span class="lineNum">     934 </span>            :   struct mstimeval starttime, endtime;
+<span class="lineNum">     934 </span><span class="lineCov">          1 :   struct mstimeval starttime={0}, endtime={0};</span>
 <span class="lineNum">     935 </span>            : 
 <span class="lineNum">     936 </span><span class="lineCov">          1 :   if(map &amp;&amp; map-&gt;debug &gt;= MS_DEBUGLEVEL_TUNING) {</span>
 <span class="lineNum">     937 </span><span class="lineCov">          1 :     msGettimeofday(&amp;starttime, NULL);</span>
@@ -1938,7 +1938,7 @@
 <span class="lineNum">    1876 </span><span class="lineCov">          1 :     ret-&gt;line[i].point=(pointObj*)msSmallMalloc(sizeof(pointObj)*ret-&gt;line[i].numpoints);</span>
 <span class="lineNum">    1877 </span>            :   }
 <span class="lineNum">    1878 </span><span class="lineCov">          1 :   for (i = 0; i &lt; p-&gt;numlines; i++) {</span>
-<span class="lineNum">    1879 </span>            :     pointObj old_pt, old_diffdir, old_offdir;
+<span class="lineNum">    1879 </span>            :     pointObj old_pt = {0}, old_diffdir, old_offdir;
 <span class="lineNum">    1880 </span><span class="lineCov">          1 :     if(p-&gt;line[i].numpoints&lt;2) {</span>
 <span class="lineNum">    1881 </span><span class="lineCov">          1 :       ret-&gt;line[i].numpoints = 0;</span>
 <span class="lineNum">    1882 </span><span class="lineCov">          1 :       continue; /* skip degenerate points */</span>
@@ -2127,9 +2127,9 @@
 <span class="lineNum">    2065 </span>            : 
 <span class="lineNum">    2066 </span>            : #if PROJ_VERSION_MAJOR &lt; 6
 <span class="lineNum">    2067 </span>            : #  if PJ_VERSION &gt;= 480
-<span class="lineNum">    2068 </span>            :   pj_clear_initcache();
+<span class="lineNum">    2068 </span><span class="lineCov">          1 :   pj_clear_initcache();</span>
 <span class="lineNum">    2069 </span>            : #  endif
-<span class="lineNum">    2070 </span>            :   pj_deallocate_grids();
+<span class="lineNum">    2070 </span><span class="lineCov">          1 :   pj_deallocate_grids();</span>
 <span class="lineNum">    2071 </span>            : #endif
 <span class="lineNum">    2072 </span><span class="lineCov">          1 :   msSetPROJ_LIB( NULL, NULL );</span>
 <span class="lineNum">    2073 </span><span class="lineCov">          1 :   msProjectionContextPoolCleanup();</span>
@@ -2744,67 +2744,65 @@
 <span class="lineNum">    2682 </span>            :    Ref: http://trac.osgeo.org/gdal/ticket/966 */
 <span class="lineNum">    2683 </span><span class="lineCov">          1 : shapeObj* msGeneralize(shapeObj *shape, double tolerance)</span>
 <span class="lineNum">    2684 </span>            : {
-<span class="lineNum">    2685 </span>            :   shapeObj *newShape;
-<span class="lineNum">    2686 </span><span class="lineCov">          1 :   lineObj newLine = {0,NULL};</span>
-<span class="lineNum">    2687 </span><span class="lineCov">          1 :   double sqTolerance = tolerance*tolerance;</span>
-<span class="lineNum">    2688 </span>            :   
-<span class="lineNum">    2689 </span>            :   double dX0, dY0, dX1, dY1, dX, dY, dSqDist;
-<span class="lineNum">    2690 </span>            :   int i;
+<span class="lineNum">    2685 </span><span class="lineCov">          1 :   lineObj newLine = {0,NULL};</span>
+<span class="lineNum">    2686 </span><span class="lineCov">          1 :   const double sqTolerance = tolerance*tolerance;</span>
+<span class="lineNum">    2687 </span>            : 
+<span class="lineNum">    2688 </span><span class="lineCov">          1 :   shapeObj* newShape = (shapeObj*)msSmallMalloc(sizeof(shapeObj));</span>
+<span class="lineNum">    2689 </span><span class="lineCov">          1 :   msInitShape(newShape);</span>
+<span class="lineNum">    2690 </span><span class="lineCov">          1 :   msCopyShape(shape, newShape);</span>
 <span class="lineNum">    2691 </span>            : 
-<span class="lineNum">    2692 </span><span class="lineCov">          1 :   newShape = (shapeObj*)msSmallMalloc(sizeof(shapeObj));</span>
-<span class="lineNum">    2693 </span><span class="lineCov">          1 :   msInitShape(newShape);</span>
-<span class="lineNum">    2694 </span><span class="lineCov">          1 :   msCopyShape(shape, newShape);</span>
-<span class="lineNum">    2695 </span>            : 
-<span class="lineNum">    2696 </span><span class="lineCov">          1 :   if (shape-&gt;numlines&lt;1)</span>
-<span class="lineNum">    2697 </span>            :     return newShape;
-<span class="lineNum">    2698 </span>            :   
-<span class="lineNum">    2699 </span>            :   /* Clean shape */
-<span class="lineNum">    2700 </span><span class="lineCov">          1 :   for (i=0; i &lt; newShape-&gt;numlines; i++)</span>
-<span class="lineNum">    2701 </span><span class="lineCov">          1 :     free(newShape-&gt;line[i].point);</span>
-<span class="lineNum">    2702 </span><span class="lineCov">          1 :   newShape-&gt;numlines = 0;</span>
-<span class="lineNum">    2703 </span><span class="lineCov">          1 :   if (newShape-&gt;line) free(newShape-&gt;line);</span>
-<span class="lineNum">    2704 </span>            :     
-<span class="lineNum">    2705 </span><span class="lineCov">          1 :   msAddLine(newShape, &amp;newLine);</span>
-<span class="lineNum">    2706 </span>            :   
-<span class="lineNum">    2707 </span><span class="lineCov">          1 :   if (shape-&gt;line[0].numpoints&gt;0) {</span>
-<span class="lineNum">    2708 </span><span class="lineCov">          1 :     msAddPointToLine(&amp;newShape-&gt;line[0],</span>
-<span class="lineNum">    2709 </span>            :                      &amp;shape-&gt;line[0].point[0]);              
-<span class="lineNum">    2710 </span><span class="lineCov">          1 :     dX0 = shape-&gt;line[0].point[0].x;</span>
-<span class="lineNum">    2711 </span><span class="lineCov">          1 :     dY0 = shape-&gt;line[0].point[0].y;    </span>
-<span class="lineNum">    2712 </span>            :   }
-<span class="lineNum">    2713 </span>            :   
-<span class="lineNum">    2714 </span><span class="lineCov">          1 :   for(i=1; i&lt;shape-&gt;line[0].numpoints; i++)</span>
-<span class="lineNum">    2715 </span>            :   {
-<span class="lineNum">    2716 </span><span class="lineCov">          1 :       dX1 = shape-&gt;line[0].point[i].x;</span>
-<span class="lineNum">    2717 </span><span class="lineCov">          1 :       dY1 = shape-&gt;line[0].point[i].y;</span>
-<span class="lineNum">    2718 </span>            :      
-<span class="lineNum">    2719 </span><span class="lineCov">          1 :       dX = dX1-dX0;</span>
-<span class="lineNum">    2720 </span><span class="lineCov">          1 :       dY = dY1-dY0;</span>
-<span class="lineNum">    2721 </span><span class="lineCov">          1 :       dSqDist = dX*dX + dY*dY;</span>
-<span class="lineNum">    2722 </span><span class="lineCov">          1 :       if (i == shape-&gt;line[0].numpoints-1 || dSqDist &gt;= sqTolerance)</span>
-<span class="lineNum">    2723 </span>            :       {
-<span class="lineNum">    2724 </span>            :           pointObj p;
-<span class="lineNum">    2725 </span><span class="lineCov">          1 :           p.x = dX1;</span>
-<span class="lineNum">    2726 </span><span class="lineCov">          1 :           p.y = dY1;</span>
-<span class="lineNum">    2727 </span>            :           
-<span class="lineNum">    2728 </span>            :           /* Keep this point (always keep the last point) */
-<span class="lineNum">    2729 </span><span class="lineCov">          1 :           msAddPointToLine(&amp;newShape-&gt;line[0],</span>
-<span class="lineNum">    2730 </span>            :                            &amp;p);          
-<span class="lineNum">    2731 </span>            :           dX0 = dX1;
-<span class="lineNum">    2732 </span>            :           dY0 = dY1;
-<span class="lineNum">    2733 </span>            :         }
-<span class="lineNum">    2734 </span>            :     }
-<span class="lineNum">    2735 </span>            :    
-<span class="lineNum">    2736 </span>            :   return newShape;
-<a name="2737"><span class="lineNum">    2737 </span>            : }</a>
-<span class="lineNum">    2738 </span>            : 
-<span class="lineNum">    2739 </span><span class="lineNoCov">          0 : void msSetLayerOpacity(layerObj *layer, int opacity) {</span>
-<span class="lineNum">    2740 </span><span class="lineNoCov">          0 :   if(!layer-&gt;compositer) {</span>
-<span class="lineNum">    2741 </span><span class="lineNoCov">          0 :     layer-&gt;compositer = msSmallMalloc(sizeof(LayerCompositer));</span>
-<span class="lineNum">    2742 </span><span class="lineNoCov">          0 :     initLayerCompositer(layer-&gt;compositer);</span>
-<span class="lineNum">    2743 </span>            :   }
-<span class="lineNum">    2744 </span><span class="lineNoCov">          0 :   layer-&gt;compositer-&gt;opacity = opacity;</span>
-<span class="lineNum">    2745 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    2692 </span><span class="lineCov">          1 :   if (shape-&gt;numlines&lt;1)</span>
+<span class="lineNum">    2693 </span>            :     return newShape;
+<span class="lineNum">    2694 </span>            :   
+<span class="lineNum">    2695 </span>            :   /* Clean shape */
+<span class="lineNum">    2696 </span><span class="lineCov">          1 :   for (int i=0; i &lt; newShape-&gt;numlines; i++)</span>
+<span class="lineNum">    2697 </span><span class="lineCov">          1 :     free(newShape-&gt;line[i].point);</span>
+<span class="lineNum">    2698 </span><span class="lineCov">          1 :   newShape-&gt;numlines = 0;</span>
+<span class="lineNum">    2699 </span><span class="lineCov">          1 :   if (newShape-&gt;line) free(newShape-&gt;line);</span>
+<span class="lineNum">    2700 </span>            :     
+<span class="lineNum">    2701 </span><span class="lineCov">          1 :   msAddLine(newShape, &amp;newLine);</span>
+<span class="lineNum">    2702 </span>            :   
+<span class="lineNum">    2703 </span><span class="lineCov">          1 :   if (shape-&gt;line[0].numpoints==0) {</span>
+<span class="lineNum">    2704 </span>            :     return newShape;
+<span class="lineNum">    2705 </span>            :   }
+<span class="lineNum">    2706 </span>            : 
+<span class="lineNum">    2707 </span><span class="lineCov">          1 :   msAddPointToLine(&amp;newShape-&gt;line[0],</span>
+<span class="lineNum">    2708 </span>            :                    &amp;shape-&gt;line[0].point[0]);
+<span class="lineNum">    2709 </span><span class="lineCov">          1 :   double dX0 = shape-&gt;line[0].point[0].x;</span>
+<span class="lineNum">    2710 </span><span class="lineCov">          1 :   double dY0 = shape-&gt;line[0].point[0].y;</span>
+<span class="lineNum">    2711 </span>            : 
+<span class="lineNum">    2712 </span><span class="lineCov">          1 :   for(int i=1; i&lt;shape-&gt;line[0].numpoints; i++)</span>
+<span class="lineNum">    2713 </span>            :   {
+<span class="lineNum">    2714 </span><span class="lineCov">          1 :       double dX1 = shape-&gt;line[0].point[i].x;</span>
+<span class="lineNum">    2715 </span><span class="lineCov">          1 :       double dY1 = shape-&gt;line[0].point[i].y;</span>
+<span class="lineNum">    2716 </span>            :      
+<span class="lineNum">    2717 </span><span class="lineCov">          1 :       const double dX = dX1-dX0;</span>
+<span class="lineNum">    2718 </span><span class="lineCov">          1 :       const double dY = dY1-dY0;</span>
+<span class="lineNum">    2719 </span><span class="lineCov">          1 :       const double dSqDist = dX*dX + dY*dY;</span>
+<span class="lineNum">    2720 </span><span class="lineCov">          1 :       if (i == shape-&gt;line[0].numpoints-1 || dSqDist &gt;= sqTolerance)</span>
+<span class="lineNum">    2721 </span>            :       {
+<span class="lineNum">    2722 </span>            :           pointObj p;
+<span class="lineNum">    2723 </span><span class="lineCov">          1 :           p.x = dX1;</span>
+<span class="lineNum">    2724 </span><span class="lineCov">          1 :           p.y = dY1;</span>
+<span class="lineNum">    2725 </span>            :           
+<span class="lineNum">    2726 </span>            :           /* Keep this point (always keep the last point) */
+<span class="lineNum">    2727 </span><span class="lineCov">          1 :           msAddPointToLine(&amp;newShape-&gt;line[0],</span>
+<span class="lineNum">    2728 </span>            :                            &amp;p);          
+<span class="lineNum">    2729 </span>            :           dX0 = dX1;
+<span class="lineNum">    2730 </span>            :           dY0 = dY1;
+<span class="lineNum">    2731 </span>            :         }
+<span class="lineNum">    2732 </span>            :     }
+<span class="lineNum">    2733 </span>            :    
+<span class="lineNum">    2734 </span>            :   return newShape;
+<a name="2735"><span class="lineNum">    2735 </span>            : }</a>
+<span class="lineNum">    2736 </span>            : 
+<span class="lineNum">    2737 </span><span class="lineNoCov">          0 : void msSetLayerOpacity(layerObj *layer, int opacity) {</span>
+<span class="lineNum">    2738 </span><span class="lineNoCov">          0 :   if(!layer-&gt;compositer) {</span>
+<span class="lineNum">    2739 </span><span class="lineNoCov">          0 :     layer-&gt;compositer = msSmallMalloc(sizeof(LayerCompositer));</span>
+<span class="lineNum">    2740 </span><span class="lineNoCov">          0 :     initLayerCompositer(layer-&gt;compositer);</span>
+<span class="lineNum">    2741 </span>            :   }
+<span class="lineNum">    2742 </span><span class="lineNoCov">          0 :   layer-&gt;compositer-&gt;opacity = opacity;</span>
+<span class="lineNum">    2743 </span><span class="lineNoCov">          0 : }</span>
 </pre>
       </td>
     </tr>

@@ -31,9 +31,9 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">380</td>
-            <td class="headerCovTableEntry">449</td>
-            <td class="headerCovTableEntryMed">84.6 %</td>
+            <td class="headerCovTableEntry">379</td>
+            <td class="headerCovTableEntry">450</td>
+            <td class="headerCovTableEntryMed">84.2 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -538,9 +538,9 @@
 <span class="lineNum">     476 </span>            :   char **savedProcessing = NULL;
 <span class="lineNum">     477 </span>            :   int bHasLonWrap = MS_FALSE;
 <span class="lineNum">     478 </span>            :   double dfLonWrap = 0.0;
-<span class="lineNum">     479 </span>            :   rectObj oldLayerExtent;
+<span class="lineNum">     479 </span>            :   rectObj oldLayerExtent = {0};
 <span class="lineNum">     480 </span>            :   char* oldLayerData = NULL;
-<span class="lineNum">     481 </span>            :   projectionObj oldLayerProjection;
+<span class="lineNum">     481 </span><span class="lineCov">          1 :   projectionObj oldLayerProjection={0};</span>
 <span class="lineNum">     482 </span>            :   int ret;
 <span class="lineNum">     483 </span>            : 
 <span class="lineNum">     484 </span><span class="lineCov">          1 :   if (layer-&gt;debug)</span>
@@ -977,176 +977,167 @@
 <span class="lineNum">     915 </span>            : {
 <span class="lineNum">     916 </span>            :   char szPath[MS_MAXPATHLEN];
 <span class="lineNum">     917 </span><span class="lineCov">          1 :   mapObj *map = layer-&gt;map;</span>
-<span class="lineNum">     918 </span>            :   double adfGeoTransform[6];
-<span class="lineNum">     919 </span>            :   int nXSize, nYSize;
-<span class="lineNum">     920 </span>            :   GDALDatasetH hDS;
-<span class="lineNum">     921 </span>            :   shapefileObj *tileshpfile;
-<span class="lineNum">     922 </span>            :   int tilelayerindex = -1;
-<span class="lineNum">     923 </span>            :   CPLErr eErr = CE_Failure;
-<span class="lineNum">     924 </span>            :   char *decrypted_path;
-<span class="lineNum">     925 </span>            : 
-<span class="lineNum">     926 </span><span class="lineCov">          1 :   if( (!layer-&gt;data || strlen(layer-&gt;data) == 0)</span>
-<span class="lineNum">     927 </span><span class="lineNoCov">          0 :       &amp;&amp; layer-&gt;tileindex == NULL) {</span>
-<span class="lineNum">     928 </span>            :     /* should we be issuing a specific error about not supporting
-<span class="lineNum">     929 </span>            :        extents for tileindexed raster layers? */
-<span class="lineNum">     930 </span>            :     return MS_FAILURE;
-<span class="lineNum">     931 </span>            :   }
-<span class="lineNum">     932 </span>            : 
-<span class="lineNum">     933 </span><span class="lineCov">          1 :   if( map == NULL )</span>
-<span class="lineNum">     934 </span>            :     return MS_FAILURE;
-<span class="lineNum">     935 </span>            : 
-<span class="lineNum">     936 </span>            :   /* If the layer use a tileindex, return the extent of the tileindex shapefile/referenced layer */
-<span class="lineNum">     937 </span><span class="lineCov">          1 :   if (layer-&gt;tileindex) {</span>
-<span class="lineNum">     938 </span><span class="lineNoCov">          0 :     tilelayerindex = msGetLayerIndex(map, layer-&gt;tileindex);</span>
-<span class="lineNum">     939 </span><span class="lineNoCov">          0 :     if(tilelayerindex != -1) /* does the tileindex reference another layer */</span>
-<span class="lineNum">     940 </span><span class="lineNoCov">          0 :       return msLayerGetExtent(GET_LAYER(map, tilelayerindex), extent);</span>
-<span class="lineNum">     941 </span>            :     else {
-<span class="lineNum">     942 </span><span class="lineNoCov">          0 :       tileshpfile = (shapefileObj *) malloc(sizeof(shapefileObj));</span>
-<span class="lineNum">     943 </span><span class="lineNoCov">          0 :       MS_CHECK_ALLOC(tileshpfile, sizeof(shapefileObj), MS_FAILURE);</span>
-<span class="lineNum">     944 </span>            : 
-<span class="lineNum">     945 </span><span class="lineNoCov">          0 :       if(msShapefileOpen(tileshpfile, &quot;rb&quot;, msBuildPath3(szPath, map-&gt;mappath, map-&gt;shapepath, layer-&gt;tileindex), MS_TRUE) == -1)</span>
-<span class="lineNum">     946 </span><span class="lineNoCov">          0 :         if(msShapefileOpen(tileshpfile, &quot;rb&quot;, msBuildPath(szPath, map-&gt;mappath, layer-&gt;tileindex), MS_TRUE) == -1)</span>
-<span class="lineNum">     947 </span>            :           return MS_FAILURE;
-<span class="lineNum">     948 </span>            : 
-<span class="lineNum">     949 </span><span class="lineNoCov">          0 :       *extent = tileshpfile-&gt;bounds;</span>
-<span class="lineNum">     950 </span><span class="lineNoCov">          0 :       msShapefileClose(tileshpfile);</span>
-<span class="lineNum">     951 </span><span class="lineNoCov">          0 :       free(tileshpfile);</span>
-<span class="lineNum">     952 </span><span class="lineNoCov">          0 :       return MS_SUCCESS;</span>
-<span class="lineNum">     953 </span>            :     }
-<span class="lineNum">     954 </span>            :   }
+<span class="lineNum">     918 </span>            :   shapefileObj *tileshpfile;
+<span class="lineNum">     919 </span>            :   int tilelayerindex = -1;
+<span class="lineNum">     920 </span>            : 
+<span class="lineNum">     921 </span><span class="lineCov">          1 :   if( (!layer-&gt;data || strlen(layer-&gt;data) == 0)</span>
+<span class="lineNum">     922 </span><span class="lineNoCov">          0 :       &amp;&amp; layer-&gt;tileindex == NULL) {</span>
+<span class="lineNum">     923 </span>            :     /* should we be issuing a specific error about not supporting
+<span class="lineNum">     924 </span>            :        extents for tileindexed raster layers? */
+<span class="lineNum">     925 </span>            :     return MS_FAILURE;
+<span class="lineNum">     926 </span>            :   }
+<span class="lineNum">     927 </span>            : 
+<span class="lineNum">     928 </span><span class="lineCov">          1 :   if( map == NULL )</span>
+<span class="lineNum">     929 </span>            :     return MS_FAILURE;
+<span class="lineNum">     930 </span>            : 
+<span class="lineNum">     931 </span>            :   /* If the layer use a tileindex, return the extent of the tileindex shapefile/referenced layer */
+<span class="lineNum">     932 </span><span class="lineCov">          1 :   if (layer-&gt;tileindex) {</span>
+<span class="lineNum">     933 </span><span class="lineNoCov">          0 :     tilelayerindex = msGetLayerIndex(map, layer-&gt;tileindex);</span>
+<span class="lineNum">     934 </span><span class="lineNoCov">          0 :     if(tilelayerindex != -1) /* does the tileindex reference another layer */</span>
+<span class="lineNum">     935 </span><span class="lineNoCov">          0 :       return msLayerGetExtent(GET_LAYER(map, tilelayerindex), extent);</span>
+<span class="lineNum">     936 </span>            :     else {
+<span class="lineNum">     937 </span><span class="lineNoCov">          0 :       tileshpfile = (shapefileObj *) malloc(sizeof(shapefileObj));</span>
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :       MS_CHECK_ALLOC(tileshpfile, sizeof(shapefileObj), MS_FAILURE);</span>
+<span class="lineNum">     939 </span>            : 
+<span class="lineNum">     940 </span><span class="lineNoCov">          0 :       if(msShapefileOpen(tileshpfile, &quot;rb&quot;, msBuildPath3(szPath, map-&gt;mappath, map-&gt;shapepath, layer-&gt;tileindex), MS_TRUE) == -1)</span>
+<span class="lineNum">     941 </span><span class="lineNoCov">          0 :         if(msShapefileOpen(tileshpfile, &quot;rb&quot;, msBuildPath(szPath, map-&gt;mappath, layer-&gt;tileindex), MS_TRUE) == -1)</span>
+<span class="lineNum">     942 </span>            :           return MS_FAILURE;
+<span class="lineNum">     943 </span>            : 
+<span class="lineNum">     944 </span><span class="lineNoCov">          0 :       *extent = tileshpfile-&gt;bounds;</span>
+<span class="lineNum">     945 </span><span class="lineNoCov">          0 :       msShapefileClose(tileshpfile);</span>
+<span class="lineNum">     946 </span><span class="lineNoCov">          0 :       free(tileshpfile);</span>
+<span class="lineNum">     947 </span><span class="lineNoCov">          0 :       return MS_SUCCESS;</span>
+<span class="lineNum">     948 </span>            :     }
+<span class="lineNum">     949 </span>            :   }
+<span class="lineNum">     950 </span>            : 
+<span class="lineNum">     951 </span><span class="lineCov">          1 :   msTryBuildPath3(szPath, map-&gt;mappath, map-&gt;shapepath, layer-&gt;data);</span>
+<span class="lineNum">     952 </span><span class="lineCov">          1 :   char* decrypted_path = msDecryptStringTokens( map, szPath );</span>
+<span class="lineNum">     953 </span><span class="lineCov">          1 :   if( !decrypted_path )</span>
+<span class="lineNum">     954 </span>            :       return MS_FAILURE;
 <span class="lineNum">     955 </span>            : 
-<span class="lineNum">     956 </span><span class="lineCov">          1 :   msTryBuildPath3(szPath, map-&gt;mappath, map-&gt;shapepath, layer-&gt;data);</span>
-<span class="lineNum">     957 </span><span class="lineCov">          1 :   decrypted_path = msDecryptStringTokens( map, szPath );</span>
-<span class="lineNum">     958 </span>            : 
-<span class="lineNum">     959 </span><span class="lineCov">          1 :   GDALAllRegister();</span>
-<span class="lineNum">     960 </span>            : 
-<span class="lineNum">     961 </span><span class="lineCov">          1 :   msAcquireLock( TLOCK_GDAL );</span>
-<span class="lineNum">     962 </span><span class="lineCov">          1 :   if( decrypted_path ) {</span>
-<span class="lineNum">     963 </span><span class="lineCov">          1 :     char** connectionoptions = msGetStringListFromHashTable(&amp;(layer-&gt;connectionoptions));</span>
-<span class="lineNum">     964 </span><span class="lineCov">          1 :     hDS = GDALOpenEx(decrypted_path,</span>
-<span class="lineNum">     965 </span>            :                                 GDAL_OF_RASTER,
-<span class="lineNum">     966 </span>            :                                 NULL,
-<span class="lineNum">     967 </span>            :                                 (const char* const*)connectionoptions,
-<span class="lineNum">     968 </span>            :                                 NULL);
-<span class="lineNum">     969 </span><span class="lineCov">          1 :     CSLDestroy(connectionoptions);</span>
-<span class="lineNum">     970 </span><span class="lineCov">          1 :     msFree( decrypted_path );</span>
-<span class="lineNum">     971 </span>            :   } else
-<span class="lineNum">     972 </span>            :     hDS = NULL;
-<span class="lineNum">     973 </span>            : 
-<span class="lineNum">     974 </span><span class="lineCov">          1 :   if( hDS != NULL ) {</span>
-<span class="lineNum">     975 </span><span class="lineCov">          1 :     nXSize = GDALGetRasterXSize( hDS );</span>
-<span class="lineNum">     976 </span><span class="lineCov">          1 :     nYSize = GDALGetRasterYSize( hDS );</span>
-<span class="lineNum">     977 </span><span class="lineCov">          1 :     eErr = GDALGetGeoTransform( hDS, adfGeoTransform );</span>
+<span class="lineNum">     956 </span><span class="lineCov">          1 :   GDALAllRegister();</span>
+<span class="lineNum">     957 </span>            : 
+<span class="lineNum">     958 </span><span class="lineCov">          1 :   char** connectionoptions = msGetStringListFromHashTable(&amp;(layer-&gt;connectionoptions));</span>
+<span class="lineNum">     959 </span><span class="lineCov">          1 :   GDALDatasetH hDS = GDALOpenEx(decrypted_path,</span>
+<span class="lineNum">     960 </span>            :                                 GDAL_OF_RASTER,
+<span class="lineNum">     961 </span>            :                                 NULL,
+<span class="lineNum">     962 </span>            :                                 (const char* const*)connectionoptions,
+<span class="lineNum">     963 </span>            :                                 NULL);
+<span class="lineNum">     964 </span><span class="lineCov">          1 :   CSLDestroy(connectionoptions);</span>
+<span class="lineNum">     965 </span><span class="lineCov">          1 :   msFree( decrypted_path );</span>
+<span class="lineNum">     966 </span><span class="lineCov">          1 :   if( hDS == NULL ) {</span>
+<span class="lineNum">     967 </span>            :     return MS_FAILURE;
+<span class="lineNum">     968 </span>            :   }
+<span class="lineNum">     969 </span>            : 
+<span class="lineNum">     970 </span><span class="lineCov">          1 :   const int nXSize = GDALGetRasterXSize( hDS );</span>
+<span class="lineNum">     971 </span><span class="lineCov">          1 :   const int nYSize = GDALGetRasterYSize( hDS );</span>
+<span class="lineNum">     972 </span><span class="lineCov">          1 :   double adfGeoTransform[6] = {0};</span>
+<span class="lineNum">     973 </span><span class="lineCov">          1 :   const CPLErr eErr = GDALGetGeoTransform( hDS, adfGeoTransform );</span>
+<span class="lineNum">     974 </span><span class="lineCov">          1 :   if( eErr != CE_None ) {</span>
+<span class="lineNum">     975 </span><span class="lineNoCov">          0 :     GDALClose( hDS );</span>
+<span class="lineNum">     976 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     977 </span>            :   }
 <span class="lineNum">     978 </span>            : 
-<span class="lineNum">     979 </span><span class="lineCov">          1 :     GDALClose( hDS );</span>
-<span class="lineNum">     980 </span>            :   }
-<span class="lineNum">     981 </span>            : 
-<span class="lineNum">     982 </span><span class="lineCov">          1 :   msReleaseLock( TLOCK_GDAL );</span>
-<span class="lineNum">     983 </span>            : 
-<span class="lineNum">     984 </span><span class="lineCov">          1 :   if( hDS == NULL || eErr != CE_None ) {</span>
-<span class="lineNum">     985 </span>            :     return MS_FAILURE;
-<span class="lineNum">     986 </span>            :   }
-<span class="lineNum">     987 </span>            : 
-<span class="lineNum">     988 </span>            :   /* If this appears to be an ungeoreferenced raster than flip it for
-<span class="lineNum">     989 </span>            :      mapservers purposes. */
-<span class="lineNum">     990 </span><span class="lineCov">          1 :   if( adfGeoTransform[5] == 1.0 &amp;&amp; adfGeoTransform[3] == 0.0 ) {</span>
-<span class="lineNum">     991 </span><span class="lineNoCov">          0 :     adfGeoTransform[5] = -1.0;</span>
-<span class="lineNum">     992 </span><span class="lineNoCov">          0 :     adfGeoTransform[3] = nYSize;</span>
-<span class="lineNum">     993 </span>            :   }
+<span class="lineNum">     979 </span>            :   /* If this appears to be an ungeoreferenced raster than flip it for
+<span class="lineNum">     980 </span>            :      mapservers purposes. */
+<span class="lineNum">     981 </span><span class="lineCov">          1 :   if( adfGeoTransform[5] == 1.0 &amp;&amp; adfGeoTransform[3] == 0.0 ) {</span>
+<span class="lineNum">     982 </span><span class="lineNoCov">          0 :     adfGeoTransform[5] = -1.0;</span>
+<span class="lineNum">     983 </span><span class="lineNoCov">          0 :     adfGeoTransform[3] = nYSize;</span>
+<span class="lineNum">     984 </span>            :   }
+<span class="lineNum">     985 </span>            : 
+<span class="lineNum">     986 </span><span class="lineCov">          1 :   extent-&gt;minx = adfGeoTransform[0];</span>
+<span class="lineNum">     987 </span><span class="lineCov">          1 :   extent-&gt;maxy = adfGeoTransform[3];</span>
+<span class="lineNum">     988 </span>            : 
+<span class="lineNum">     989 </span><span class="lineCov">          1 :   extent-&gt;maxx = adfGeoTransform[0] + nXSize * adfGeoTransform[1];</span>
+<span class="lineNum">     990 </span><span class="lineCov">          1 :   extent-&gt;miny = adfGeoTransform[3] + nYSize * adfGeoTransform[5];</span>
+<span class="lineNum">     991 </span>            : 
+<span class="lineNum">     992 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">     993 </span>            : }
 <span class="lineNum">     994 </span>            : 
-<span class="lineNum">     995 </span><span class="lineCov">          1 :   extent-&gt;minx = adfGeoTransform[0];</span>
-<span class="lineNum">     996 </span><span class="lineCov">          1 :   extent-&gt;maxy = adfGeoTransform[3];</span>
-<span class="lineNum">     997 </span>            : 
-<span class="lineNum">     998 </span><span class="lineCov">          1 :   extent-&gt;maxx = adfGeoTransform[0] + nXSize * adfGeoTransform[1];</span>
-<span class="lineNum">     999 </span><span class="lineCov">          1 :   extent-&gt;miny = adfGeoTransform[3] + nYSize * adfGeoTransform[5];</span>
-<span class="lineNum">    1000 </span>            : 
-<span class="lineNum">    1001 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1002 </span>            : }
-<span class="lineNum">    1003 </span>            : 
-<span class="lineNum">    1004 </span>            : 
-<span class="lineNum">    1005 </span>            : /************************************************************************/
-<span class="lineNum">    1006 </span>            : /*                     msUVRASTERLayerSetTimeFilter()                   */
-<span class="lineNum">    1007 </span>            : /*                                                                      */
-<span class="lineNum">    1008 </span>            : /*      This function is actually just used in the context of           */
-<span class="lineNum">    1009 </span>            : /*      setting a filter on the tileindex for time based queries.       */
-<span class="lineNum">    1010 </span>            : /*      For instance via WMS requests.  So it isn't really related      */
-<span class="lineNum">    1011 </span>            : /*      to the &quot;raster query&quot; support at all.                           */
-<span class="lineNum">    1012 </span>            : /*                                                                      */
-<span class="lineNum">    1013 </span>            : /*      If a local shapefile tileindex is in use, we will set a         */
-<span class="lineNum">    1014 </span>            : /*      backtics filter (shapefile compatible).  If another layer is    */
-<span class="lineNum">    1015 </span>            : /*      being used as the tileindex then we will forward the            */
-<span class="lineNum">    1016 </span>            : /*      SetTimeFilter call to it.  If there is no tileindex in          */
-<span class="lineNum">    1017 </span>            : /*      place, we do nothing.                                           */
-<a name="1018"><span class="lineNum">    1018 </span>            : /************************************************************************/</a>
-<span class="lineNum">    1019 </span>            : 
-<span class="lineNum">    1020 </span><span class="lineNoCov">          0 : int msUVRASTERLayerSetTimeFilter(layerObj *layer, const char *timestring,</span>
-<span class="lineNum">    1021 </span>            :                                  const char *timefield)
-<span class="lineNum">    1022 </span>            : {
-<span class="lineNum">    1023 </span>            :   int tilelayerindex;
-<span class="lineNum">    1024 </span>            : 
-<span class="lineNum">    1025 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1026 </span>            :   /*      If we don't have a tileindex the time filter has no effect.     */
+<span class="lineNum">     995 </span>            : 
+<span class="lineNum">     996 </span>            : /************************************************************************/
+<span class="lineNum">     997 </span>            : /*                     msUVRASTERLayerSetTimeFilter()                   */
+<span class="lineNum">     998 </span>            : /*                                                                      */
+<span class="lineNum">     999 </span>            : /*      This function is actually just used in the context of           */
+<span class="lineNum">    1000 </span>            : /*      setting a filter on the tileindex for time based queries.       */
+<span class="lineNum">    1001 </span>            : /*      For instance via WMS requests.  So it isn't really related      */
+<span class="lineNum">    1002 </span>            : /*      to the &quot;raster query&quot; support at all.                           */
+<span class="lineNum">    1003 </span>            : /*                                                                      */
+<span class="lineNum">    1004 </span>            : /*      If a local shapefile tileindex is in use, we will set a         */
+<span class="lineNum">    1005 </span>            : /*      backtics filter (shapefile compatible).  If another layer is    */
+<span class="lineNum">    1006 </span>            : /*      being used as the tileindex then we will forward the            */
+<span class="lineNum">    1007 </span>            : /*      SetTimeFilter call to it.  If there is no tileindex in          */
+<span class="lineNum">    1008 </span>            : /*      place, we do nothing.                                           */
+<a name="1009"><span class="lineNum">    1009 </span>            : /************************************************************************/</a>
+<span class="lineNum">    1010 </span>            : 
+<span class="lineNum">    1011 </span><span class="lineNoCov">          0 : int msUVRASTERLayerSetTimeFilter(layerObj *layer, const char *timestring,</span>
+<span class="lineNum">    1012 </span>            :                                  const char *timefield)
+<span class="lineNum">    1013 </span>            : {
+<span class="lineNum">    1014 </span>            :   int tilelayerindex;
+<span class="lineNum">    1015 </span>            : 
+<span class="lineNum">    1016 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1017 </span>            :   /*      If we don't have a tileindex the time filter has no effect.     */
+<span class="lineNum">    1018 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1019 </span><span class="lineNoCov">          0 :   if( layer-&gt;tileindex == NULL )</span>
+<span class="lineNum">    1020 </span>            :     return MS_SUCCESS;
+<span class="lineNum">    1021 </span>            : 
+<span class="lineNum">    1022 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1023 </span>            :   /*      Find the tileindex layer.                                       */
+<span class="lineNum">    1024 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1025 </span><span class="lineNoCov">          0 :   tilelayerindex = msGetLayerIndex(layer-&gt;map, layer-&gt;tileindex);</span>
+<span class="lineNum">    1026 </span>            : 
 <span class="lineNum">    1027 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1028 </span><span class="lineNoCov">          0 :   if( layer-&gt;tileindex == NULL )</span>
-<span class="lineNum">    1029 </span>            :     return MS_SUCCESS;
-<span class="lineNum">    1030 </span>            : 
-<span class="lineNum">    1031 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1032 </span>            :   /*      Find the tileindex layer.                                       */
+<span class="lineNum">    1028 </span>            :   /*      If we are using a local shapefile as our tileindex (that is     */
+<span class="lineNum">    1029 </span>            :   /*      to say, the tileindex name is not of another layer), then we    */
+<span class="lineNum">    1030 </span>            :   /*      just install a backtics style filter on the raster layer.       */
+<span class="lineNum">    1031 </span>            :   /*      This is propogated to the &quot;working layer&quot; created for the       */
+<span class="lineNum">    1032 </span>            :   /*      tileindex by code in mapraster.c.                               */
 <span class="lineNum">    1033 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1034 </span><span class="lineNoCov">          0 :   tilelayerindex = msGetLayerIndex(layer-&gt;map, layer-&gt;tileindex);</span>
-<span class="lineNum">    1035 </span>            : 
-<span class="lineNum">    1036 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1037 </span>            :   /*      If we are using a local shapefile as our tileindex (that is     */
-<span class="lineNum">    1038 </span>            :   /*      to say, the tileindex name is not of another layer), then we    */
-<span class="lineNum">    1039 </span>            :   /*      just install a backtics style filter on the raster layer.       */
-<span class="lineNum">    1040 </span>            :   /*      This is propogated to the &quot;working layer&quot; created for the       */
-<span class="lineNum">    1041 </span>            :   /*      tileindex by code in mapraster.c.                               */
-<span class="lineNum">    1042 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1043 </span><span class="lineNoCov">          0 :   if( tilelayerindex == -1 )</span>
-<span class="lineNum">    1044 </span><span class="lineNoCov">          0 :     return msLayerMakeBackticsTimeFilter( layer, timestring, timefield );</span>
-<span class="lineNum">    1045 </span>            : 
-<span class="lineNum">    1046 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1047 </span>            :   /*      Otherwise we invoke the tileindex layers SetTimeFilter          */
-<span class="lineNum">    1048 </span>            :   /*      method.                                                         */
-<span class="lineNum">    1049 </span>            :   /* -------------------------------------------------------------------- */
-<span class="lineNum">    1050 </span><span class="lineNoCov">          0 :   if ( msCheckParentPointer(layer-&gt;map,&quot;map&quot;)==MS_FAILURE )</span>
-<span class="lineNum">    1051 </span>            :     return MS_FAILURE;
-<span class="lineNum">    1052 </span><span class="lineNoCov">          0 :   return msLayerSetTimeFilter( layer-&gt;GET_LAYER(map,tilelayerindex),</span>
-<span class="lineNum">    1053 </span>            :                                timestring, timefield );
-<span class="lineNum">    1054 </span>            : }
-<span class="lineNum">    1055 </span>            : 
-<span class="lineNum">    1056 </span>            : 
-<span class="lineNum">    1057 </span>            : /************************************************************************/
-<span class="lineNum">    1058 </span>            : /*                msRASTERLayerInitializeVirtualTable()                 */
-<span class="lineNum">    1059 </span>            : /************************************************************************/
-<a name="1060"><span class="lineNum">    1060 </span>            : </a>
-<span class="lineNum">    1061 </span>            : int
-<span class="lineNum">    1062 </span><span class="lineCov">          1 : msUVRASTERLayerInitializeVirtualTable(layerObj *layer)</span>
-<span class="lineNum">    1063 </span>            : {
-<span class="lineNum">    1064 </span>            :   assert(layer != NULL);
-<span class="lineNum">    1065 </span>            :   assert(layer-&gt;vtable != NULL);
-<span class="lineNum">    1066 </span>            : 
-<span class="lineNum">    1067 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msUVRASTERLayerInitItemInfo;</span>
-<span class="lineNum">    1068 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msUVRASTERLayerFreeItemInfo;</span>
-<span class="lineNum">    1069 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerOpen = msUVRASTERLayerOpen;</span>
-<span class="lineNum">    1070 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerIsOpen = msUVRASTERLayerIsOpen;</span>
-<span class="lineNum">    1071 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msUVRASTERLayerWhichShapes;</span>
-<span class="lineNum">    1072 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msUVRASTERLayerNextShape;</span>
-<span class="lineNum">    1073 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msUVRASTERLayerGetShape;</span>
-<span class="lineNum">    1074 </span>            :   /* layer-&gt;vtable-&gt;LayerGetShapeCount, use default */
-<span class="lineNum">    1075 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msUVRASTERLayerClose;</span>
-<span class="lineNum">    1076 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetItems = msUVRASTERLayerGetItems;</span>
-<span class="lineNum">    1077 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetExtent = msUVRASTERLayerGetExtent;</span>
-<span class="lineNum">    1078 </span>            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
-<span class="lineNum">    1079 </span>            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
-<span class="lineNum">    1080 </span>            :   /* layer-&gt;vtable-&gt;LayerCloseConnection = msUVRASTERLayerClose; */
-<span class="lineNum">    1081 </span>            :   /* we use backtics for proper tileindex shapefile functioning */
-<span class="lineNum">    1082 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msUVRASTERLayerSetTimeFilter;</span>
-<span class="lineNum">    1083 </span>            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
-<span class="lineNum">    1084 </span>            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
-<span class="lineNum">    1085 </span>            : 
-<span class="lineNum">    1086 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1087 </span>            : }
+<span class="lineNum">    1034 </span><span class="lineNoCov">          0 :   if( tilelayerindex == -1 )</span>
+<span class="lineNum">    1035 </span><span class="lineNoCov">          0 :     return msLayerMakeBackticsTimeFilter( layer, timestring, timefield );</span>
+<span class="lineNum">    1036 </span>            : 
+<span class="lineNum">    1037 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1038 </span>            :   /*      Otherwise we invoke the tileindex layers SetTimeFilter          */
+<span class="lineNum">    1039 </span>            :   /*      method.                                                         */
+<span class="lineNum">    1040 </span>            :   /* -------------------------------------------------------------------- */
+<span class="lineNum">    1041 </span><span class="lineNoCov">          0 :   if ( msCheckParentPointer(layer-&gt;map,&quot;map&quot;)==MS_FAILURE )</span>
+<span class="lineNum">    1042 </span>            :     return MS_FAILURE;
+<span class="lineNum">    1043 </span><span class="lineNoCov">          0 :   return msLayerSetTimeFilter( layer-&gt;GET_LAYER(map,tilelayerindex),</span>
+<span class="lineNum">    1044 </span>            :                                timestring, timefield );
+<span class="lineNum">    1045 </span>            : }
+<span class="lineNum">    1046 </span>            : 
+<span class="lineNum">    1047 </span>            : 
+<span class="lineNum">    1048 </span>            : /************************************************************************/
+<span class="lineNum">    1049 </span>            : /*                msRASTERLayerInitializeVirtualTable()                 */
+<span class="lineNum">    1050 </span>            : /************************************************************************/
+<a name="1051"><span class="lineNum">    1051 </span>            : </a>
+<span class="lineNum">    1052 </span>            : int
+<span class="lineNum">    1053 </span><span class="lineCov">          1 : msUVRASTERLayerInitializeVirtualTable(layerObj *layer)</span>
+<span class="lineNum">    1054 </span>            : {
+<span class="lineNum">    1055 </span>            :   assert(layer != NULL);
+<span class="lineNum">    1056 </span>            :   assert(layer-&gt;vtable != NULL);
+<span class="lineNum">    1057 </span>            : 
+<span class="lineNum">    1058 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msUVRASTERLayerInitItemInfo;</span>
+<span class="lineNum">    1059 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msUVRASTERLayerFreeItemInfo;</span>
+<span class="lineNum">    1060 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerOpen = msUVRASTERLayerOpen;</span>
+<span class="lineNum">    1061 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerIsOpen = msUVRASTERLayerIsOpen;</span>
+<span class="lineNum">    1062 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msUVRASTERLayerWhichShapes;</span>
+<span class="lineNum">    1063 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msUVRASTERLayerNextShape;</span>
+<span class="lineNum">    1064 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msUVRASTERLayerGetShape;</span>
+<span class="lineNum">    1065 </span>            :   /* layer-&gt;vtable-&gt;LayerGetShapeCount, use default */
+<span class="lineNum">    1066 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msUVRASTERLayerClose;</span>
+<span class="lineNum">    1067 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetItems = msUVRASTERLayerGetItems;</span>
+<span class="lineNum">    1068 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetExtent = msUVRASTERLayerGetExtent;</span>
+<span class="lineNum">    1069 </span>            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, use default */
+<span class="lineNum">    1070 </span>            :   /* layer-&gt;vtable-&gt;LayerApplyFilterToLayer, use default */
+<span class="lineNum">    1071 </span>            :   /* layer-&gt;vtable-&gt;LayerCloseConnection = msUVRASTERLayerClose; */
+<span class="lineNum">    1072 </span>            :   /* we use backtics for proper tileindex shapefile functioning */
+<span class="lineNum">    1073 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msUVRASTERLayerSetTimeFilter;</span>
+<span class="lineNum">    1074 </span>            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
+<span class="lineNum">    1075 </span>            :   /* layer-&gt;vtable-&gt;LayerGetNumFeatures, use default */
+<span class="lineNum">    1076 </span>            : 
+<span class="lineNum">    1077 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1078 </span>            : }
 </pre>
       </td>
     </tr>
