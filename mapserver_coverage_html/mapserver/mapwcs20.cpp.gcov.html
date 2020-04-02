@@ -4975,7 +4975,7 @@
 <span class="lineNum">    4913 </span>            :     wcs20coverageMetadataObj tmpCm;
 <span class="lineNum">    4914 </span>            :     char *srs_uri, *default_filename;
 <span class="lineNum">    4915 </span>            :     const char *filename;
-<span class="lineNum">    4916 </span>            :     int length = 0, swapAxes;
+<span class="lineNum">    4916 </span>            :     int swapAxes;
 <span class="lineNum">    4917 </span>            : 
 <span class="lineNum">    4918 </span>            :     /* Create Document  */
 <span class="lineNum">    4919 </span><span class="lineCov">          1 :     psDoc = xmlNewDoc(BAD_CAST &quot;1.0&quot;);</span>
@@ -5027,54 +5027,51 @@
 <span class="lineNum">    4965 </span><span class="lineCov">          1 :     default_filename = msStringConcatenate(default_filename, MS_IMAGE_EXTENSION(image-&gt;format));</span>
 <span class="lineNum">    4966 </span>            : 
 <span class="lineNum">    4967 </span><span class="lineCov">          1 :     filename = msGetOutputFormatOption(image-&gt;format, &quot;FILENAME&quot;, default_filename);</span>
-<span class="lineNum">    4968 </span>            :     length = strlen(&quot;cid:coverage/&quot;) + strlen(filename) + 1;
-<span class="lineNum">    4969 </span><span class="lineCov">          1 :     std::string file_ref(&quot;cid:coverage/&quot;);</span>
-<span class="lineNum">    4970 </span>            :     file_ref += filename;
-<span class="lineNum">    4971 </span>            : 
-<span class="lineNum">    4972 </span><span class="lineCov">          1 :     msFree(default_filename);</span>
-<span class="lineNum">    4973 </span>            : 
-<span class="lineNum">    4974 </span>            :     std::string role;
-<span class="lineNum">    4975 </span><span class="lineCov">          1 :     if(EQUAL(MS_IMAGE_MIME_TYPE(map-&gt;outputformat), &quot;image/tiff&quot;)) {</span>
-<span class="lineNum">    4976 </span>            :       length = strlen(MS_WCS_20_PROFILE_GML_GEOTIFF) + 1;
-<span class="lineNum">    4977 </span>            :       role = MS_WCS_20_PROFILE_GML_GEOTIFF;
-<span class="lineNum">    4978 </span>            :     } else {
-<span class="lineNum">    4979 </span>            :       length = strlen(MS_IMAGE_MIME_TYPE(map-&gt;outputformat)) + 1;
-<span class="lineNum">    4980 </span><span class="lineCov">          1 :       role = MS_IMAGE_MIME_TYPE(map-&gt;outputformat);</span>
-<span class="lineNum">    4981 </span>            :     }
-<span class="lineNum">    4982 </span>            : 
-<span class="lineNum">    4983 </span><span class="lineCov">          1 :     xmlNewNsProp(psRangeParameters, psXLinkNs, BAD_CAST &quot;href&quot;, BAD_CAST file_ref.c_str());</span>
-<span class="lineNum">    4984 </span><span class="lineCov">          1 :     xmlNewNsProp(psRangeParameters, psXLinkNs, BAD_CAST &quot;role&quot;, BAD_CAST role.c_str());</span>
-<span class="lineNum">    4985 </span><span class="lineCov">          1 :     xmlNewNsProp(psRangeParameters, psXLinkNs, BAD_CAST &quot;arcrole&quot;, BAD_CAST &quot;fileReference&quot;);</span>
-<span class="lineNum">    4986 </span>            : 
-<span class="lineNum">    4987 </span><span class="lineCov">          1 :     xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;fileReference&quot;, BAD_CAST file_ref.c_str());</span>
-<span class="lineNum">    4988 </span><span class="lineCov">          1 :     xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;fileStructure&quot;, NULL);</span>
-<span class="lineNum">    4989 </span><span class="lineCov">          1 :     xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;mimeType&quot;, BAD_CAST MS_IMAGE_MIME_TYPE(map-&gt;outputformat));</span>
-<span class="lineNum">    4990 </span>            : 
-<span class="lineNum">    4991 </span><span class="lineCov">          1 :     msWCSCommon20_CreateRangeType(layer, &amp;cm, bandlist, psGmlNs, psGmlcovNs, psSweNs, psXLinkNs, psRootNode);</span>
-<span class="lineNum">    4992 </span>            : 
-<span class="lineNum">    4993 </span><span class="lineCov">          1 :     msIO_setHeader(&quot;Content-Type&quot;,&quot;multipart/related; boundary=wcs&quot;);</span>
-<span class="lineNum">    4994 </span><span class="lineCov">          1 :     msIO_sendHeaders();</span>
-<span class="lineNum">    4995 </span><span class="lineCov">          1 :     msIO_printf(&quot;\r\n--wcs\r\n&quot;);</span>
+<span class="lineNum">    4968 </span><span class="lineCov">          1 :     std::string file_ref(&quot;cid:coverage/&quot;);</span>
+<span class="lineNum">    4969 </span>            :     file_ref += filename;
+<span class="lineNum">    4970 </span>            : 
+<span class="lineNum">    4971 </span><span class="lineCov">          1 :     msFree(default_filename);</span>
+<span class="lineNum">    4972 </span>            : 
+<span class="lineNum">    4973 </span>            :     std::string role;
+<span class="lineNum">    4974 </span><span class="lineCov">          1 :     if(EQUAL(MS_IMAGE_MIME_TYPE(map-&gt;outputformat), &quot;image/tiff&quot;)) {</span>
+<span class="lineNum">    4975 </span>            :       role = MS_WCS_20_PROFILE_GML_GEOTIFF;
+<span class="lineNum">    4976 </span>            :     } else {
+<span class="lineNum">    4977 </span><span class="lineCov">          1 :       role = MS_IMAGE_MIME_TYPE(map-&gt;outputformat);</span>
+<span class="lineNum">    4978 </span>            :     }
+<span class="lineNum">    4979 </span>            : 
+<span class="lineNum">    4980 </span><span class="lineCov">          1 :     xmlNewNsProp(psRangeParameters, psXLinkNs, BAD_CAST &quot;href&quot;, BAD_CAST file_ref.c_str());</span>
+<span class="lineNum">    4981 </span><span class="lineCov">          1 :     xmlNewNsProp(psRangeParameters, psXLinkNs, BAD_CAST &quot;role&quot;, BAD_CAST role.c_str());</span>
+<span class="lineNum">    4982 </span><span class="lineCov">          1 :     xmlNewNsProp(psRangeParameters, psXLinkNs, BAD_CAST &quot;arcrole&quot;, BAD_CAST &quot;fileReference&quot;);</span>
+<span class="lineNum">    4983 </span>            : 
+<span class="lineNum">    4984 </span><span class="lineCov">          1 :     xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;fileReference&quot;, BAD_CAST file_ref.c_str());</span>
+<span class="lineNum">    4985 </span><span class="lineCov">          1 :     xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;fileStructure&quot;, NULL);</span>
+<span class="lineNum">    4986 </span><span class="lineCov">          1 :     xmlNewChild(psFile, psGmlNs, BAD_CAST &quot;mimeType&quot;, BAD_CAST MS_IMAGE_MIME_TYPE(map-&gt;outputformat));</span>
+<span class="lineNum">    4987 </span>            : 
+<span class="lineNum">    4988 </span><span class="lineCov">          1 :     msWCSCommon20_CreateRangeType(layer, &amp;cm, bandlist, psGmlNs, psGmlcovNs, psSweNs, psXLinkNs, psRootNode);</span>
+<span class="lineNum">    4989 </span>            : 
+<span class="lineNum">    4990 </span><span class="lineCov">          1 :     msIO_setHeader(&quot;Content-Type&quot;,&quot;multipart/related; boundary=wcs&quot;);</span>
+<span class="lineNum">    4991 </span><span class="lineCov">          1 :     msIO_sendHeaders();</span>
+<span class="lineNum">    4992 </span><span class="lineCov">          1 :     msIO_printf(&quot;\r\n--wcs\r\n&quot;);</span>
+<span class="lineNum">    4993 </span>            : 
+<span class="lineNum">    4994 </span><span class="lineCov">          1 :     msWCSWriteDocument20(map, psDoc);</span>
+<span class="lineNum">    4995 </span><span class="lineCov">          1 :     msWCSWriteFile20(map, image, params, 1);</span>
 <span class="lineNum">    4996 </span>            : 
-<span class="lineNum">    4997 </span><span class="lineCov">          1 :     msWCSWriteDocument20(map, psDoc);</span>
-<span class="lineNum">    4998 </span><span class="lineCov">          1 :     msWCSWriteFile20(map, image, params, 1);</span>
-<span class="lineNum">    4999 </span>            : 
-<span class="lineNum">    5000 </span><span class="lineCov">          1 :     xmlFreeDoc(psDoc);</span>
-<span class="lineNum">    5001 </span><span class="lineCov">          1 :     xmlCleanupParser();</span>
-<span class="lineNum">    5002 </span>            :   /* just print out the file without gml */
-<span class="lineNum">    5003 </span>            :   } else {
-<span class="lineNum">    5004 </span><span class="lineCov">          1 :     msWCSWriteFile20(map, image, params, 0);</span>
-<span class="lineNum">    5005 </span>            :   }
-<span class="lineNum">    5006 </span>            : 
-<span class="lineNum">    5007 </span><span class="lineCov">          1 :   msFree(bandlist);</span>
-<span class="lineNum">    5008 </span><span class="lineCov">          1 :   msWCSClearCoverageMetadata20(&amp;cm);</span>
-<span class="lineNum">    5009 </span><span class="lineCov">          1 :   msFreeImage(image);</span>
-<span class="lineNum">    5010 </span>            :   return MS_SUCCESS;
-<span class="lineNum">    5011 </span>            : }
-<span class="lineNum">    5012 </span>            : 
-<span class="lineNum">    5013 </span>            : #endif /* defined(USE_LIBXML2) */
-<span class="lineNum">    5014 </span>            : 
-<span class="lineNum">    5015 </span>            : #endif /* defined(USE_WCS_SVR) */
+<span class="lineNum">    4997 </span><span class="lineCov">          1 :     xmlFreeDoc(psDoc);</span>
+<span class="lineNum">    4998 </span><span class="lineCov">          1 :     xmlCleanupParser();</span>
+<span class="lineNum">    4999 </span>            :   /* just print out the file without gml */
+<span class="lineNum">    5000 </span>            :   } else {
+<span class="lineNum">    5001 </span><span class="lineCov">          1 :     msWCSWriteFile20(map, image, params, 0);</span>
+<span class="lineNum">    5002 </span>            :   }
+<span class="lineNum">    5003 </span>            : 
+<span class="lineNum">    5004 </span><span class="lineCov">          1 :   msFree(bandlist);</span>
+<span class="lineNum">    5005 </span><span class="lineCov">          1 :   msWCSClearCoverageMetadata20(&amp;cm);</span>
+<span class="lineNum">    5006 </span><span class="lineCov">          1 :   msFreeImage(image);</span>
+<span class="lineNum">    5007 </span>            :   return MS_SUCCESS;
+<span class="lineNum">    5008 </span>            : }
+<span class="lineNum">    5009 </span>            : 
+<span class="lineNum">    5010 </span>            : #endif /* defined(USE_LIBXML2) */
+<span class="lineNum">    5011 </span>            : 
+<span class="lineNum">    5012 </span>            : #endif /* defined(USE_WCS_SVR) */
 </pre>
       </td>
     </tr>
