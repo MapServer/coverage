@@ -32,8 +32,8 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntry">444</td>
-            <td class="headerCovTableEntry">583</td>
-            <td class="headerCovTableEntryMed">76.2 %</td>
+            <td class="headerCovTableEntry">584</td>
+            <td class="headerCovTableEntryMed">76.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
@@ -1005,488 +1005,489 @@
 <span class="lineNum">     943 </span><span class="lineNoCov">          0 :   if(!g1) return NULL;</span>
 <span class="lineNum">     944 </span>            : 
 <span class="lineNum">     945 </span><span class="lineNoCov">          0 :   g2 = GEOSGetCentroid_r(handle,g1);</span>
-<span class="lineNum">     946 </span>            : 
-<span class="lineNum">     947 </span><span class="lineNoCov">          0 :   point = (pointObj *) malloc(sizeof(pointObj));</span>
-<span class="lineNum">     948 </span>            : 
-<span class="lineNum">     949 </span><span class="lineNoCov">          0 :   coords = (GEOSCoordSeq) GEOSGeom_getCoordSeq_r(handle,g2);</span>
-<span class="lineNum">     950 </span>            : 
-<span class="lineNum">     951 </span><span class="lineNoCov">          0 :   GEOSCoordSeq_getX_r(handle,coords, 0, &amp;(point-&gt;x));</span>
-<span class="lineNum">     952 </span><span class="lineNoCov">          0 :   GEOSCoordSeq_getY_r(handle,coords, 0, &amp;(point-&gt;y));</span>
-<span class="lineNum">     953 </span>            :   /* GEOSCoordSeq_getZ(coords, 0, &amp;(point-&gt;z)); */
-<span class="lineNum">     954 </span>            : 
-<span class="lineNum">     955 </span><span class="lineNoCov">          0 :   GEOSCoordSeq_destroy_r(handle,coords);</span>
-<span class="lineNum">     956 </span>            : 
-<span class="lineNum">     957 </span><span class="lineNoCov">          0 :   return point;</span>
-<span class="lineNum">     958 </span>            : #else
-<span class="lineNum">     959 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSGetCentroid()&quot;);
-<span class="lineNum">     960 </span>            :   return NULL;
-<span class="lineNum">     961 </span>            : #endif
-<a name="962"><span class="lineNum">     962 </span>            : }</a>
-<span class="lineNum">     963 </span>            : 
-<span class="lineNum">     964 </span><span class="lineNoCov">          0 : shapeObj *msGEOSUnion(shapeObj *shape1, shapeObj *shape2)</span>
-<span class="lineNum">     965 </span>            : {
-<span class="lineNum">     966 </span>            : #ifdef USE_GEOS
-<span class="lineNum">     967 </span>            :   GEOSGeom g1, g2, g3;
-<span class="lineNum">     968 </span><span class="lineNoCov">          0 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">     969 </span>            : 
-<span class="lineNum">     970 </span><span class="lineNoCov">          0 :   if(!shape1 || !shape2)</span>
-<span class="lineNum">     971 </span>            :     return NULL;
-<span class="lineNum">     972 </span>            : 
-<span class="lineNum">     973 </span><span class="lineNoCov">          0 :   if(!shape1-&gt;geometry) /* if no geometry for the shape then build one */</span>
-<span class="lineNum">     974 </span><span class="lineNoCov">          0 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
-<span class="lineNum">     975 </span><span class="lineNoCov">          0 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
-<span class="lineNum">     976 </span><span class="lineNoCov">          0 :   if(!g1) return NULL;</span>
-<span class="lineNum">     977 </span>            : 
-<span class="lineNum">     978 </span><span class="lineNoCov">          0 :   if(!shape2-&gt;geometry) /* if no geometry for the shape then build one */</span>
-<span class="lineNum">     979 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
-<span class="lineNum">     980 </span><span class="lineNoCov">          0 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
-<span class="lineNum">     981 </span><span class="lineNoCov">          0 :   if(!g2) return NULL;</span>
-<span class="lineNum">     982 </span>            : 
-<span class="lineNum">     983 </span><span class="lineNoCov">          0 :   g3 = GEOSUnion_r(handle,g1, g2);</span>
-<span class="lineNum">     984 </span><span class="lineNoCov">          0 :   return msGEOSGeometry2Shape(g3);</span>
-<span class="lineNum">     985 </span>            : #else
-<span class="lineNum">     986 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSUnion()&quot;);
-<span class="lineNum">     987 </span>            :   return NULL;
-<span class="lineNum">     988 </span>            : #endif
-<a name="989"><span class="lineNum">     989 </span>            : }</a>
-<span class="lineNum">     990 </span>            : 
-<span class="lineNum">     991 </span><span class="lineNoCov">          0 : shapeObj *msGEOSIntersection(shapeObj *shape1, shapeObj *shape2)</span>
-<span class="lineNum">     992 </span>            : {
-<span class="lineNum">     993 </span>            : #ifdef USE_GEOS
-<span class="lineNum">     994 </span>            :   GEOSGeom g1, g2, g3;
-<span class="lineNum">     995 </span><span class="lineNoCov">          0 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">     996 </span>            : 
-<span class="lineNum">     997 </span><span class="lineNoCov">          0 :   if(!shape1 || !shape2)</span>
-<span class="lineNum">     998 </span>            :     return NULL;
-<span class="lineNum">     999 </span>            : 
-<span class="lineNum">    1000 </span><span class="lineNoCov">          0 :   if(!shape1-&gt;geometry) /* if no geometry for the shape then build one */</span>
-<span class="lineNum">    1001 </span><span class="lineNoCov">          0 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
-<span class="lineNum">    1002 </span><span class="lineNoCov">          0 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
-<span class="lineNum">    1003 </span><span class="lineNoCov">          0 :   if(!g1) return NULL;</span>
-<span class="lineNum">    1004 </span>            : 
-<span class="lineNum">    1005 </span><span class="lineNoCov">          0 :   if(!shape2-&gt;geometry) /* if no geometry for the shape then build one */</span>
-<span class="lineNum">    1006 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
-<span class="lineNum">    1007 </span><span class="lineNoCov">          0 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
-<span class="lineNum">    1008 </span><span class="lineNoCov">          0 :   if(!g2) return NULL;</span>
-<span class="lineNum">    1009 </span>            : 
-<span class="lineNum">    1010 </span><span class="lineNoCov">          0 :   g3 = GEOSIntersection_r(handle,g1, g2);</span>
-<span class="lineNum">    1011 </span><span class="lineNoCov">          0 :   return msGEOSGeometry2Shape(g3);</span>
-<span class="lineNum">    1012 </span>            : #else
-<span class="lineNum">    1013 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSIntersection()&quot;);
-<span class="lineNum">    1014 </span>            :   return NULL;
-<span class="lineNum">    1015 </span>            : #endif
-<a name="1016"><span class="lineNum">    1016 </span>            : }</a>
-<span class="lineNum">    1017 </span>            : 
-<span class="lineNum">    1018 </span><span class="lineCov">          1 : shapeObj *msGEOSDifference(shapeObj *shape1, shapeObj *shape2)</span>
-<span class="lineNum">    1019 </span>            : {
-<span class="lineNum">    1020 </span>            : #ifdef USE_GEOS
-<span class="lineNum">    1021 </span>            :   GEOSGeom g1, g2, g3;
-<span class="lineNum">    1022 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">    1023 </span>            : 
-<span class="lineNum">    1024 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
-<span class="lineNum">    1025 </span>            :     return NULL;
-<span class="lineNum">    1026 </span>            : 
-<span class="lineNum">    1027 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for the shape then build one */</span>
-<span class="lineNum">    1028 </span><span class="lineNoCov">          0 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
-<span class="lineNum">    1029 </span><span class="lineCov">          1 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
-<span class="lineNum">    1030 </span><span class="lineCov">          1 :   if(!g1) return NULL;</span>
-<span class="lineNum">    1031 </span>            : 
-<span class="lineNum">    1032 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for the shape then build one */</span>
-<span class="lineNum">    1033 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
-<span class="lineNum">    1034 </span><span class="lineCov">          1 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
-<span class="lineNum">    1035 </span><span class="lineCov">          1 :   if(!g2) return NULL;</span>
-<span class="lineNum">    1036 </span>            : 
-<span class="lineNum">    1037 </span><span class="lineCov">          1 :   g3 = GEOSDifference_r(handle,g1, g2);</span>
-<span class="lineNum">    1038 </span><span class="lineCov">          1 :   return msGEOSGeometry2Shape(g3);</span>
-<span class="lineNum">    1039 </span>            : #else
-<span class="lineNum">    1040 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSDifference()&quot;);
-<span class="lineNum">    1041 </span>            :   return NULL;
-<span class="lineNum">    1042 </span>            : #endif
-<a name="1043"><span class="lineNum">    1043 </span>            : }</a>
-<span class="lineNum">    1044 </span>            : 
-<span class="lineNum">    1045 </span><span class="lineNoCov">          0 : shapeObj *msGEOSSymDifference(shapeObj *shape1, shapeObj *shape2)</span>
-<span class="lineNum">    1046 </span>            : {
-<span class="lineNum">    1047 </span>            : #ifdef USE_GEOS
-<span class="lineNum">    1048 </span>            :   GEOSGeom g1, g2, g3;
-<span class="lineNum">    1049 </span><span class="lineNoCov">          0 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">    1050 </span>            : 
-<span class="lineNum">    1051 </span><span class="lineNoCov">          0 :   if(!shape1 || !shape2)</span>
-<span class="lineNum">    1052 </span>            :     return NULL;
-<span class="lineNum">    1053 </span>            : 
-<span class="lineNum">    1054 </span><span class="lineNoCov">          0 :   if(!shape1-&gt;geometry) /* if no geometry for the shape then build one */</span>
-<span class="lineNum">    1055 </span><span class="lineNoCov">          0 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
-<span class="lineNum">    1056 </span><span class="lineNoCov">          0 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
-<span class="lineNum">    1057 </span><span class="lineNoCov">          0 :   if(!g1) return NULL;</span>
-<span class="lineNum">    1058 </span>            : 
-<span class="lineNum">    1059 </span><span class="lineNoCov">          0 :   if(!shape2-&gt;geometry) /* if no geometry for the shape then build one */</span>
-<span class="lineNum">    1060 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
-<span class="lineNum">    1061 </span><span class="lineNoCov">          0 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
-<span class="lineNum">    1062 </span><span class="lineNoCov">          0 :   if(!g2) return NULL;</span>
-<span class="lineNum">    1063 </span>            : 
-<span class="lineNum">    1064 </span><span class="lineNoCov">          0 :   g3 = GEOSSymDifference_r(handle,g1, g2);</span>
-<span class="lineNum">    1065 </span><span class="lineNoCov">          0 :   return msGEOSGeometry2Shape(g3);</span>
-<span class="lineNum">    1066 </span>            : #else
-<span class="lineNum">    1067 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSSymDifference()&quot;);
-<span class="lineNum">    1068 </span>            :   return NULL;
-<span class="lineNum">    1069 </span>            : #endif
-<span class="lineNum">    1070 </span>            : }
-<span class="lineNum">    1071 </span>            : 
-<span class="lineNum">    1072 </span>            : /*
-<span class="lineNum">    1073 </span>            : ** Binary predicates exposed to MapServer/MapScript
-<span class="lineNum">    1074 </span>            : */
-<span class="lineNum">    1075 </span>            : 
-<span class="lineNum">    1076 </span>            : /*
-<a name="1077"><span class="lineNum">    1077 </span>            : ** Does shape1 contain shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
-<span class="lineNum">    1078 </span>            : */
-<span class="lineNum">    1079 </span><span class="lineCov">          1 : int msGEOSContains(shapeObj *shape1, shapeObj *shape2)</span>
-<span class="lineNum">    1080 </span>            : {
-<span class="lineNum">    1081 </span>            : #ifdef USE_GEOS
-<span class="lineNum">    1082 </span>            :   GEOSGeom g1, g2;
-<span class="lineNum">    1083 </span>            :   int result;
-<span class="lineNum">    1084 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">    1085 </span>            : 
-<span class="lineNum">    1086 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
-<span class="lineNum">    1087 </span>            :     return -1;
-<span class="lineNum">    1088 </span>            : 
-<span class="lineNum">    1089 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
-<span class="lineNum">    1090 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
-<span class="lineNum">    1091 </span><span class="lineCov">          1 :   g1 = shape1-&gt;geometry;</span>
-<span class="lineNum">    1092 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
-<span class="lineNum">    1093 </span>            : 
-<span class="lineNum">    1094 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
-<span class="lineNum">    1095 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
-<span class="lineNum">    1096 </span><span class="lineCov">          1 :   g2 = shape2-&gt;geometry;</span>
-<span class="lineNum">    1097 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
-<span class="lineNum">    1098 </span>            : 
-<span class="lineNum">    1099 </span><span class="lineCov">          1 :   result = GEOSContains_r(handle,g1, g2);</span>
-<span class="lineNum">    1100 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
-<span class="lineNum">    1101 </span>            : #else
-<span class="lineNum">    1102 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSContains()&quot;);
-<span class="lineNum">    1103 </span>            :   return -1;
-<span class="lineNum">    1104 </span>            : #endif
-<span class="lineNum">    1105 </span>            : }
-<span class="lineNum">    1106 </span>            : 
-<span class="lineNum">    1107 </span>            : /*
-<a name="1108"><span class="lineNum">    1108 </span>            : ** Does shape1 overlap shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
-<span class="lineNum">    1109 </span>            : */
-<span class="lineNum">    1110 </span><span class="lineCov">          1 : int msGEOSOverlaps(shapeObj *shape1, shapeObj *shape2)</span>
-<span class="lineNum">    1111 </span>            : {
-<span class="lineNum">    1112 </span>            : #ifdef USE_GEOS
-<span class="lineNum">    1113 </span>            :   GEOSGeom g1, g2;
-<span class="lineNum">    1114 </span>            :   int result;
-<span class="lineNum">    1115 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">    1116 </span>            : 
-<span class="lineNum">    1117 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
-<span class="lineNum">    1118 </span>            :     return -1;
-<span class="lineNum">    1119 </span>            : 
-<span class="lineNum">    1120 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
-<span class="lineNum">    1121 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
-<span class="lineNum">    1122 </span><span class="lineCov">          1 :   g1 = shape1-&gt;geometry;</span>
-<span class="lineNum">    1123 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
-<span class="lineNum">    1124 </span>            : 
-<span class="lineNum">    1125 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
-<span class="lineNum">    1126 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
-<span class="lineNum">    1127 </span><span class="lineCov">          1 :   g2 = shape2-&gt;geometry;</span>
-<span class="lineNum">    1128 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
-<span class="lineNum">    1129 </span>            : 
-<span class="lineNum">    1130 </span><span class="lineCov">          1 :   result = GEOSOverlaps_r(handle,g1, g2);</span>
-<span class="lineNum">    1131 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
-<span class="lineNum">    1132 </span>            : #else
-<span class="lineNum">    1133 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSOverlaps()&quot;);
-<span class="lineNum">    1134 </span>            :   return -1;
-<span class="lineNum">    1135 </span>            : #endif
-<span class="lineNum">    1136 </span>            : }
-<span class="lineNum">    1137 </span>            : 
-<span class="lineNum">    1138 </span>            : /*
-<a name="1139"><span class="lineNum">    1139 </span>            : ** Is shape1 within shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
-<span class="lineNum">    1140 </span>            : */
-<span class="lineNum">    1141 </span><span class="lineCov">          1 : int msGEOSWithin(shapeObj *shape1, shapeObj *shape2)</span>
-<span class="lineNum">    1142 </span>            : {
-<span class="lineNum">    1143 </span>            : #ifdef USE_GEOS
-<span class="lineNum">    1144 </span>            :   GEOSGeom g1, g2;
-<span class="lineNum">    1145 </span>            :   int result;
-<span class="lineNum">    1146 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">    1147 </span>            : 
-<span class="lineNum">    1148 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
-<span class="lineNum">    1149 </span>            :     return -1;
-<span class="lineNum">    1150 </span>            : 
-<span class="lineNum">    1151 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
-<span class="lineNum">    1152 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
-<span class="lineNum">    1153 </span><span class="lineCov">          1 :   g1 = shape1-&gt;geometry;</span>
-<span class="lineNum">    1154 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
-<span class="lineNum">    1155 </span>            : 
-<span class="lineNum">    1156 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
-<span class="lineNum">    1157 </span><span class="lineCov">          1 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
-<span class="lineNum">    1158 </span><span class="lineCov">          1 :   g2 = shape2-&gt;geometry;</span>
-<span class="lineNum">    1159 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
-<span class="lineNum">    1160 </span>            : 
-<span class="lineNum">    1161 </span><span class="lineCov">          1 :   result = GEOSWithin_r(handle,g1, g2);</span>
-<span class="lineNum">    1162 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
-<span class="lineNum">    1163 </span>            : #else
-<span class="lineNum">    1164 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSWithin()&quot;);
-<span class="lineNum">    1165 </span>            :   return -1;
-<span class="lineNum">    1166 </span>            : #endif
-<span class="lineNum">    1167 </span>            : }
-<span class="lineNum">    1168 </span>            : 
-<span class="lineNum">    1169 </span>            : /*
-<a name="1170"><span class="lineNum">    1170 </span>            : ** Does shape1 cross shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
-<span class="lineNum">    1171 </span>            : */
-<span class="lineNum">    1172 </span><span class="lineCov">          1 : int msGEOSCrosses(shapeObj *shape1, shapeObj *shape2)</span>
-<span class="lineNum">    1173 </span>            : {
-<span class="lineNum">    1174 </span>            : #ifdef USE_GEOS
-<span class="lineNum">    1175 </span>            :   GEOSGeom g1, g2;
-<span class="lineNum">    1176 </span>            :   int result;
-<span class="lineNum">    1177 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">    1178 </span>            : 
-<span class="lineNum">    1179 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
-<span class="lineNum">    1180 </span>            :     return -1;
-<span class="lineNum">    1181 </span>            : 
-<span class="lineNum">    1182 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
-<span class="lineNum">    1183 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
-<span class="lineNum">    1184 </span><span class="lineCov">          1 :   g1 = shape1-&gt;geometry;</span>
-<span class="lineNum">    1185 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
-<span class="lineNum">    1186 </span>            : 
-<span class="lineNum">    1187 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
-<span class="lineNum">    1188 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
-<span class="lineNum">    1189 </span><span class="lineCov">          1 :   g2 = shape2-&gt;geometry;</span>
-<span class="lineNum">    1190 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
-<span class="lineNum">    1191 </span>            : 
-<span class="lineNum">    1192 </span><span class="lineCov">          1 :   result = GEOSCrosses_r(handle,g1, g2);</span>
-<span class="lineNum">    1193 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
-<span class="lineNum">    1194 </span>            : #else
-<span class="lineNum">    1195 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSCrosses()&quot;);
-<span class="lineNum">    1196 </span>            :   return -1;
-<span class="lineNum">    1197 </span>            : #endif
-<span class="lineNum">    1198 </span>            : }
-<span class="lineNum">    1199 </span>            : 
-<span class="lineNum">    1200 </span>            : /*
-<a name="1201"><span class="lineNum">    1201 </span>            : ** Does shape1 intersect shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
-<span class="lineNum">    1202 </span>            : */
-<span class="lineNum">    1203 </span><span class="lineCov">          1 : int msGEOSIntersects(shapeObj *shape1, shapeObj *shape2)</span>
-<span class="lineNum">    1204 </span>            : {
-<span class="lineNum">    1205 </span>            : #ifdef USE_GEOS
-<span class="lineNum">    1206 </span>            :   GEOSGeom g1, g2;
-<span class="lineNum">    1207 </span>            :   int result;
-<span class="lineNum">    1208 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">    1209 </span>            : 
-<span class="lineNum">    1210 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
-<span class="lineNum">    1211 </span>            :     return -1;
-<span class="lineNum">    1212 </span>            : 
-<span class="lineNum">    1213 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
-<span class="lineNum">    1214 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
-<span class="lineNum">    1215 </span><span class="lineCov">          1 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
-<span class="lineNum">    1216 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
-<span class="lineNum">    1217 </span>            : 
-<span class="lineNum">    1218 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
-<span class="lineNum">    1219 </span><span class="lineCov">          1 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
-<span class="lineNum">    1220 </span><span class="lineCov">          1 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
-<span class="lineNum">    1221 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
-<span class="lineNum">    1222 </span>            : 
-<span class="lineNum">    1223 </span><span class="lineCov">          1 :   result = GEOSIntersects_r(handle,g1, g2);</span>
-<span class="lineNum">    1224 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
-<span class="lineNum">    1225 </span>            : #else
-<span class="lineNum">    1226 </span>            :   if(!shape1 || !shape2)
-<span class="lineNum">    1227 </span>            :     return -1;
-<span class="lineNum">    1228 </span>            : 
-<span class="lineNum">    1229 </span>            :   switch(shape1-&gt;type) { /* todo: deal with point shapes */
-<span class="lineNum">    1230 </span>            :     case(MS_SHAPE_LINE):
-<span class="lineNum">    1231 </span>            :       switch(shape2-&gt;type) {
-<span class="lineNum">    1232 </span>            :         case(MS_SHAPE_LINE):
-<span class="lineNum">    1233 </span>            :           return msIntersectPolylines(shape1, shape2);
-<span class="lineNum">    1234 </span>            :         case(MS_SHAPE_POLYGON):
-<span class="lineNum">    1235 </span>            :           return msIntersectPolylinePolygon(shape1, shape2);
-<span class="lineNum">    1236 </span>            :       }
-<span class="lineNum">    1237 </span>            :       break;
-<span class="lineNum">    1238 </span>            :     case(MS_SHAPE_POLYGON):
-<span class="lineNum">    1239 </span>            :       switch(shape2-&gt;type) {
-<span class="lineNum">    1240 </span>            :         case(MS_SHAPE_LINE):
-<span class="lineNum">    1241 </span>            :           return msIntersectPolylinePolygon(shape2, shape1);
-<span class="lineNum">    1242 </span>            :         case(MS_SHAPE_POLYGON):
-<span class="lineNum">    1243 </span>            :           return msIntersectPolygons(shape1, shape2);
-<span class="lineNum">    1244 </span>            :       }
-<span class="lineNum">    1245 </span>            :       break;
-<span class="lineNum">    1246 </span>            :   }
-<span class="lineNum">    1247 </span>            : 
-<span class="lineNum">    1248 </span>            :   return -1;
-<span class="lineNum">    1249 </span>            : #endif
-<span class="lineNum">    1250 </span>            : }
-<span class="lineNum">    1251 </span>            : 
-<span class="lineNum">    1252 </span>            : /*
-<a name="1253"><span class="lineNum">    1253 </span>            : ** Does shape1 touch shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
-<span class="lineNum">    1254 </span>            : */
-<span class="lineNum">    1255 </span><span class="lineCov">          1 : int msGEOSTouches(shapeObj *shape1, shapeObj *shape2)</span>
-<span class="lineNum">    1256 </span>            : {
-<span class="lineNum">    1257 </span>            : #ifdef USE_GEOS
-<span class="lineNum">    1258 </span>            :   GEOSGeom g1, g2;
-<span class="lineNum">    1259 </span>            :   int result;
-<span class="lineNum">    1260 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">    1261 </span>            : 
-<span class="lineNum">    1262 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
-<span class="lineNum">    1263 </span>            :     return -1;
-<span class="lineNum">    1264 </span>            : 
-<span class="lineNum">    1265 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
-<span class="lineNum">    1266 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
-<span class="lineNum">    1267 </span><span class="lineCov">          1 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
-<span class="lineNum">    1268 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
-<span class="lineNum">    1269 </span>            : 
-<span class="lineNum">    1270 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
-<span class="lineNum">    1271 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
-<span class="lineNum">    1272 </span><span class="lineCov">          1 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
-<span class="lineNum">    1273 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
-<span class="lineNum">    1274 </span>            : 
-<span class="lineNum">    1275 </span><span class="lineCov">          1 :   result = GEOSTouches_r(handle,g1, g2);</span>
-<span class="lineNum">    1276 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
-<span class="lineNum">    1277 </span>            : #else
-<span class="lineNum">    1278 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSTouches()&quot;);
-<span class="lineNum">    1279 </span>            :   return -1;
-<span class="lineNum">    1280 </span>            : #endif
-<span class="lineNum">    1281 </span>            : }
-<span class="lineNum">    1282 </span>            : 
-<span class="lineNum">    1283 </span>            : /*
-<a name="1284"><span class="lineNum">    1284 </span>            : ** Does shape1 equal shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
-<span class="lineNum">    1285 </span>            : */
-<span class="lineNum">    1286 </span><span class="lineCov">          1 : int msGEOSEquals(shapeObj *shape1, shapeObj *shape2)</span>
-<span class="lineNum">    1287 </span>            : {
-<span class="lineNum">    1288 </span>            : #ifdef USE_GEOS
-<span class="lineNum">    1289 </span>            :   GEOSGeom g1, g2;
-<span class="lineNum">    1290 </span>            :   int result;
-<span class="lineNum">    1291 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">    1292 </span>            : 
-<span class="lineNum">    1293 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
-<span class="lineNum">    1294 </span>            :     return -1;
-<span class="lineNum">    1295 </span>            : 
-<span class="lineNum">    1296 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
-<span class="lineNum">    1297 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
-<span class="lineNum">    1298 </span><span class="lineCov">          1 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
-<span class="lineNum">    1299 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
-<span class="lineNum">    1300 </span>            : 
-<span class="lineNum">    1301 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
-<span class="lineNum">    1302 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
-<span class="lineNum">    1303 </span><span class="lineCov">          1 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
-<span class="lineNum">    1304 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
-<span class="lineNum">    1305 </span>            : 
-<span class="lineNum">    1306 </span><span class="lineCov">          1 :   result = GEOSEquals_r(handle,g1, g2);</span>
-<span class="lineNum">    1307 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
-<span class="lineNum">    1308 </span>            : #else
-<span class="lineNum">    1309 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSEquals()&quot;);
-<span class="lineNum">    1310 </span>            :   return -1;
-<span class="lineNum">    1311 </span>            : #endif
-<span class="lineNum">    1312 </span>            : }
-<span class="lineNum">    1313 </span>            : 
-<span class="lineNum">    1314 </span>            : /*
-<a name="1315"><span class="lineNum">    1315 </span>            : ** Are shape1 and shape2 disjoint, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
-<span class="lineNum">    1316 </span>            : */
-<span class="lineNum">    1317 </span><span class="lineCov">          1 : int msGEOSDisjoint(shapeObj *shape1, shapeObj *shape2)</span>
-<span class="lineNum">    1318 </span>            : {
-<span class="lineNum">    1319 </span>            : #ifdef USE_GEOS
-<span class="lineNum">    1320 </span>            :   GEOSGeom g1, g2;
-<span class="lineNum">    1321 </span>            :   int result;
-<span class="lineNum">    1322 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">    1323 </span>            : 
-<span class="lineNum">    1324 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
-<span class="lineNum">    1325 </span>            :     return -1;
-<span class="lineNum">    1326 </span>            : 
-<span class="lineNum">    1327 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
-<span class="lineNum">    1328 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
-<span class="lineNum">    1329 </span><span class="lineCov">          1 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
-<span class="lineNum">    1330 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
-<span class="lineNum">    1331 </span>            : 
-<span class="lineNum">    1332 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
-<span class="lineNum">    1333 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
-<span class="lineNum">    1334 </span><span class="lineCov">          1 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
-<span class="lineNum">    1335 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
-<span class="lineNum">    1336 </span>            : 
-<span class="lineNum">    1337 </span><span class="lineCov">          1 :   result = GEOSDisjoint_r(handle,g1, g2);</span>
-<span class="lineNum">    1338 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
-<span class="lineNum">    1339 </span>            : #else
-<span class="lineNum">    1340 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSDisjoint()&quot;);
-<span class="lineNum">    1341 </span>            :   return -1;
-<span class="lineNum">    1342 </span>            : #endif
-<span class="lineNum">    1343 </span>            : }
-<span class="lineNum">    1344 </span>            : 
-<span class="lineNum">    1345 </span>            : /*
-<a name="1346"><span class="lineNum">    1346 </span>            : ** Useful misc. functions that return -1 on failure.</a>
-<span class="lineNum">    1347 </span>            : */
-<span class="lineNum">    1348 </span><span class="lineNoCov">          0 : double msGEOSArea(shapeObj *shape)</span>
-<span class="lineNum">    1349 </span>            : {
-<span class="lineNum">    1350 </span>            : #if defined(USE_GEOS) &amp;&amp; defined(GEOS_CAPI_VERSION_MAJOR) &amp;&amp; defined(GEOS_CAPI_VERSION_MINOR) &amp;&amp; (GEOS_CAPI_VERSION_MAJOR &gt; 1 || GEOS_CAPI_VERSION_MINOR &gt;= 1)
-<span class="lineNum">    1351 </span>            :   GEOSGeom g;
-<span class="lineNum">    1352 </span>            :   double area;
-<span class="lineNum">    1353 </span>            :   int result;
-<span class="lineNum">    1354 </span><span class="lineNoCov">          0 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">    1355 </span>            : 
-<span class="lineNum">    1356 </span><span class="lineNoCov">          0 :   if(!shape) return -1;</span>
-<span class="lineNum">    1357 </span>            : 
-<span class="lineNum">    1358 </span><span class="lineNoCov">          0 :   if(!shape-&gt;geometry) /* if no geometry for the shape then build one */</span>
-<span class="lineNum">    1359 </span><span class="lineNoCov">          0 :     shape-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape);</span>
-<span class="lineNum">    1360 </span><span class="lineNoCov">          0 :   g = (GEOSGeom) shape-&gt;geometry;</span>
-<span class="lineNum">    1361 </span><span class="lineNoCov">          0 :   if(!g) return -1;</span>
-<span class="lineNum">    1362 </span>            : 
-<span class="lineNum">    1363 </span><span class="lineNoCov">          0 :   result = GEOSArea_r(handle,g, &amp;area);</span>
-<span class="lineNum">    1364 </span><span class="lineNoCov">          0 :   return  ((result==0) ? -1 : area);</span>
-<span class="lineNum">    1365 </span>            : #elif defined(USE_GEOS)
-<span class="lineNum">    1366 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support enabled, but old version lacks GEOSArea().&quot;, &quot;msGEOSArea()&quot;);
-<span class="lineNum">    1367 </span>            :   return -1;
-<span class="lineNum">    1368 </span>            : #else
-<span class="lineNum">    1369 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSArea()&quot;);
-<span class="lineNum">    1370 </span>            :   return -1;
-<span class="lineNum">    1371 </span>            : #endif
-<a name="1372"><span class="lineNum">    1372 </span>            : }</a>
-<span class="lineNum">    1373 </span>            : 
-<span class="lineNum">    1374 </span><span class="lineNoCov">          0 : double msGEOSLength(shapeObj *shape)</span>
-<span class="lineNum">    1375 </span>            : {
-<span class="lineNum">    1376 </span>            : #if defined(USE_GEOS) &amp;&amp; defined(GEOS_CAPI_VERSION_MAJOR) &amp;&amp; defined(GEOS_CAPI_VERSION_MINOR) &amp;&amp; (GEOS_CAPI_VERSION_MAJOR &gt; 1 || GEOS_CAPI_VERSION_MINOR &gt;= 1)
-<span class="lineNum">    1377 </span>            : 
-<span class="lineNum">    1378 </span>            :   GEOSGeom g;
-<span class="lineNum">    1379 </span>            :   double length;
-<span class="lineNum">    1380 </span>            :   int result;
-<span class="lineNum">    1381 </span><span class="lineNoCov">          0 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">    1382 </span>            : 
-<span class="lineNum">    1383 </span><span class="lineNoCov">          0 :   if(!shape) return -1;</span>
-<span class="lineNum">    1384 </span>            : 
-<span class="lineNum">    1385 </span><span class="lineNoCov">          0 :   if(!shape-&gt;geometry) /* if no geometry for the shape then build one */</span>
-<span class="lineNum">    1386 </span><span class="lineNoCov">          0 :     shape-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape);</span>
-<span class="lineNum">    1387 </span><span class="lineNoCov">          0 :   g = (GEOSGeom) shape-&gt;geometry;</span>
-<span class="lineNum">    1388 </span><span class="lineNoCov">          0 :   if(!g) return -1;</span>
-<span class="lineNum">    1389 </span>            : 
-<span class="lineNum">    1390 </span><span class="lineNoCov">          0 :   result = GEOSLength_r(handle,g, &amp;length);</span>
-<span class="lineNum">    1391 </span><span class="lineNoCov">          0 :   return  ((result==0) ? -1 : length);</span>
-<span class="lineNum">    1392 </span>            : #elif defined(USE_GEOS)
-<span class="lineNum">    1393 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support enabled, but old version lacks GEOSLength().&quot;, &quot;msGEOSLength()&quot;);
-<span class="lineNum">    1394 </span>            :   return -1;
-<span class="lineNum">    1395 </span>            : #else
-<span class="lineNum">    1396 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSLength()&quot;);
-<span class="lineNum">    1397 </span>            :   return -1;
-<span class="lineNum">    1398 </span>            : #endif
-<a name="1399"><span class="lineNum">    1399 </span>            : }</a>
-<span class="lineNum">    1400 </span>            : 
-<span class="lineNum">    1401 </span><span class="lineCov">          1 : double msGEOSDistance(shapeObj *shape1, shapeObj *shape2)</span>
-<span class="lineNum">    1402 </span>            : {
-<span class="lineNum">    1403 </span>            : #ifdef USE_GEOS
-<span class="lineNum">    1404 </span>            :   GEOSGeom g1, g2;
-<span class="lineNum">    1405 </span>            :   double distance;
-<span class="lineNum">    1406 </span>            :   int result;
-<span class="lineNum">    1407 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
-<span class="lineNum">    1408 </span>            : 
-<span class="lineNum">    1409 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
-<span class="lineNum">    1410 </span>            :     return -1;
-<span class="lineNum">    1411 </span>            : 
-<span class="lineNum">    1412 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
-<span class="lineNum">    1413 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
-<span class="lineNum">    1414 </span><span class="lineCov">          1 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
-<span class="lineNum">    1415 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
-<span class="lineNum">    1416 </span>            : 
-<span class="lineNum">    1417 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
-<span class="lineNum">    1418 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
-<span class="lineNum">    1419 </span><span class="lineCov">          1 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
-<span class="lineNum">    1420 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
-<span class="lineNum">    1421 </span>            : 
-<span class="lineNum">    1422 </span><span class="lineCov">          1 :   result = GEOSDistance_r(handle,g1, g2, &amp;distance);</span>
-<span class="lineNum">    1423 </span><span class="lineCov">          1 :   return ((result==0) ? -1 : distance);</span>
-<span class="lineNum">    1424 </span>            : #else
-<span class="lineNum">    1425 </span>            :   return msDistanceShapeToShape(shape1, shape2); /* fall back on brute force method (for MapScript) */
-<span class="lineNum">    1426 </span>            : #endif
-<span class="lineNum">    1427 </span>            : }
+<span class="lineNum">     946 </span><span class="lineNoCov">          0 :   if (!g2) return NULL;</span>
+<span class="lineNum">     947 </span>            : 
+<span class="lineNum">     948 </span><span class="lineNoCov">          0 :   point = (pointObj *) malloc(sizeof(pointObj));</span>
+<span class="lineNum">     949 </span>            : 
+<span class="lineNum">     950 </span><span class="lineNoCov">          0 :   coords = (GEOSCoordSeq) GEOSGeom_getCoordSeq_r(handle,g2);</span>
+<span class="lineNum">     951 </span>            : 
+<span class="lineNum">     952 </span><span class="lineNoCov">          0 :   GEOSCoordSeq_getX_r(handle,coords, 0, &amp;(point-&gt;x));</span>
+<span class="lineNum">     953 </span><span class="lineNoCov">          0 :   GEOSCoordSeq_getY_r(handle,coords, 0, &amp;(point-&gt;y));</span>
+<span class="lineNum">     954 </span>            :   /* GEOSCoordSeq_getZ(coords, 0, &amp;(point-&gt;z)); */
+<span class="lineNum">     955 </span>            : 
+<span class="lineNum">     956 </span><span class="lineNoCov">          0 :   GEOSGeom_destroy_r(handle, g2);</span>
+<span class="lineNum">     957 </span>            : 
+<span class="lineNum">     958 </span><span class="lineNoCov">          0 :   return point;</span>
+<span class="lineNum">     959 </span>            : #else
+<span class="lineNum">     960 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSGetCentroid()&quot;);
+<span class="lineNum">     961 </span>            :   return NULL;
+<span class="lineNum">     962 </span>            : #endif
+<a name="963"><span class="lineNum">     963 </span>            : }</a>
+<span class="lineNum">     964 </span>            : 
+<span class="lineNum">     965 </span><span class="lineNoCov">          0 : shapeObj *msGEOSUnion(shapeObj *shape1, shapeObj *shape2)</span>
+<span class="lineNum">     966 </span>            : {
+<span class="lineNum">     967 </span>            : #ifdef USE_GEOS
+<span class="lineNum">     968 </span>            :   GEOSGeom g1, g2, g3;
+<span class="lineNum">     969 </span><span class="lineNoCov">          0 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">     970 </span>            : 
+<span class="lineNum">     971 </span><span class="lineNoCov">          0 :   if(!shape1 || !shape2)</span>
+<span class="lineNum">     972 </span>            :     return NULL;
+<span class="lineNum">     973 </span>            : 
+<span class="lineNum">     974 </span><span class="lineNoCov">          0 :   if(!shape1-&gt;geometry) /* if no geometry for the shape then build one */</span>
+<span class="lineNum">     975 </span><span class="lineNoCov">          0 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
+<span class="lineNum">     976 </span><span class="lineNoCov">          0 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
+<span class="lineNum">     977 </span><span class="lineNoCov">          0 :   if(!g1) return NULL;</span>
+<span class="lineNum">     978 </span>            : 
+<span class="lineNum">     979 </span><span class="lineNoCov">          0 :   if(!shape2-&gt;geometry) /* if no geometry for the shape then build one */</span>
+<span class="lineNum">     980 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
+<span class="lineNum">     981 </span><span class="lineNoCov">          0 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
+<span class="lineNum">     982 </span><span class="lineNoCov">          0 :   if(!g2) return NULL;</span>
+<span class="lineNum">     983 </span>            : 
+<span class="lineNum">     984 </span><span class="lineNoCov">          0 :   g3 = GEOSUnion_r(handle,g1, g2);</span>
+<span class="lineNum">     985 </span><span class="lineNoCov">          0 :   return msGEOSGeometry2Shape(g3);</span>
+<span class="lineNum">     986 </span>            : #else
+<span class="lineNum">     987 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSUnion()&quot;);
+<span class="lineNum">     988 </span>            :   return NULL;
+<span class="lineNum">     989 </span>            : #endif
+<a name="990"><span class="lineNum">     990 </span>            : }</a>
+<span class="lineNum">     991 </span>            : 
+<span class="lineNum">     992 </span><span class="lineNoCov">          0 : shapeObj *msGEOSIntersection(shapeObj *shape1, shapeObj *shape2)</span>
+<span class="lineNum">     993 </span>            : {
+<span class="lineNum">     994 </span>            : #ifdef USE_GEOS
+<span class="lineNum">     995 </span>            :   GEOSGeom g1, g2, g3;
+<span class="lineNum">     996 </span><span class="lineNoCov">          0 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">     997 </span>            : 
+<span class="lineNum">     998 </span><span class="lineNoCov">          0 :   if(!shape1 || !shape2)</span>
+<span class="lineNum">     999 </span>            :     return NULL;
+<span class="lineNum">    1000 </span>            : 
+<span class="lineNum">    1001 </span><span class="lineNoCov">          0 :   if(!shape1-&gt;geometry) /* if no geometry for the shape then build one */</span>
+<span class="lineNum">    1002 </span><span class="lineNoCov">          0 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
+<span class="lineNum">    1003 </span><span class="lineNoCov">          0 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
+<span class="lineNum">    1004 </span><span class="lineNoCov">          0 :   if(!g1) return NULL;</span>
+<span class="lineNum">    1005 </span>            : 
+<span class="lineNum">    1006 </span><span class="lineNoCov">          0 :   if(!shape2-&gt;geometry) /* if no geometry for the shape then build one */</span>
+<span class="lineNum">    1007 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
+<span class="lineNum">    1008 </span><span class="lineNoCov">          0 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
+<span class="lineNum">    1009 </span><span class="lineNoCov">          0 :   if(!g2) return NULL;</span>
+<span class="lineNum">    1010 </span>            : 
+<span class="lineNum">    1011 </span><span class="lineNoCov">          0 :   g3 = GEOSIntersection_r(handle,g1, g2);</span>
+<span class="lineNum">    1012 </span><span class="lineNoCov">          0 :   return msGEOSGeometry2Shape(g3);</span>
+<span class="lineNum">    1013 </span>            : #else
+<span class="lineNum">    1014 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSIntersection()&quot;);
+<span class="lineNum">    1015 </span>            :   return NULL;
+<span class="lineNum">    1016 </span>            : #endif
+<a name="1017"><span class="lineNum">    1017 </span>            : }</a>
+<span class="lineNum">    1018 </span>            : 
+<span class="lineNum">    1019 </span><span class="lineCov">          1 : shapeObj *msGEOSDifference(shapeObj *shape1, shapeObj *shape2)</span>
+<span class="lineNum">    1020 </span>            : {
+<span class="lineNum">    1021 </span>            : #ifdef USE_GEOS
+<span class="lineNum">    1022 </span>            :   GEOSGeom g1, g2, g3;
+<span class="lineNum">    1023 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">    1024 </span>            : 
+<span class="lineNum">    1025 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
+<span class="lineNum">    1026 </span>            :     return NULL;
+<span class="lineNum">    1027 </span>            : 
+<span class="lineNum">    1028 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for the shape then build one */</span>
+<span class="lineNum">    1029 </span><span class="lineNoCov">          0 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
+<span class="lineNum">    1030 </span><span class="lineCov">          1 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
+<span class="lineNum">    1031 </span><span class="lineCov">          1 :   if(!g1) return NULL;</span>
+<span class="lineNum">    1032 </span>            : 
+<span class="lineNum">    1033 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for the shape then build one */</span>
+<span class="lineNum">    1034 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
+<span class="lineNum">    1035 </span><span class="lineCov">          1 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
+<span class="lineNum">    1036 </span><span class="lineCov">          1 :   if(!g2) return NULL;</span>
+<span class="lineNum">    1037 </span>            : 
+<span class="lineNum">    1038 </span><span class="lineCov">          1 :   g3 = GEOSDifference_r(handle,g1, g2);</span>
+<span class="lineNum">    1039 </span><span class="lineCov">          1 :   return msGEOSGeometry2Shape(g3);</span>
+<span class="lineNum">    1040 </span>            : #else
+<span class="lineNum">    1041 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSDifference()&quot;);
+<span class="lineNum">    1042 </span>            :   return NULL;
+<span class="lineNum">    1043 </span>            : #endif
+<a name="1044"><span class="lineNum">    1044 </span>            : }</a>
+<span class="lineNum">    1045 </span>            : 
+<span class="lineNum">    1046 </span><span class="lineNoCov">          0 : shapeObj *msGEOSSymDifference(shapeObj *shape1, shapeObj *shape2)</span>
+<span class="lineNum">    1047 </span>            : {
+<span class="lineNum">    1048 </span>            : #ifdef USE_GEOS
+<span class="lineNum">    1049 </span>            :   GEOSGeom g1, g2, g3;
+<span class="lineNum">    1050 </span><span class="lineNoCov">          0 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">    1051 </span>            : 
+<span class="lineNum">    1052 </span><span class="lineNoCov">          0 :   if(!shape1 || !shape2)</span>
+<span class="lineNum">    1053 </span>            :     return NULL;
+<span class="lineNum">    1054 </span>            : 
+<span class="lineNum">    1055 </span><span class="lineNoCov">          0 :   if(!shape1-&gt;geometry) /* if no geometry for the shape then build one */</span>
+<span class="lineNum">    1056 </span><span class="lineNoCov">          0 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
+<span class="lineNum">    1057 </span><span class="lineNoCov">          0 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
+<span class="lineNum">    1058 </span><span class="lineNoCov">          0 :   if(!g1) return NULL;</span>
+<span class="lineNum">    1059 </span>            : 
+<span class="lineNum">    1060 </span><span class="lineNoCov">          0 :   if(!shape2-&gt;geometry) /* if no geometry for the shape then build one */</span>
+<span class="lineNum">    1061 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
+<span class="lineNum">    1062 </span><span class="lineNoCov">          0 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
+<span class="lineNum">    1063 </span><span class="lineNoCov">          0 :   if(!g2) return NULL;</span>
+<span class="lineNum">    1064 </span>            : 
+<span class="lineNum">    1065 </span><span class="lineNoCov">          0 :   g3 = GEOSSymDifference_r(handle,g1, g2);</span>
+<span class="lineNum">    1066 </span><span class="lineNoCov">          0 :   return msGEOSGeometry2Shape(g3);</span>
+<span class="lineNum">    1067 </span>            : #else
+<span class="lineNum">    1068 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSSymDifference()&quot;);
+<span class="lineNum">    1069 </span>            :   return NULL;
+<span class="lineNum">    1070 </span>            : #endif
+<span class="lineNum">    1071 </span>            : }
+<span class="lineNum">    1072 </span>            : 
+<span class="lineNum">    1073 </span>            : /*
+<span class="lineNum">    1074 </span>            : ** Binary predicates exposed to MapServer/MapScript
+<span class="lineNum">    1075 </span>            : */
+<span class="lineNum">    1076 </span>            : 
+<span class="lineNum">    1077 </span>            : /*
+<a name="1078"><span class="lineNum">    1078 </span>            : ** Does shape1 contain shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
+<span class="lineNum">    1079 </span>            : */
+<span class="lineNum">    1080 </span><span class="lineCov">          1 : int msGEOSContains(shapeObj *shape1, shapeObj *shape2)</span>
+<span class="lineNum">    1081 </span>            : {
+<span class="lineNum">    1082 </span>            : #ifdef USE_GEOS
+<span class="lineNum">    1083 </span>            :   GEOSGeom g1, g2;
+<span class="lineNum">    1084 </span>            :   int result;
+<span class="lineNum">    1085 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">    1086 </span>            : 
+<span class="lineNum">    1087 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
+<span class="lineNum">    1088 </span>            :     return -1;
+<span class="lineNum">    1089 </span>            : 
+<span class="lineNum">    1090 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
+<span class="lineNum">    1091 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
+<span class="lineNum">    1092 </span><span class="lineCov">          1 :   g1 = shape1-&gt;geometry;</span>
+<span class="lineNum">    1093 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
+<span class="lineNum">    1094 </span>            : 
+<span class="lineNum">    1095 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
+<span class="lineNum">    1096 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
+<span class="lineNum">    1097 </span><span class="lineCov">          1 :   g2 = shape2-&gt;geometry;</span>
+<span class="lineNum">    1098 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
+<span class="lineNum">    1099 </span>            : 
+<span class="lineNum">    1100 </span><span class="lineCov">          1 :   result = GEOSContains_r(handle,g1, g2);</span>
+<span class="lineNum">    1101 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
+<span class="lineNum">    1102 </span>            : #else
+<span class="lineNum">    1103 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSContains()&quot;);
+<span class="lineNum">    1104 </span>            :   return -1;
+<span class="lineNum">    1105 </span>            : #endif
+<span class="lineNum">    1106 </span>            : }
+<span class="lineNum">    1107 </span>            : 
+<span class="lineNum">    1108 </span>            : /*
+<a name="1109"><span class="lineNum">    1109 </span>            : ** Does shape1 overlap shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
+<span class="lineNum">    1110 </span>            : */
+<span class="lineNum">    1111 </span><span class="lineCov">          1 : int msGEOSOverlaps(shapeObj *shape1, shapeObj *shape2)</span>
+<span class="lineNum">    1112 </span>            : {
+<span class="lineNum">    1113 </span>            : #ifdef USE_GEOS
+<span class="lineNum">    1114 </span>            :   GEOSGeom g1, g2;
+<span class="lineNum">    1115 </span>            :   int result;
+<span class="lineNum">    1116 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">    1117 </span>            : 
+<span class="lineNum">    1118 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
+<span class="lineNum">    1119 </span>            :     return -1;
+<span class="lineNum">    1120 </span>            : 
+<span class="lineNum">    1121 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
+<span class="lineNum">    1122 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
+<span class="lineNum">    1123 </span><span class="lineCov">          1 :   g1 = shape1-&gt;geometry;</span>
+<span class="lineNum">    1124 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
+<span class="lineNum">    1125 </span>            : 
+<span class="lineNum">    1126 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
+<span class="lineNum">    1127 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
+<span class="lineNum">    1128 </span><span class="lineCov">          1 :   g2 = shape2-&gt;geometry;</span>
+<span class="lineNum">    1129 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
+<span class="lineNum">    1130 </span>            : 
+<span class="lineNum">    1131 </span><span class="lineCov">          1 :   result = GEOSOverlaps_r(handle,g1, g2);</span>
+<span class="lineNum">    1132 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
+<span class="lineNum">    1133 </span>            : #else
+<span class="lineNum">    1134 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSOverlaps()&quot;);
+<span class="lineNum">    1135 </span>            :   return -1;
+<span class="lineNum">    1136 </span>            : #endif
+<span class="lineNum">    1137 </span>            : }
+<span class="lineNum">    1138 </span>            : 
+<span class="lineNum">    1139 </span>            : /*
+<a name="1140"><span class="lineNum">    1140 </span>            : ** Is shape1 within shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
+<span class="lineNum">    1141 </span>            : */
+<span class="lineNum">    1142 </span><span class="lineCov">          1 : int msGEOSWithin(shapeObj *shape1, shapeObj *shape2)</span>
+<span class="lineNum">    1143 </span>            : {
+<span class="lineNum">    1144 </span>            : #ifdef USE_GEOS
+<span class="lineNum">    1145 </span>            :   GEOSGeom g1, g2;
+<span class="lineNum">    1146 </span>            :   int result;
+<span class="lineNum">    1147 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">    1148 </span>            : 
+<span class="lineNum">    1149 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
+<span class="lineNum">    1150 </span>            :     return -1;
+<span class="lineNum">    1151 </span>            : 
+<span class="lineNum">    1152 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
+<span class="lineNum">    1153 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
+<span class="lineNum">    1154 </span><span class="lineCov">          1 :   g1 = shape1-&gt;geometry;</span>
+<span class="lineNum">    1155 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
+<span class="lineNum">    1156 </span>            : 
+<span class="lineNum">    1157 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
+<span class="lineNum">    1158 </span><span class="lineCov">          1 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
+<span class="lineNum">    1159 </span><span class="lineCov">          1 :   g2 = shape2-&gt;geometry;</span>
+<span class="lineNum">    1160 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
+<span class="lineNum">    1161 </span>            : 
+<span class="lineNum">    1162 </span><span class="lineCov">          1 :   result = GEOSWithin_r(handle,g1, g2);</span>
+<span class="lineNum">    1163 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
+<span class="lineNum">    1164 </span>            : #else
+<span class="lineNum">    1165 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSWithin()&quot;);
+<span class="lineNum">    1166 </span>            :   return -1;
+<span class="lineNum">    1167 </span>            : #endif
+<span class="lineNum">    1168 </span>            : }
+<span class="lineNum">    1169 </span>            : 
+<span class="lineNum">    1170 </span>            : /*
+<a name="1171"><span class="lineNum">    1171 </span>            : ** Does shape1 cross shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
+<span class="lineNum">    1172 </span>            : */
+<span class="lineNum">    1173 </span><span class="lineCov">          1 : int msGEOSCrosses(shapeObj *shape1, shapeObj *shape2)</span>
+<span class="lineNum">    1174 </span>            : {
+<span class="lineNum">    1175 </span>            : #ifdef USE_GEOS
+<span class="lineNum">    1176 </span>            :   GEOSGeom g1, g2;
+<span class="lineNum">    1177 </span>            :   int result;
+<span class="lineNum">    1178 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">    1179 </span>            : 
+<span class="lineNum">    1180 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
+<span class="lineNum">    1181 </span>            :     return -1;
+<span class="lineNum">    1182 </span>            : 
+<span class="lineNum">    1183 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
+<span class="lineNum">    1184 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
+<span class="lineNum">    1185 </span><span class="lineCov">          1 :   g1 = shape1-&gt;geometry;</span>
+<span class="lineNum">    1186 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
+<span class="lineNum">    1187 </span>            : 
+<span class="lineNum">    1188 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
+<span class="lineNum">    1189 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
+<span class="lineNum">    1190 </span><span class="lineCov">          1 :   g2 = shape2-&gt;geometry;</span>
+<span class="lineNum">    1191 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
+<span class="lineNum">    1192 </span>            : 
+<span class="lineNum">    1193 </span><span class="lineCov">          1 :   result = GEOSCrosses_r(handle,g1, g2);</span>
+<span class="lineNum">    1194 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
+<span class="lineNum">    1195 </span>            : #else
+<span class="lineNum">    1196 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSCrosses()&quot;);
+<span class="lineNum">    1197 </span>            :   return -1;
+<span class="lineNum">    1198 </span>            : #endif
+<span class="lineNum">    1199 </span>            : }
+<span class="lineNum">    1200 </span>            : 
+<span class="lineNum">    1201 </span>            : /*
+<a name="1202"><span class="lineNum">    1202 </span>            : ** Does shape1 intersect shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
+<span class="lineNum">    1203 </span>            : */
+<span class="lineNum">    1204 </span><span class="lineCov">          1 : int msGEOSIntersects(shapeObj *shape1, shapeObj *shape2)</span>
+<span class="lineNum">    1205 </span>            : {
+<span class="lineNum">    1206 </span>            : #ifdef USE_GEOS
+<span class="lineNum">    1207 </span>            :   GEOSGeom g1, g2;
+<span class="lineNum">    1208 </span>            :   int result;
+<span class="lineNum">    1209 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">    1210 </span>            : 
+<span class="lineNum">    1211 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
+<span class="lineNum">    1212 </span>            :     return -1;
+<span class="lineNum">    1213 </span>            : 
+<span class="lineNum">    1214 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
+<span class="lineNum">    1215 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
+<span class="lineNum">    1216 </span><span class="lineCov">          1 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
+<span class="lineNum">    1217 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
+<span class="lineNum">    1218 </span>            : 
+<span class="lineNum">    1219 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
+<span class="lineNum">    1220 </span><span class="lineCov">          1 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
+<span class="lineNum">    1221 </span><span class="lineCov">          1 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
+<span class="lineNum">    1222 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
+<span class="lineNum">    1223 </span>            : 
+<span class="lineNum">    1224 </span><span class="lineCov">          1 :   result = GEOSIntersects_r(handle,g1, g2);</span>
+<span class="lineNum">    1225 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
+<span class="lineNum">    1226 </span>            : #else
+<span class="lineNum">    1227 </span>            :   if(!shape1 || !shape2)
+<span class="lineNum">    1228 </span>            :     return -1;
+<span class="lineNum">    1229 </span>            : 
+<span class="lineNum">    1230 </span>            :   switch(shape1-&gt;type) { /* todo: deal with point shapes */
+<span class="lineNum">    1231 </span>            :     case(MS_SHAPE_LINE):
+<span class="lineNum">    1232 </span>            :       switch(shape2-&gt;type) {
+<span class="lineNum">    1233 </span>            :         case(MS_SHAPE_LINE):
+<span class="lineNum">    1234 </span>            :           return msIntersectPolylines(shape1, shape2);
+<span class="lineNum">    1235 </span>            :         case(MS_SHAPE_POLYGON):
+<span class="lineNum">    1236 </span>            :           return msIntersectPolylinePolygon(shape1, shape2);
+<span class="lineNum">    1237 </span>            :       }
+<span class="lineNum">    1238 </span>            :       break;
+<span class="lineNum">    1239 </span>            :     case(MS_SHAPE_POLYGON):
+<span class="lineNum">    1240 </span>            :       switch(shape2-&gt;type) {
+<span class="lineNum">    1241 </span>            :         case(MS_SHAPE_LINE):
+<span class="lineNum">    1242 </span>            :           return msIntersectPolylinePolygon(shape2, shape1);
+<span class="lineNum">    1243 </span>            :         case(MS_SHAPE_POLYGON):
+<span class="lineNum">    1244 </span>            :           return msIntersectPolygons(shape1, shape2);
+<span class="lineNum">    1245 </span>            :       }
+<span class="lineNum">    1246 </span>            :       break;
+<span class="lineNum">    1247 </span>            :   }
+<span class="lineNum">    1248 </span>            : 
+<span class="lineNum">    1249 </span>            :   return -1;
+<span class="lineNum">    1250 </span>            : #endif
+<span class="lineNum">    1251 </span>            : }
+<span class="lineNum">    1252 </span>            : 
+<span class="lineNum">    1253 </span>            : /*
+<a name="1254"><span class="lineNum">    1254 </span>            : ** Does shape1 touch shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
+<span class="lineNum">    1255 </span>            : */
+<span class="lineNum">    1256 </span><span class="lineCov">          1 : int msGEOSTouches(shapeObj *shape1, shapeObj *shape2)</span>
+<span class="lineNum">    1257 </span>            : {
+<span class="lineNum">    1258 </span>            : #ifdef USE_GEOS
+<span class="lineNum">    1259 </span>            :   GEOSGeom g1, g2;
+<span class="lineNum">    1260 </span>            :   int result;
+<span class="lineNum">    1261 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">    1262 </span>            : 
+<span class="lineNum">    1263 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
+<span class="lineNum">    1264 </span>            :     return -1;
+<span class="lineNum">    1265 </span>            : 
+<span class="lineNum">    1266 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
+<span class="lineNum">    1267 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
+<span class="lineNum">    1268 </span><span class="lineCov">          1 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
+<span class="lineNum">    1269 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
+<span class="lineNum">    1270 </span>            : 
+<span class="lineNum">    1271 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
+<span class="lineNum">    1272 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
+<span class="lineNum">    1273 </span><span class="lineCov">          1 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
+<span class="lineNum">    1274 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
+<span class="lineNum">    1275 </span>            : 
+<span class="lineNum">    1276 </span><span class="lineCov">          1 :   result = GEOSTouches_r(handle,g1, g2);</span>
+<span class="lineNum">    1277 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
+<span class="lineNum">    1278 </span>            : #else
+<span class="lineNum">    1279 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSTouches()&quot;);
+<span class="lineNum">    1280 </span>            :   return -1;
+<span class="lineNum">    1281 </span>            : #endif
+<span class="lineNum">    1282 </span>            : }
+<span class="lineNum">    1283 </span>            : 
+<span class="lineNum">    1284 </span>            : /*
+<a name="1285"><span class="lineNum">    1285 </span>            : ** Does shape1 equal shape2, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
+<span class="lineNum">    1286 </span>            : */
+<span class="lineNum">    1287 </span><span class="lineCov">          1 : int msGEOSEquals(shapeObj *shape1, shapeObj *shape2)</span>
+<span class="lineNum">    1288 </span>            : {
+<span class="lineNum">    1289 </span>            : #ifdef USE_GEOS
+<span class="lineNum">    1290 </span>            :   GEOSGeom g1, g2;
+<span class="lineNum">    1291 </span>            :   int result;
+<span class="lineNum">    1292 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">    1293 </span>            : 
+<span class="lineNum">    1294 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
+<span class="lineNum">    1295 </span>            :     return -1;
+<span class="lineNum">    1296 </span>            : 
+<span class="lineNum">    1297 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
+<span class="lineNum">    1298 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
+<span class="lineNum">    1299 </span><span class="lineCov">          1 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
+<span class="lineNum">    1300 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
+<span class="lineNum">    1301 </span>            : 
+<span class="lineNum">    1302 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
+<span class="lineNum">    1303 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
+<span class="lineNum">    1304 </span><span class="lineCov">          1 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
+<span class="lineNum">    1305 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
+<span class="lineNum">    1306 </span>            : 
+<span class="lineNum">    1307 </span><span class="lineCov">          1 :   result = GEOSEquals_r(handle,g1, g2);</span>
+<span class="lineNum">    1308 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
+<span class="lineNum">    1309 </span>            : #else
+<span class="lineNum">    1310 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSEquals()&quot;);
+<span class="lineNum">    1311 </span>            :   return -1;
+<span class="lineNum">    1312 </span>            : #endif
+<span class="lineNum">    1313 </span>            : }
+<span class="lineNum">    1314 </span>            : 
+<span class="lineNum">    1315 </span>            : /*
+<a name="1316"><span class="lineNum">    1316 </span>            : ** Are shape1 and shape2 disjoint, returns MS_TRUE/MS_FALSE or -1 for an error.</a>
+<span class="lineNum">    1317 </span>            : */
+<span class="lineNum">    1318 </span><span class="lineCov">          1 : int msGEOSDisjoint(shapeObj *shape1, shapeObj *shape2)</span>
+<span class="lineNum">    1319 </span>            : {
+<span class="lineNum">    1320 </span>            : #ifdef USE_GEOS
+<span class="lineNum">    1321 </span>            :   GEOSGeom g1, g2;
+<span class="lineNum">    1322 </span>            :   int result;
+<span class="lineNum">    1323 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">    1324 </span>            : 
+<span class="lineNum">    1325 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
+<span class="lineNum">    1326 </span>            :     return -1;
+<span class="lineNum">    1327 </span>            : 
+<span class="lineNum">    1328 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
+<span class="lineNum">    1329 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
+<span class="lineNum">    1330 </span><span class="lineCov">          1 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
+<span class="lineNum">    1331 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
+<span class="lineNum">    1332 </span>            : 
+<span class="lineNum">    1333 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
+<span class="lineNum">    1334 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
+<span class="lineNum">    1335 </span><span class="lineCov">          1 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
+<span class="lineNum">    1336 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
+<span class="lineNum">    1337 </span>            : 
+<span class="lineNum">    1338 </span><span class="lineCov">          1 :   result = GEOSDisjoint_r(handle,g1, g2);</span>
+<span class="lineNum">    1339 </span><span class="lineCov">          1 :   return ((result==2) ? -1 : result);</span>
+<span class="lineNum">    1340 </span>            : #else
+<span class="lineNum">    1341 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSDisjoint()&quot;);
+<span class="lineNum">    1342 </span>            :   return -1;
+<span class="lineNum">    1343 </span>            : #endif
+<span class="lineNum">    1344 </span>            : }
+<span class="lineNum">    1345 </span>            : 
+<span class="lineNum">    1346 </span>            : /*
+<a name="1347"><span class="lineNum">    1347 </span>            : ** Useful misc. functions that return -1 on failure.</a>
+<span class="lineNum">    1348 </span>            : */
+<span class="lineNum">    1349 </span><span class="lineNoCov">          0 : double msGEOSArea(shapeObj *shape)</span>
+<span class="lineNum">    1350 </span>            : {
+<span class="lineNum">    1351 </span>            : #if defined(USE_GEOS) &amp;&amp; defined(GEOS_CAPI_VERSION_MAJOR) &amp;&amp; defined(GEOS_CAPI_VERSION_MINOR) &amp;&amp; (GEOS_CAPI_VERSION_MAJOR &gt; 1 || GEOS_CAPI_VERSION_MINOR &gt;= 1)
+<span class="lineNum">    1352 </span>            :   GEOSGeom g;
+<span class="lineNum">    1353 </span>            :   double area;
+<span class="lineNum">    1354 </span>            :   int result;
+<span class="lineNum">    1355 </span><span class="lineNoCov">          0 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">    1356 </span>            : 
+<span class="lineNum">    1357 </span><span class="lineNoCov">          0 :   if(!shape) return -1;</span>
+<span class="lineNum">    1358 </span>            : 
+<span class="lineNum">    1359 </span><span class="lineNoCov">          0 :   if(!shape-&gt;geometry) /* if no geometry for the shape then build one */</span>
+<span class="lineNum">    1360 </span><span class="lineNoCov">          0 :     shape-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape);</span>
+<span class="lineNum">    1361 </span><span class="lineNoCov">          0 :   g = (GEOSGeom) shape-&gt;geometry;</span>
+<span class="lineNum">    1362 </span><span class="lineNoCov">          0 :   if(!g) return -1;</span>
+<span class="lineNum">    1363 </span>            : 
+<span class="lineNum">    1364 </span><span class="lineNoCov">          0 :   result = GEOSArea_r(handle,g, &amp;area);</span>
+<span class="lineNum">    1365 </span><span class="lineNoCov">          0 :   return  ((result==0) ? -1 : area);</span>
+<span class="lineNum">    1366 </span>            : #elif defined(USE_GEOS)
+<span class="lineNum">    1367 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support enabled, but old version lacks GEOSArea().&quot;, &quot;msGEOSArea()&quot;);
+<span class="lineNum">    1368 </span>            :   return -1;
+<span class="lineNum">    1369 </span>            : #else
+<span class="lineNum">    1370 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSArea()&quot;);
+<span class="lineNum">    1371 </span>            :   return -1;
+<span class="lineNum">    1372 </span>            : #endif
+<a name="1373"><span class="lineNum">    1373 </span>            : }</a>
+<span class="lineNum">    1374 </span>            : 
+<span class="lineNum">    1375 </span><span class="lineNoCov">          0 : double msGEOSLength(shapeObj *shape)</span>
+<span class="lineNum">    1376 </span>            : {
+<span class="lineNum">    1377 </span>            : #if defined(USE_GEOS) &amp;&amp; defined(GEOS_CAPI_VERSION_MAJOR) &amp;&amp; defined(GEOS_CAPI_VERSION_MINOR) &amp;&amp; (GEOS_CAPI_VERSION_MAJOR &gt; 1 || GEOS_CAPI_VERSION_MINOR &gt;= 1)
+<span class="lineNum">    1378 </span>            : 
+<span class="lineNum">    1379 </span>            :   GEOSGeom g;
+<span class="lineNum">    1380 </span>            :   double length;
+<span class="lineNum">    1381 </span>            :   int result;
+<span class="lineNum">    1382 </span><span class="lineNoCov">          0 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">    1383 </span>            : 
+<span class="lineNum">    1384 </span><span class="lineNoCov">          0 :   if(!shape) return -1;</span>
+<span class="lineNum">    1385 </span>            : 
+<span class="lineNum">    1386 </span><span class="lineNoCov">          0 :   if(!shape-&gt;geometry) /* if no geometry for the shape then build one */</span>
+<span class="lineNum">    1387 </span><span class="lineNoCov">          0 :     shape-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape);</span>
+<span class="lineNum">    1388 </span><span class="lineNoCov">          0 :   g = (GEOSGeom) shape-&gt;geometry;</span>
+<span class="lineNum">    1389 </span><span class="lineNoCov">          0 :   if(!g) return -1;</span>
+<span class="lineNum">    1390 </span>            : 
+<span class="lineNum">    1391 </span><span class="lineNoCov">          0 :   result = GEOSLength_r(handle,g, &amp;length);</span>
+<span class="lineNum">    1392 </span><span class="lineNoCov">          0 :   return  ((result==0) ? -1 : length);</span>
+<span class="lineNum">    1393 </span>            : #elif defined(USE_GEOS)
+<span class="lineNum">    1394 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support enabled, but old version lacks GEOSLength().&quot;, &quot;msGEOSLength()&quot;);
+<span class="lineNum">    1395 </span>            :   return -1;
+<span class="lineNum">    1396 </span>            : #else
+<span class="lineNum">    1397 </span>            :   msSetError(MS_GEOSERR, &quot;GEOS support is not available.&quot;, &quot;msGEOSLength()&quot;);
+<span class="lineNum">    1398 </span>            :   return -1;
+<span class="lineNum">    1399 </span>            : #endif
+<a name="1400"><span class="lineNum">    1400 </span>            : }</a>
+<span class="lineNum">    1401 </span>            : 
+<span class="lineNum">    1402 </span><span class="lineCov">          1 : double msGEOSDistance(shapeObj *shape1, shapeObj *shape2)</span>
+<span class="lineNum">    1403 </span>            : {
+<span class="lineNum">    1404 </span>            : #ifdef USE_GEOS
+<span class="lineNum">    1405 </span>            :   GEOSGeom g1, g2;
+<span class="lineNum">    1406 </span>            :   double distance;
+<span class="lineNum">    1407 </span>            :   int result;
+<span class="lineNum">    1408 </span><span class="lineCov">          1 :   GEOSContextHandle_t handle = msGetGeosContextHandle();</span>
+<span class="lineNum">    1409 </span>            : 
+<span class="lineNum">    1410 </span><span class="lineCov">          1 :   if(!shape1 || !shape2)</span>
+<span class="lineNum">    1411 </span>            :     return -1;
+<span class="lineNum">    1412 </span>            : 
+<span class="lineNum">    1413 </span><span class="lineCov">          1 :   if(!shape1-&gt;geometry) /* if no geometry for shape1 then build one */</span>
+<span class="lineNum">    1414 </span><span class="lineCov">          1 :     shape1-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape1);</span>
+<span class="lineNum">    1415 </span><span class="lineCov">          1 :   g1 = (GEOSGeom) shape1-&gt;geometry;</span>
+<span class="lineNum">    1416 </span><span class="lineCov">          1 :   if(!g1) return -1;</span>
+<span class="lineNum">    1417 </span>            : 
+<span class="lineNum">    1418 </span><span class="lineCov">          1 :   if(!shape2-&gt;geometry) /* if no geometry for shape2 then build one */</span>
+<span class="lineNum">    1419 </span><span class="lineNoCov">          0 :     shape2-&gt;geometry = (GEOSGeom) msGEOSShape2Geometry(shape2);</span>
+<span class="lineNum">    1420 </span><span class="lineCov">          1 :   g2 = (GEOSGeom) shape2-&gt;geometry;</span>
+<span class="lineNum">    1421 </span><span class="lineCov">          1 :   if(!g2) return -1;</span>
+<span class="lineNum">    1422 </span>            : 
+<span class="lineNum">    1423 </span><span class="lineCov">          1 :   result = GEOSDistance_r(handle,g1, g2, &amp;distance);</span>
+<span class="lineNum">    1424 </span><span class="lineCov">          1 :   return ((result==0) ? -1 : distance);</span>
+<span class="lineNum">    1425 </span>            : #else
+<span class="lineNum">    1426 </span>            :   return msDistanceShapeToShape(shape1, shape2); /* fall back on brute force method (for MapScript) */
+<span class="lineNum">    1427 </span>            : #endif
+<span class="lineNum">    1428 </span>            : }
 </pre>
       </td>
     </tr>
