@@ -3078,800 +3078,804 @@
 <span class="lineNum">    3016 </span>            :               &quot;msPostGISLayerGetItems()&quot;);
 <span class="lineNum">    3017 </span>            :   return MS_FAILURE;
 <span class="lineNum">    3018 </span>            : #endif
-<a name="3019"><span class="lineNum">    3019 </span>            : }</a>
-<span class="lineNum">    3020 </span>            : 
-<span class="lineNum">    3021 </span><span class="lineCov">          1 : static std::string addTableNameAndFilterToSelectFrom(layerObj *layer,</span>
-<span class="lineNum">    3022 </span>            :                                             const std::string&amp; selectFrom)
-<span class="lineNum">    3023 </span>            : {
-<span class="lineNum">    3024 </span><span class="lineCov">          1 :     auto layerinfo = (msPostGISLayerInfo *)layer-&gt;layerinfo;</span>
-<span class="lineNum">    3025 </span>            :     /* if we have !BOX! substitution then we use just the table name */
-<span class="lineNum">    3026 </span>            :     std::string f_table_name;
-<span class="lineNum">    3027 </span><span class="lineCov">          1 :     if (strstr(layerinfo-&gt;fromsource.c_str(), BOXTOKEN))</span>
-<span class="lineNum">    3028 </span><span class="lineCov">          1 :         f_table_name = msPostGISFindTableName(layerinfo-&gt;fromsource.c_str());</span>
-<span class="lineNum">    3029 </span>            :     else
-<span class="lineNum">    3030 </span><span class="lineCov">          1 :         f_table_name = layerinfo-&gt;fromsource;</span>
-<span class="lineNum">    3031 </span>            : 
-<span class="lineNum">    3032 </span><span class="lineCov">          1 :     std::string strSQL = selectFrom;</span>
-<span class="lineNum">    3033 </span>            :     strSQL += f_table_name;
-<span class="lineNum">    3034 </span>            : 
-<span class="lineNum">    3035 </span>            :     /* Handle a translated filter (RFC91). */
-<span class="lineNum">    3036 </span><span class="lineCov">          1 :     if (layer-&gt;filter.native_string) {</span>
-<span class="lineNum">    3037 </span>            :         strSQL += &quot; WHERE (&quot;;
-<span class="lineNum">    3038 </span><span class="lineNoCov">          0 :         strSQL += layer-&gt;filter.native_string;</span>
-<span class="lineNum">    3039 </span>            :         strSQL += ')';
-<span class="lineNum">    3040 </span>            :     }
-<span class="lineNum">    3041 </span>            : 
-<span class="lineNum">    3042 </span>            :     /* Handle a native filter set as a PROCESSING option (#5001). */
-<span class="lineNum">    3043 </span><span class="lineCov">          1 :     const char* native_filter = msLayerGetProcessingKey(layer, &quot;NATIVE_FILTER&quot;);</span>
-<span class="lineNum">    3044 </span><span class="lineCov">          1 :     if (native_filter) {</span>
-<span class="lineNum">    3045 </span><span class="lineNoCov">          0 :         if( layer-&gt;filter.native_string )</span>
-<span class="lineNum">    3046 </span>            :             strSQL += &quot; AND (&quot;;
-<span class="lineNum">    3047 </span>            :         else
-<span class="lineNum">    3048 </span>            :             strSQL += &quot; WHERE (&quot;;
-<span class="lineNum">    3049 </span>            :         strSQL += native_filter;
-<span class="lineNum">    3050 </span>            :         strSQL += ')';
-<span class="lineNum">    3051 </span>            :     }
-<span class="lineNum">    3052 </span><span class="lineCov">          1 :     return strSQL;</span>
-<span class="lineNum">    3053 </span>            : }
-<span class="lineNum">    3054 </span>            : 
-<span class="lineNum">    3055 </span>            : /*
-<span class="lineNum">    3056 </span>            : ** msPostGISLayerGetExtent()
-<span class="lineNum">    3057 </span>            : **
-<span class="lineNum">    3058 </span>            : ** Registered vtable-&gt;LayerGetExtent function. Query the database for
-<a name="3059"><span class="lineNum">    3059 </span>            : ** the extent of the requested layer.</a>
-<span class="lineNum">    3060 </span>            : */
-<span class="lineNum">    3061 </span><span class="lineCov">          1 : static int msPostGISLayerGetExtent(layerObj *layer, rectObj *extent)</span>
-<span class="lineNum">    3062 </span>            : {
-<span class="lineNum">    3063 </span>            : #ifdef USE_POSTGIS
-<span class="lineNum">    3064 </span><span class="lineCov">          1 :   if (layer-&gt;debug) {</span>
-<span class="lineNum">    3065 </span><span class="lineNoCov">          0 :     msDebug(&quot;msPostGISLayerGetExtent called.\n&quot;);</span>
-<span class="lineNum">    3066 </span>            :   }
-<span class="lineNum">    3067 </span>            : 
-<span class="lineNum">    3068 </span>            :   assert( layer-&gt;layerinfo != nullptr);
+<span class="lineNum">    3019 </span>            : }
+<a name="3020"><span class="lineNum">    3020 </span>            : </a>
+<span class="lineNum">    3021 </span>            : #ifdef USE_POSTGIS
+<span class="lineNum">    3022 </span><span class="lineCov">          1 : static std::string addTableNameAndFilterToSelectFrom(layerObj *layer,</span>
+<span class="lineNum">    3023 </span>            :                                             const std::string&amp; selectFrom)
+<span class="lineNum">    3024 </span>            : {
+<span class="lineNum">    3025 </span><span class="lineCov">          1 :     auto layerinfo = (msPostGISLayerInfo *)layer-&gt;layerinfo;</span>
+<span class="lineNum">    3026 </span>            :     /* if we have !BOX! substitution then we use just the table name */
+<span class="lineNum">    3027 </span>            :     std::string f_table_name;
+<span class="lineNum">    3028 </span><span class="lineCov">          1 :     if (strstr(layerinfo-&gt;fromsource.c_str(), BOXTOKEN))</span>
+<span class="lineNum">    3029 </span><span class="lineCov">          1 :         f_table_name = msPostGISFindTableName(layerinfo-&gt;fromsource.c_str());</span>
+<span class="lineNum">    3030 </span>            :     else
+<span class="lineNum">    3031 </span><span class="lineCov">          1 :         f_table_name = layerinfo-&gt;fromsource;</span>
+<span class="lineNum">    3032 </span>            : 
+<span class="lineNum">    3033 </span><span class="lineCov">          1 :     std::string strSQL = selectFrom;</span>
+<span class="lineNum">    3034 </span>            :     strSQL += f_table_name;
+<span class="lineNum">    3035 </span>            : 
+<span class="lineNum">    3036 </span>            :     /* Handle a translated filter (RFC91). */
+<span class="lineNum">    3037 </span><span class="lineCov">          1 :     if (layer-&gt;filter.native_string) {</span>
+<span class="lineNum">    3038 </span>            :         strSQL += &quot; WHERE (&quot;;
+<span class="lineNum">    3039 </span><span class="lineNoCov">          0 :         strSQL += layer-&gt;filter.native_string;</span>
+<span class="lineNum">    3040 </span>            :         strSQL += ')';
+<span class="lineNum">    3041 </span>            :     }
+<span class="lineNum">    3042 </span>            : 
+<span class="lineNum">    3043 </span>            :     /* Handle a native filter set as a PROCESSING option (#5001). */
+<span class="lineNum">    3044 </span><span class="lineCov">          1 :     const char* native_filter = msLayerGetProcessingKey(layer, &quot;NATIVE_FILTER&quot;);</span>
+<span class="lineNum">    3045 </span><span class="lineCov">          1 :     if (native_filter) {</span>
+<span class="lineNum">    3046 </span><span class="lineNoCov">          0 :         if( layer-&gt;filter.native_string )</span>
+<span class="lineNum">    3047 </span>            :             strSQL += &quot; AND (&quot;;
+<span class="lineNum">    3048 </span>            :         else
+<span class="lineNum">    3049 </span>            :             strSQL += &quot; WHERE (&quot;;
+<span class="lineNum">    3050 </span>            :         strSQL += native_filter;
+<span class="lineNum">    3051 </span>            :         strSQL += ')';
+<span class="lineNum">    3052 </span>            :     }
+<span class="lineNum">    3053 </span><span class="lineCov">          1 :     return strSQL;</span>
+<span class="lineNum">    3054 </span>            : }
+<span class="lineNum">    3055 </span>            : #endif
+<span class="lineNum">    3056 </span>            : 
+<span class="lineNum">    3057 </span>            : /*
+<span class="lineNum">    3058 </span>            : ** msPostGISLayerGetExtent()
+<span class="lineNum">    3059 </span>            : **
+<span class="lineNum">    3060 </span>            : ** Registered vtable-&gt;LayerGetExtent function. Query the database for
+<a name="3061"><span class="lineNum">    3061 </span>            : ** the extent of the requested layer.</a>
+<span class="lineNum">    3062 </span>            : */
+<span class="lineNum">    3063 </span><span class="lineCov">          1 : static int msPostGISLayerGetExtent(layerObj *layer, rectObj *extent)</span>
+<span class="lineNum">    3064 </span>            : {
+<span class="lineNum">    3065 </span>            : #ifdef USE_POSTGIS
+<span class="lineNum">    3066 </span><span class="lineCov">          1 :   if (layer-&gt;debug) {</span>
+<span class="lineNum">    3067 </span><span class="lineNoCov">          0 :     msDebug(&quot;msPostGISLayerGetExtent called.\n&quot;);</span>
+<span class="lineNum">    3068 </span>            :   }
 <span class="lineNum">    3069 </span>            : 
-<span class="lineNum">    3070 </span><span class="lineCov">          1 :   if ( msPostGISParseData(layer) != MS_SUCCESS) {</span>
-<span class="lineNum">    3071 </span>            :     return MS_FAILURE;
-<span class="lineNum">    3072 </span>            :   }
-<span class="lineNum">    3073 </span>            : 
-<span class="lineNum">    3074 </span><span class="lineCov">          1 :   auto layerinfo = (msPostGISLayerInfo *)layer-&gt;layerinfo;</span>
-<span class="lineNum">    3075 </span>            :   const std::string strSQL(addTableNameAndFilterToSelectFrom(layer,
-<span class="lineNum">    3076 </span><span class="lineCov">          1 :     &quot;SELECT ST_Extent(&quot; + layerinfo-&gt;geomcolumn + &quot;) FROM &quot;));</span>
-<span class="lineNum">    3077 </span>            : 
-<span class="lineNum">    3078 </span><span class="lineCov">          1 :   if (layer-&gt;debug) {</span>
-<span class="lineNum">    3079 </span><span class="lineNoCov">          0 :     msDebug(&quot;msPostGISLayerGetExtent executing SQL: %s\n&quot;, strSQL.c_str());</span>
-<span class="lineNum">    3080 </span>            :   }
-<span class="lineNum">    3081 </span>            : 
-<span class="lineNum">    3082 </span>            :   /* executing the query */
-<span class="lineNum">    3083 </span><span class="lineCov">          1 :   PGresult* pgresult = runPQexecParamsWithBindSubstitution(layer, strSQL.c_str(), 0);</span>
-<span class="lineNum">    3084 </span>            : 
-<span class="lineNum">    3085 </span><span class="lineCov">          1 :   if ( (!pgresult) || (PQresultStatus(pgresult) != PGRES_TUPLES_OK) ) {</span>
-<span class="lineNum">    3086 </span><span class="lineNoCov">          0 :     msDebug(&quot;Error executing SQL: (%s) in msPostGISLayerGetExtent()&quot;, PQerrorMessage(layerinfo-&gt;pgconn));</span>
-<span class="lineNum">    3087 </span><span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Error executing SQL. Check server logs.&quot;,&quot;msPostGISLayerGetExtent()&quot;);</span>
-<span class="lineNum">    3088 </span><span class="lineNoCov">          0 :     if (pgresult)</span>
-<span class="lineNum">    3089 </span><span class="lineNoCov">          0 :       PQclear(pgresult);</span>
-<span class="lineNum">    3090 </span>            : 
-<span class="lineNum">    3091 </span>            :     return MS_FAILURE;
-<span class="lineNum">    3092 </span>            :   }
-<span class="lineNum">    3093 </span>            : 
-<span class="lineNum">    3094 </span>            :   /* process results */
-<span class="lineNum">    3095 </span><span class="lineCov">          1 :   if (PQntuples(pgresult) &lt; 1) {</span>
-<span class="lineNum">    3096 </span>            :     msSetError(MS_MISCERR, &quot;msPostGISLayerGetExtent: No results found.&quot;, 
-<span class="lineNum">    3097 </span><span class="lineNoCov">          0 :         &quot;msPostGISLayerGetExtent()&quot;);</span>
-<span class="lineNum">    3098 </span><span class="lineNoCov">          0 :     PQclear(pgresult);</span>
-<span class="lineNum">    3099 </span>            :     return MS_FAILURE;
-<span class="lineNum">    3100 </span>            :   }
-<span class="lineNum">    3101 </span>            :   
-<span class="lineNum">    3102 </span><span class="lineCov">          1 :   if (PQgetisnull(pgresult, 0, 0)) {</span>
-<span class="lineNum">    3103 </span>            :     msSetError(MS_MISCERR, &quot;msPostGISLayerGetExtent: Null result returned.&quot;, 
-<span class="lineNum">    3104 </span><span class="lineNoCov">          0 :         &quot;msPostGISLayerGetExtent()&quot;);</span>
-<span class="lineNum">    3105 </span><span class="lineNoCov">          0 :     PQclear(pgresult);</span>
-<span class="lineNum">    3106 </span>            :     return MS_FAILURE;
-<span class="lineNum">    3107 </span>            :   }
-<span class="lineNum">    3108 </span>            : 
-<span class="lineNum">    3109 </span><span class="lineCov">          1 :   if (sscanf(PQgetvalue(pgresult, 0, 0), &quot;BOX(%lf %lf,%lf %lf)&quot;, </span>
-<span class="lineNum">    3110 </span><span class="lineCov">          1 :          &amp;extent-&gt;minx, &amp;extent-&gt;miny, &amp;extent-&gt;maxx, &amp;extent-&gt;maxy) != 4) {</span>
-<span class="lineNum">    3111 </span><span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Failed to process result data.&quot;, &quot;msPostGISLayerGetExtent()&quot;);</span>
-<span class="lineNum">    3112 </span><span class="lineNoCov">          0 :     PQclear(pgresult);</span>
-<span class="lineNum">    3113 </span>            :     return MS_FAILURE;
-<span class="lineNum">    3114 </span>            :   }
-<span class="lineNum">    3115 </span>            : 
-<span class="lineNum">    3116 </span>            :   /* cleanup */
-<span class="lineNum">    3117 </span><span class="lineCov">          1 :   PQclear(pgresult);</span>
-<span class="lineNum">    3118 </span>            : 
-<span class="lineNum">    3119 </span>            :   return MS_SUCCESS;
-<span class="lineNum">    3120 </span>            : #else
-<span class="lineNum">    3121 </span>            :   msSetError( MS_MISCERR, &quot;PostGIS support is not available.&quot;, &quot;msPostGISLayerGetExtent()&quot;);
-<span class="lineNum">    3122 </span>            :   return MS_FAILURE;
-<span class="lineNum">    3123 </span>            : #endif
-<span class="lineNum">    3124 </span>            : }
-<span class="lineNum">    3125 </span>            : 
-<span class="lineNum">    3126 </span>            : /*
-<span class="lineNum">    3127 </span>            : ** msPostGISLayerGetNumFeatures()
-<span class="lineNum">    3128 </span>            : **
-<span class="lineNum">    3129 </span>            : ** Registered vtable-&gt;LayerGetNumFeatures function. Query the database for
-<a name="3130"><span class="lineNum">    3130 </span>            : ** the feature count of the requested layer.</a>
-<span class="lineNum">    3131 </span>            : */
-<span class="lineNum">    3132 </span><span class="lineCov">          1 : static int msPostGISLayerGetNumFeatures(layerObj *layer)</span>
-<span class="lineNum">    3133 </span>            : {
-<span class="lineNum">    3134 </span>            : #ifdef USE_POSTGIS
-<span class="lineNum">    3135 </span><span class="lineCov">          1 :     if (layer-&gt;debug) {</span>
-<span class="lineNum">    3136 </span><span class="lineNoCov">          0 :         msDebug(&quot;msPostGISLayerGetNumFeatures called.\n&quot;);</span>
-<span class="lineNum">    3137 </span>            :     }
-<span class="lineNum">    3138 </span>            : 
-<span class="lineNum">    3139 </span>            :     assert(layer-&gt;layerinfo != nullptr);
+<span class="lineNum">    3070 </span>            :   assert( layer-&gt;layerinfo != nullptr);
+<span class="lineNum">    3071 </span>            : 
+<span class="lineNum">    3072 </span><span class="lineCov">          1 :   if ( msPostGISParseData(layer) != MS_SUCCESS) {</span>
+<span class="lineNum">    3073 </span>            :     return MS_FAILURE;
+<span class="lineNum">    3074 </span>            :   }
+<span class="lineNum">    3075 </span>            : 
+<span class="lineNum">    3076 </span><span class="lineCov">          1 :   auto layerinfo = (msPostGISLayerInfo *)layer-&gt;layerinfo;</span>
+<span class="lineNum">    3077 </span>            :   const std::string strSQL(addTableNameAndFilterToSelectFrom(layer,
+<span class="lineNum">    3078 </span><span class="lineCov">          1 :     &quot;SELECT ST_Extent(&quot; + layerinfo-&gt;geomcolumn + &quot;) FROM &quot;));</span>
+<span class="lineNum">    3079 </span>            : 
+<span class="lineNum">    3080 </span><span class="lineCov">          1 :   if (layer-&gt;debug) {</span>
+<span class="lineNum">    3081 </span><span class="lineNoCov">          0 :     msDebug(&quot;msPostGISLayerGetExtent executing SQL: %s\n&quot;, strSQL.c_str());</span>
+<span class="lineNum">    3082 </span>            :   }
+<span class="lineNum">    3083 </span>            : 
+<span class="lineNum">    3084 </span>            :   /* executing the query */
+<span class="lineNum">    3085 </span><span class="lineCov">          1 :   PGresult* pgresult = runPQexecParamsWithBindSubstitution(layer, strSQL.c_str(), 0);</span>
+<span class="lineNum">    3086 </span>            : 
+<span class="lineNum">    3087 </span><span class="lineCov">          1 :   if ( (!pgresult) || (PQresultStatus(pgresult) != PGRES_TUPLES_OK) ) {</span>
+<span class="lineNum">    3088 </span><span class="lineNoCov">          0 :     msDebug(&quot;Error executing SQL: (%s) in msPostGISLayerGetExtent()&quot;, PQerrorMessage(layerinfo-&gt;pgconn));</span>
+<span class="lineNum">    3089 </span><span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Error executing SQL. Check server logs.&quot;,&quot;msPostGISLayerGetExtent()&quot;);</span>
+<span class="lineNum">    3090 </span><span class="lineNoCov">          0 :     if (pgresult)</span>
+<span class="lineNum">    3091 </span><span class="lineNoCov">          0 :       PQclear(pgresult);</span>
+<span class="lineNum">    3092 </span>            : 
+<span class="lineNum">    3093 </span>            :     return MS_FAILURE;
+<span class="lineNum">    3094 </span>            :   }
+<span class="lineNum">    3095 </span>            : 
+<span class="lineNum">    3096 </span>            :   /* process results */
+<span class="lineNum">    3097 </span><span class="lineCov">          1 :   if (PQntuples(pgresult) &lt; 1) {</span>
+<span class="lineNum">    3098 </span>            :     msSetError(MS_MISCERR, &quot;msPostGISLayerGetExtent: No results found.&quot;, 
+<span class="lineNum">    3099 </span><span class="lineNoCov">          0 :         &quot;msPostGISLayerGetExtent()&quot;);</span>
+<span class="lineNum">    3100 </span><span class="lineNoCov">          0 :     PQclear(pgresult);</span>
+<span class="lineNum">    3101 </span>            :     return MS_FAILURE;
+<span class="lineNum">    3102 </span>            :   }
+<span class="lineNum">    3103 </span>            :   
+<span class="lineNum">    3104 </span><span class="lineCov">          1 :   if (PQgetisnull(pgresult, 0, 0)) {</span>
+<span class="lineNum">    3105 </span>            :     msSetError(MS_MISCERR, &quot;msPostGISLayerGetExtent: Null result returned.&quot;, 
+<span class="lineNum">    3106 </span><span class="lineNoCov">          0 :         &quot;msPostGISLayerGetExtent()&quot;);</span>
+<span class="lineNum">    3107 </span><span class="lineNoCov">          0 :     PQclear(pgresult);</span>
+<span class="lineNum">    3108 </span>            :     return MS_FAILURE;
+<span class="lineNum">    3109 </span>            :   }
+<span class="lineNum">    3110 </span>            : 
+<span class="lineNum">    3111 </span><span class="lineCov">          1 :   if (sscanf(PQgetvalue(pgresult, 0, 0), &quot;BOX(%lf %lf,%lf %lf)&quot;, </span>
+<span class="lineNum">    3112 </span><span class="lineCov">          1 :          &amp;extent-&gt;minx, &amp;extent-&gt;miny, &amp;extent-&gt;maxx, &amp;extent-&gt;maxy) != 4) {</span>
+<span class="lineNum">    3113 </span><span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Failed to process result data.&quot;, &quot;msPostGISLayerGetExtent()&quot;);</span>
+<span class="lineNum">    3114 </span><span class="lineNoCov">          0 :     PQclear(pgresult);</span>
+<span class="lineNum">    3115 </span>            :     return MS_FAILURE;
+<span class="lineNum">    3116 </span>            :   }
+<span class="lineNum">    3117 </span>            : 
+<span class="lineNum">    3118 </span>            :   /* cleanup */
+<span class="lineNum">    3119 </span><span class="lineCov">          1 :   PQclear(pgresult);</span>
+<span class="lineNum">    3120 </span>            : 
+<span class="lineNum">    3121 </span>            :   return MS_SUCCESS;
+<span class="lineNum">    3122 </span>            : #else
+<span class="lineNum">    3123 </span>            :   msSetError( MS_MISCERR, &quot;PostGIS support is not available.&quot;, &quot;msPostGISLayerGetExtent()&quot;);
+<span class="lineNum">    3124 </span>            :   return MS_FAILURE;
+<span class="lineNum">    3125 </span>            : #endif
+<span class="lineNum">    3126 </span>            : }
+<span class="lineNum">    3127 </span>            : 
+<span class="lineNum">    3128 </span>            : /*
+<span class="lineNum">    3129 </span>            : ** msPostGISLayerGetNumFeatures()
+<span class="lineNum">    3130 </span>            : **
+<span class="lineNum">    3131 </span>            : ** Registered vtable-&gt;LayerGetNumFeatures function. Query the database for
+<a name="3132"><span class="lineNum">    3132 </span>            : ** the feature count of the requested layer.</a>
+<span class="lineNum">    3133 </span>            : */
+<span class="lineNum">    3134 </span><span class="lineCov">          1 : static int msPostGISLayerGetNumFeatures(layerObj *layer)</span>
+<span class="lineNum">    3135 </span>            : {
+<span class="lineNum">    3136 </span>            : #ifdef USE_POSTGIS
+<span class="lineNum">    3137 </span><span class="lineCov">          1 :     if (layer-&gt;debug) {</span>
+<span class="lineNum">    3138 </span><span class="lineNoCov">          0 :         msDebug(&quot;msPostGISLayerGetNumFeatures called.\n&quot;);</span>
+<span class="lineNum">    3139 </span>            :     }
 <span class="lineNum">    3140 </span>            : 
-<span class="lineNum">    3141 </span><span class="lineCov">          1 :     if (msPostGISParseData(layer) != MS_SUCCESS) {</span>
-<span class="lineNum">    3142 </span>            :         return -1;
-<span class="lineNum">    3143 </span>            :     }
-<span class="lineNum">    3144 </span>            : 
-<span class="lineNum">    3145 </span><span class="lineCov">          1 :     auto layerinfo = (msPostGISLayerInfo *)layer-&gt;layerinfo;</span>
-<span class="lineNum">    3146 </span>            :     const std::string strSQL(addTableNameAndFilterToSelectFrom(
-<span class="lineNum">    3147 </span><span class="lineCov">          1 :         layer, &quot;SELECT count(*) FROM &quot;));</span>
-<span class="lineNum">    3148 </span><span class="lineCov">          1 :     if (layer-&gt;debug) {</span>
-<span class="lineNum">    3149 </span><span class="lineNoCov">          0 :         msDebug(&quot;msPostGISLayerGetNumFeatures executing SQL: %s\n&quot;, strSQL.c_str());</span>
-<span class="lineNum">    3150 </span>            :     }
-<span class="lineNum">    3151 </span>            : 
-<span class="lineNum">    3152 </span>            :     /* executing the query */
-<span class="lineNum">    3153 </span><span class="lineCov">          1 :     PGresult* pgresult = runPQexecParamsWithBindSubstitution(layer, strSQL.c_str(), 0);</span>
-<span class="lineNum">    3154 </span>            : 
-<span class="lineNum">    3155 </span><span class="lineCov">          1 :     if ((!pgresult) || (PQresultStatus(pgresult) != PGRES_TUPLES_OK)) {</span>
-<span class="lineNum">    3156 </span><span class="lineCov">          1 :         msDebug(&quot;Error executing SQL: (%s) in msPostGISLayerGetNumFeatures()&quot;, PQerrorMessage(layerinfo-&gt;pgconn));</span>
-<span class="lineNum">    3157 </span><span class="lineCov">          1 :         msSetError(MS_MISCERR, &quot;Error executing SQL. Check server logs.&quot;, &quot;msPostGISLayerGetNumFeatures()&quot;);</span>
-<span class="lineNum">    3158 </span><span class="lineCov">          1 :         if (pgresult)</span>
-<span class="lineNum">    3159 </span><span class="lineCov">          1 :             PQclear(pgresult);</span>
-<span class="lineNum">    3160 </span>            : 
-<span class="lineNum">    3161 </span>            :         return -1;
-<span class="lineNum">    3162 </span>            :     }
-<span class="lineNum">    3163 </span>            : 
-<span class="lineNum">    3164 </span>            :     /* process results */
-<span class="lineNum">    3165 </span><span class="lineCov">          1 :     if (PQntuples(pgresult) &lt; 1) {</span>
-<span class="lineNum">    3166 </span>            :         msSetError(MS_MISCERR, &quot;msPostGISLayerGetNumFeatures: No results found.&quot;,
-<span class="lineNum">    3167 </span><span class="lineNoCov">          0 :             &quot;msPostGISLayerGetNumFeatures()&quot;);</span>
-<span class="lineNum">    3168 </span><span class="lineNoCov">          0 :         PQclear(pgresult);</span>
-<span class="lineNum">    3169 </span>            :         return -1;
-<span class="lineNum">    3170 </span>            :     }
-<span class="lineNum">    3171 </span>            : 
-<span class="lineNum">    3172 </span><span class="lineCov">          1 :     if (PQgetisnull(pgresult, 0, 0)) {</span>
-<span class="lineNum">    3173 </span>            :         msSetError(MS_MISCERR, &quot;msPostGISLayerGetNumFeatures: Null result returned.&quot;,
-<span class="lineNum">    3174 </span><span class="lineNoCov">          0 :             &quot;msPostGISLayerGetNumFeatures()&quot;);</span>
-<span class="lineNum">    3175 </span><span class="lineNoCov">          0 :         PQclear(pgresult);</span>
-<span class="lineNum">    3176 </span>            :         return -1;
-<span class="lineNum">    3177 </span>            :     }
-<span class="lineNum">    3178 </span>            : 
-<span class="lineNum">    3179 </span><span class="lineCov">          1 :     const char* tmp = PQgetvalue(pgresult, 0, 0);</span>
-<span class="lineNum">    3180 </span>            :     int result = 0;
-<span class="lineNum">    3181 </span><span class="lineCov">          1 :     if (tmp) {</span>
-<span class="lineNum">    3182 </span><span class="lineCov">          1 :         result = strtol(tmp, nullptr, 10);</span>
-<span class="lineNum">    3183 </span>            :     }
-<span class="lineNum">    3184 </span>            : 
-<span class="lineNum">    3185 </span>            :     /* cleanup */
-<span class="lineNum">    3186 </span><span class="lineCov">          1 :     PQclear(pgresult);</span>
-<span class="lineNum">    3187 </span>            : 
-<span class="lineNum">    3188 </span>            :     return result;
-<span class="lineNum">    3189 </span>            : #else
-<span class="lineNum">    3190 </span>            :     msSetError(MS_MISCERR, &quot;PostGIS support is not available.&quot;, &quot;msPostGISLayerGetNumFeatures()&quot;);
-<span class="lineNum">    3191 </span>            :     return -1;
-<span class="lineNum">    3192 </span>            : #endif
-<span class="lineNum">    3193 </span>            : }
-<span class="lineNum">    3194 </span>            : 
-<span class="lineNum">    3195 </span>            : /*
-<span class="lineNum">    3196 </span>            :  * make sure that the timestring is complete and acceptable
-<span class="lineNum">    3197 </span>            :  * to the date_trunc function :
-<span class="lineNum">    3198 </span>            :  * - if the resolution is year (2004) or month (2004-01),
-<span class="lineNum">    3199 </span>            :  * a complete string for time would be 2004-01-01
-<span class="lineNum">    3200 </span>            :  * - if the resolluion is hour or minute (2004-01-01 15), a
-<a name="3201"><span class="lineNum">    3201 </span>            :  * complete time is 2004-01-01 15:00:00</a>
-<span class="lineNum">    3202 </span>            :  */
-<span class="lineNum">    3203 </span><span class="lineCov">          1 : static int postgresTimeStampForTimeString(const char *timestring, char *dest, size_t destsize)</span>
-<span class="lineNum">    3204 </span>            : {
-<span class="lineNum">    3205 </span><span class="lineCov">          1 :   int nlength = strlen(timestring);</span>
-<span class="lineNum">    3206 </span><span class="lineCov">          1 :   int timeresolution = msTimeGetResolution(timestring);</span>
-<span class="lineNum">    3207 </span><span class="lineCov">          1 :   int bNoDate = (*timestring == 'T');</span>
-<span class="lineNum">    3208 </span><span class="lineCov">          1 :   if (timeresolution &lt; 0)</span>
-<span class="lineNum">    3209 </span>            :     return MS_FALSE;
-<span class="lineNum">    3210 </span>            :  
-<span class="lineNum">    3211 </span><span class="lineCov">          1 :   switch(timeresolution) {</span>
-<span class="lineNum">    3212 </span>            :     case TIME_RESOLUTION_YEAR:
-<span class="lineNum">    3213 </span><span class="lineCov">          1 :       if (timestring[nlength-1] != '-') {</span>
-<span class="lineNum">    3214 </span>            :         snprintf(dest, destsize,&quot;date '%s-01-01'&quot;,timestring);
-<span class="lineNum">    3215 </span>            :       } else {
-<span class="lineNum">    3216 </span>            :         snprintf(dest, destsize,&quot;date '%s01-01'&quot;,timestring);
-<span class="lineNum">    3217 </span>            :       }
-<span class="lineNum">    3218 </span>            :       break;
-<span class="lineNum">    3219 </span>            :     case TIME_RESOLUTION_MONTH:
-<span class="lineNum">    3220 </span><span class="lineCov">          1 :       if (timestring[nlength-1] != '-') {</span>
-<span class="lineNum">    3221 </span>            :         snprintf(dest, destsize,&quot;date '%s-01'&quot;,timestring);
-<span class="lineNum">    3222 </span>            :       } else {
-<span class="lineNum">    3223 </span>            :         snprintf(dest, destsize,&quot;date '%s01'&quot;,timestring);
-<span class="lineNum">    3224 </span>            :       }
-<span class="lineNum">    3225 </span>            :       break;
-<span class="lineNum">    3226 </span>            :     case TIME_RESOLUTION_DAY:
-<span class="lineNum">    3227 </span>            :       snprintf(dest, destsize,&quot;date '%s'&quot;,timestring);
+<span class="lineNum">    3141 </span>            :     assert(layer-&gt;layerinfo != nullptr);
+<span class="lineNum">    3142 </span>            : 
+<span class="lineNum">    3143 </span><span class="lineCov">          1 :     if (msPostGISParseData(layer) != MS_SUCCESS) {</span>
+<span class="lineNum">    3144 </span>            :         return -1;
+<span class="lineNum">    3145 </span>            :     }
+<span class="lineNum">    3146 </span>            : 
+<span class="lineNum">    3147 </span><span class="lineCov">          1 :     auto layerinfo = (msPostGISLayerInfo *)layer-&gt;layerinfo;</span>
+<span class="lineNum">    3148 </span>            :     const std::string strSQL(addTableNameAndFilterToSelectFrom(
+<span class="lineNum">    3149 </span><span class="lineCov">          1 :         layer, &quot;SELECT count(*) FROM &quot;));</span>
+<span class="lineNum">    3150 </span><span class="lineCov">          1 :     if (layer-&gt;debug) {</span>
+<span class="lineNum">    3151 </span><span class="lineNoCov">          0 :         msDebug(&quot;msPostGISLayerGetNumFeatures executing SQL: %s\n&quot;, strSQL.c_str());</span>
+<span class="lineNum">    3152 </span>            :     }
+<span class="lineNum">    3153 </span>            : 
+<span class="lineNum">    3154 </span>            :     /* executing the query */
+<span class="lineNum">    3155 </span><span class="lineCov">          1 :     PGresult* pgresult = runPQexecParamsWithBindSubstitution(layer, strSQL.c_str(), 0);</span>
+<span class="lineNum">    3156 </span>            : 
+<span class="lineNum">    3157 </span><span class="lineCov">          1 :     if ((!pgresult) || (PQresultStatus(pgresult) != PGRES_TUPLES_OK)) {</span>
+<span class="lineNum">    3158 </span><span class="lineCov">          1 :         msDebug(&quot;Error executing SQL: (%s) in msPostGISLayerGetNumFeatures()&quot;, PQerrorMessage(layerinfo-&gt;pgconn));</span>
+<span class="lineNum">    3159 </span><span class="lineCov">          1 :         msSetError(MS_MISCERR, &quot;Error executing SQL. Check server logs.&quot;, &quot;msPostGISLayerGetNumFeatures()&quot;);</span>
+<span class="lineNum">    3160 </span><span class="lineCov">          1 :         if (pgresult)</span>
+<span class="lineNum">    3161 </span><span class="lineCov">          1 :             PQclear(pgresult);</span>
+<span class="lineNum">    3162 </span>            : 
+<span class="lineNum">    3163 </span>            :         return -1;
+<span class="lineNum">    3164 </span>            :     }
+<span class="lineNum">    3165 </span>            : 
+<span class="lineNum">    3166 </span>            :     /* process results */
+<span class="lineNum">    3167 </span><span class="lineCov">          1 :     if (PQntuples(pgresult) &lt; 1) {</span>
+<span class="lineNum">    3168 </span>            :         msSetError(MS_MISCERR, &quot;msPostGISLayerGetNumFeatures: No results found.&quot;,
+<span class="lineNum">    3169 </span><span class="lineNoCov">          0 :             &quot;msPostGISLayerGetNumFeatures()&quot;);</span>
+<span class="lineNum">    3170 </span><span class="lineNoCov">          0 :         PQclear(pgresult);</span>
+<span class="lineNum">    3171 </span>            :         return -1;
+<span class="lineNum">    3172 </span>            :     }
+<span class="lineNum">    3173 </span>            : 
+<span class="lineNum">    3174 </span><span class="lineCov">          1 :     if (PQgetisnull(pgresult, 0, 0)) {</span>
+<span class="lineNum">    3175 </span>            :         msSetError(MS_MISCERR, &quot;msPostGISLayerGetNumFeatures: Null result returned.&quot;,
+<span class="lineNum">    3176 </span><span class="lineNoCov">          0 :             &quot;msPostGISLayerGetNumFeatures()&quot;);</span>
+<span class="lineNum">    3177 </span><span class="lineNoCov">          0 :         PQclear(pgresult);</span>
+<span class="lineNum">    3178 </span>            :         return -1;
+<span class="lineNum">    3179 </span>            :     }
+<span class="lineNum">    3180 </span>            : 
+<span class="lineNum">    3181 </span><span class="lineCov">          1 :     const char* tmp = PQgetvalue(pgresult, 0, 0);</span>
+<span class="lineNum">    3182 </span>            :     int result = 0;
+<span class="lineNum">    3183 </span><span class="lineCov">          1 :     if (tmp) {</span>
+<span class="lineNum">    3184 </span><span class="lineCov">          1 :         result = strtol(tmp, nullptr, 10);</span>
+<span class="lineNum">    3185 </span>            :     }
+<span class="lineNum">    3186 </span>            : 
+<span class="lineNum">    3187 </span>            :     /* cleanup */
+<span class="lineNum">    3188 </span><span class="lineCov">          1 :     PQclear(pgresult);</span>
+<span class="lineNum">    3189 </span>            : 
+<span class="lineNum">    3190 </span>            :     return result;
+<span class="lineNum">    3191 </span>            : #else
+<span class="lineNum">    3192 </span>            :     msSetError(MS_MISCERR, &quot;PostGIS support is not available.&quot;, &quot;msPostGISLayerGetNumFeatures()&quot;);
+<span class="lineNum">    3193 </span>            :     return -1;
+<span class="lineNum">    3194 </span>            : #endif
+<span class="lineNum">    3195 </span>            : }
+<span class="lineNum">    3196 </span>            : 
+<span class="lineNum">    3197 </span>            : #ifdef USE_POSTGIS
+<span class="lineNum">    3198 </span>            : /*
+<span class="lineNum">    3199 </span>            :  * make sure that the timestring is complete and acceptable
+<span class="lineNum">    3200 </span>            :  * to the date_trunc function :
+<span class="lineNum">    3201 </span>            :  * - if the resolution is year (2004) or month (2004-01),
+<span class="lineNum">    3202 </span>            :  * a complete string for time would be 2004-01-01
+<span class="lineNum">    3203 </span>            :  * - if the resolluion is hour or minute (2004-01-01 15), a
+<a name="3204"><span class="lineNum">    3204 </span>            :  * complete time is 2004-01-01 15:00:00</a>
+<span class="lineNum">    3205 </span>            :  */
+<span class="lineNum">    3206 </span><span class="lineCov">          1 : static int postgresTimeStampForTimeString(const char *timestring, char *dest, size_t destsize)</span>
+<span class="lineNum">    3207 </span>            : {
+<span class="lineNum">    3208 </span><span class="lineCov">          1 :   int nlength = strlen(timestring);</span>
+<span class="lineNum">    3209 </span><span class="lineCov">          1 :   int timeresolution = msTimeGetResolution(timestring);</span>
+<span class="lineNum">    3210 </span><span class="lineCov">          1 :   int bNoDate = (*timestring == 'T');</span>
+<span class="lineNum">    3211 </span><span class="lineCov">          1 :   if (timeresolution &lt; 0)</span>
+<span class="lineNum">    3212 </span>            :     return MS_FALSE;
+<span class="lineNum">    3213 </span>            :  
+<span class="lineNum">    3214 </span><span class="lineCov">          1 :   switch(timeresolution) {</span>
+<span class="lineNum">    3215 </span>            :     case TIME_RESOLUTION_YEAR:
+<span class="lineNum">    3216 </span><span class="lineCov">          1 :       if (timestring[nlength-1] != '-') {</span>
+<span class="lineNum">    3217 </span>            :         snprintf(dest, destsize,&quot;date '%s-01-01'&quot;,timestring);
+<span class="lineNum">    3218 </span>            :       } else {
+<span class="lineNum">    3219 </span>            :         snprintf(dest, destsize,&quot;date '%s01-01'&quot;,timestring);
+<span class="lineNum">    3220 </span>            :       }
+<span class="lineNum">    3221 </span>            :       break;
+<span class="lineNum">    3222 </span>            :     case TIME_RESOLUTION_MONTH:
+<span class="lineNum">    3223 </span><span class="lineCov">          1 :       if (timestring[nlength-1] != '-') {</span>
+<span class="lineNum">    3224 </span>            :         snprintf(dest, destsize,&quot;date '%s-01'&quot;,timestring);
+<span class="lineNum">    3225 </span>            :       } else {
+<span class="lineNum">    3226 </span>            :         snprintf(dest, destsize,&quot;date '%s01'&quot;,timestring);
+<span class="lineNum">    3227 </span>            :       }
 <span class="lineNum">    3228 </span>            :       break;
-<span class="lineNum">    3229 </span>            :     case TIME_RESOLUTION_HOUR:
-<span class="lineNum">    3230 </span><span class="lineCov">          1 :       if (timestring[nlength-1] != ':') {</span>
-<span class="lineNum">    3231 </span><span class="lineCov">          1 :         if(bNoDate)</span>
-<span class="lineNum">    3232 </span>            :           snprintf(dest, destsize,&quot;time '%s:00:00'&quot;, timestring);
-<span class="lineNum">    3233 </span>            :         else
-<span class="lineNum">    3234 </span>            :           snprintf(dest, destsize,&quot;timestamp '%s:00:00'&quot;, timestring);
-<span class="lineNum">    3235 </span>            :       } else {
-<span class="lineNum">    3236 </span><span class="lineNoCov">          0 :         if(bNoDate)</span>
-<span class="lineNum">    3237 </span>            :           snprintf(dest, destsize,&quot;time '%s00:00'&quot;, timestring);
-<span class="lineNum">    3238 </span>            :         else
-<span class="lineNum">    3239 </span>            :           snprintf(dest, destsize,&quot;timestamp '%s00:00'&quot;, timestring);
-<span class="lineNum">    3240 </span>            :       }
-<span class="lineNum">    3241 </span>            :       break;
-<span class="lineNum">    3242 </span>            :     case TIME_RESOLUTION_MINUTE:
-<span class="lineNum">    3243 </span><span class="lineCov">          1 :       if (timestring[nlength-1] != ':') {</span>
-<span class="lineNum">    3244 </span><span class="lineCov">          1 :         if(bNoDate)</span>
-<span class="lineNum">    3245 </span>            :           snprintf(dest, destsize,&quot;time '%s:00'&quot;, timestring);
-<span class="lineNum">    3246 </span>            :         else
-<span class="lineNum">    3247 </span>            :           snprintf(dest, destsize,&quot;timestamp '%s:00'&quot;, timestring);
-<span class="lineNum">    3248 </span>            :       } else {
-<span class="lineNum">    3249 </span><span class="lineNoCov">          0 :         if(bNoDate)</span>
-<span class="lineNum">    3250 </span>            :           snprintf(dest, destsize,&quot;time '%s00'&quot;, timestring);
-<span class="lineNum">    3251 </span>            :         else
-<span class="lineNum">    3252 </span>            :           snprintf(dest, destsize,&quot;timestamp '%s00'&quot;, timestring);
-<span class="lineNum">    3253 </span>            :       }
-<span class="lineNum">    3254 </span>            :       break;
-<span class="lineNum">    3255 </span>            :     case TIME_RESOLUTION_SECOND:
-<span class="lineNum">    3256 </span><span class="lineCov">          1 :       if(bNoDate)</span>
-<span class="lineNum">    3257 </span>            :          snprintf(dest, destsize,&quot;time '%s'&quot;, timestring);
-<span class="lineNum">    3258 </span>            :       else
-<span class="lineNum">    3259 </span>            :          snprintf(dest, destsize,&quot;timestamp '%s'&quot;, timestring);
-<span class="lineNum">    3260 </span>            :       break;
-<span class="lineNum">    3261 </span>            :     default:
-<span class="lineNum">    3262 </span>            :       return MS_FAILURE;
-<span class="lineNum">    3263 </span>            :   }
-<span class="lineNum">    3264 </span>            :   return MS_SUCCESS;
-<span class="lineNum">    3265 </span>            : 
-<span class="lineNum">    3266 </span>            : }
-<span class="lineNum">    3267 </span>            : 
-<span class="lineNum">    3268 </span>            : /*
-<span class="lineNum">    3269 </span>            :  * create a postgresql where clause for the given timestring, taking into account
-<span class="lineNum">    3270 </span>            :  * the resolution (e.g. second, day, month...) of the given timestring
-<span class="lineNum">    3271 </span>            :  * we apply the date_trunc function on the given timestring and not on the time
-<span class="lineNum">    3272 </span>            :  * column in order for postgres to take advantage of an eventual index on the
-<span class="lineNum">    3273 </span>            :  * time column
-<span class="lineNum">    3274 </span>            :  *
-<span class="lineNum">    3275 </span>            :  * the generated sql is
-<span class="lineNum">    3276 </span>            :  *
-<span class="lineNum">    3277 </span>            :  * (
-<span class="lineNum">    3278 </span>            :  *    timecol &gt;= date_trunc(timestring,resolution)
-<span class="lineNum">    3279 </span>            :  *      and
-<span class="lineNum">    3280 </span>            :  *    timecol &lt; date_trunc(timestring,resolution) + interval '1 resolution'
-<a name="3281"><span class="lineNum">    3281 </span>            :  * )</a>
-<span class="lineNum">    3282 </span>            :  */
-<span class="lineNum">    3283 </span><span class="lineCov">          1 : static int createPostgresTimeCompareEquals(const char *timestring, char *dest, size_t destsize)</span>
-<span class="lineNum">    3284 </span>            : {
-<span class="lineNum">    3285 </span><span class="lineCov">          1 :   int timeresolution = msTimeGetResolution(timestring);</span>
-<span class="lineNum">    3286 </span>            :   char timeStamp[100];
-<span class="lineNum">    3287 </span>            :   const char *interval;
-<span class="lineNum">    3288 </span><span class="lineCov">          1 :   if (timeresolution &lt; 0) return MS_FALSE;</span>
-<span class="lineNum">    3289 </span>            : 
-<span class="lineNum">    3290 </span><span class="lineCov">          1 :   postgresTimeStampForTimeString(timestring,timeStamp,100);</span>
-<span class="lineNum">    3291 </span>            : 
-<span class="lineNum">    3292 </span><span class="lineCov">          1 :   switch(timeresolution) {</span>
-<span class="lineNum">    3293 </span>            :     case TIME_RESOLUTION_YEAR:
-<span class="lineNum">    3294 </span>            :       interval = &quot;year&quot;;
-<span class="lineNum">    3295 </span>            :       break;
-<span class="lineNum">    3296 </span>            :     case TIME_RESOLUTION_MONTH:
-<span class="lineNum">    3297 </span>            :       interval = &quot;month&quot;;
-<span class="lineNum">    3298 </span><span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    3299 </span>            :     case TIME_RESOLUTION_DAY:
-<span class="lineNum">    3300 </span>            :       interval = &quot;day&quot;;
+<span class="lineNum">    3229 </span>            :     case TIME_RESOLUTION_DAY:
+<span class="lineNum">    3230 </span>            :       snprintf(dest, destsize,&quot;date '%s'&quot;,timestring);
+<span class="lineNum">    3231 </span>            :       break;
+<span class="lineNum">    3232 </span>            :     case TIME_RESOLUTION_HOUR:
+<span class="lineNum">    3233 </span><span class="lineCov">          1 :       if (timestring[nlength-1] != ':') {</span>
+<span class="lineNum">    3234 </span><span class="lineCov">          1 :         if(bNoDate)</span>
+<span class="lineNum">    3235 </span>            :           snprintf(dest, destsize,&quot;time '%s:00:00'&quot;, timestring);
+<span class="lineNum">    3236 </span>            :         else
+<span class="lineNum">    3237 </span>            :           snprintf(dest, destsize,&quot;timestamp '%s:00:00'&quot;, timestring);
+<span class="lineNum">    3238 </span>            :       } else {
+<span class="lineNum">    3239 </span><span class="lineNoCov">          0 :         if(bNoDate)</span>
+<span class="lineNum">    3240 </span>            :           snprintf(dest, destsize,&quot;time '%s00:00'&quot;, timestring);
+<span class="lineNum">    3241 </span>            :         else
+<span class="lineNum">    3242 </span>            :           snprintf(dest, destsize,&quot;timestamp '%s00:00'&quot;, timestring);
+<span class="lineNum">    3243 </span>            :       }
+<span class="lineNum">    3244 </span>            :       break;
+<span class="lineNum">    3245 </span>            :     case TIME_RESOLUTION_MINUTE:
+<span class="lineNum">    3246 </span><span class="lineCov">          1 :       if (timestring[nlength-1] != ':') {</span>
+<span class="lineNum">    3247 </span><span class="lineCov">          1 :         if(bNoDate)</span>
+<span class="lineNum">    3248 </span>            :           snprintf(dest, destsize,&quot;time '%s:00'&quot;, timestring);
+<span class="lineNum">    3249 </span>            :         else
+<span class="lineNum">    3250 </span>            :           snprintf(dest, destsize,&quot;timestamp '%s:00'&quot;, timestring);
+<span class="lineNum">    3251 </span>            :       } else {
+<span class="lineNum">    3252 </span><span class="lineNoCov">          0 :         if(bNoDate)</span>
+<span class="lineNum">    3253 </span>            :           snprintf(dest, destsize,&quot;time '%s00'&quot;, timestring);
+<span class="lineNum">    3254 </span>            :         else
+<span class="lineNum">    3255 </span>            :           snprintf(dest, destsize,&quot;timestamp '%s00'&quot;, timestring);
+<span class="lineNum">    3256 </span>            :       }
+<span class="lineNum">    3257 </span>            :       break;
+<span class="lineNum">    3258 </span>            :     case TIME_RESOLUTION_SECOND:
+<span class="lineNum">    3259 </span><span class="lineCov">          1 :       if(bNoDate)</span>
+<span class="lineNum">    3260 </span>            :          snprintf(dest, destsize,&quot;time '%s'&quot;, timestring);
+<span class="lineNum">    3261 </span>            :       else
+<span class="lineNum">    3262 </span>            :          snprintf(dest, destsize,&quot;timestamp '%s'&quot;, timestring);
+<span class="lineNum">    3263 </span>            :       break;
+<span class="lineNum">    3264 </span>            :     default:
+<span class="lineNum">    3265 </span>            :       return MS_FAILURE;
+<span class="lineNum">    3266 </span>            :   }
+<span class="lineNum">    3267 </span>            :   return MS_SUCCESS;
+<span class="lineNum">    3268 </span>            : 
+<span class="lineNum">    3269 </span>            : }
+<span class="lineNum">    3270 </span>            : 
+<span class="lineNum">    3271 </span>            : /*
+<span class="lineNum">    3272 </span>            :  * create a postgresql where clause for the given timestring, taking into account
+<span class="lineNum">    3273 </span>            :  * the resolution (e.g. second, day, month...) of the given timestring
+<span class="lineNum">    3274 </span>            :  * we apply the date_trunc function on the given timestring and not on the time
+<span class="lineNum">    3275 </span>            :  * column in order for postgres to take advantage of an eventual index on the
+<span class="lineNum">    3276 </span>            :  * time column
+<span class="lineNum">    3277 </span>            :  *
+<span class="lineNum">    3278 </span>            :  * the generated sql is
+<span class="lineNum">    3279 </span>            :  *
+<span class="lineNum">    3280 </span>            :  * (
+<span class="lineNum">    3281 </span>            :  *    timecol &gt;= date_trunc(timestring,resolution)
+<span class="lineNum">    3282 </span>            :  *      and
+<span class="lineNum">    3283 </span>            :  *    timecol &lt; date_trunc(timestring,resolution) + interval '1 resolution'
+<a name="3284"><span class="lineNum">    3284 </span>            :  * )</a>
+<span class="lineNum">    3285 </span>            :  */
+<span class="lineNum">    3286 </span><span class="lineCov">          1 : static int createPostgresTimeCompareEquals(const char *timestring, char *dest, size_t destsize)</span>
+<span class="lineNum">    3287 </span>            : {
+<span class="lineNum">    3288 </span><span class="lineCov">          1 :   int timeresolution = msTimeGetResolution(timestring);</span>
+<span class="lineNum">    3289 </span>            :   char timeStamp[100];
+<span class="lineNum">    3290 </span>            :   const char *interval;
+<span class="lineNum">    3291 </span><span class="lineCov">          1 :   if (timeresolution &lt; 0) return MS_FALSE;</span>
+<span class="lineNum">    3292 </span>            : 
+<span class="lineNum">    3293 </span><span class="lineCov">          1 :   postgresTimeStampForTimeString(timestring,timeStamp,100);</span>
+<span class="lineNum">    3294 </span>            : 
+<span class="lineNum">    3295 </span><span class="lineCov">          1 :   switch(timeresolution) {</span>
+<span class="lineNum">    3296 </span>            :     case TIME_RESOLUTION_YEAR:
+<span class="lineNum">    3297 </span>            :       interval = &quot;year&quot;;
+<span class="lineNum">    3298 </span>            :       break;
+<span class="lineNum">    3299 </span>            :     case TIME_RESOLUTION_MONTH:
+<span class="lineNum">    3300 </span>            :       interval = &quot;month&quot;;
 <span class="lineNum">    3301 </span><span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    3302 </span>            :     case TIME_RESOLUTION_HOUR:
-<span class="lineNum">    3303 </span>            :       interval = &quot;hour&quot;;
+<span class="lineNum">    3302 </span>            :     case TIME_RESOLUTION_DAY:
+<span class="lineNum">    3303 </span>            :       interval = &quot;day&quot;;
 <span class="lineNum">    3304 </span><span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    3305 </span>            :     case TIME_RESOLUTION_MINUTE:
-<span class="lineNum">    3306 </span>            :       interval = &quot;minute&quot;;
+<span class="lineNum">    3305 </span>            :     case TIME_RESOLUTION_HOUR:
+<span class="lineNum">    3306 </span>            :       interval = &quot;hour&quot;;
 <span class="lineNum">    3307 </span><span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    3308 </span>            :     case TIME_RESOLUTION_SECOND:
-<span class="lineNum">    3309 </span>            :       interval = &quot;second&quot;;
+<span class="lineNum">    3308 </span>            :     case TIME_RESOLUTION_MINUTE:
+<span class="lineNum">    3309 </span>            :       interval = &quot;minute&quot;;
 <span class="lineNum">    3310 </span><span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    3311 </span>            :     default:
-<span class="lineNum">    3312 </span>            :       return MS_FAILURE;
-<span class="lineNum">    3313 </span>            :   }
-<span class="lineNum">    3314 </span>            :   snprintf(dest, destsize, &quot; between date_trunc('%s',%s) and date_trunc('%s',%s) + interval '1 %s' - interval '1 second'&quot;, interval, timeStamp, interval, timeStamp, interval);
-<span class="lineNum">    3315 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<a name="3316"><span class="lineNum">    3316 </span>            : }</a>
-<span class="lineNum">    3317 </span>            : 
-<span class="lineNum">    3318 </span><span class="lineCov">          1 : static int createPostgresTimeCompareGreaterThan(const char *timestring, char *dest, size_t destsize)</span>
-<span class="lineNum">    3319 </span>            : {
-<span class="lineNum">    3320 </span><span class="lineCov">          1 :   int timeresolution = msTimeGetResolution(timestring);</span>
-<span class="lineNum">    3321 </span>            :   char timestamp[100];
-<span class="lineNum">    3322 </span>            :   const char *interval;
-<span class="lineNum">    3323 </span><span class="lineCov">          1 :   if (timeresolution &lt; 0) return MS_FALSE;</span>
-<span class="lineNum">    3324 </span>            :  
-<span class="lineNum">    3325 </span><span class="lineCov">          1 :   postgresTimeStampForTimeString(timestring,timestamp,100);</span>
-<span class="lineNum">    3326 </span>            : 
-<span class="lineNum">    3327 </span><span class="lineCov">          1 :   switch(timeresolution) {</span>
-<span class="lineNum">    3328 </span>            :   case TIME_RESOLUTION_YEAR:
-<span class="lineNum">    3329 </span>            :     interval = &quot;year&quot;;
-<span class="lineNum">    3330 </span>            :     break;
-<span class="lineNum">    3331 </span>            :   case TIME_RESOLUTION_MONTH:
-<span class="lineNum">    3332 </span>            :     interval = &quot;month&quot;;
-<span class="lineNum">    3333 </span><span class="lineCov">          1 :     break;</span>
-<span class="lineNum">    3334 </span>            :   case TIME_RESOLUTION_DAY:
-<span class="lineNum">    3335 </span>            :     interval = &quot;day&quot;;
+<span class="lineNum">    3311 </span>            :     case TIME_RESOLUTION_SECOND:
+<span class="lineNum">    3312 </span>            :       interval = &quot;second&quot;;
+<span class="lineNum">    3313 </span><span class="lineCov">          1 :       break;</span>
+<span class="lineNum">    3314 </span>            :     default:
+<span class="lineNum">    3315 </span>            :       return MS_FAILURE;
+<span class="lineNum">    3316 </span>            :   }
+<span class="lineNum">    3317 </span>            :   snprintf(dest, destsize, &quot; between date_trunc('%s',%s) and date_trunc('%s',%s) + interval '1 %s' - interval '1 second'&quot;, interval, timeStamp, interval, timeStamp, interval);
+<span class="lineNum">    3318 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<a name="3319"><span class="lineNum">    3319 </span>            : }</a>
+<span class="lineNum">    3320 </span>            : 
+<span class="lineNum">    3321 </span><span class="lineCov">          1 : static int createPostgresTimeCompareGreaterThan(const char *timestring, char *dest, size_t destsize)</span>
+<span class="lineNum">    3322 </span>            : {
+<span class="lineNum">    3323 </span><span class="lineCov">          1 :   int timeresolution = msTimeGetResolution(timestring);</span>
+<span class="lineNum">    3324 </span>            :   char timestamp[100];
+<span class="lineNum">    3325 </span>            :   const char *interval;
+<span class="lineNum">    3326 </span><span class="lineCov">          1 :   if (timeresolution &lt; 0) return MS_FALSE;</span>
+<span class="lineNum">    3327 </span>            :  
+<span class="lineNum">    3328 </span><span class="lineCov">          1 :   postgresTimeStampForTimeString(timestring,timestamp,100);</span>
+<span class="lineNum">    3329 </span>            : 
+<span class="lineNum">    3330 </span><span class="lineCov">          1 :   switch(timeresolution) {</span>
+<span class="lineNum">    3331 </span>            :   case TIME_RESOLUTION_YEAR:
+<span class="lineNum">    3332 </span>            :     interval = &quot;year&quot;;
+<span class="lineNum">    3333 </span>            :     break;
+<span class="lineNum">    3334 </span>            :   case TIME_RESOLUTION_MONTH:
+<span class="lineNum">    3335 </span>            :     interval = &quot;month&quot;;
 <span class="lineNum">    3336 </span><span class="lineCov">          1 :     break;</span>
-<span class="lineNum">    3337 </span>            :   case TIME_RESOLUTION_HOUR:
-<span class="lineNum">    3338 </span>            :     interval = &quot;hour&quot;;
+<span class="lineNum">    3337 </span>            :   case TIME_RESOLUTION_DAY:
+<span class="lineNum">    3338 </span>            :     interval = &quot;day&quot;;
 <span class="lineNum">    3339 </span><span class="lineCov">          1 :     break;</span>
-<span class="lineNum">    3340 </span>            :   case TIME_RESOLUTION_MINUTE:
-<span class="lineNum">    3341 </span>            :     interval = &quot;minute&quot;;
+<span class="lineNum">    3340 </span>            :   case TIME_RESOLUTION_HOUR:
+<span class="lineNum">    3341 </span>            :     interval = &quot;hour&quot;;
 <span class="lineNum">    3342 </span><span class="lineCov">          1 :     break;</span>
-<span class="lineNum">    3343 </span>            :   case TIME_RESOLUTION_SECOND:
-<span class="lineNum">    3344 </span>            :     interval = &quot;second&quot;;
+<span class="lineNum">    3343 </span>            :   case TIME_RESOLUTION_MINUTE:
+<span class="lineNum">    3344 </span>            :     interval = &quot;minute&quot;;
 <span class="lineNum">    3345 </span><span class="lineCov">          1 :     break;</span>
-<span class="lineNum">    3346 </span>            :   default:
-<span class="lineNum">    3347 </span>            :     return MS_FAILURE;
-<span class="lineNum">    3348 </span>            :   }
-<span class="lineNum">    3349 </span>            : 
-<span class="lineNum">    3350 </span>            :   snprintf(dest, destsize,&quot;date_trunc('%s',%s)&quot;, interval, timestamp);
-<span class="lineNum">    3351 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    3352 </span>            : }
-<span class="lineNum">    3353 </span>            : 
-<span class="lineNum">    3354 </span>            : /*
-<span class="lineNum">    3355 </span>            :  * create a postgresql where clause for the range given by the two input timestring,
-<span class="lineNum">    3356 </span>            :  * taking into account the resolution (e.g. second, day, month...) of each of the
-<span class="lineNum">    3357 </span>            :  * given timestrings (both timestrings can have different resolutions, although I don't
-<span class="lineNum">    3358 </span>            :  * know if that's a valid TIME range
-<span class="lineNum">    3359 </span>            :  * we apply the date_trunc function on the given timestrings and not on the time
-<span class="lineNum">    3360 </span>            :  * column in order for postgres to take advantage of an eventual index on the
-<span class="lineNum">    3361 </span>            :  * time column
-<span class="lineNum">    3362 </span>            :  *
-<span class="lineNum">    3363 </span>            :  * the generated sql is
-<span class="lineNum">    3364 </span>            :  *
-<span class="lineNum">    3365 </span>            :  * (
-<span class="lineNum">    3366 </span>            :  *    timecol &gt;= date_trunc(mintimestring,minresolution)
-<span class="lineNum">    3367 </span>            :  *      and
-<span class="lineNum">    3368 </span>            :  *    timecol &lt; date_trunc(maxtimestring,maxresolution) + interval '1 maxresolution'
-<a name="3369"><span class="lineNum">    3369 </span>            :  * )</a>
-<span class="lineNum">    3370 </span>            :  */
-<span class="lineNum">    3371 </span><span class="lineCov">          1 : static int createPostgresTimeCompareLessThan(const char *timestring, char *dest, size_t destsize)</span>
-<span class="lineNum">    3372 </span>            : {
-<span class="lineNum">    3373 </span><span class="lineCov">          1 :   int timeresolution = msTimeGetResolution(timestring);</span>
-<span class="lineNum">    3374 </span>            :   char timestamp[100];
-<span class="lineNum">    3375 </span>            :   const char *interval;
-<span class="lineNum">    3376 </span><span class="lineCov">          1 :   if (timeresolution &lt; 0)return MS_FALSE;</span>
-<span class="lineNum">    3377 </span>            : 
-<span class="lineNum">    3378 </span><span class="lineCov">          1 :   postgresTimeStampForTimeString(timestring,timestamp,100);</span>
-<span class="lineNum">    3379 </span>            : 
-<span class="lineNum">    3380 </span><span class="lineCov">          1 :   switch(timeresolution) {</span>
-<span class="lineNum">    3381 </span>            :     case TIME_RESOLUTION_YEAR:
-<span class="lineNum">    3382 </span>            :       interval = &quot;year&quot;;
-<span class="lineNum">    3383 </span>            :       break;
-<span class="lineNum">    3384 </span>            :     case TIME_RESOLUTION_MONTH:
-<span class="lineNum">    3385 </span>            :       interval = &quot;month&quot;;
-<span class="lineNum">    3386 </span><span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    3387 </span>            :     case TIME_RESOLUTION_DAY:
-<span class="lineNum">    3388 </span>            :       interval = &quot;day&quot;;
+<span class="lineNum">    3346 </span>            :   case TIME_RESOLUTION_SECOND:
+<span class="lineNum">    3347 </span>            :     interval = &quot;second&quot;;
+<span class="lineNum">    3348 </span><span class="lineCov">          1 :     break;</span>
+<span class="lineNum">    3349 </span>            :   default:
+<span class="lineNum">    3350 </span>            :     return MS_FAILURE;
+<span class="lineNum">    3351 </span>            :   }
+<span class="lineNum">    3352 </span>            : 
+<span class="lineNum">    3353 </span>            :   snprintf(dest, destsize,&quot;date_trunc('%s',%s)&quot;, interval, timestamp);
+<span class="lineNum">    3354 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    3355 </span>            : }
+<span class="lineNum">    3356 </span>            : 
+<span class="lineNum">    3357 </span>            : /*
+<span class="lineNum">    3358 </span>            :  * create a postgresql where clause for the range given by the two input timestring,
+<span class="lineNum">    3359 </span>            :  * taking into account the resolution (e.g. second, day, month...) of each of the
+<span class="lineNum">    3360 </span>            :  * given timestrings (both timestrings can have different resolutions, although I don't
+<span class="lineNum">    3361 </span>            :  * know if that's a valid TIME range
+<span class="lineNum">    3362 </span>            :  * we apply the date_trunc function on the given timestrings and not on the time
+<span class="lineNum">    3363 </span>            :  * column in order for postgres to take advantage of an eventual index on the
+<span class="lineNum">    3364 </span>            :  * time column
+<span class="lineNum">    3365 </span>            :  *
+<span class="lineNum">    3366 </span>            :  * the generated sql is
+<span class="lineNum">    3367 </span>            :  *
+<span class="lineNum">    3368 </span>            :  * (
+<span class="lineNum">    3369 </span>            :  *    timecol &gt;= date_trunc(mintimestring,minresolution)
+<span class="lineNum">    3370 </span>            :  *      and
+<span class="lineNum">    3371 </span>            :  *    timecol &lt; date_trunc(maxtimestring,maxresolution) + interval '1 maxresolution'
+<a name="3372"><span class="lineNum">    3372 </span>            :  * )</a>
+<span class="lineNum">    3373 </span>            :  */
+<span class="lineNum">    3374 </span><span class="lineCov">          1 : static int createPostgresTimeCompareLessThan(const char *timestring, char *dest, size_t destsize)</span>
+<span class="lineNum">    3375 </span>            : {
+<span class="lineNum">    3376 </span><span class="lineCov">          1 :   int timeresolution = msTimeGetResolution(timestring);</span>
+<span class="lineNum">    3377 </span>            :   char timestamp[100];
+<span class="lineNum">    3378 </span>            :   const char *interval;
+<span class="lineNum">    3379 </span><span class="lineCov">          1 :   if (timeresolution &lt; 0)return MS_FALSE;</span>
+<span class="lineNum">    3380 </span>            : 
+<span class="lineNum">    3381 </span><span class="lineCov">          1 :   postgresTimeStampForTimeString(timestring,timestamp,100);</span>
+<span class="lineNum">    3382 </span>            : 
+<span class="lineNum">    3383 </span><span class="lineCov">          1 :   switch(timeresolution) {</span>
+<span class="lineNum">    3384 </span>            :     case TIME_RESOLUTION_YEAR:
+<span class="lineNum">    3385 </span>            :       interval = &quot;year&quot;;
+<span class="lineNum">    3386 </span>            :       break;
+<span class="lineNum">    3387 </span>            :     case TIME_RESOLUTION_MONTH:
+<span class="lineNum">    3388 </span>            :       interval = &quot;month&quot;;
 <span class="lineNum">    3389 </span><span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    3390 </span>            :     case TIME_RESOLUTION_HOUR:
-<span class="lineNum">    3391 </span>            :       interval = &quot;hour&quot;;
+<span class="lineNum">    3390 </span>            :     case TIME_RESOLUTION_DAY:
+<span class="lineNum">    3391 </span>            :       interval = &quot;day&quot;;
 <span class="lineNum">    3392 </span><span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    3393 </span>            :     case TIME_RESOLUTION_MINUTE:
-<span class="lineNum">    3394 </span>            :       interval = &quot;minute&quot;;
+<span class="lineNum">    3393 </span>            :     case TIME_RESOLUTION_HOUR:
+<span class="lineNum">    3394 </span>            :       interval = &quot;hour&quot;;
 <span class="lineNum">    3395 </span><span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    3396 </span>            :     case TIME_RESOLUTION_SECOND:
-<span class="lineNum">    3397 </span>            :       interval = &quot;second&quot;;
+<span class="lineNum">    3396 </span>            :     case TIME_RESOLUTION_MINUTE:
+<span class="lineNum">    3397 </span>            :       interval = &quot;minute&quot;;
 <span class="lineNum">    3398 </span><span class="lineCov">          1 :       break;</span>
-<span class="lineNum">    3399 </span>            :     default:
-<span class="lineNum">    3400 </span>            :       return MS_FAILURE;
-<span class="lineNum">    3401 </span>            :   }
-<span class="lineNum">    3402 </span>            :   snprintf(dest, destsize,&quot;(date_trunc('%s',%s) + interval '1 %s' - interval '1 second')&quot;, interval, timestamp, interval);
-<span class="lineNum">    3403 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    3404 </span>            : }
-<span class="lineNum">    3405 </span>            : 
-<span class="lineNum">    3406 </span><span class="lineCov">          1 : static char *msPostGISEscapeSQLParam(layerObj *layer, const char *pszString)</span>
-<span class="lineNum">    3407 </span>            : {
-<span class="lineNum">    3408 </span>            : #ifdef USE_POSTGIS
-<span class="lineNum">    3409 </span>            :   char* pszEscapedStr =nullptr;
-<span class="lineNum">    3410 </span>            : 
-<span class="lineNum">    3411 </span><span class="lineCov">          1 :   if (layer &amp;&amp; pszString) {</span>
-<span class="lineNum">    3412 </span><span class="lineCov">          1 :     if(!msPostGISLayerIsOpen(layer))</span>
-<span class="lineNum">    3413 </span><span class="lineNoCov">          0 :       msPostGISLayerOpen(layer);</span>
+<span class="lineNum">    3399 </span>            :     case TIME_RESOLUTION_SECOND:
+<span class="lineNum">    3400 </span>            :       interval = &quot;second&quot;;
+<span class="lineNum">    3401 </span><span class="lineCov">          1 :       break;</span>
+<span class="lineNum">    3402 </span>            :     default:
+<span class="lineNum">    3403 </span>            :       return MS_FAILURE;
+<span class="lineNum">    3404 </span>            :   }
+<span class="lineNum">    3405 </span>            :   snprintf(dest, destsize,&quot;(date_trunc('%s',%s) + interval '1 %s' - interval '1 second')&quot;, interval, timestamp, interval);
+<span class="lineNum">    3406 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    3407 </span>            : }
+<span class="lineNum">    3408 </span>            : #endif
+<span class="lineNum">    3409 </span>            : 
+<span class="lineNum">    3410 </span><span class="lineCov">          1 : static char *msPostGISEscapeSQLParam(layerObj *layer, const char *pszString)</span>
+<span class="lineNum">    3411 </span>            : {
+<span class="lineNum">    3412 </span>            : #ifdef USE_POSTGIS
+<span class="lineNum">    3413 </span>            :   char* pszEscapedStr =nullptr;
 <span class="lineNum">    3414 </span>            : 
-<span class="lineNum">    3415 </span>            :     assert(layer-&gt;layerinfo != nullptr);
-<span class="lineNum">    3416 </span>            : 
-<span class="lineNum">    3417 </span><span class="lineCov">          1 :     msPostGISLayerInfo* layerinfo = (msPostGISLayerInfo *) layer-&gt;layerinfo;</span>
-<span class="lineNum">    3418 </span><span class="lineCov">          1 :     size_t nSrcLen = strlen(pszString);</span>
-<span class="lineNum">    3419 </span><span class="lineCov">          1 :     pszEscapedStr = (char*) msSmallMalloc( 2 * nSrcLen + 1);</span>
-<span class="lineNum">    3420 </span><span class="lineCov">          1 :     int nError = 0;</span>
-<span class="lineNum">    3421 </span><span class="lineCov">          1 :       PQescapeStringConn (layerinfo-&gt;pgconn, pszEscapedStr, pszString, nSrcLen, &amp;nError);</span>
-<span class="lineNum">    3422 </span><span class="lineCov">          1 :     if (nError != 0) {</span>
-<span class="lineNum">    3423 </span><span class="lineNoCov">          0 :       free(pszEscapedStr);</span>
-<span class="lineNum">    3424 </span>            :       pszEscapedStr = nullptr;
-<span class="lineNum">    3425 </span>            :     }
-<span class="lineNum">    3426 </span>            :   }
-<span class="lineNum">    3427 </span><span class="lineCov">          1 :   return pszEscapedStr;</span>
-<span class="lineNum">    3428 </span>            : #else
-<span class="lineNum">    3429 </span>            :   msSetError( MS_MISCERR,
-<span class="lineNum">    3430 </span>            :               &quot;PostGIS support is not available.&quot;,
-<span class="lineNum">    3431 </span>            :               &quot;msPostGISEscapeSQLParam()&quot;);
-<span class="lineNum">    3432 </span>            :   return NULL;
-<span class="lineNum">    3433 </span>            : #endif
-<span class="lineNum">    3434 </span>            : }
-<span class="lineNum">    3435 </span>            : 
-<span class="lineNum">    3436 </span><span class="lineCov">          1 : static void msPostGISEnablePaging(layerObj *layer, int value)</span>
-<span class="lineNum">    3437 </span>            : {
-<span class="lineNum">    3438 </span>            : #ifdef USE_POSTGIS
-<span class="lineNum">    3439 </span><span class="lineCov">          1 :   if (layer-&gt;debug) {</span>
-<span class="lineNum">    3440 </span><span class="lineNoCov">          0 :     msDebug(&quot;msPostGISEnablePaging called.\n&quot;);</span>
-<span class="lineNum">    3441 </span>            :   }
-<span class="lineNum">    3442 </span>            : 
-<span class="lineNum">    3443 </span><span class="lineCov">          1 :   if(!msPostGISLayerIsOpen(layer))</span>
-<span class="lineNum">    3444 </span><span class="lineNoCov">          0 :     msPostGISLayerOpen(layer);</span>
-<span class="lineNum">    3445 </span>            : 
-<span class="lineNum">    3446 </span>            :   assert( layer-&gt;layerinfo != nullptr);
-<span class="lineNum">    3447 </span>            : 
-<span class="lineNum">    3448 </span><span class="lineCov">          1 :   msPostGISLayerInfo* layerinfo = (msPostGISLayerInfo *)layer-&gt;layerinfo;</span>
-<span class="lineNum">    3449 </span><span class="lineCov">          1 :   layerinfo-&gt;paging = value;</span>
-<span class="lineNum">    3450 </span>            : 
-<span class="lineNum">    3451 </span>            : #else
-<span class="lineNum">    3452 </span>            :   msSetError( MS_MISCERR,
-<span class="lineNum">    3453 </span>            :               &quot;PostGIS support is not available.&quot;,
-<span class="lineNum">    3454 </span>            :               &quot;msPostGISEnablePaging()&quot;);
-<span class="lineNum">    3455 </span>            : #endif
-<span class="lineNum">    3456 </span><span class="lineCov">          1 :   return;</span>
-<span class="lineNum">    3457 </span>            : }
-<span class="lineNum">    3458 </span>            : 
-<span class="lineNum">    3459 </span><span class="lineCov">          1 : static int msPostGISGetPaging(layerObj *layer)</span>
-<span class="lineNum">    3460 </span>            : {
-<span class="lineNum">    3461 </span>            : #ifdef USE_POSTGIS
-<span class="lineNum">    3462 </span><span class="lineCov">          1 :   if (layer-&gt;debug) {</span>
-<span class="lineNum">    3463 </span><span class="lineNoCov">          0 :     msDebug(&quot;msPostGISGetPaging called.\n&quot;);</span>
-<span class="lineNum">    3464 </span>            :   }
-<span class="lineNum">    3465 </span>            : 
-<span class="lineNum">    3466 </span><span class="lineCov">          1 :   if(!msPostGISLayerIsOpen(layer))</span>
-<span class="lineNum">    3467 </span>            :     return MS_TRUE;
-<span class="lineNum">    3468 </span>            : 
-<span class="lineNum">    3469 </span>            :   assert( layer-&gt;layerinfo != nullptr);
-<span class="lineNum">    3470 </span>            : 
-<span class="lineNum">    3471 </span>            :   msPostGISLayerInfo* layerinfo = (msPostGISLayerInfo *)layer-&gt;layerinfo;
-<span class="lineNum">    3472 </span><span class="lineCov">          1 :   return layerinfo-&gt;paging;</span>
-<span class="lineNum">    3473 </span>            : #else
-<span class="lineNum">    3474 </span>            :   msSetError( MS_MISCERR,
-<span class="lineNum">    3475 </span>            :               &quot;PostGIS support is not available.&quot;,
-<span class="lineNum">    3476 </span>            :               &quot;msPostGISEnablePaging()&quot;);
-<span class="lineNum">    3477 </span>            :   return MS_FAILURE;
-<span class="lineNum">    3478 </span>            : #endif
-<span class="lineNum">    3479 </span>            : }
-<span class="lineNum">    3480 </span>            : 
-<span class="lineNum">    3481 </span>            : /*
-<span class="lineNum">    3482 </span>            : ** msPostGISLayerTranslateFilter()
-<span class="lineNum">    3483 </span>            : **
-<a name="3484"><span class="lineNum">    3484 </span>            : ** Registered vtable-&gt;LayerTranslateFilter function.</a>
-<span class="lineNum">    3485 </span>            : */
-<span class="lineNum">    3486 </span><span class="lineCov">          1 : static int msPostGISLayerTranslateFilter(layerObj *layer, expressionObj *filter, char *filteritem)</span>
-<span class="lineNum">    3487 </span>            : {
-<span class="lineNum">    3488 </span>            : #ifdef USE_POSTGIS
-<span class="lineNum">    3489 </span>            :   tokenListNodeObjPtr node = nullptr;
-<span class="lineNum">    3490 </span>            : 
-<span class="lineNum">    3491 </span>            :   std::string native_string;
-<span class="lineNum">    3492 </span>            : 
-<span class="lineNum">    3493 </span>            :   int comparisonToken = -1;
-<span class="lineNum">    3494 </span>            :   int bindingToken = -1;
-<span class="lineNum">    3495 </span>            : 
-<span class="lineNum">    3496 </span><span class="lineCov">          1 :   msPostGISLayerInfo *layerinfo = static_cast&lt;msPostGISLayerInfo*&gt;(layer-&gt;layerinfo);</span>
-<span class="lineNum">    3497 </span>            : 
-<span class="lineNum">    3498 </span><span class="lineCov">          1 :   if(!filter-&gt;string) return MS_SUCCESS; /* not an error, just nothing to do */</span>
+<span class="lineNum">    3415 </span><span class="lineCov">          1 :   if (layer &amp;&amp; pszString) {</span>
+<span class="lineNum">    3416 </span><span class="lineCov">          1 :     if(!msPostGISLayerIsOpen(layer))</span>
+<span class="lineNum">    3417 </span><span class="lineNoCov">          0 :       msPostGISLayerOpen(layer);</span>
+<span class="lineNum">    3418 </span>            : 
+<span class="lineNum">    3419 </span>            :     assert(layer-&gt;layerinfo != nullptr);
+<span class="lineNum">    3420 </span>            : 
+<span class="lineNum">    3421 </span><span class="lineCov">          1 :     msPostGISLayerInfo* layerinfo = (msPostGISLayerInfo *) layer-&gt;layerinfo;</span>
+<span class="lineNum">    3422 </span><span class="lineCov">          1 :     size_t nSrcLen = strlen(pszString);</span>
+<span class="lineNum">    3423 </span><span class="lineCov">          1 :     pszEscapedStr = (char*) msSmallMalloc( 2 * nSrcLen + 1);</span>
+<span class="lineNum">    3424 </span><span class="lineCov">          1 :     int nError = 0;</span>
+<span class="lineNum">    3425 </span><span class="lineCov">          1 :       PQescapeStringConn (layerinfo-&gt;pgconn, pszEscapedStr, pszString, nSrcLen, &amp;nError);</span>
+<span class="lineNum">    3426 </span><span class="lineCov">          1 :     if (nError != 0) {</span>
+<span class="lineNum">    3427 </span><span class="lineNoCov">          0 :       free(pszEscapedStr);</span>
+<span class="lineNum">    3428 </span>            :       pszEscapedStr = nullptr;
+<span class="lineNum">    3429 </span>            :     }
+<span class="lineNum">    3430 </span>            :   }
+<span class="lineNum">    3431 </span><span class="lineCov">          1 :   return pszEscapedStr;</span>
+<span class="lineNum">    3432 </span>            : #else
+<span class="lineNum">    3433 </span>            :   msSetError( MS_MISCERR,
+<span class="lineNum">    3434 </span>            :               &quot;PostGIS support is not available.&quot;,
+<span class="lineNum">    3435 </span>            :               &quot;msPostGISEscapeSQLParam()&quot;);
+<span class="lineNum">    3436 </span>            :   return NULL;
+<span class="lineNum">    3437 </span>            : #endif
+<span class="lineNum">    3438 </span>            : }
+<span class="lineNum">    3439 </span>            : 
+<span class="lineNum">    3440 </span><span class="lineCov">          1 : static void msPostGISEnablePaging(layerObj *layer, int value)</span>
+<span class="lineNum">    3441 </span>            : {
+<span class="lineNum">    3442 </span>            : #ifdef USE_POSTGIS
+<span class="lineNum">    3443 </span><span class="lineCov">          1 :   if (layer-&gt;debug) {</span>
+<span class="lineNum">    3444 </span><span class="lineNoCov">          0 :     msDebug(&quot;msPostGISEnablePaging called.\n&quot;);</span>
+<span class="lineNum">    3445 </span>            :   }
+<span class="lineNum">    3446 </span>            : 
+<span class="lineNum">    3447 </span><span class="lineCov">          1 :   if(!msPostGISLayerIsOpen(layer))</span>
+<span class="lineNum">    3448 </span><span class="lineNoCov">          0 :     msPostGISLayerOpen(layer);</span>
+<span class="lineNum">    3449 </span>            : 
+<span class="lineNum">    3450 </span>            :   assert( layer-&gt;layerinfo != nullptr);
+<span class="lineNum">    3451 </span>            : 
+<span class="lineNum">    3452 </span><span class="lineCov">          1 :   msPostGISLayerInfo* layerinfo = (msPostGISLayerInfo *)layer-&gt;layerinfo;</span>
+<span class="lineNum">    3453 </span><span class="lineCov">          1 :   layerinfo-&gt;paging = value;</span>
+<span class="lineNum">    3454 </span>            : 
+<span class="lineNum">    3455 </span>            : #else
+<span class="lineNum">    3456 </span>            :   msSetError( MS_MISCERR,
+<span class="lineNum">    3457 </span>            :               &quot;PostGIS support is not available.&quot;,
+<span class="lineNum">    3458 </span>            :               &quot;msPostGISEnablePaging()&quot;);
+<span class="lineNum">    3459 </span>            : #endif
+<span class="lineNum">    3460 </span><span class="lineCov">          1 :   return;</span>
+<span class="lineNum">    3461 </span>            : }
+<span class="lineNum">    3462 </span>            : 
+<span class="lineNum">    3463 </span><span class="lineCov">          1 : static int msPostGISGetPaging(layerObj *layer)</span>
+<span class="lineNum">    3464 </span>            : {
+<span class="lineNum">    3465 </span>            : #ifdef USE_POSTGIS
+<span class="lineNum">    3466 </span><span class="lineCov">          1 :   if (layer-&gt;debug) {</span>
+<span class="lineNum">    3467 </span><span class="lineNoCov">          0 :     msDebug(&quot;msPostGISGetPaging called.\n&quot;);</span>
+<span class="lineNum">    3468 </span>            :   }
+<span class="lineNum">    3469 </span>            : 
+<span class="lineNum">    3470 </span><span class="lineCov">          1 :   if(!msPostGISLayerIsOpen(layer))</span>
+<span class="lineNum">    3471 </span>            :     return MS_TRUE;
+<span class="lineNum">    3472 </span>            : 
+<span class="lineNum">    3473 </span>            :   assert( layer-&gt;layerinfo != nullptr);
+<span class="lineNum">    3474 </span>            : 
+<span class="lineNum">    3475 </span>            :   msPostGISLayerInfo* layerinfo = (msPostGISLayerInfo *)layer-&gt;layerinfo;
+<span class="lineNum">    3476 </span><span class="lineCov">          1 :   return layerinfo-&gt;paging;</span>
+<span class="lineNum">    3477 </span>            : #else
+<span class="lineNum">    3478 </span>            :   msSetError( MS_MISCERR,
+<span class="lineNum">    3479 </span>            :               &quot;PostGIS support is not available.&quot;,
+<span class="lineNum">    3480 </span>            :               &quot;msPostGISEnablePaging()&quot;);
+<span class="lineNum">    3481 </span>            :   return MS_FAILURE;
+<span class="lineNum">    3482 </span>            : #endif
+<span class="lineNum">    3483 </span>            : }
+<span class="lineNum">    3484 </span>            : 
+<span class="lineNum">    3485 </span>            : /*
+<span class="lineNum">    3486 </span>            : ** msPostGISLayerTranslateFilter()
+<span class="lineNum">    3487 </span>            : **
+<a name="3488"><span class="lineNum">    3488 </span>            : ** Registered vtable-&gt;LayerTranslateFilter function.</a>
+<span class="lineNum">    3489 </span>            : */
+<span class="lineNum">    3490 </span><span class="lineCov">          1 : static int msPostGISLayerTranslateFilter(layerObj *layer, expressionObj *filter, char *filteritem)</span>
+<span class="lineNum">    3491 </span>            : {
+<span class="lineNum">    3492 </span>            : #ifdef USE_POSTGIS
+<span class="lineNum">    3493 </span>            :   tokenListNodeObjPtr node = nullptr;
+<span class="lineNum">    3494 </span>            : 
+<span class="lineNum">    3495 </span>            :   std::string native_string;
+<span class="lineNum">    3496 </span>            : 
+<span class="lineNum">    3497 </span>            :   int comparisonToken = -1;
+<span class="lineNum">    3498 </span>            :   int bindingToken = -1;
 <span class="lineNum">    3499 </span>            : 
-<span class="lineNum">    3500 </span>            :   // fprintf(stderr, &quot;input: %s, %s, %d\n&quot;, filter-&gt;string, filteritem, filter-&gt;type);
+<span class="lineNum">    3500 </span><span class="lineCov">          1 :   msPostGISLayerInfo *layerinfo = static_cast&lt;msPostGISLayerInfo*&gt;(layer-&gt;layerinfo);</span>
 <span class="lineNum">    3501 </span>            : 
-<span class="lineNum">    3502 </span>            :   /*
-<span class="lineNum">    3503 </span>            :   ** FILTERs use MapServer syntax *only* (#5001).
-<span class="lineNum">    3504 </span>            :   */
-<span class="lineNum">    3505 </span><span class="lineCov">          1 :   if(filter-&gt;type == MS_STRING &amp;&amp; filter-&gt;string &amp;&amp; filteritem) { /* item/value pair - add escaping */</span>
-<span class="lineNum">    3506 </span>            : 
-<span class="lineNum">    3507 </span><span class="lineCov">          1 :     char* stresc = msLayerEscapePropertyName(layer, filteritem);</span>
-<span class="lineNum">    3508 </span><span class="lineCov">          1 :     if(filter-&gt;flags &amp; MS_EXP_INSENSITIVE) {</span>
-<span class="lineNum">    3509 </span>            :       native_string += &quot;upper(&quot;;
-<span class="lineNum">    3510 </span>            :       native_string += stresc;
-<span class="lineNum">    3511 </span>            :       native_string += &quot;::text) = upper(&quot;;
-<span class="lineNum">    3512 </span>            :     } else {
-<span class="lineNum">    3513 </span>            :       native_string += stresc;
-<span class="lineNum">    3514 </span>            :       native_string += &quot;::text = &quot;;
-<span class="lineNum">    3515 </span>            :     }
-<span class="lineNum">    3516 </span><span class="lineCov">          1 :     msFree(stresc);</span>
-<span class="lineNum">    3517 </span>            : 
-<span class="lineNum">    3518 </span>            :     /* don't have a type for the righthand literal so assume it's a string and we quote */
-<span class="lineNum">    3519 </span><span class="lineCov">          1 :     stresc = msPostGISEscapeSQLParam(layer, filter-&gt;string);</span>
-<span class="lineNum">    3520 </span>            :     native_string += '\'';
-<span class="lineNum">    3521 </span>            :     native_string += stresc;
-<span class="lineNum">    3522 </span>            :     native_string += '\'';
-<span class="lineNum">    3523 </span><span class="lineCov">          1 :     msFree(stresc);</span>
-<span class="lineNum">    3524 </span>            : 
-<span class="lineNum">    3525 </span><span class="lineCov">          1 :     if(filter-&gt;flags &amp; MS_EXP_INSENSITIVE) native_string += &quot;)&quot;;</span>
-<span class="lineNum">    3526 </span><span class="lineCov">          1 :   } else if(filter-&gt;type == MS_REGEX &amp;&amp; filter-&gt;string &amp;&amp; filteritem) { /* item/regex pair  - add escaping */</span>
-<span class="lineNum">    3527 </span>            : 
-<span class="lineNum">    3528 </span><span class="lineCov">          1 :     char* stresc = msLayerEscapePropertyName(layer, filteritem);</span>
-<span class="lineNum">    3529 </span>            :     native_string += stresc;
-<span class="lineNum">    3530 </span><span class="lineCov">          1 :     if(filter-&gt;flags &amp; MS_EXP_INSENSITIVE) {</span>
-<span class="lineNum">    3531 </span>            :       native_string += &quot;::text ~* &quot;;
-<span class="lineNum">    3532 </span>            :     } else {
-<span class="lineNum">    3533 </span>            :       native_string += &quot;::text ~ &quot;;
-<span class="lineNum">    3534 </span>            :     }
-<span class="lineNum">    3535 </span><span class="lineCov">          1 :     msFree(stresc);</span>
-<span class="lineNum">    3536 </span>            : 
-<span class="lineNum">    3537 </span><span class="lineCov">          1 :     stresc = msPostGISEscapeSQLParam(layer, filter-&gt;string);</span>
-<span class="lineNum">    3538 </span>            :     native_string += '\'';
-<span class="lineNum">    3539 </span>            :     native_string += stresc;
-<span class="lineNum">    3540 </span>            :     native_string += '\'';
-<span class="lineNum">    3541 </span><span class="lineCov">          1 :     msFree(stresc);</span>
-<span class="lineNum">    3542 </span><span class="lineCov">          1 :   } else if(filter-&gt;type == MS_EXPRESSION) {</span>
-<span class="lineNum">    3543 </span>            :     int ieq_expected = MS_FALSE;
-<span class="lineNum">    3544 </span>            : 
-<span class="lineNum">    3545 </span><span class="lineCov">          1 :     if(msPostGISParseData(layer) != MS_SUCCESS) return MS_FAILURE;</span>
-<span class="lineNum">    3546 </span>            : 
-<span class="lineNum">    3547 </span><span class="lineCov">          1 :     if(layer-&gt;debug &gt;= 2) msDebug(&quot;msPostGISLayerTranslateFilter. String: %s.\n&quot;, filter-&gt;string);</span>
-<span class="lineNum">    3548 </span><span class="lineCov">          1 :     if(!filter-&gt;tokens) return MS_SUCCESS;</span>
-<span class="lineNum">    3549 </span><span class="lineCov">          1 :     if(layer-&gt;debug &gt;= 2) msDebug(&quot;msPostGISLayerTranslateFilter. There are tokens to process... \n&quot;);</span>
+<span class="lineNum">    3502 </span><span class="lineCov">          1 :   if(!filter-&gt;string) return MS_SUCCESS; /* not an error, just nothing to do */</span>
+<span class="lineNum">    3503 </span>            : 
+<span class="lineNum">    3504 </span>            :   // fprintf(stderr, &quot;input: %s, %s, %d\n&quot;, filter-&gt;string, filteritem, filter-&gt;type);
+<span class="lineNum">    3505 </span>            : 
+<span class="lineNum">    3506 </span>            :   /*
+<span class="lineNum">    3507 </span>            :   ** FILTERs use MapServer syntax *only* (#5001).
+<span class="lineNum">    3508 </span>            :   */
+<span class="lineNum">    3509 </span><span class="lineCov">          1 :   if(filter-&gt;type == MS_STRING &amp;&amp; filter-&gt;string &amp;&amp; filteritem) { /* item/value pair - add escaping */</span>
+<span class="lineNum">    3510 </span>            : 
+<span class="lineNum">    3511 </span><span class="lineCov">          1 :     char* stresc = msLayerEscapePropertyName(layer, filteritem);</span>
+<span class="lineNum">    3512 </span><span class="lineCov">          1 :     if(filter-&gt;flags &amp; MS_EXP_INSENSITIVE) {</span>
+<span class="lineNum">    3513 </span>            :       native_string += &quot;upper(&quot;;
+<span class="lineNum">    3514 </span>            :       native_string += stresc;
+<span class="lineNum">    3515 </span>            :       native_string += &quot;::text) = upper(&quot;;
+<span class="lineNum">    3516 </span>            :     } else {
+<span class="lineNum">    3517 </span>            :       native_string += stresc;
+<span class="lineNum">    3518 </span>            :       native_string += &quot;::text = &quot;;
+<span class="lineNum">    3519 </span>            :     }
+<span class="lineNum">    3520 </span><span class="lineCov">          1 :     msFree(stresc);</span>
+<span class="lineNum">    3521 </span>            : 
+<span class="lineNum">    3522 </span>            :     /* don't have a type for the righthand literal so assume it's a string and we quote */
+<span class="lineNum">    3523 </span><span class="lineCov">          1 :     stresc = msPostGISEscapeSQLParam(layer, filter-&gt;string);</span>
+<span class="lineNum">    3524 </span>            :     native_string += '\'';
+<span class="lineNum">    3525 </span>            :     native_string += stresc;
+<span class="lineNum">    3526 </span>            :     native_string += '\'';
+<span class="lineNum">    3527 </span><span class="lineCov">          1 :     msFree(stresc);</span>
+<span class="lineNum">    3528 </span>            : 
+<span class="lineNum">    3529 </span><span class="lineCov">          1 :     if(filter-&gt;flags &amp; MS_EXP_INSENSITIVE) native_string += &quot;)&quot;;</span>
+<span class="lineNum">    3530 </span><span class="lineCov">          1 :   } else if(filter-&gt;type == MS_REGEX &amp;&amp; filter-&gt;string &amp;&amp; filteritem) { /* item/regex pair  - add escaping */</span>
+<span class="lineNum">    3531 </span>            : 
+<span class="lineNum">    3532 </span><span class="lineCov">          1 :     char* stresc = msLayerEscapePropertyName(layer, filteritem);</span>
+<span class="lineNum">    3533 </span>            :     native_string += stresc;
+<span class="lineNum">    3534 </span><span class="lineCov">          1 :     if(filter-&gt;flags &amp; MS_EXP_INSENSITIVE) {</span>
+<span class="lineNum">    3535 </span>            :       native_string += &quot;::text ~* &quot;;
+<span class="lineNum">    3536 </span>            :     } else {
+<span class="lineNum">    3537 </span>            :       native_string += &quot;::text ~ &quot;;
+<span class="lineNum">    3538 </span>            :     }
+<span class="lineNum">    3539 </span><span class="lineCov">          1 :     msFree(stresc);</span>
+<span class="lineNum">    3540 </span>            : 
+<span class="lineNum">    3541 </span><span class="lineCov">          1 :     stresc = msPostGISEscapeSQLParam(layer, filter-&gt;string);</span>
+<span class="lineNum">    3542 </span>            :     native_string += '\'';
+<span class="lineNum">    3543 </span>            :     native_string += stresc;
+<span class="lineNum">    3544 </span>            :     native_string += '\'';
+<span class="lineNum">    3545 </span><span class="lineCov">          1 :     msFree(stresc);</span>
+<span class="lineNum">    3546 </span><span class="lineCov">          1 :   } else if(filter-&gt;type == MS_EXPRESSION) {</span>
+<span class="lineNum">    3547 </span>            :     int ieq_expected = MS_FALSE;
+<span class="lineNum">    3548 </span>            : 
+<span class="lineNum">    3549 </span><span class="lineCov">          1 :     if(msPostGISParseData(layer) != MS_SUCCESS) return MS_FAILURE;</span>
 <span class="lineNum">    3550 </span>            : 
-<span class="lineNum">    3551 </span><span class="lineCov">          1 :     node = filter-&gt;tokens;</span>
-<span class="lineNum">    3552 </span><span class="lineCov">          1 :     while (node != nullptr) {</span>
-<span class="lineNum">    3553 </span>            : 
-<span class="lineNum">    3554 </span>            :       /*
-<span class="lineNum">    3555 </span>            :       ** Do any token caching/tracking here, easier to have it in one place.
-<span class="lineNum">    3556 </span>            :       */
-<span class="lineNum">    3557 </span><span class="lineCov">          1 :       if(node-&gt;token == MS_TOKEN_BINDING_TIME) {</span>
-<span class="lineNum">    3558 </span>            :         bindingToken = node-&gt;token;
-<span class="lineNum">    3559 </span><span class="lineCov">          1 :       } else if(node-&gt;token == MS_TOKEN_COMPARISON_EQ ||</span>
-<span class="lineNum">    3560 </span><span class="lineCov">          1 :          node-&gt;token == MS_TOKEN_COMPARISON_IEQ ||</span>
-<span class="lineNum">    3561 </span><span class="lineCov">          1 :          node-&gt;token == MS_TOKEN_COMPARISON_NE ||</span>
-<span class="lineNum">    3562 </span><span class="lineCov">          1 :          node-&gt;token == MS_TOKEN_COMPARISON_GT || node-&gt;token == MS_TOKEN_COMPARISON_GE ||</span>
-<span class="lineNum">    3563 </span><span class="lineCov">          1 :          node-&gt;token == MS_TOKEN_COMPARISON_LT || node-&gt;token == MS_TOKEN_COMPARISON_LE ||</span>
-<span class="lineNum">    3564 </span>            :          node-&gt;token == MS_TOKEN_COMPARISON_IN) {
-<span class="lineNum">    3565 </span>            :         comparisonToken = node-&gt;token;
-<span class="lineNum">    3566 </span>            :       }
-<span class="lineNum">    3567 </span>            : 
-<span class="lineNum">    3568 </span><span class="lineCov">          1 :       switch(node-&gt;token) {</span>
-<span class="lineNum">    3569 </span>            : 
-<span class="lineNum">    3570 </span>            :         /* literal tokens */
-<span class="lineNum">    3571 </span>            :         case MS_TOKEN_LITERAL_BOOLEAN:
-<span class="lineNum">    3572 </span><span class="lineCov">          1 :           if(node-&gt;tokenval.dblval == MS_TRUE)</span>
-<span class="lineNum">    3573 </span>            :             native_string += &quot;TRUE&quot;;
-<span class="lineNum">    3574 </span>            :           else
-<span class="lineNum">    3575 </span>            :             native_string += &quot;FALSE&quot;;
-<span class="lineNum">    3576 </span>            :           break;
-<span class="lineNum">    3577 </span>            :         case MS_TOKEN_LITERAL_NUMBER:
-<span class="lineNum">    3578 </span>            :         {
-<span class="lineNum">    3579 </span><span class="lineCov">          1 :           if( node-&gt;tokenval.dblval &gt;= INT_MIN &amp;&amp;</span>
-<span class="lineNum">    3580 </span><span class="lineCov">          1 :               node-&gt;tokenval.dblval &lt;= INT_MAX &amp;&amp;</span>
-<span class="lineNum">    3581 </span><span class="lineCov">          1 :               node-&gt;tokenval.dblval == (int)node-&gt;tokenval.dblval )</span>
-<span class="lineNum">    3582 </span><span class="lineCov">          1 :               native_string += std::to_string((int)node-&gt;tokenval.dblval);</span>
-<span class="lineNum">    3583 </span>            :           else {
-<span class="lineNum">    3584 </span><span class="lineCov">          1 :               char* snippet = (char *) msSmallMalloc(32);</span>
-<span class="lineNum">    3585 </span><span class="lineCov">          1 :               sprintf(snippet, &quot;%.18g&quot;, node-&gt;tokenval.dblval);</span>
-<span class="lineNum">    3586 </span>            :               native_string += snippet;
-<span class="lineNum">    3587 </span><span class="lineCov">          1 :               msFree(snippet);</span>
-<span class="lineNum">    3588 </span>            :           }
-<span class="lineNum">    3589 </span>            :           break;
-<span class="lineNum">    3590 </span>            :         }
-<span class="lineNum">    3591 </span>            :         case MS_TOKEN_LITERAL_STRING:
-<span class="lineNum">    3592 </span>            : 
-<span class="lineNum">    3593 </span><span class="lineCov">          1 :           if(comparisonToken == MS_TOKEN_COMPARISON_IN) { /* issue 5490 */</span>
-<span class="lineNum">    3594 </span><span class="lineCov">          1 :             int nstrings=0;</span>
-<span class="lineNum">    3595 </span><span class="lineCov">          1 :       char** strings = msStringSplit(node-&gt;tokenval.strval, ',', &amp;nstrings);</span>
-<span class="lineNum">    3596 </span><span class="lineCov">          1 :             if(nstrings &gt; 0) {</span>
-<span class="lineNum">    3597 </span>            :         native_string += &quot;(&quot;;
-<span class="lineNum">    3598 </span><span class="lineCov">          1 :               for(int i=0; i&lt;nstrings; i++) {</span>
-<span class="lineNum">    3599 </span><span class="lineCov">          1 :                 if(i != 0) native_string += &quot;,&quot;;</span>
-<span class="lineNum">    3600 </span><span class="lineCov">          1 :                 char* stresc = msPostGISEscapeSQLParam(layer, strings[i]);</span>
-<span class="lineNum">    3601 </span>            :                 native_string += '\'';
-<span class="lineNum">    3602 </span>            :                 native_string += stresc;
-<span class="lineNum">    3603 </span>            :                 native_string += '\'';
-<span class="lineNum">    3604 </span><span class="lineCov">          1 :                 msFree(stresc);</span>
-<span class="lineNum">    3605 </span>            :               }
-<span class="lineNum">    3606 </span>            :               native_string += &quot;)&quot;;
-<span class="lineNum">    3607 </span>            :             }
-<span class="lineNum">    3608 </span>            : 
-<span class="lineNum">    3609 </span><span class="lineCov">          1 :             msFreeCharArray(strings, nstrings);</span>
-<span class="lineNum">    3610 </span>            :           } else {
-<span class="lineNum">    3611 </span>            :             const char* strbegin;
-<span class="lineNum">    3612 </span>            :             const char* strend;
-<span class="lineNum">    3613 </span><span class="lineCov">          1 :             if(comparisonToken == MS_TOKEN_COMPARISON_IEQ) {</span>
-<span class="lineNum">    3614 </span>            :                 strbegin = &quot;lower('&quot;;
-<span class="lineNum">    3615 </span>            :                 strend = &quot;')&quot;;
-<span class="lineNum">    3616 </span>            :             }
-<span class="lineNum">    3617 </span>            :             else {
-<span class="lineNum">    3618 </span>            :                 strbegin = &quot;'&quot;;
-<span class="lineNum">    3619 </span>            :                 strend = &quot;'&quot;;
+<span class="lineNum">    3551 </span><span class="lineCov">          1 :     if(layer-&gt;debug &gt;= 2) msDebug(&quot;msPostGISLayerTranslateFilter. String: %s.\n&quot;, filter-&gt;string);</span>
+<span class="lineNum">    3552 </span><span class="lineCov">          1 :     if(!filter-&gt;tokens) return MS_SUCCESS;</span>
+<span class="lineNum">    3553 </span><span class="lineCov">          1 :     if(layer-&gt;debug &gt;= 2) msDebug(&quot;msPostGISLayerTranslateFilter. There are tokens to process... \n&quot;);</span>
+<span class="lineNum">    3554 </span>            : 
+<span class="lineNum">    3555 </span><span class="lineCov">          1 :     node = filter-&gt;tokens;</span>
+<span class="lineNum">    3556 </span><span class="lineCov">          1 :     while (node != nullptr) {</span>
+<span class="lineNum">    3557 </span>            : 
+<span class="lineNum">    3558 </span>            :       /*
+<span class="lineNum">    3559 </span>            :       ** Do any token caching/tracking here, easier to have it in one place.
+<span class="lineNum">    3560 </span>            :       */
+<span class="lineNum">    3561 </span><span class="lineCov">          1 :       if(node-&gt;token == MS_TOKEN_BINDING_TIME) {</span>
+<span class="lineNum">    3562 </span>            :         bindingToken = node-&gt;token;
+<span class="lineNum">    3563 </span><span class="lineCov">          1 :       } else if(node-&gt;token == MS_TOKEN_COMPARISON_EQ ||</span>
+<span class="lineNum">    3564 </span><span class="lineCov">          1 :          node-&gt;token == MS_TOKEN_COMPARISON_IEQ ||</span>
+<span class="lineNum">    3565 </span><span class="lineCov">          1 :          node-&gt;token == MS_TOKEN_COMPARISON_NE ||</span>
+<span class="lineNum">    3566 </span><span class="lineCov">          1 :          node-&gt;token == MS_TOKEN_COMPARISON_GT || node-&gt;token == MS_TOKEN_COMPARISON_GE ||</span>
+<span class="lineNum">    3567 </span><span class="lineCov">          1 :          node-&gt;token == MS_TOKEN_COMPARISON_LT || node-&gt;token == MS_TOKEN_COMPARISON_LE ||</span>
+<span class="lineNum">    3568 </span>            :          node-&gt;token == MS_TOKEN_COMPARISON_IN) {
+<span class="lineNum">    3569 </span>            :         comparisonToken = node-&gt;token;
+<span class="lineNum">    3570 </span>            :       }
+<span class="lineNum">    3571 </span>            : 
+<span class="lineNum">    3572 </span><span class="lineCov">          1 :       switch(node-&gt;token) {</span>
+<span class="lineNum">    3573 </span>            : 
+<span class="lineNum">    3574 </span>            :         /* literal tokens */
+<span class="lineNum">    3575 </span>            :         case MS_TOKEN_LITERAL_BOOLEAN:
+<span class="lineNum">    3576 </span><span class="lineCov">          1 :           if(node-&gt;tokenval.dblval == MS_TRUE)</span>
+<span class="lineNum">    3577 </span>            :             native_string += &quot;TRUE&quot;;
+<span class="lineNum">    3578 </span>            :           else
+<span class="lineNum">    3579 </span>            :             native_string += &quot;FALSE&quot;;
+<span class="lineNum">    3580 </span>            :           break;
+<span class="lineNum">    3581 </span>            :         case MS_TOKEN_LITERAL_NUMBER:
+<span class="lineNum">    3582 </span>            :         {
+<span class="lineNum">    3583 </span><span class="lineCov">          1 :           if( node-&gt;tokenval.dblval &gt;= INT_MIN &amp;&amp;</span>
+<span class="lineNum">    3584 </span><span class="lineCov">          1 :               node-&gt;tokenval.dblval &lt;= INT_MAX &amp;&amp;</span>
+<span class="lineNum">    3585 </span><span class="lineCov">          1 :               node-&gt;tokenval.dblval == (int)node-&gt;tokenval.dblval )</span>
+<span class="lineNum">    3586 </span><span class="lineCov">          1 :               native_string += std::to_string((int)node-&gt;tokenval.dblval);</span>
+<span class="lineNum">    3587 </span>            :           else {
+<span class="lineNum">    3588 </span><span class="lineCov">          1 :               char* snippet = (char *) msSmallMalloc(32);</span>
+<span class="lineNum">    3589 </span><span class="lineCov">          1 :               sprintf(snippet, &quot;%.18g&quot;, node-&gt;tokenval.dblval);</span>
+<span class="lineNum">    3590 </span>            :               native_string += snippet;
+<span class="lineNum">    3591 </span><span class="lineCov">          1 :               msFree(snippet);</span>
+<span class="lineNum">    3592 </span>            :           }
+<span class="lineNum">    3593 </span>            :           break;
+<span class="lineNum">    3594 </span>            :         }
+<span class="lineNum">    3595 </span>            :         case MS_TOKEN_LITERAL_STRING:
+<span class="lineNum">    3596 </span>            : 
+<span class="lineNum">    3597 </span><span class="lineCov">          1 :           if(comparisonToken == MS_TOKEN_COMPARISON_IN) { /* issue 5490 */</span>
+<span class="lineNum">    3598 </span><span class="lineCov">          1 :             int nstrings=0;</span>
+<span class="lineNum">    3599 </span><span class="lineCov">          1 :       char** strings = msStringSplit(node-&gt;tokenval.strval, ',', &amp;nstrings);</span>
+<span class="lineNum">    3600 </span><span class="lineCov">          1 :             if(nstrings &gt; 0) {</span>
+<span class="lineNum">    3601 </span>            :         native_string += &quot;(&quot;;
+<span class="lineNum">    3602 </span><span class="lineCov">          1 :               for(int i=0; i&lt;nstrings; i++) {</span>
+<span class="lineNum">    3603 </span><span class="lineCov">          1 :                 if(i != 0) native_string += &quot;,&quot;;</span>
+<span class="lineNum">    3604 </span><span class="lineCov">          1 :                 char* stresc = msPostGISEscapeSQLParam(layer, strings[i]);</span>
+<span class="lineNum">    3605 </span>            :                 native_string += '\'';
+<span class="lineNum">    3606 </span>            :                 native_string += stresc;
+<span class="lineNum">    3607 </span>            :                 native_string += '\'';
+<span class="lineNum">    3608 </span><span class="lineCov">          1 :                 msFree(stresc);</span>
+<span class="lineNum">    3609 </span>            :               }
+<span class="lineNum">    3610 </span>            :               native_string += &quot;)&quot;;
+<span class="lineNum">    3611 </span>            :             }
+<span class="lineNum">    3612 </span>            : 
+<span class="lineNum">    3613 </span><span class="lineCov">          1 :             msFreeCharArray(strings, nstrings);</span>
+<span class="lineNum">    3614 </span>            :           } else {
+<span class="lineNum">    3615 </span>            :             const char* strbegin;
+<span class="lineNum">    3616 </span>            :             const char* strend;
+<span class="lineNum">    3617 </span><span class="lineCov">          1 :             if(comparisonToken == MS_TOKEN_COMPARISON_IEQ) {</span>
+<span class="lineNum">    3618 </span>            :                 strbegin = &quot;lower('&quot;;
+<span class="lineNum">    3619 </span>            :                 strend = &quot;')&quot;;
 <span class="lineNum">    3620 </span>            :             }
-<span class="lineNum">    3621 </span><span class="lineCov">          1 :             char* stresc = msPostGISEscapeSQLParam(layer, node-&gt;tokenval.strval);</span>
-<span class="lineNum">    3622 </span>            :             native_string += strbegin;
-<span class="lineNum">    3623 </span>            :             native_string += stresc;
-<span class="lineNum">    3624 </span>            :             native_string += strend;
-<span class="lineNum">    3625 </span><span class="lineCov">          1 :             msFree(stresc);</span>
-<span class="lineNum">    3626 </span>            :           }
-<span class="lineNum">    3627 </span>            : 
-<span class="lineNum">    3628 </span>            :           break;
-<span class="lineNum">    3629 </span>            :         case MS_TOKEN_LITERAL_TIME: {
-<span class="lineNum">    3630 </span><span class="lineCov">          1 :     char* snippet = (char *) msSmallMalloc(512);</span>
+<span class="lineNum">    3621 </span>            :             else {
+<span class="lineNum">    3622 </span>            :                 strbegin = &quot;'&quot;;
+<span class="lineNum">    3623 </span>            :                 strend = &quot;'&quot;;
+<span class="lineNum">    3624 </span>            :             }
+<span class="lineNum">    3625 </span><span class="lineCov">          1 :             char* stresc = msPostGISEscapeSQLParam(layer, node-&gt;tokenval.strval);</span>
+<span class="lineNum">    3626 </span>            :             native_string += strbegin;
+<span class="lineNum">    3627 </span>            :             native_string += stresc;
+<span class="lineNum">    3628 </span>            :             native_string += strend;
+<span class="lineNum">    3629 </span><span class="lineCov">          1 :             msFree(stresc);</span>
+<span class="lineNum">    3630 </span>            :           }
 <span class="lineNum">    3631 </span>            : 
-<span class="lineNum">    3632 </span><span class="lineCov">          1 :           if(comparisonToken == MS_TOKEN_COMPARISON_EQ) { // TODO: support !=</span>
-<span class="lineNum">    3633 </span><span class="lineCov">          1 :             createPostgresTimeCompareEquals(node-&gt;tokensrc, snippet, 512);</span>
-<span class="lineNum">    3634 </span><span class="lineCov">          1 :           } else if(comparisonToken == MS_TOKEN_COMPARISON_GT || comparisonToken == MS_TOKEN_COMPARISON_GE) {</span>
-<span class="lineNum">    3635 </span><span class="lineCov">          1 :             createPostgresTimeCompareGreaterThan(node-&gt;tokensrc, snippet, 512);</span>
-<span class="lineNum">    3636 </span><span class="lineCov">          1 :           } else if(comparisonToken == MS_TOKEN_COMPARISON_LT || comparisonToken == MS_TOKEN_COMPARISON_LE) {</span>
-<span class="lineNum">    3637 </span><span class="lineCov">          1 :             createPostgresTimeCompareLessThan(node-&gt;tokensrc, snippet, 512);</span>
-<span class="lineNum">    3638 </span>            :           } else {
-<span class="lineNum">    3639 </span>            :             goto cleanup;
-<span class="lineNum">    3640 </span>            :           }
-<span class="lineNum">    3641 </span>            : 
-<span class="lineNum">    3642 </span>            :           comparisonToken = -1; bindingToken = -1; /* reset */
-<span class="lineNum">    3643 </span>            :           native_string += snippet;
-<span class="lineNum">    3644 </span><span class="lineCov">          1 :           msFree(snippet);</span>
-<span class="lineNum">    3645 </span><span class="lineCov">          1 :           break;</span>
-<span class="lineNum">    3646 </span>            :     }
-<span class="lineNum">    3647 </span>            :         case MS_TOKEN_LITERAL_SHAPE:
-<span class="lineNum">    3648 </span>            :         {
-<span class="lineNum">    3649 </span><span class="lineCov">          1 :           char* wkt = msShapeToWKT(node-&gt;tokenval.shpval);</span>
-<span class="lineNum">    3650 </span>            :           native_string += &quot;ST_GeomFromText('&quot;;
-<span class="lineNum">    3651 </span>            :           native_string += wkt;
-<span class="lineNum">    3652 </span><span class="lineCov">          1 :           msFree(wkt);</span>
-<span class="lineNum">    3653 </span>            :           native_string += &quot;'&quot;;
-<span class="lineNum">    3654 </span><span class="lineCov">          1 :           if( !layerinfo-&gt;srid.empty() ) {</span>
-<span class="lineNum">    3655 </span>            :             native_string += &quot;,&quot;;
-<span class="lineNum">    3656 </span><span class="lineCov">          1 :             native_string += layerinfo-&gt;srid;</span>
-<span class="lineNum">    3657 </span>            :           }
-<span class="lineNum">    3658 </span>            :           native_string += &quot;)&quot;;
-<span class="lineNum">    3659 </span>            :           break;
-<span class="lineNum">    3660 </span>            :         }
-<span class="lineNum">    3661 </span>            : 
-<span class="lineNum">    3662 </span>            :   /* data binding tokens */
-<span class="lineNum">    3663 </span>            :         case MS_TOKEN_BINDING_TIME:
-<span class="lineNum">    3664 </span>            :         case MS_TOKEN_BINDING_DOUBLE:
-<span class="lineNum">    3665 </span>            :         case MS_TOKEN_BINDING_INTEGER:
-<span class="lineNum">    3666 </span>            :         case MS_TOKEN_BINDING_STRING:
-<span class="lineNum">    3667 </span>            :         {
-<span class="lineNum">    3668 </span>            :           const char* strbegin = &quot;&quot;;
-<span class="lineNum">    3669 </span>            :           const char* strend = &quot;&quot;;
-<span class="lineNum">    3670 </span><span class="lineCov">          1 :           if (node-&gt;token == MS_TOKEN_BINDING_STRING &amp;&amp; node-&gt;next-&gt;token == MS_TOKEN_COMPARISON_IEQ ) {</span>
-<span class="lineNum">    3671 </span>            :             strbegin = &quot;lower(&quot;;
-<span class="lineNum">    3672 </span>            :             strend = &quot;::text)&quot;;
-<span class="lineNum">    3673 </span>            :             ieq_expected = MS_TRUE;
-<span class="lineNum">    3674 </span>            :           }
-<span class="lineNum">    3675 </span><span class="lineCov">          1 :           else if(node-&gt;token == MS_TOKEN_BINDING_STRING || node-&gt;next-&gt;token == MS_TOKEN_COMPARISON_RE || node-&gt;next-&gt;token == MS_TOKEN_COMPARISON_IRE)</span>
-<span class="lineNum">    3676 </span>            :             strend = &quot;::text&quot;; /* explicit cast necessary for certain operators */
-<span class="lineNum">    3677 </span>            : 
-<span class="lineNum">    3678 </span><span class="lineCov">          1 :           char* stresc = msLayerEscapePropertyName(layer, node-&gt;tokenval.bindval.item);</span>
-<span class="lineNum">    3679 </span>            :           native_string += strbegin;
-<span class="lineNum">    3680 </span>            :           native_string += stresc;
-<span class="lineNum">    3681 </span>            :           native_string += strend;
-<span class="lineNum">    3682 </span><span class="lineCov">          1 :           msFree(stresc);</span>
-<span class="lineNum">    3683 </span><span class="lineCov">          1 :           break;</span>
-<span class="lineNum">    3684 </span>            :         }
-<span class="lineNum">    3685 </span>            :         case MS_TOKEN_BINDING_SHAPE:
-<span class="lineNum">    3686 </span><span class="lineCov">          1 :           native_string += layerinfo-&gt;geomcolumn;</span>
-<span class="lineNum">    3687 </span>            :           break;
-<span class="lineNum">    3688 </span>            :         case MS_TOKEN_BINDING_MAP_CELLSIZE:
-<span class="lineNum">    3689 </span>            :         {
-<span class="lineNum">    3690 </span><span class="lineNoCov">          0 :           char* snippet = (char *) msSmallMalloc( 64);</span>
-<span class="lineNum">    3691 </span><span class="lineNoCov">          0 :           snprintf(snippet, 64,  &quot;%lf&quot;, layer-&gt;map-&gt;cellsize);</span>
-<span class="lineNum">    3692 </span>            :           native_string += snippet;
-<span class="lineNum">    3693 </span><span class="lineNoCov">          0 :           msFree(snippet);</span>
-<span class="lineNum">    3694 </span><span class="lineNoCov">          0 :     break;</span>
-<span class="lineNum">    3695 </span>            :         }
-<span class="lineNum">    3696 </span>            : 
-<span class="lineNum">    3697 </span>            :   /* spatial comparison tokens */
-<span class="lineNum">    3698 </span>            :         case MS_TOKEN_COMPARISON_INTERSECTS:
-<span class="lineNum">    3699 </span>            :         case MS_TOKEN_COMPARISON_DISJOINT:
-<span class="lineNum">    3700 </span>            :         case MS_TOKEN_COMPARISON_TOUCHES:
-<span class="lineNum">    3701 </span>            :         case MS_TOKEN_COMPARISON_OVERLAPS:
-<span class="lineNum">    3702 </span>            :         case MS_TOKEN_COMPARISON_CROSSES:
-<span class="lineNum">    3703 </span>            :         case MS_TOKEN_COMPARISON_WITHIN:
-<span class="lineNum">    3704 </span>            :         case MS_TOKEN_COMPARISON_CONTAINS:
-<span class="lineNum">    3705 </span>            :         case MS_TOKEN_COMPARISON_EQUALS:
-<span class="lineNum">    3706 </span>            :         case MS_TOKEN_COMPARISON_DWITHIN:
-<span class="lineNum">    3707 </span><span class="lineCov">          1 :           if(node-&gt;next-&gt;token != '(') goto cleanup;</span>
-<span class="lineNum">    3708 </span>            :           native_string += &quot;st_&quot;;
-<span class="lineNum">    3709 </span><span class="lineCov">          1 :           native_string += msExpressionTokenToString(node-&gt;token);</span>
-<span class="lineNum">    3710 </span>            :           break;
-<span class="lineNum">    3711 </span>            : 
-<span class="lineNum">    3712 </span>            :   /* functions */
-<span class="lineNum">    3713 </span>            :         case MS_TOKEN_FUNCTION_LENGTH:
-<span class="lineNum">    3714 </span>            :         case MS_TOKEN_FUNCTION_AREA:
-<span class="lineNum">    3715 </span>            :         case MS_TOKEN_FUNCTION_BUFFER:
-<span class="lineNum">    3716 </span>            :         case MS_TOKEN_FUNCTION_DIFFERENCE:
-<span class="lineNum">    3717 </span>            :           native_string += &quot;st_&quot;;
-<span class="lineNum">    3718 </span><span class="lineNoCov">          0 :           native_string += msExpressionTokenToString(node-&gt;token);</span>
-<span class="lineNum">    3719 </span>            :           break;
-<span class="lineNum">    3720 </span>            : 
-<span class="lineNum">    3721 </span>            :   case MS_TOKEN_COMPARISON_IEQ:
-<span class="lineNum">    3722 </span><span class="lineCov">          1 :             if( ieq_expected )</span>
-<span class="lineNum">    3723 </span>            :             {
-<span class="lineNum">    3724 </span>            :                 native_string += &quot;=&quot;;
-<span class="lineNum">    3725 </span>            :                 ieq_expected = MS_FALSE;
-<span class="lineNum">    3726 </span>            :             }
-<span class="lineNum">    3727 </span>            :             else
-<span class="lineNum">    3728 </span>            :             {
-<span class="lineNum">    3729 </span>            :                 goto cleanup;
+<span class="lineNum">    3632 </span>            :           break;
+<span class="lineNum">    3633 </span>            :         case MS_TOKEN_LITERAL_TIME: {
+<span class="lineNum">    3634 </span><span class="lineCov">          1 :     char* snippet = (char *) msSmallMalloc(512);</span>
+<span class="lineNum">    3635 </span>            : 
+<span class="lineNum">    3636 </span><span class="lineCov">          1 :           if(comparisonToken == MS_TOKEN_COMPARISON_EQ) { // TODO: support !=</span>
+<span class="lineNum">    3637 </span><span class="lineCov">          1 :             createPostgresTimeCompareEquals(node-&gt;tokensrc, snippet, 512);</span>
+<span class="lineNum">    3638 </span><span class="lineCov">          1 :           } else if(comparisonToken == MS_TOKEN_COMPARISON_GT || comparisonToken == MS_TOKEN_COMPARISON_GE) {</span>
+<span class="lineNum">    3639 </span><span class="lineCov">          1 :             createPostgresTimeCompareGreaterThan(node-&gt;tokensrc, snippet, 512);</span>
+<span class="lineNum">    3640 </span><span class="lineCov">          1 :           } else if(comparisonToken == MS_TOKEN_COMPARISON_LT || comparisonToken == MS_TOKEN_COMPARISON_LE) {</span>
+<span class="lineNum">    3641 </span><span class="lineCov">          1 :             createPostgresTimeCompareLessThan(node-&gt;tokensrc, snippet, 512);</span>
+<span class="lineNum">    3642 </span>            :           } else {
+<span class="lineNum">    3643 </span>            :             goto cleanup;
+<span class="lineNum">    3644 </span>            :           }
+<span class="lineNum">    3645 </span>            : 
+<span class="lineNum">    3646 </span>            :           comparisonToken = -1; bindingToken = -1; /* reset */
+<span class="lineNum">    3647 </span>            :           native_string += snippet;
+<span class="lineNum">    3648 </span><span class="lineCov">          1 :           msFree(snippet);</span>
+<span class="lineNum">    3649 </span><span class="lineCov">          1 :           break;</span>
+<span class="lineNum">    3650 </span>            :     }
+<span class="lineNum">    3651 </span>            :         case MS_TOKEN_LITERAL_SHAPE:
+<span class="lineNum">    3652 </span>            :         {
+<span class="lineNum">    3653 </span><span class="lineCov">          1 :           char* wkt = msShapeToWKT(node-&gt;tokenval.shpval);</span>
+<span class="lineNum">    3654 </span>            :           native_string += &quot;ST_GeomFromText('&quot;;
+<span class="lineNum">    3655 </span>            :           native_string += wkt;
+<span class="lineNum">    3656 </span><span class="lineCov">          1 :           msFree(wkt);</span>
+<span class="lineNum">    3657 </span>            :           native_string += &quot;'&quot;;
+<span class="lineNum">    3658 </span><span class="lineCov">          1 :           if( !layerinfo-&gt;srid.empty() ) {</span>
+<span class="lineNum">    3659 </span>            :             native_string += &quot;,&quot;;
+<span class="lineNum">    3660 </span><span class="lineCov">          1 :             native_string += layerinfo-&gt;srid;</span>
+<span class="lineNum">    3661 </span>            :           }
+<span class="lineNum">    3662 </span>            :           native_string += &quot;)&quot;;
+<span class="lineNum">    3663 </span>            :           break;
+<span class="lineNum">    3664 </span>            :         }
+<span class="lineNum">    3665 </span>            : 
+<span class="lineNum">    3666 </span>            :   /* data binding tokens */
+<span class="lineNum">    3667 </span>            :         case MS_TOKEN_BINDING_TIME:
+<span class="lineNum">    3668 </span>            :         case MS_TOKEN_BINDING_DOUBLE:
+<span class="lineNum">    3669 </span>            :         case MS_TOKEN_BINDING_INTEGER:
+<span class="lineNum">    3670 </span>            :         case MS_TOKEN_BINDING_STRING:
+<span class="lineNum">    3671 </span>            :         {
+<span class="lineNum">    3672 </span>            :           const char* strbegin = &quot;&quot;;
+<span class="lineNum">    3673 </span>            :           const char* strend = &quot;&quot;;
+<span class="lineNum">    3674 </span><span class="lineCov">          1 :           if (node-&gt;token == MS_TOKEN_BINDING_STRING &amp;&amp; node-&gt;next-&gt;token == MS_TOKEN_COMPARISON_IEQ ) {</span>
+<span class="lineNum">    3675 </span>            :             strbegin = &quot;lower(&quot;;
+<span class="lineNum">    3676 </span>            :             strend = &quot;::text)&quot;;
+<span class="lineNum">    3677 </span>            :             ieq_expected = MS_TRUE;
+<span class="lineNum">    3678 </span>            :           }
+<span class="lineNum">    3679 </span><span class="lineCov">          1 :           else if(node-&gt;token == MS_TOKEN_BINDING_STRING || node-&gt;next-&gt;token == MS_TOKEN_COMPARISON_RE || node-&gt;next-&gt;token == MS_TOKEN_COMPARISON_IRE)</span>
+<span class="lineNum">    3680 </span>            :             strend = &quot;::text&quot;; /* explicit cast necessary for certain operators */
+<span class="lineNum">    3681 </span>            : 
+<span class="lineNum">    3682 </span><span class="lineCov">          1 :           char* stresc = msLayerEscapePropertyName(layer, node-&gt;tokenval.bindval.item);</span>
+<span class="lineNum">    3683 </span>            :           native_string += strbegin;
+<span class="lineNum">    3684 </span>            :           native_string += stresc;
+<span class="lineNum">    3685 </span>            :           native_string += strend;
+<span class="lineNum">    3686 </span><span class="lineCov">          1 :           msFree(stresc);</span>
+<span class="lineNum">    3687 </span><span class="lineCov">          1 :           break;</span>
+<span class="lineNum">    3688 </span>            :         }
+<span class="lineNum">    3689 </span>            :         case MS_TOKEN_BINDING_SHAPE:
+<span class="lineNum">    3690 </span><span class="lineCov">          1 :           native_string += layerinfo-&gt;geomcolumn;</span>
+<span class="lineNum">    3691 </span>            :           break;
+<span class="lineNum">    3692 </span>            :         case MS_TOKEN_BINDING_MAP_CELLSIZE:
+<span class="lineNum">    3693 </span>            :         {
+<span class="lineNum">    3694 </span><span class="lineNoCov">          0 :           char* snippet = (char *) msSmallMalloc( 64);</span>
+<span class="lineNum">    3695 </span><span class="lineNoCov">          0 :           snprintf(snippet, 64,  &quot;%lf&quot;, layer-&gt;map-&gt;cellsize);</span>
+<span class="lineNum">    3696 </span>            :           native_string += snippet;
+<span class="lineNum">    3697 </span><span class="lineNoCov">          0 :           msFree(snippet);</span>
+<span class="lineNum">    3698 </span><span class="lineNoCov">          0 :     break;</span>
+<span class="lineNum">    3699 </span>            :         }
+<span class="lineNum">    3700 </span>            : 
+<span class="lineNum">    3701 </span>            :   /* spatial comparison tokens */
+<span class="lineNum">    3702 </span>            :         case MS_TOKEN_COMPARISON_INTERSECTS:
+<span class="lineNum">    3703 </span>            :         case MS_TOKEN_COMPARISON_DISJOINT:
+<span class="lineNum">    3704 </span>            :         case MS_TOKEN_COMPARISON_TOUCHES:
+<span class="lineNum">    3705 </span>            :         case MS_TOKEN_COMPARISON_OVERLAPS:
+<span class="lineNum">    3706 </span>            :         case MS_TOKEN_COMPARISON_CROSSES:
+<span class="lineNum">    3707 </span>            :         case MS_TOKEN_COMPARISON_WITHIN:
+<span class="lineNum">    3708 </span>            :         case MS_TOKEN_COMPARISON_CONTAINS:
+<span class="lineNum">    3709 </span>            :         case MS_TOKEN_COMPARISON_EQUALS:
+<span class="lineNum">    3710 </span>            :         case MS_TOKEN_COMPARISON_DWITHIN:
+<span class="lineNum">    3711 </span><span class="lineCov">          1 :           if(node-&gt;next-&gt;token != '(') goto cleanup;</span>
+<span class="lineNum">    3712 </span>            :           native_string += &quot;st_&quot;;
+<span class="lineNum">    3713 </span><span class="lineCov">          1 :           native_string += msExpressionTokenToString(node-&gt;token);</span>
+<span class="lineNum">    3714 </span>            :           break;
+<span class="lineNum">    3715 </span>            : 
+<span class="lineNum">    3716 </span>            :   /* functions */
+<span class="lineNum">    3717 </span>            :         case MS_TOKEN_FUNCTION_LENGTH:
+<span class="lineNum">    3718 </span>            :         case MS_TOKEN_FUNCTION_AREA:
+<span class="lineNum">    3719 </span>            :         case MS_TOKEN_FUNCTION_BUFFER:
+<span class="lineNum">    3720 </span>            :         case MS_TOKEN_FUNCTION_DIFFERENCE:
+<span class="lineNum">    3721 </span>            :           native_string += &quot;st_&quot;;
+<span class="lineNum">    3722 </span><span class="lineNoCov">          0 :           native_string += msExpressionTokenToString(node-&gt;token);</span>
+<span class="lineNum">    3723 </span>            :           break;
+<span class="lineNum">    3724 </span>            : 
+<span class="lineNum">    3725 </span>            :   case MS_TOKEN_COMPARISON_IEQ:
+<span class="lineNum">    3726 </span><span class="lineCov">          1 :             if( ieq_expected )</span>
+<span class="lineNum">    3727 </span>            :             {
+<span class="lineNum">    3728 </span>            :                 native_string += &quot;=&quot;;
+<span class="lineNum">    3729 </span>            :                 ieq_expected = MS_FALSE;
 <span class="lineNum">    3730 </span>            :             }
-<span class="lineNum">    3731 </span>            :             break;
-<span class="lineNum">    3732 </span>            : 
-<span class="lineNum">    3733 </span>            :   /* unsupported tokens */
-<span class="lineNum">    3734 </span>            :         case MS_TOKEN_COMPARISON_BEYOND:
-<span class="lineNum">    3735 </span>            :   case MS_TOKEN_FUNCTION_TOSTRING:
-<span class="lineNum">    3736 </span>            :   case MS_TOKEN_FUNCTION_ROUND:
-<span class="lineNum">    3737 </span>            :   case MS_TOKEN_FUNCTION_SIMPLIFY:
-<span class="lineNum">    3738 </span>            :         case MS_TOKEN_FUNCTION_SIMPLIFYPT:        
-<span class="lineNum">    3739 </span>            :         case MS_TOKEN_FUNCTION_GENERALIZE:
-<span class="lineNum">    3740 </span>            :           goto cleanup;
-<span class="lineNum">    3741 </span>            :           break;
-<span class="lineNum">    3742 </span>            : 
-<span class="lineNum">    3743 </span>            :         default:
-<span class="lineNum">    3744 </span>            :           /* by default accept the general token to string conversion */
-<span class="lineNum">    3745 </span>            : 
-<span class="lineNum">    3746 </span><span class="lineCov">          1 :           if(node-&gt;token == MS_TOKEN_COMPARISON_EQ &amp;&amp; node-&gt;next != nullptr &amp;&amp; node-&gt;next-&gt;token == MS_TOKEN_LITERAL_TIME) break; /* skip, handled with the next token */</span>
-<span class="lineNum">    3747 </span><span class="lineCov">          1 :           if(bindingToken == MS_TOKEN_BINDING_TIME &amp;&amp; (node-&gt;token == MS_TOKEN_COMPARISON_EQ || node-&gt;token == MS_TOKEN_COMPARISON_NE)) break; /* skip, handled elsewhere */</span>
-<span class="lineNum">    3748 </span><span class="lineCov">          1 :           if(node-&gt;token == MS_TOKEN_COMPARISON_EQ &amp;&amp; node-&gt;next != nullptr &amp;&amp; node-&gt;next-&gt;token == MS_TOKEN_LITERAL_STRING &amp;&amp;</span>
-<span class="lineNum">    3749 </span><span class="lineCov">          1 :              strcmp(node-&gt;next-&gt;tokenval.strval, &quot;_MAPSERVER_NULL_&quot;) == 0 )</span>
-<span class="lineNum">    3750 </span>            :           {
-<span class="lineNum">    3751 </span>            :               native_string += &quot; IS NULL&quot;;
-<span class="lineNum">    3752 </span><span class="lineCov">          1 :               node = node-&gt;next;</span>
-<span class="lineNum">    3753 </span><span class="lineCov">          1 :               break;</span>
-<span class="lineNum">    3754 </span>            :           }
-<span class="lineNum">    3755 </span>            : 
-<span class="lineNum">    3756 </span><span class="lineCov">          1 :           native_string += msExpressionTokenToString(node-&gt;token);</span>
-<span class="lineNum">    3757 </span>            :           break;
-<span class="lineNum">    3758 </span>            :         }
+<span class="lineNum">    3731 </span>            :             else
+<span class="lineNum">    3732 </span>            :             {
+<span class="lineNum">    3733 </span>            :                 goto cleanup;
+<span class="lineNum">    3734 </span>            :             }
+<span class="lineNum">    3735 </span>            :             break;
+<span class="lineNum">    3736 </span>            : 
+<span class="lineNum">    3737 </span>            :   /* unsupported tokens */
+<span class="lineNum">    3738 </span>            :         case MS_TOKEN_COMPARISON_BEYOND:
+<span class="lineNum">    3739 </span>            :   case MS_TOKEN_FUNCTION_TOSTRING:
+<span class="lineNum">    3740 </span>            :   case MS_TOKEN_FUNCTION_ROUND:
+<span class="lineNum">    3741 </span>            :   case MS_TOKEN_FUNCTION_SIMPLIFY:
+<span class="lineNum">    3742 </span>            :         case MS_TOKEN_FUNCTION_SIMPLIFYPT:        
+<span class="lineNum">    3743 </span>            :         case MS_TOKEN_FUNCTION_GENERALIZE:
+<span class="lineNum">    3744 </span>            :           goto cleanup;
+<span class="lineNum">    3745 </span>            :           break;
+<span class="lineNum">    3746 </span>            : 
+<span class="lineNum">    3747 </span>            :         default:
+<span class="lineNum">    3748 </span>            :           /* by default accept the general token to string conversion */
+<span class="lineNum">    3749 </span>            : 
+<span class="lineNum">    3750 </span><span class="lineCov">          1 :           if(node-&gt;token == MS_TOKEN_COMPARISON_EQ &amp;&amp; node-&gt;next != nullptr &amp;&amp; node-&gt;next-&gt;token == MS_TOKEN_LITERAL_TIME) break; /* skip, handled with the next token */</span>
+<span class="lineNum">    3751 </span><span class="lineCov">          1 :           if(bindingToken == MS_TOKEN_BINDING_TIME &amp;&amp; (node-&gt;token == MS_TOKEN_COMPARISON_EQ || node-&gt;token == MS_TOKEN_COMPARISON_NE)) break; /* skip, handled elsewhere */</span>
+<span class="lineNum">    3752 </span><span class="lineCov">          1 :           if(node-&gt;token == MS_TOKEN_COMPARISON_EQ &amp;&amp; node-&gt;next != nullptr &amp;&amp; node-&gt;next-&gt;token == MS_TOKEN_LITERAL_STRING &amp;&amp;</span>
+<span class="lineNum">    3753 </span><span class="lineCov">          1 :              strcmp(node-&gt;next-&gt;tokenval.strval, &quot;_MAPSERVER_NULL_&quot;) == 0 )</span>
+<span class="lineNum">    3754 </span>            :           {
+<span class="lineNum">    3755 </span>            :               native_string += &quot; IS NULL&quot;;
+<span class="lineNum">    3756 </span><span class="lineCov">          1 :               node = node-&gt;next;</span>
+<span class="lineNum">    3757 </span><span class="lineCov">          1 :               break;</span>
+<span class="lineNum">    3758 </span>            :           }
 <span class="lineNum">    3759 </span>            : 
-<span class="lineNum">    3760 </span><span class="lineCov">          1 :       node = node-&gt;next;</span>
-<span class="lineNum">    3761 </span>            :     }
-<span class="lineNum">    3762 </span>            :   }
+<span class="lineNum">    3760 </span><span class="lineCov">          1 :           native_string += msExpressionTokenToString(node-&gt;token);</span>
+<span class="lineNum">    3761 </span>            :           break;
+<span class="lineNum">    3762 </span>            :         }
 <span class="lineNum">    3763 </span>            : 
-<span class="lineNum">    3764 </span><span class="lineCov">          1 :   filter-&gt;native_string = msStrdup(native_string.c_str());</span>
-<span class="lineNum">    3765 </span>            : 
-<span class="lineNum">    3766 </span>            :   // fprintf(stderr, &quot;output: %s\n&quot;, filter-&gt;native_string); 
+<span class="lineNum">    3764 </span><span class="lineCov">          1 :       node = node-&gt;next;</span>
+<span class="lineNum">    3765 </span>            :     }
+<span class="lineNum">    3766 </span>            :   }
 <span class="lineNum">    3767 </span>            : 
-<span class="lineNum">    3768 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    3768 </span><span class="lineCov">          1 :   filter-&gt;native_string = msStrdup(native_string.c_str());</span>
 <span class="lineNum">    3769 </span>            : 
-<span class="lineNum">    3770 </span>            : cleanup:
-<span class="lineNum">    3771 </span><span class="lineCov">          1 :   msSetError(MS_MISCERR, &quot;Translation to native SQL failed.&quot;, &quot;msPostGISLayerTranslateFilter()&quot;);</span>
-<span class="lineNum">    3772 </span>            :   return MS_FAILURE;
-<span class="lineNum">    3773 </span>            : #else
-<span class="lineNum">    3774 </span>            :   msSetError(MS_MISCERR, &quot;PostGIS support is not available.&quot;, &quot;msPostGISLayerTranslateFilter()&quot;);
-<span class="lineNum">    3775 </span>            :   return MS_FAILURE;
-<span class="lineNum">    3776 </span>            : #endif
-<a name="3777"><span class="lineNum">    3777 </span>            : }</a>
-<span class="lineNum">    3778 </span>            : 
-<span class="lineNum">    3779 </span><span class="lineCov">          1 : int msPostGISLayerInitializeVirtualTable(layerObj *layer)</span>
-<span class="lineNum">    3780 </span>            : {
-<span class="lineNum">    3781 </span>            :   assert(layer != nullptr);
-<span class="lineNum">    3782 </span>            :   assert(layer-&gt;vtable != nullptr);
-<span class="lineNum">    3783 </span>            : 
-<span class="lineNum">    3784 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerTranslateFilter = msPostGISLayerTranslateFilter;</span>
-<span class="lineNum">    3785 </span>            : 
-<span class="lineNum">    3786 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msPostGISLayerInitItemInfo;</span>
-<span class="lineNum">    3787 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msPostGISLayerFreeItemInfo;</span>
-<span class="lineNum">    3788 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerOpen = msPostGISLayerOpen;</span>
-<span class="lineNum">    3789 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerIsOpen = msPostGISLayerIsOpen;</span>
-<span class="lineNum">    3790 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msPostGISLayerWhichShapes;</span>
-<span class="lineNum">    3791 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msPostGISLayerNextShape;</span>
-<span class="lineNum">    3792 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msPostGISLayerGetShape;</span>
-<span class="lineNum">    3793 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShapeCount = msPostGISLayerGetShapeCount;</span>
-<span class="lineNum">    3794 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msPostGISLayerClose;</span>
-<span class="lineNum">    3795 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetItems = msPostGISLayerGetItems;</span>
-<span class="lineNum">    3796 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetExtent = msPostGISLayerGetExtent;</span>
-<span class="lineNum">    3797 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerApplyFilterToLayer = msLayerApplyCondSQLFilterToLayer;</span>
-<span class="lineNum">    3798 </span>            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, not supported for this layer */
-<span class="lineNum">    3799 </span>            :   /* layer-&gt;vtable-&gt;LayerCloseConnection = msPostGISLayerClose; */
-<span class="lineNum">    3800 </span>            :   // layer-&gt;vtable-&gt;LayerSetTimeFilter = msPostGISLayerSetTimeFilter;
-<span class="lineNum">    3801 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msLayerMakeBackticsTimeFilter;</span>
-<span class="lineNum">    3802 </span>            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
-<span class="lineNum">    3803 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetNumFeatures = msPostGISLayerGetNumFeatures;</span>
-<span class="lineNum">    3804 </span>            : 
-<span class="lineNum">    3805 </span>            :   /* layer-&gt;vtable-&gt;LayerGetAutoProjection, use defaut*/
-<span class="lineNum">    3806 </span>            : 
-<span class="lineNum">    3807 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerEscapeSQLParam = msPostGISEscapeSQLParam;</span>
-<span class="lineNum">    3808 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerEnablePaging = msPostGISEnablePaging;</span>
-<span class="lineNum">    3809 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetPaging = msPostGISGetPaging;</span>
+<span class="lineNum">    3770 </span>            :   // fprintf(stderr, &quot;output: %s\n&quot;, filter-&gt;native_string); 
+<span class="lineNum">    3771 </span>            : 
+<span class="lineNum">    3772 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    3773 </span>            : 
+<span class="lineNum">    3774 </span>            : cleanup:
+<span class="lineNum">    3775 </span><span class="lineCov">          1 :   msSetError(MS_MISCERR, &quot;Translation to native SQL failed.&quot;, &quot;msPostGISLayerTranslateFilter()&quot;);</span>
+<span class="lineNum">    3776 </span>            :   return MS_FAILURE;
+<span class="lineNum">    3777 </span>            : #else
+<span class="lineNum">    3778 </span>            :   msSetError(MS_MISCERR, &quot;PostGIS support is not available.&quot;, &quot;msPostGISLayerTranslateFilter()&quot;);
+<span class="lineNum">    3779 </span>            :   return MS_FAILURE;
+<span class="lineNum">    3780 </span>            : #endif
+<a name="3781"><span class="lineNum">    3781 </span>            : }</a>
+<span class="lineNum">    3782 </span>            : 
+<span class="lineNum">    3783 </span><span class="lineCov">          1 : int msPostGISLayerInitializeVirtualTable(layerObj *layer)</span>
+<span class="lineNum">    3784 </span>            : {
+<span class="lineNum">    3785 </span>            :   assert(layer != nullptr);
+<span class="lineNum">    3786 </span>            :   assert(layer-&gt;vtable != nullptr);
+<span class="lineNum">    3787 </span>            : 
+<span class="lineNum">    3788 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerTranslateFilter = msPostGISLayerTranslateFilter;</span>
+<span class="lineNum">    3789 </span>            : 
+<span class="lineNum">    3790 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerInitItemInfo = msPostGISLayerInitItemInfo;</span>
+<span class="lineNum">    3791 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerFreeItemInfo = msPostGISLayerFreeItemInfo;</span>
+<span class="lineNum">    3792 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerOpen = msPostGISLayerOpen;</span>
+<span class="lineNum">    3793 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerIsOpen = msPostGISLayerIsOpen;</span>
+<span class="lineNum">    3794 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerWhichShapes = msPostGISLayerWhichShapes;</span>
+<span class="lineNum">    3795 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerNextShape = msPostGISLayerNextShape;</span>
+<span class="lineNum">    3796 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShape = msPostGISLayerGetShape;</span>
+<span class="lineNum">    3797 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetShapeCount = msPostGISLayerGetShapeCount;</span>
+<span class="lineNum">    3798 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerClose = msPostGISLayerClose;</span>
+<span class="lineNum">    3799 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetItems = msPostGISLayerGetItems;</span>
+<span class="lineNum">    3800 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetExtent = msPostGISLayerGetExtent;</span>
+<span class="lineNum">    3801 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerApplyFilterToLayer = msLayerApplyCondSQLFilterToLayer;</span>
+<span class="lineNum">    3802 </span>            :   /* layer-&gt;vtable-&gt;LayerGetAutoStyle, not supported for this layer */
+<span class="lineNum">    3803 </span>            :   /* layer-&gt;vtable-&gt;LayerCloseConnection = msPostGISLayerClose; */
+<span class="lineNum">    3804 </span>            :   // layer-&gt;vtable-&gt;LayerSetTimeFilter = msPostGISLayerSetTimeFilter;
+<span class="lineNum">    3805 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerSetTimeFilter = msLayerMakeBackticsTimeFilter;</span>
+<span class="lineNum">    3806 </span>            :   /* layer-&gt;vtable-&gt;LayerCreateItems, use default */
+<span class="lineNum">    3807 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetNumFeatures = msPostGISLayerGetNumFeatures;</span>
+<span class="lineNum">    3808 </span>            : 
+<span class="lineNum">    3809 </span>            :   /* layer-&gt;vtable-&gt;LayerGetAutoProjection, use defaut*/
 <span class="lineNum">    3810 </span>            : 
-<span class="lineNum">    3811 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    3812 </span>            : }
+<span class="lineNum">    3811 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerEscapeSQLParam = msPostGISEscapeSQLParam;</span>
+<span class="lineNum">    3812 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerEnablePaging = msPostGISEnablePaging;</span>
+<span class="lineNum">    3813 </span><span class="lineCov">          1 :   layer-&gt;vtable-&gt;LayerGetPaging = msPostGISGetPaging;</span>
+<span class="lineNum">    3814 </span>            : 
+<span class="lineNum">    3815 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    3816 </span>            : }
 </pre>
       </td>
     </tr>
