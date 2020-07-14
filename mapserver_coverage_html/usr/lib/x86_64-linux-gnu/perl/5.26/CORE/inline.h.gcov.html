@@ -1,0 +1,1812 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - /usr/lib/x86_64-linux-gnu/perl/5.26/CORE/inline.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">usr/lib/x86_64-linux-gnu/perl/5.26/CORE</a> - inline.h<span style="font-size: 80%;"> (source / <a href="inline.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-14 21:01:04</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*    inline.h</a>
+<span class="lineNum">       2 </span>            :  *
+<span class="lineNum">       3 </span>            :  *    Copyright (C) 2012 by Larry Wall and others
+<span class="lineNum">       4 </span>            :  *
+<span class="lineNum">       5 </span>            :  *    You may distribute under the terms of either the GNU General Public
+<span class="lineNum">       6 </span>            :  *    License or the Artistic License, as specified in the README file.
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  * This file is a home for static inline functions that cannot go in other
+<span class="lineNum">       9 </span>            :  * headers files, because they depend on proto.h (included after most other
+<span class="lineNum">      10 </span>            :  * headers) or struct definitions.
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * Each section names the header file that the functions &quot;belong&quot; to.
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : /* ------------------------------- av.h ------------------------------- */
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : PERL_STATIC_INLINE SSize_t
+<span class="lineNum">      18 </span>            : S_av_top_index(pTHX_ AV *av)
+<span class="lineNum">      19 </span>            : {
+<span class="lineNum">      20 </span>            :     PERL_ARGS_ASSERT_AV_TOP_INDEX;
+<span class="lineNum">      21 </span>            :     assert(SvTYPE(av) == SVt_PVAV);
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            :     return AvFILL(av);
+<span class="lineNum">      24 </span>            : }
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : /* ------------------------------- cv.h ------------------------------- */
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : PERL_STATIC_INLINE GV *
+<span class="lineNum">      29 </span>            : S_CvGV(pTHX_ CV *sv)
+<span class="lineNum">      30 </span>            : {
+<span class="lineNum">      31 </span>            :     return CvNAMED(sv)
+<span class="lineNum">      32 </span>            :   ? Perl_cvgv_from_hek(aTHX_ sv)
+<span class="lineNum">      33 </span>            :   : ((XPVCV*)MUTABLE_PTR(SvANY(sv)))-&gt;xcv_gv_u.xcv_gv;
+<span class="lineNum">      34 </span>            : }
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : PERL_STATIC_INLINE I32 *
+<span class="lineNum">      37 </span>            : S_CvDEPTHp(const CV * const sv)
+<span class="lineNum">      38 </span>            : {
+<span class="lineNum">      39 </span>            :     assert(SvTYPE(sv) == SVt_PVCV || SvTYPE(sv) == SVt_PVFM);
+<span class="lineNum">      40 </span>            :     return &amp;((XPVCV*)SvANY(sv))-&gt;xcv_depth;
+<span class="lineNum">      41 </span>            : }
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : /*
+<span class="lineNum">      44 </span>            :  CvPROTO returns the prototype as stored, which is not necessarily what
+<span class="lineNum">      45 </span>            :  the interpreter should be using. Specifically, the interpreter assumes
+<span class="lineNum">      46 </span>            :  that spaces have been stripped, which has been the case if the prototype
+<span class="lineNum">      47 </span>            :  was added by toke.c, but is generally not the case if it was added elsewhere.
+<span class="lineNum">      48 </span>            :  Since we can't enforce the spacelessness at assignment time, this routine
+<span class="lineNum">      49 </span>            :  provides a temporary copy at parse time with spaces removed.
+<span class="lineNum">      50 </span>            :  I&lt;orig&gt; is the start of the original buffer, I&lt;len&gt; is the length of the
+<span class="lineNum">      51 </span>            :  prototype and will be updated when this returns.
+<span class="lineNum">      52 </span>            :  */
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            : #ifdef PERL_CORE
+<span class="lineNum">      55 </span>            : PERL_STATIC_INLINE char *
+<span class="lineNum">      56 </span>            : S_strip_spaces(pTHX_ const char * orig, STRLEN * const len)
+<span class="lineNum">      57 </span>            : {
+<span class="lineNum">      58 </span>            :     SV * tmpsv;
+<span class="lineNum">      59 </span>            :     char * tmps;
+<span class="lineNum">      60 </span>            :     tmpsv = newSVpvn_flags(orig, *len, SVs_TEMP);
+<span class="lineNum">      61 </span>            :     tmps = SvPVX(tmpsv);
+<span class="lineNum">      62 </span>            :     while ((*len)--) {
+<span class="lineNum">      63 </span>            :   if (!isSPACE(*orig))
+<span class="lineNum">      64 </span>            :       *tmps++ = *orig;
+<span class="lineNum">      65 </span>            :   orig++;
+<span class="lineNum">      66 </span>            :     }
+<span class="lineNum">      67 </span>            :     *tmps = '\0';
+<span class="lineNum">      68 </span>            :     *len = tmps - SvPVX(tmpsv);
+<span class="lineNum">      69 </span>            :     return SvPVX(tmpsv);
+<span class="lineNum">      70 </span>            : }
+<span class="lineNum">      71 </span>            : #endif
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : /* ------------------------------- mg.h ------------------------------- */
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            : #if defined(PERL_CORE) || defined(PERL_EXT)
+<span class="lineNum">      76 </span>            : /* assumes get-magic and stringification have already occurred */
+<span class="lineNum">      77 </span>            : PERL_STATIC_INLINE STRLEN
+<span class="lineNum">      78 </span>            : S_MgBYTEPOS(pTHX_ MAGIC *mg, SV *sv, const char *s, STRLEN len)
+<span class="lineNum">      79 </span>            : {
+<span class="lineNum">      80 </span>            :     assert(mg-&gt;mg_type == PERL_MAGIC_regex_global);
+<span class="lineNum">      81 </span>            :     assert(mg-&gt;mg_len != -1);
+<span class="lineNum">      82 </span>            :     if (mg-&gt;mg_flags &amp; MGf_BYTES || !DO_UTF8(sv))
+<span class="lineNum">      83 </span>            :   return (STRLEN)mg-&gt;mg_len;
+<span class="lineNum">      84 </span>            :     else {
+<span class="lineNum">      85 </span>            :   const STRLEN pos = (STRLEN)mg-&gt;mg_len;
+<span class="lineNum">      86 </span>            :   /* Without this check, we may read past the end of the buffer: */
+<span class="lineNum">      87 </span>            :   if (pos &gt; sv_or_pv_len_utf8(sv, s, len)) return len+1;
+<span class="lineNum">      88 </span>            :   return sv_or_pv_pos_u2b(sv, s, pos, NULL);
+<span class="lineNum">      89 </span>            :     }
+<span class="lineNum">      90 </span>            : }
+<span class="lineNum">      91 </span>            : #endif
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            : /* ------------------------------- pad.h ------------------------------ */
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            : #if defined(PERL_IN_PAD_C) || defined(PERL_IN_OP_C)
+<span class="lineNum">      96 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">      97 </span>            : PadnameIN_SCOPE(const PADNAME * const pn, const U32 seq)
+<span class="lineNum">      98 </span>            : {
+<span class="lineNum">      99 </span>            :     /* is seq within the range _LOW to _HIGH ?
+<span class="lineNum">     100 </span>            :      * This is complicated by the fact that PL_cop_seqmax
+<span class="lineNum">     101 </span>            :      * may have wrapped around at some point */
+<span class="lineNum">     102 </span>            :     if (COP_SEQ_RANGE_LOW(pn) == PERL_PADSEQ_INTRO)
+<span class="lineNum">     103 </span>            :   return FALSE; /* not yet introduced */
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            :     if (COP_SEQ_RANGE_HIGH(pn) == PERL_PADSEQ_INTRO) {
+<span class="lineNum">     106 </span>            :     /* in compiling scope */
+<span class="lineNum">     107 </span>            :   if (
+<span class="lineNum">     108 </span>            :       (seq &gt;  COP_SEQ_RANGE_LOW(pn))
+<span class="lineNum">     109 </span>            :       ? (seq - COP_SEQ_RANGE_LOW(pn) &lt; (U32_MAX &gt;&gt; 1))
+<span class="lineNum">     110 </span>            :       : (COP_SEQ_RANGE_LOW(pn) - seq &gt; (U32_MAX &gt;&gt; 1))
+<span class="lineNum">     111 </span>            :   )
+<span class="lineNum">     112 </span>            :       return TRUE;
+<span class="lineNum">     113 </span>            :     }
+<span class="lineNum">     114 </span>            :     else if (
+<span class="lineNum">     115 </span>            :   (COP_SEQ_RANGE_LOW(pn) &gt; COP_SEQ_RANGE_HIGH(pn))
+<span class="lineNum">     116 </span>            :   ?
+<span class="lineNum">     117 </span>            :       (  seq &gt;  COP_SEQ_RANGE_LOW(pn)
+<span class="lineNum">     118 </span>            :       || seq &lt;= COP_SEQ_RANGE_HIGH(pn))
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            :   :    (  seq &gt;  COP_SEQ_RANGE_LOW(pn)
+<span class="lineNum">     121 </span>            :        &amp;&amp; seq &lt;= COP_SEQ_RANGE_HIGH(pn))
+<span class="lineNum">     122 </span>            :     )
+<span class="lineNum">     123 </span>            :   return TRUE;
+<span class="lineNum">     124 </span>            :     return FALSE;
+<span class="lineNum">     125 </span>            : }
+<span class="lineNum">     126 </span>            : #endif
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            : /* ------------------------------- pp.h ------------------------------- */
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            : PERL_STATIC_INLINE I32
+<span class="lineNum">     131 </span>            : S_TOPMARK(pTHX)
+<span class="lineNum">     132 </span>            : {
+<span class="lineNum">     133 </span>            :     DEBUG_s(DEBUG_v(PerlIO_printf(Perl_debug_log,
+<span class="lineNum">     134 </span>            :          &quot;MARK top  %p %&quot; IVdf &quot;\n&quot;,
+<span class="lineNum">     135 </span>            :           PL_markstack_ptr,
+<span class="lineNum">     136 </span>            :           (IV)*PL_markstack_ptr)));
+<span class="lineNum">     137 </span>            :     return *PL_markstack_ptr;
+<span class="lineNum">     138 </span>            : }
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            : PERL_STATIC_INLINE I32
+<span class="lineNum">     141 </span>            : S_POPMARK(pTHX)
+<span class="lineNum">     142 </span>            : {
+<span class="lineNum">     143 </span>            :     DEBUG_s(DEBUG_v(PerlIO_printf(Perl_debug_log,
+<span class="lineNum">     144 </span>            :          &quot;MARK pop  %p %&quot; IVdf &quot;\n&quot;,
+<span class="lineNum">     145 </span>            :           (PL_markstack_ptr-1),
+<span class="lineNum">     146 </span>            :           (IV)*(PL_markstack_ptr-1))));
+<span class="lineNum">     147 </span>            :     assert((PL_markstack_ptr &gt; PL_markstack) || !&quot;MARK underflow&quot;);
+<span class="lineNum">     148 </span><span class="lineCov">          1 :     return *PL_markstack_ptr--;</span>
+<span class="lineNum">     149 </span>            : }
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span>            : /* ----------------------------- regexp.h ----------------------------- */
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            : PERL_STATIC_INLINE struct regexp *
+<span class="lineNum">     154 </span>            : S_ReANY(const REGEXP * const re)
+<span class="lineNum">     155 </span>            : {
+<span class="lineNum">     156 </span>            :     assert(isREGEXP(re));
+<span class="lineNum">     157 </span>            :     return re-&gt;sv_u.svu_rx;
+<span class="lineNum">     158 </span>            : }
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span>            : /* ------------------------------- sv.h ------------------------------- */
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            : PERL_STATIC_INLINE SV *
+<span class="lineNum">     163 </span>            : S_SvREFCNT_inc(SV *sv)
+<span class="lineNum">     164 </span>            : {
+<span class="lineNum">     165 </span>            :     if (LIKELY(sv != NULL))
+<span class="lineNum">     166 </span>            :   SvREFCNT(sv)++;
+<span class="lineNum">     167 </span>            :     return sv;
+<span class="lineNum">     168 </span>            : }
+<span class="lineNum">     169 </span>            : PERL_STATIC_INLINE SV *
+<span class="lineNum">     170 </span>            : S_SvREFCNT_inc_NN(SV *sv)
+<span class="lineNum">     171 </span>            : {
+<span class="lineNum">     172 </span>            :     SvREFCNT(sv)++;
+<span class="lineNum">     173 </span>            :     return sv;
+<span class="lineNum">     174 </span>            : }
+<span class="lineNum">     175 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">     176 </span>            : S_SvREFCNT_inc_void(SV *sv)
+<span class="lineNum">     177 </span>            : {
+<span class="lineNum">     178 </span>            :     if (LIKELY(sv != NULL))
+<span class="lineNum">     179 </span>            :   SvREFCNT(sv)++;
+<span class="lineNum">     180 </span>            : }
+<span class="lineNum">     181 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">     182 </span>            : S_SvREFCNT_dec(pTHX_ SV *sv)
+<span class="lineNum">     183 </span>            : {
+<span class="lineNum">     184 </span><span class="lineCov">          1 :     if (LIKELY(sv != NULL)) {</span>
+<span class="lineNum">     185 </span><span class="lineCov">          1 :   U32 rc = SvREFCNT(sv);</span>
+<span class="lineNum">     186 </span><span class="lineCov">          1 :   if (LIKELY(rc &gt; 1))</span>
+<span class="lineNum">     187 </span><span class="lineCov">          1 :       SvREFCNT(sv) = rc - 1;</span>
+<span class="lineNum">     188 </span>            :   else
+<span class="lineNum">     189 </span><span class="lineCov">          1 :       Perl_sv_free2(aTHX_ sv, rc);</span>
+<span class="lineNum">     190 </span>            :     }
+<span class="lineNum">     191 </span>            : }
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">     194 </span>            : S_SvREFCNT_dec_NN(pTHX_ SV *sv)
+<span class="lineNum">     195 </span>            : {
+<span class="lineNum">     196 </span>            :     U32 rc = SvREFCNT(sv);
+<span class="lineNum">     197 </span>            :     if (LIKELY(rc &gt; 1))
+<span class="lineNum">     198 </span>            :   SvREFCNT(sv) = rc - 1;
+<span class="lineNum">     199 </span>            :     else
+<span class="lineNum">     200 </span>            :   Perl_sv_free2(aTHX_ sv, rc);
+<span class="lineNum">     201 </span>            : }
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">     204 </span>            : SvAMAGIC_on(SV *sv)
+<span class="lineNum">     205 </span>            : {
+<span class="lineNum">     206 </span>            :     assert(SvROK(sv));
+<span class="lineNum">     207 </span>            :     if (SvOBJECT(SvRV(sv))) HvAMAGIC_on(SvSTASH(SvRV(sv)));
+<span class="lineNum">     208 </span>            : }
+<span class="lineNum">     209 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">     210 </span>            : SvAMAGIC_off(SV *sv)
+<span class="lineNum">     211 </span>            : {
+<span class="lineNum">     212 </span>            :     if (SvROK(sv) &amp;&amp; SvOBJECT(SvRV(sv)))
+<span class="lineNum">     213 </span>            :   HvAMAGIC_off(SvSTASH(SvRV(sv)));
+<span class="lineNum">     214 </span>            : }
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span>            : PERL_STATIC_INLINE U32
+<span class="lineNum">     217 </span>            : S_SvPADSTALE_on(SV *sv)
+<span class="lineNum">     218 </span>            : {
+<span class="lineNum">     219 </span>            :     assert(!(SvFLAGS(sv) &amp; SVs_PADTMP));
+<span class="lineNum">     220 </span>            :     return SvFLAGS(sv) |= SVs_PADSTALE;
+<span class="lineNum">     221 </span>            : }
+<span class="lineNum">     222 </span>            : PERL_STATIC_INLINE U32
+<span class="lineNum">     223 </span>            : S_SvPADSTALE_off(SV *sv)
+<span class="lineNum">     224 </span>            : {
+<span class="lineNum">     225 </span>            :     assert(!(SvFLAGS(sv) &amp; SVs_PADTMP));
+<span class="lineNum">     226 </span>            :     return SvFLAGS(sv) &amp;= ~SVs_PADSTALE;
+<span class="lineNum">     227 </span>            : }
+<span class="lineNum">     228 </span>            : #if defined(PERL_CORE) || defined (PERL_EXT)
+<span class="lineNum">     229 </span>            : PERL_STATIC_INLINE STRLEN
+<span class="lineNum">     230 </span>            : S_sv_or_pv_pos_u2b(pTHX_ SV *sv, const char *pv, STRLEN pos, STRLEN *lenp)
+<span class="lineNum">     231 </span>            : {
+<span class="lineNum">     232 </span>            :     PERL_ARGS_ASSERT_SV_OR_PV_POS_U2B;
+<span class="lineNum">     233 </span>            :     if (SvGAMAGIC(sv)) {
+<span class="lineNum">     234 </span>            :   U8 *hopped = utf8_hop((U8 *)pv, pos);
+<span class="lineNum">     235 </span>            :   if (lenp) *lenp = (STRLEN)(utf8_hop(hopped, *lenp) - hopped);
+<span class="lineNum">     236 </span>            :   return (STRLEN)(hopped - (U8 *)pv);
+<span class="lineNum">     237 </span>            :     }
+<span class="lineNum">     238 </span>            :     return sv_pos_u2b_flags(sv,pos,lenp,SV_CONST_RETURN);
+<span class="lineNum">     239 </span>            : }
+<span class="lineNum">     240 </span>            : #endif
+<span class="lineNum">     241 </span>            : 
+<span class="lineNum">     242 </span>            : /* ------------------------------- handy.h ------------------------------- */
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span>            : /* saves machine code for a common noreturn idiom typically used in Newx*() */
+<span class="lineNum">     245 </span>            : #ifdef GCC_DIAG_PRAGMA
+<span class="lineNum">     246 </span>            : GCC_DIAG_IGNORE(-Wunused-function) /* Intentionally left semicolonless. */
+<span class="lineNum">     247 </span>            : #endif
+<span class="lineNum">     248 </span>            : static void
+<span class="lineNum">     249 </span>            : S_croak_memory_wrap(void)
+<span class="lineNum">     250 </span>            : {
+<span class="lineNum">     251 </span>            :     Perl_croak_nocontext(&quot;%s&quot;,PL_memory_wrap);
+<span class="lineNum">     252 </span>            : }
+<span class="lineNum">     253 </span>            : #ifdef GCC_DIAG_PRAGMA
+<span class="lineNum">     254 </span>            : GCC_DIAG_RESTORE /* Intentionally left semicolonless. */
+<span class="lineNum">     255 </span>            : #endif
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            : /* ------------------------------- utf8.h ------------------------------- */
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            : /*
+<span class="lineNum">     260 </span>            : =head1 Unicode Support
+<span class="lineNum">     261 </span>            : */
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">     264 </span>            : S_append_utf8_from_native_byte(const U8 byte, U8** dest)
+<span class="lineNum">     265 </span>            : {
+<span class="lineNum">     266 </span>            :     /* Takes an input 'byte' (Latin1 or EBCDIC) and appends it to the UTF-8
+<span class="lineNum">     267 </span>            :      * encoded string at '*dest', updating '*dest' to include it */
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span>            :     PERL_ARGS_ASSERT_APPEND_UTF8_FROM_NATIVE_BYTE;
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            :     if (NATIVE_BYTE_IS_INVARIANT(byte))
+<span class="lineNum">     272 </span>            :         *((*dest)++) = byte;
+<span class="lineNum">     273 </span>            :     else {
+<span class="lineNum">     274 </span>            :         *((*dest)++) = UTF8_EIGHT_BIT_HI(byte);
+<span class="lineNum">     275 </span>            :         *((*dest)++) = UTF8_EIGHT_BIT_LO(byte);
+<span class="lineNum">     276 </span>            :     }
+<span class="lineNum">     277 </span>            : }
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span>            : /*
+<span class="lineNum">     280 </span>            : =for apidoc valid_utf8_to_uvchr
+<span class="lineNum">     281 </span>            : Like C&lt;L&lt;/utf8_to_uvchr_buf&gt;&gt;, but should only be called when it is known that
+<span class="lineNum">     282 </span>            : the next character in the input UTF-8 string C&lt;s&gt; is well-formed (I&lt;e.g.&gt;,
+<span class="lineNum">     283 </span>            : it passes C&lt;L&lt;/isUTF8_CHAR&gt;&gt;.  Surrogates, non-character code points, and
+<span class="lineNum">     284 </span>            : non-Unicode code points are allowed.
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span>            : =cut
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span>            :  */
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span>            : PERL_STATIC_INLINE UV
+<span class="lineNum">     291 </span>            : Perl_valid_utf8_to_uvchr(const U8 *s, STRLEN *retlen)
+<span class="lineNum">     292 </span>            : {
+<span class="lineNum">     293 </span>            :     const UV expectlen = UTF8SKIP(s);
+<span class="lineNum">     294 </span>            :     const U8* send = s + expectlen;
+<span class="lineNum">     295 </span>            :     UV uv = *s;
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            :     PERL_ARGS_ASSERT_VALID_UTF8_TO_UVCHR;
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span>            :     if (retlen) {
+<span class="lineNum">     300 </span>            :         *retlen = expectlen;
+<span class="lineNum">     301 </span>            :     }
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span>            :     /* An invariant is trivially returned */
+<span class="lineNum">     304 </span>            :     if (expectlen == 1) {
+<span class="lineNum">     305 </span>            :   return uv;
+<span class="lineNum">     306 </span>            :     }
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span>            :     /* Remove the leading bits that indicate the number of bytes, leaving just
+<span class="lineNum">     309 </span>            :      * the bits that are part of the value */
+<span class="lineNum">     310 </span>            :     uv = NATIVE_UTF8_TO_I8(uv) &amp; UTF_START_MASK(expectlen);
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span>            :     /* Now, loop through the remaining bytes, accumulating each into the
+<span class="lineNum">     313 </span>            :      * working total as we go.  (I khw tried unrolling the loop for up to 4
+<span class="lineNum">     314 </span>            :      * bytes, but there was no performance improvement) */
+<span class="lineNum">     315 </span>            :     for (++s; s &lt; send; s++) {
+<span class="lineNum">     316 </span>            :         uv = UTF8_ACCUMULATE(uv, *s);
+<span class="lineNum">     317 </span>            :     }
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            :     return UNI_TO_NATIVE(uv);
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span>            : }
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span>            : /*
+<span class="lineNum">     324 </span>            : =for apidoc is_utf8_invariant_string
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span>            : Returns TRUE if the first C&lt;len&gt; bytes of the string C&lt;s&gt; are the same
+<span class="lineNum">     327 </span>            : regardless of the UTF-8 encoding of the string (or UTF-EBCDIC encoding on
+<span class="lineNum">     328 </span>            : EBCDIC machines); otherwise it returns FALSE.  That is, it returns TRUE if they
+<span class="lineNum">     329 </span>            : are UTF-8 invariant.  On ASCII-ish machines, all the ASCII characters and only
+<span class="lineNum">     330 </span>            : the ASCII characters fit this definition.  On EBCDIC machines, the ASCII-range
+<span class="lineNum">     331 </span>            : characters are invariant, but so also are the C1 controls.
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span>            : If C&lt;len&gt; is 0, it will be calculated using C&lt;strlen(s)&gt;, (which means if you
+<span class="lineNum">     334 </span>            : use this option, that C&lt;s&gt; can't have embedded C&lt;NUL&gt; characters and has to
+<span class="lineNum">     335 </span>            : have a terminating C&lt;NUL&gt; byte).
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span>            : See also
+<span class="lineNum">     338 </span>            : C&lt;L&lt;/is_utf8_string&gt;&gt;,
+<span class="lineNum">     339 </span>            : C&lt;L&lt;/is_utf8_string_flags&gt;&gt;,
+<span class="lineNum">     340 </span>            : C&lt;L&lt;/is_utf8_string_loc&gt;&gt;,
+<span class="lineNum">     341 </span>            : C&lt;L&lt;/is_utf8_string_loc_flags&gt;&gt;,
+<span class="lineNum">     342 </span>            : C&lt;L&lt;/is_utf8_string_loclen&gt;&gt;,
+<span class="lineNum">     343 </span>            : C&lt;L&lt;/is_utf8_string_loclen_flags&gt;&gt;,
+<span class="lineNum">     344 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_flags&gt;&gt;,
+<span class="lineNum">     345 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_loc_flags&gt;&gt;,
+<span class="lineNum">     346 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_loclen_flags&gt;&gt;,
+<span class="lineNum">     347 </span>            : C&lt;L&lt;/is_strict_utf8_string&gt;&gt;,
+<span class="lineNum">     348 </span>            : C&lt;L&lt;/is_strict_utf8_string_loc&gt;&gt;,
+<span class="lineNum">     349 </span>            : C&lt;L&lt;/is_strict_utf8_string_loclen&gt;&gt;,
+<span class="lineNum">     350 </span>            : C&lt;L&lt;/is_c9strict_utf8_string&gt;&gt;,
+<span class="lineNum">     351 </span>            : C&lt;L&lt;/is_c9strict_utf8_string_loc&gt;&gt;,
+<span class="lineNum">     352 </span>            : and
+<span class="lineNum">     353 </span>            : C&lt;L&lt;/is_c9strict_utf8_string_loclen&gt;&gt;.
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span>            : =cut
+<span class="lineNum">     356 </span>            : */
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">     359 </span>            : S_is_utf8_invariant_string(const U8* const s, const STRLEN len)
+<span class="lineNum">     360 </span>            : {
+<span class="lineNum">     361 </span>            :     const U8* const send = s + (len ? len : strlen((const char *)s));
+<span class="lineNum">     362 </span>            :     const U8* x = s;
+<span class="lineNum">     363 </span>            : 
+<span class="lineNum">     364 </span>            :     PERL_ARGS_ASSERT_IS_UTF8_INVARIANT_STRING;
+<span class="lineNum">     365 </span>            : 
+<span class="lineNum">     366 </span>            :     for (; x &lt; send; ++x) {
+<span class="lineNum">     367 </span>            :   if (!UTF8_IS_INVARIANT(*x))
+<span class="lineNum">     368 </span>            :       return FALSE;
+<span class="lineNum">     369 </span>            :     }
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span>            :     return TRUE;
+<span class="lineNum">     372 </span>            : }
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span>            : /*
+<span class="lineNum">     375 </span>            : =for apidoc is_utf8_string
+<span class="lineNum">     376 </span>            : 
+<span class="lineNum">     377 </span>            : Returns TRUE if the first C&lt;len&gt; bytes of string C&lt;s&gt; form a valid
+<span class="lineNum">     378 </span>            : Perl-extended-UTF-8 string; returns FALSE otherwise.  If C&lt;len&gt; is 0, it will
+<span class="lineNum">     379 </span>            : be calculated using C&lt;strlen(s)&gt; (which means if you use this option, that C&lt;s&gt;
+<span class="lineNum">     380 </span>            : can't have embedded C&lt;NUL&gt; characters and has to have a terminating C&lt;NUL&gt;
+<span class="lineNum">     381 </span>            : byte).  Note that all characters being ASCII constitute 'a valid UTF-8 string'.
+<span class="lineNum">     382 </span>            : 
+<span class="lineNum">     383 </span>            : This function considers Perl's extended UTF-8 to be valid.  That means that
+<span class="lineNum">     384 </span>            : code points above Unicode, surrogates, and non-character code points are
+<span class="lineNum">     385 </span>            : considered valid by this function.  Use C&lt;L&lt;/is_strict_utf8_string&gt;&gt;,
+<span class="lineNum">     386 </span>            : C&lt;L&lt;/is_c9strict_utf8_string&gt;&gt;, or C&lt;L&lt;/is_utf8_string_flags&gt;&gt; to restrict what
+<span class="lineNum">     387 </span>            : code points are considered valid.
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span>            : See also
+<span class="lineNum">     390 </span>            : C&lt;L&lt;/is_utf8_invariant_string&gt;&gt;,
+<span class="lineNum">     391 </span>            : C&lt;L&lt;/is_utf8_string_loc&gt;&gt;,
+<span class="lineNum">     392 </span>            : C&lt;L&lt;/is_utf8_string_loclen&gt;&gt;,
+<span class="lineNum">     393 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_flags&gt;&gt;,
+<span class="lineNum">     394 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_loc_flags&gt;&gt;,
+<span class="lineNum">     395 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_loclen_flags&gt;&gt;,
+<span class="lineNum">     396 </span>            : 
+<span class="lineNum">     397 </span>            : =cut
+<span class="lineNum">     398 </span>            : */
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">     401 </span>            : Perl_is_utf8_string(const U8 *s, const STRLEN len)
+<span class="lineNum">     402 </span>            : {
+<span class="lineNum">     403 </span>            :     /* This is now marked pure in embed.fnc, because isUTF8_CHAR now is pure.
+<span class="lineNum">     404 </span>            :      * Be aware of possible changes to that */
+<span class="lineNum">     405 </span>            : 
+<span class="lineNum">     406 </span>            :     const U8* const send = s + (len ? len : strlen((const char *)s));
+<span class="lineNum">     407 </span>            :     const U8* x = s;
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span>            :     PERL_ARGS_ASSERT_IS_UTF8_STRING;
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span>            :     while (x &lt; send) {
+<span class="lineNum">     412 </span>            :         const STRLEN cur_len = isUTF8_CHAR(x, send);
+<span class="lineNum">     413 </span>            :         if (UNLIKELY(! cur_len)) {
+<span class="lineNum">     414 </span>            :             return FALSE;
+<span class="lineNum">     415 </span>            :         }
+<span class="lineNum">     416 </span>            :         x += cur_len;
+<span class="lineNum">     417 </span>            :     }
+<span class="lineNum">     418 </span>            : 
+<span class="lineNum">     419 </span>            :     return TRUE;
+<span class="lineNum">     420 </span>            : }
+<span class="lineNum">     421 </span>            : 
+<span class="lineNum">     422 </span>            : /*
+<span class="lineNum">     423 </span>            : =for apidoc is_strict_utf8_string
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            : Returns TRUE if the first C&lt;len&gt; bytes of string C&lt;s&gt; form a valid
+<span class="lineNum">     426 </span>            : UTF-8-encoded string that is fully interchangeable by any application using
+<span class="lineNum">     427 </span>            : Unicode rules; otherwise it returns FALSE.  If C&lt;len&gt; is 0, it will be
+<span class="lineNum">     428 </span>            : calculated using C&lt;strlen(s)&gt; (which means if you use this option, that C&lt;s&gt;
+<span class="lineNum">     429 </span>            : can't have embedded C&lt;NUL&gt; characters and has to have a terminating C&lt;NUL&gt;
+<span class="lineNum">     430 </span>            : byte).  Note that all characters being ASCII constitute 'a valid UTF-8 string'.
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span>            : This function returns FALSE for strings containing any
+<span class="lineNum">     433 </span>            : code points above the Unicode max of 0x10FFFF, surrogate code points, or
+<span class="lineNum">     434 </span>            : non-character code points.
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span>            : See also
+<span class="lineNum">     437 </span>            : C&lt;L&lt;/is_utf8_invariant_string&gt;&gt;,
+<span class="lineNum">     438 </span>            : C&lt;L&lt;/is_utf8_string&gt;&gt;,
+<span class="lineNum">     439 </span>            : C&lt;L&lt;/is_utf8_string_flags&gt;&gt;,
+<span class="lineNum">     440 </span>            : C&lt;L&lt;/is_utf8_string_loc&gt;&gt;,
+<span class="lineNum">     441 </span>            : C&lt;L&lt;/is_utf8_string_loc_flags&gt;&gt;,
+<span class="lineNum">     442 </span>            : C&lt;L&lt;/is_utf8_string_loclen&gt;&gt;,
+<span class="lineNum">     443 </span>            : C&lt;L&lt;/is_utf8_string_loclen_flags&gt;&gt;,
+<span class="lineNum">     444 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_flags&gt;&gt;,
+<span class="lineNum">     445 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_loc_flags&gt;&gt;,
+<span class="lineNum">     446 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_loclen_flags&gt;&gt;,
+<span class="lineNum">     447 </span>            : C&lt;L&lt;/is_strict_utf8_string_loc&gt;&gt;,
+<span class="lineNum">     448 </span>            : C&lt;L&lt;/is_strict_utf8_string_loclen&gt;&gt;,
+<span class="lineNum">     449 </span>            : C&lt;L&lt;/is_c9strict_utf8_string&gt;&gt;,
+<span class="lineNum">     450 </span>            : C&lt;L&lt;/is_c9strict_utf8_string_loc&gt;&gt;,
+<span class="lineNum">     451 </span>            : and
+<span class="lineNum">     452 </span>            : C&lt;L&lt;/is_c9strict_utf8_string_loclen&gt;&gt;.
+<span class="lineNum">     453 </span>            : 
+<span class="lineNum">     454 </span>            : =cut
+<span class="lineNum">     455 </span>            : */
+<span class="lineNum">     456 </span>            : 
+<span class="lineNum">     457 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">     458 </span>            : S_is_strict_utf8_string(const U8 *s, const STRLEN len)
+<span class="lineNum">     459 </span>            : {
+<span class="lineNum">     460 </span>            :     const U8* const send = s + (len ? len : strlen((const char *)s));
+<span class="lineNum">     461 </span>            :     const U8* x = s;
+<span class="lineNum">     462 </span>            : 
+<span class="lineNum">     463 </span>            :     PERL_ARGS_ASSERT_IS_STRICT_UTF8_STRING;
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span>            :     while (x &lt; send) {
+<span class="lineNum">     466 </span>            :         const STRLEN cur_len = isSTRICT_UTF8_CHAR(x, send);
+<span class="lineNum">     467 </span>            :         if (UNLIKELY(! cur_len)) {
+<span class="lineNum">     468 </span>            :             return FALSE;
+<span class="lineNum">     469 </span>            :         }
+<span class="lineNum">     470 </span>            :         x += cur_len;
+<span class="lineNum">     471 </span>            :     }
+<span class="lineNum">     472 </span>            : 
+<span class="lineNum">     473 </span>            :     return TRUE;
+<span class="lineNum">     474 </span>            : }
+<span class="lineNum">     475 </span>            : 
+<span class="lineNum">     476 </span>            : /*
+<span class="lineNum">     477 </span>            : =for apidoc is_c9strict_utf8_string
+<span class="lineNum">     478 </span>            : 
+<span class="lineNum">     479 </span>            : Returns TRUE if the first C&lt;len&gt; bytes of string C&lt;s&gt; form a valid
+<span class="lineNum">     480 </span>            : UTF-8-encoded string that conforms to
+<span class="lineNum">     481 </span>            : L&lt;Unicode Corrigendum #9|http://www.unicode.org/versions/corrigendum9.html&gt;;
+<span class="lineNum">     482 </span>            : otherwise it returns FALSE.  If C&lt;len&gt; is 0, it will be calculated using
+<span class="lineNum">     483 </span>            : C&lt;strlen(s)&gt; (which means if you use this option, that C&lt;s&gt; can't have embedded
+<span class="lineNum">     484 </span>            : C&lt;NUL&gt; characters and has to have a terminating C&lt;NUL&gt; byte).  Note that all
+<span class="lineNum">     485 </span>            : characters being ASCII constitute 'a valid UTF-8 string'.
+<span class="lineNum">     486 </span>            : 
+<span class="lineNum">     487 </span>            : This function returns FALSE for strings containing any code points above the
+<span class="lineNum">     488 </span>            : Unicode max of 0x10FFFF or surrogate code points, but accepts non-character
+<span class="lineNum">     489 </span>            : code points per
+<span class="lineNum">     490 </span>            : L&lt;Corrigendum #9|http://www.unicode.org/versions/corrigendum9.html&gt;.
+<span class="lineNum">     491 </span>            : 
+<span class="lineNum">     492 </span>            : See also
+<span class="lineNum">     493 </span>            : C&lt;L&lt;/is_utf8_invariant_string&gt;&gt;,
+<span class="lineNum">     494 </span>            : C&lt;L&lt;/is_utf8_string&gt;&gt;,
+<span class="lineNum">     495 </span>            : C&lt;L&lt;/is_utf8_string_flags&gt;&gt;,
+<span class="lineNum">     496 </span>            : C&lt;L&lt;/is_utf8_string_loc&gt;&gt;,
+<span class="lineNum">     497 </span>            : C&lt;L&lt;/is_utf8_string_loc_flags&gt;&gt;,
+<span class="lineNum">     498 </span>            : C&lt;L&lt;/is_utf8_string_loclen&gt;&gt;,
+<span class="lineNum">     499 </span>            : C&lt;L&lt;/is_utf8_string_loclen_flags&gt;&gt;,
+<span class="lineNum">     500 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_flags&gt;&gt;,
+<span class="lineNum">     501 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_loc_flags&gt;&gt;,
+<span class="lineNum">     502 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_loclen_flags&gt;&gt;,
+<span class="lineNum">     503 </span>            : C&lt;L&lt;/is_strict_utf8_string&gt;&gt;,
+<span class="lineNum">     504 </span>            : C&lt;L&lt;/is_strict_utf8_string_loc&gt;&gt;,
+<span class="lineNum">     505 </span>            : C&lt;L&lt;/is_strict_utf8_string_loclen&gt;&gt;,
+<span class="lineNum">     506 </span>            : C&lt;L&lt;/is_c9strict_utf8_string_loc&gt;&gt;,
+<span class="lineNum">     507 </span>            : and
+<span class="lineNum">     508 </span>            : C&lt;L&lt;/is_c9strict_utf8_string_loclen&gt;&gt;.
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span>            : =cut
+<span class="lineNum">     511 </span>            : */
+<span class="lineNum">     512 </span>            : 
+<span class="lineNum">     513 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">     514 </span>            : S_is_c9strict_utf8_string(const U8 *s, const STRLEN len)
+<span class="lineNum">     515 </span>            : {
+<span class="lineNum">     516 </span>            :     const U8* const send = s + (len ? len : strlen((const char *)s));
+<span class="lineNum">     517 </span>            :     const U8* x = s;
+<span class="lineNum">     518 </span>            : 
+<span class="lineNum">     519 </span>            :     PERL_ARGS_ASSERT_IS_C9STRICT_UTF8_STRING;
+<span class="lineNum">     520 </span>            : 
+<span class="lineNum">     521 </span>            :     while (x &lt; send) {
+<span class="lineNum">     522 </span>            :         const STRLEN cur_len = isC9_STRICT_UTF8_CHAR(x, send);
+<span class="lineNum">     523 </span>            :         if (UNLIKELY(! cur_len)) {
+<span class="lineNum">     524 </span>            :             return FALSE;
+<span class="lineNum">     525 </span>            :         }
+<span class="lineNum">     526 </span>            :         x += cur_len;
+<span class="lineNum">     527 </span>            :     }
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span>            :     return TRUE;
+<span class="lineNum">     530 </span>            : }
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span>            : /* The above 3 functions could have been moved into the more general one just
+<span class="lineNum">     533 </span>            :  * below, and made #defines that call it with the right 'flags'.  They are
+<span class="lineNum">     534 </span>            :  * currently kept separate to increase their chances of getting inlined */
+<span class="lineNum">     535 </span>            : 
+<span class="lineNum">     536 </span>            : /*
+<span class="lineNum">     537 </span>            : =for apidoc is_utf8_string_flags
+<span class="lineNum">     538 </span>            : 
+<span class="lineNum">     539 </span>            : Returns TRUE if the first C&lt;len&gt; bytes of string C&lt;s&gt; form a valid
+<span class="lineNum">     540 </span>            : UTF-8 string, subject to the restrictions imposed by C&lt;flags&gt;;
+<span class="lineNum">     541 </span>            : returns FALSE otherwise.  If C&lt;len&gt; is 0, it will be calculated
+<span class="lineNum">     542 </span>            : using C&lt;strlen(s)&gt; (which means if you use this option, that C&lt;s&gt; can't have
+<span class="lineNum">     543 </span>            : embedded C&lt;NUL&gt; characters and has to have a terminating C&lt;NUL&gt; byte).  Note
+<span class="lineNum">     544 </span>            : that all characters being ASCII constitute 'a valid UTF-8 string'.
+<span class="lineNum">     545 </span>            : 
+<span class="lineNum">     546 </span>            : If C&lt;flags&gt; is 0, this gives the same results as C&lt;L&lt;/is_utf8_string&gt;&gt;; if
+<span class="lineNum">     547 </span>            : C&lt;flags&gt; is C&lt;UTF8_DISALLOW_ILLEGAL_INTERCHANGE&gt;, this gives the same results
+<span class="lineNum">     548 </span>            : as C&lt;L&lt;/is_strict_utf8_string&gt;&gt;; and if C&lt;flags&gt; is
+<span class="lineNum">     549 </span>            : C&lt;UTF8_DISALLOW_ILLEGAL_C9_INTERCHANGE&gt;, this gives the same results as
+<span class="lineNum">     550 </span>            : C&lt;L&lt;/is_c9strict_utf8_string&gt;&gt;.  Otherwise C&lt;flags&gt; may be any
+<span class="lineNum">     551 </span>            : combination of the C&lt;UTF8_DISALLOW_I&lt;foo&gt;&gt; flags understood by
+<span class="lineNum">     552 </span>            : C&lt;L&lt;/utf8n_to_uvchr&gt;&gt;, with the same meanings.
+<span class="lineNum">     553 </span>            : 
+<span class="lineNum">     554 </span>            : See also
+<span class="lineNum">     555 </span>            : C&lt;L&lt;/is_utf8_invariant_string&gt;&gt;,
+<span class="lineNum">     556 </span>            : C&lt;L&lt;/is_utf8_string&gt;&gt;,
+<span class="lineNum">     557 </span>            : C&lt;L&lt;/is_utf8_string_loc&gt;&gt;,
+<span class="lineNum">     558 </span>            : C&lt;L&lt;/is_utf8_string_loc_flags&gt;&gt;,
+<span class="lineNum">     559 </span>            : C&lt;L&lt;/is_utf8_string_loclen&gt;&gt;,
+<span class="lineNum">     560 </span>            : C&lt;L&lt;/is_utf8_string_loclen_flags&gt;&gt;,
+<span class="lineNum">     561 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_flags&gt;&gt;,
+<span class="lineNum">     562 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_loc_flags&gt;&gt;,
+<span class="lineNum">     563 </span>            : C&lt;L&lt;/is_utf8_fixed_width_buf_loclen_flags&gt;&gt;,
+<span class="lineNum">     564 </span>            : C&lt;L&lt;/is_strict_utf8_string&gt;&gt;,
+<span class="lineNum">     565 </span>            : C&lt;L&lt;/is_strict_utf8_string_loc&gt;&gt;,
+<span class="lineNum">     566 </span>            : C&lt;L&lt;/is_strict_utf8_string_loclen&gt;&gt;,
+<span class="lineNum">     567 </span>            : C&lt;L&lt;/is_c9strict_utf8_string&gt;&gt;,
+<span class="lineNum">     568 </span>            : C&lt;L&lt;/is_c9strict_utf8_string_loc&gt;&gt;,
+<span class="lineNum">     569 </span>            : and
+<span class="lineNum">     570 </span>            : C&lt;L&lt;/is_c9strict_utf8_string_loclen&gt;&gt;.
+<span class="lineNum">     571 </span>            : 
+<span class="lineNum">     572 </span>            : =cut
+<span class="lineNum">     573 </span>            : */
+<span class="lineNum">     574 </span>            : 
+<span class="lineNum">     575 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">     576 </span>            : S_is_utf8_string_flags(const U8 *s, const STRLEN len, const U32 flags)
+<span class="lineNum">     577 </span>            : {
+<span class="lineNum">     578 </span>            :     const U8* const send = s + (len ? len : strlen((const char *)s));
+<span class="lineNum">     579 </span>            :     const U8* x = s;
+<span class="lineNum">     580 </span>            : 
+<span class="lineNum">     581 </span>            :     PERL_ARGS_ASSERT_IS_UTF8_STRING_FLAGS;
+<span class="lineNum">     582 </span>            :     assert(0 == (flags &amp; ~(UTF8_DISALLOW_ILLEGAL_INTERCHANGE
+<span class="lineNum">     583 </span>            :                           |UTF8_DISALLOW_ABOVE_31_BIT)));
+<span class="lineNum">     584 </span>            : 
+<span class="lineNum">     585 </span>            :     if (flags == 0) {
+<span class="lineNum">     586 </span>            :         return is_utf8_string(s, len);
+<span class="lineNum">     587 </span>            :     }
+<span class="lineNum">     588 </span>            : 
+<span class="lineNum">     589 </span>            :     if ((flags &amp; ~UTF8_DISALLOW_ABOVE_31_BIT)
+<span class="lineNum">     590 </span>            :                                         == UTF8_DISALLOW_ILLEGAL_INTERCHANGE)
+<span class="lineNum">     591 </span>            :     {
+<span class="lineNum">     592 </span>            :         return is_strict_utf8_string(s, len);
+<span class="lineNum">     593 </span>            :     }
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span>            :     if ((flags &amp; ~UTF8_DISALLOW_ABOVE_31_BIT)
+<span class="lineNum">     596 </span>            :                                        == UTF8_DISALLOW_ILLEGAL_C9_INTERCHANGE)
+<span class="lineNum">     597 </span>            :     {
+<span class="lineNum">     598 </span>            :         return is_c9strict_utf8_string(s, len);
+<span class="lineNum">     599 </span>            :     }
+<span class="lineNum">     600 </span>            : 
+<span class="lineNum">     601 </span>            :     while (x &lt; send) {
+<span class="lineNum">     602 </span>            :         STRLEN cur_len = isUTF8_CHAR_flags(x, send, flags);
+<span class="lineNum">     603 </span>            :         if (UNLIKELY(! cur_len)) {
+<span class="lineNum">     604 </span>            :             return FALSE;
+<span class="lineNum">     605 </span>            :         }
+<span class="lineNum">     606 </span>            :         x += cur_len;
+<span class="lineNum">     607 </span>            :     }
+<span class="lineNum">     608 </span>            : 
+<span class="lineNum">     609 </span>            :     return TRUE;
+<span class="lineNum">     610 </span>            : }
+<span class="lineNum">     611 </span>            : 
+<span class="lineNum">     612 </span>            : /*
+<span class="lineNum">     613 </span>            : 
+<span class="lineNum">     614 </span>            : =for apidoc is_utf8_string_loc
+<span class="lineNum">     615 </span>            : 
+<span class="lineNum">     616 </span>            : Like C&lt;L&lt;/is_utf8_string&gt;&gt; but stores the location of the failure (in the
+<span class="lineNum">     617 </span>            : case of &quot;utf8ness failure&quot;) or the location C&lt;s&gt;+C&lt;len&gt; (in the case of
+<span class="lineNum">     618 </span>            : &quot;utf8ness success&quot;) in the C&lt;ep&gt; pointer.
+<span class="lineNum">     619 </span>            : 
+<span class="lineNum">     620 </span>            : See also C&lt;L&lt;/is_utf8_string_loclen&gt;&gt;.
+<span class="lineNum">     621 </span>            : 
+<span class="lineNum">     622 </span>            : =cut
+<span class="lineNum">     623 </span>            : */
+<span class="lineNum">     624 </span>            : 
+<span class="lineNum">     625 </span>            : #define is_utf8_string_loc(s, len, ep)  is_utf8_string_loclen(s, len, ep, 0)
+<span class="lineNum">     626 </span>            : 
+<span class="lineNum">     627 </span>            : /*
+<span class="lineNum">     628 </span>            : 
+<span class="lineNum">     629 </span>            : =for apidoc is_utf8_string_loclen
+<span class="lineNum">     630 </span>            : 
+<span class="lineNum">     631 </span>            : Like C&lt;L&lt;/is_utf8_string&gt;&gt; but stores the location of the failure (in the
+<span class="lineNum">     632 </span>            : case of &quot;utf8ness failure&quot;) or the location C&lt;s&gt;+C&lt;len&gt; (in the case of
+<span class="lineNum">     633 </span>            : &quot;utf8ness success&quot;) in the C&lt;ep&gt; pointer, and the number of UTF-8
+<span class="lineNum">     634 </span>            : encoded characters in the C&lt;el&gt; pointer.
+<span class="lineNum">     635 </span>            : 
+<span class="lineNum">     636 </span>            : See also C&lt;L&lt;/is_utf8_string_loc&gt;&gt;.
+<span class="lineNum">     637 </span>            : 
+<span class="lineNum">     638 </span>            : =cut
+<span class="lineNum">     639 </span>            : */
+<span class="lineNum">     640 </span>            : 
+<span class="lineNum">     641 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">     642 </span>            : Perl_is_utf8_string_loclen(const U8 *s, const STRLEN len, const U8 **ep, STRLEN *el)
+<span class="lineNum">     643 </span>            : {
+<span class="lineNum">     644 </span>            :     const U8* const send = s + (len ? len : strlen((const char *)s));
+<span class="lineNum">     645 </span>            :     const U8* x = s;
+<span class="lineNum">     646 </span>            :     STRLEN outlen = 0;
+<span class="lineNum">     647 </span>            : 
+<span class="lineNum">     648 </span>            :     PERL_ARGS_ASSERT_IS_UTF8_STRING_LOCLEN;
+<span class="lineNum">     649 </span>            : 
+<span class="lineNum">     650 </span>            :     while (x &lt; send) {
+<span class="lineNum">     651 </span>            :         const STRLEN cur_len = isUTF8_CHAR(x, send);
+<span class="lineNum">     652 </span>            :         if (UNLIKELY(! cur_len)) {
+<span class="lineNum">     653 </span>            :             break;
+<span class="lineNum">     654 </span>            :         }
+<span class="lineNum">     655 </span>            :         x += cur_len;
+<span class="lineNum">     656 </span>            :         outlen++;
+<span class="lineNum">     657 </span>            :     }
+<span class="lineNum">     658 </span>            : 
+<span class="lineNum">     659 </span>            :     if (el)
+<span class="lineNum">     660 </span>            :         *el = outlen;
+<span class="lineNum">     661 </span>            : 
+<span class="lineNum">     662 </span>            :     if (ep) {
+<span class="lineNum">     663 </span>            :         *ep = x;
+<span class="lineNum">     664 </span>            :     }
+<span class="lineNum">     665 </span>            : 
+<span class="lineNum">     666 </span>            :     return (x == send);
+<span class="lineNum">     667 </span>            : }
+<span class="lineNum">     668 </span>            : 
+<span class="lineNum">     669 </span>            : /*
+<span class="lineNum">     670 </span>            : 
+<span class="lineNum">     671 </span>            : =for apidoc is_strict_utf8_string_loc
+<span class="lineNum">     672 </span>            : 
+<span class="lineNum">     673 </span>            : Like C&lt;L&lt;/is_strict_utf8_string&gt;&gt; but stores the location of the failure (in the
+<span class="lineNum">     674 </span>            : case of &quot;utf8ness failure&quot;) or the location C&lt;s&gt;+C&lt;len&gt; (in the case of
+<span class="lineNum">     675 </span>            : &quot;utf8ness success&quot;) in the C&lt;ep&gt; pointer.
+<span class="lineNum">     676 </span>            : 
+<span class="lineNum">     677 </span>            : See also C&lt;L&lt;/is_strict_utf8_string_loclen&gt;&gt;.
+<span class="lineNum">     678 </span>            : 
+<span class="lineNum">     679 </span>            : =cut
+<span class="lineNum">     680 </span>            : */
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span>            : #define is_strict_utf8_string_loc(s, len, ep)                               \
+<span class="lineNum">     683 </span>            :                                 is_strict_utf8_string_loclen(s, len, ep, 0)
+<span class="lineNum">     684 </span>            : 
+<span class="lineNum">     685 </span>            : /*
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span>            : =for apidoc is_strict_utf8_string_loclen
+<span class="lineNum">     688 </span>            : 
+<span class="lineNum">     689 </span>            : Like C&lt;L&lt;/is_strict_utf8_string&gt;&gt; but stores the location of the failure (in the
+<span class="lineNum">     690 </span>            : case of &quot;utf8ness failure&quot;) or the location C&lt;s&gt;+C&lt;len&gt; (in the case of
+<span class="lineNum">     691 </span>            : &quot;utf8ness success&quot;) in the C&lt;ep&gt; pointer, and the number of UTF-8
+<span class="lineNum">     692 </span>            : encoded characters in the C&lt;el&gt; pointer.
+<span class="lineNum">     693 </span>            : 
+<span class="lineNum">     694 </span>            : See also C&lt;L&lt;/is_strict_utf8_string_loc&gt;&gt;.
+<span class="lineNum">     695 </span>            : 
+<span class="lineNum">     696 </span>            : =cut
+<span class="lineNum">     697 </span>            : */
+<span class="lineNum">     698 </span>            : 
+<span class="lineNum">     699 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">     700 </span>            : S_is_strict_utf8_string_loclen(const U8 *s, const STRLEN len, const U8 **ep, STRLEN *el)
+<span class="lineNum">     701 </span>            : {
+<span class="lineNum">     702 </span>            :     const U8* const send = s + (len ? len : strlen((const char *)s));
+<span class="lineNum">     703 </span>            :     const U8* x = s;
+<span class="lineNum">     704 </span>            :     STRLEN outlen = 0;
+<span class="lineNum">     705 </span>            : 
+<span class="lineNum">     706 </span>            :     PERL_ARGS_ASSERT_IS_STRICT_UTF8_STRING_LOCLEN;
+<span class="lineNum">     707 </span>            : 
+<span class="lineNum">     708 </span>            :     while (x &lt; send) {
+<span class="lineNum">     709 </span>            :         const STRLEN cur_len = isSTRICT_UTF8_CHAR(x, send);
+<span class="lineNum">     710 </span>            :         if (UNLIKELY(! cur_len)) {
+<span class="lineNum">     711 </span>            :             break;
+<span class="lineNum">     712 </span>            :         }
+<span class="lineNum">     713 </span>            :         x += cur_len;
+<span class="lineNum">     714 </span>            :         outlen++;
+<span class="lineNum">     715 </span>            :     }
+<span class="lineNum">     716 </span>            : 
+<span class="lineNum">     717 </span>            :     if (el)
+<span class="lineNum">     718 </span>            :         *el = outlen;
+<span class="lineNum">     719 </span>            : 
+<span class="lineNum">     720 </span>            :     if (ep) {
+<span class="lineNum">     721 </span>            :         *ep = x;
+<span class="lineNum">     722 </span>            :     }
+<span class="lineNum">     723 </span>            : 
+<span class="lineNum">     724 </span>            :     return (x == send);
+<span class="lineNum">     725 </span>            : }
+<span class="lineNum">     726 </span>            : 
+<span class="lineNum">     727 </span>            : /*
+<span class="lineNum">     728 </span>            : 
+<span class="lineNum">     729 </span>            : =for apidoc is_c9strict_utf8_string_loc
+<span class="lineNum">     730 </span>            : 
+<span class="lineNum">     731 </span>            : Like C&lt;L&lt;/is_c9strict_utf8_string&gt;&gt; but stores the location of the failure (in
+<span class="lineNum">     732 </span>            : the case of &quot;utf8ness failure&quot;) or the location C&lt;s&gt;+C&lt;len&gt; (in the case of
+<span class="lineNum">     733 </span>            : &quot;utf8ness success&quot;) in the C&lt;ep&gt; pointer.
+<span class="lineNum">     734 </span>            : 
+<span class="lineNum">     735 </span>            : See also C&lt;L&lt;/is_c9strict_utf8_string_loclen&gt;&gt;.
+<span class="lineNum">     736 </span>            : 
+<span class="lineNum">     737 </span>            : =cut
+<span class="lineNum">     738 </span>            : */
+<span class="lineNum">     739 </span>            : 
+<span class="lineNum">     740 </span>            : #define is_c9strict_utf8_string_loc(s, len, ep)                             \
+<span class="lineNum">     741 </span>            :                             is_c9strict_utf8_string_loclen(s, len, ep, 0)
+<span class="lineNum">     742 </span>            : 
+<span class="lineNum">     743 </span>            : /*
+<span class="lineNum">     744 </span>            : 
+<span class="lineNum">     745 </span>            : =for apidoc is_c9strict_utf8_string_loclen
+<span class="lineNum">     746 </span>            : 
+<span class="lineNum">     747 </span>            : Like C&lt;L&lt;/is_c9strict_utf8_string&gt;&gt; but stores the location of the failure (in
+<span class="lineNum">     748 </span>            : the case of &quot;utf8ness failure&quot;) or the location C&lt;s&gt;+C&lt;len&gt; (in the case of
+<span class="lineNum">     749 </span>            : &quot;utf8ness success&quot;) in the C&lt;ep&gt; pointer, and the number of UTF-8 encoded
+<span class="lineNum">     750 </span>            : characters in the C&lt;el&gt; pointer.
+<span class="lineNum">     751 </span>            : 
+<span class="lineNum">     752 </span>            : See also C&lt;L&lt;/is_c9strict_utf8_string_loc&gt;&gt;.
+<span class="lineNum">     753 </span>            : 
+<span class="lineNum">     754 </span>            : =cut
+<span class="lineNum">     755 </span>            : */
+<span class="lineNum">     756 </span>            : 
+<span class="lineNum">     757 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">     758 </span>            : S_is_c9strict_utf8_string_loclen(const U8 *s, const STRLEN len, const U8 **ep, STRLEN *el)
+<span class="lineNum">     759 </span>            : {
+<span class="lineNum">     760 </span>            :     const U8* const send = s + (len ? len : strlen((const char *)s));
+<span class="lineNum">     761 </span>            :     const U8* x = s;
+<span class="lineNum">     762 </span>            :     STRLEN outlen = 0;
+<span class="lineNum">     763 </span>            : 
+<span class="lineNum">     764 </span>            :     PERL_ARGS_ASSERT_IS_C9STRICT_UTF8_STRING_LOCLEN;
+<span class="lineNum">     765 </span>            : 
+<span class="lineNum">     766 </span>            :     while (x &lt; send) {
+<span class="lineNum">     767 </span>            :         const STRLEN cur_len = isC9_STRICT_UTF8_CHAR(x, send);
+<span class="lineNum">     768 </span>            :         if (UNLIKELY(! cur_len)) {
+<span class="lineNum">     769 </span>            :             break;
+<span class="lineNum">     770 </span>            :         }
+<span class="lineNum">     771 </span>            :         x += cur_len;
+<span class="lineNum">     772 </span>            :         outlen++;
+<span class="lineNum">     773 </span>            :     }
+<span class="lineNum">     774 </span>            : 
+<span class="lineNum">     775 </span>            :     if (el)
+<span class="lineNum">     776 </span>            :         *el = outlen;
+<span class="lineNum">     777 </span>            : 
+<span class="lineNum">     778 </span>            :     if (ep) {
+<span class="lineNum">     779 </span>            :         *ep = x;
+<span class="lineNum">     780 </span>            :     }
+<span class="lineNum">     781 </span>            : 
+<span class="lineNum">     782 </span>            :     return (x == send);
+<span class="lineNum">     783 </span>            : }
+<span class="lineNum">     784 </span>            : 
+<span class="lineNum">     785 </span>            : /*
+<span class="lineNum">     786 </span>            : 
+<span class="lineNum">     787 </span>            : =for apidoc is_utf8_string_loc_flags
+<span class="lineNum">     788 </span>            : 
+<span class="lineNum">     789 </span>            : Like C&lt;L&lt;/is_utf8_string_flags&gt;&gt; but stores the location of the failure (in the
+<span class="lineNum">     790 </span>            : case of &quot;utf8ness failure&quot;) or the location C&lt;s&gt;+C&lt;len&gt; (in the case of
+<span class="lineNum">     791 </span>            : &quot;utf8ness success&quot;) in the C&lt;ep&gt; pointer.
+<span class="lineNum">     792 </span>            : 
+<span class="lineNum">     793 </span>            : See also C&lt;L&lt;/is_utf8_string_loclen_flags&gt;&gt;.
+<span class="lineNum">     794 </span>            : 
+<span class="lineNum">     795 </span>            : =cut
+<span class="lineNum">     796 </span>            : */
+<span class="lineNum">     797 </span>            : 
+<span class="lineNum">     798 </span>            : #define is_utf8_string_loc_flags(s, len, ep, flags)                         \
+<span class="lineNum">     799 </span>            :                         is_utf8_string_loclen_flags(s, len, ep, 0, flags)
+<span class="lineNum">     800 </span>            : 
+<span class="lineNum">     801 </span>            : 
+<span class="lineNum">     802 </span>            : /* The above 3 actual functions could have been moved into the more general one
+<span class="lineNum">     803 </span>            :  * just below, and made #defines that call it with the right 'flags'.  They are
+<span class="lineNum">     804 </span>            :  * currently kept separate to increase their chances of getting inlined */
+<span class="lineNum">     805 </span>            : 
+<span class="lineNum">     806 </span>            : /*
+<span class="lineNum">     807 </span>            : 
+<span class="lineNum">     808 </span>            : =for apidoc is_utf8_string_loclen_flags
+<span class="lineNum">     809 </span>            : 
+<span class="lineNum">     810 </span>            : Like C&lt;L&lt;/is_utf8_string_flags&gt;&gt; but stores the location of the failure (in the
+<span class="lineNum">     811 </span>            : case of &quot;utf8ness failure&quot;) or the location C&lt;s&gt;+C&lt;len&gt; (in the case of
+<span class="lineNum">     812 </span>            : &quot;utf8ness success&quot;) in the C&lt;ep&gt; pointer, and the number of UTF-8
+<span class="lineNum">     813 </span>            : encoded characters in the C&lt;el&gt; pointer.
+<span class="lineNum">     814 </span>            : 
+<span class="lineNum">     815 </span>            : See also C&lt;L&lt;/is_utf8_string_loc_flags&gt;&gt;.
+<span class="lineNum">     816 </span>            : 
+<span class="lineNum">     817 </span>            : =cut
+<span class="lineNum">     818 </span>            : */
+<span class="lineNum">     819 </span>            : 
+<span class="lineNum">     820 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">     821 </span>            : S_is_utf8_string_loclen_flags(const U8 *s, const STRLEN len, const U8 **ep, STRLEN *el, const U32 flags)
+<span class="lineNum">     822 </span>            : {
+<span class="lineNum">     823 </span>            :     const U8* const send = s + (len ? len : strlen((const char *)s));
+<span class="lineNum">     824 </span>            :     const U8* x = s;
+<span class="lineNum">     825 </span>            :     STRLEN outlen = 0;
+<span class="lineNum">     826 </span>            : 
+<span class="lineNum">     827 </span>            :     PERL_ARGS_ASSERT_IS_UTF8_STRING_LOCLEN_FLAGS;
+<span class="lineNum">     828 </span>            :     assert(0 == (flags &amp; ~(UTF8_DISALLOW_ILLEGAL_INTERCHANGE
+<span class="lineNum">     829 </span>            :                           |UTF8_DISALLOW_ABOVE_31_BIT)));
+<span class="lineNum">     830 </span>            : 
+<span class="lineNum">     831 </span>            :     if (flags == 0) {
+<span class="lineNum">     832 </span>            :         return is_utf8_string_loclen(s, len, ep, el);
+<span class="lineNum">     833 </span>            :     }
+<span class="lineNum">     834 </span>            : 
+<span class="lineNum">     835 </span>            :     if ((flags &amp; ~UTF8_DISALLOW_ABOVE_31_BIT)
+<span class="lineNum">     836 </span>            :                                         == UTF8_DISALLOW_ILLEGAL_INTERCHANGE)
+<span class="lineNum">     837 </span>            :     {
+<span class="lineNum">     838 </span>            :         return is_strict_utf8_string_loclen(s, len, ep, el);
+<span class="lineNum">     839 </span>            :     }
+<span class="lineNum">     840 </span>            : 
+<span class="lineNum">     841 </span>            :     if ((flags &amp; ~UTF8_DISALLOW_ABOVE_31_BIT)
+<span class="lineNum">     842 </span>            :                                     == UTF8_DISALLOW_ILLEGAL_C9_INTERCHANGE)
+<span class="lineNum">     843 </span>            :     {
+<span class="lineNum">     844 </span>            :         return is_c9strict_utf8_string_loclen(s, len, ep, el);
+<span class="lineNum">     845 </span>            :     }
+<span class="lineNum">     846 </span>            : 
+<span class="lineNum">     847 </span>            :     while (x &lt; send) {
+<span class="lineNum">     848 </span>            :         const STRLEN cur_len = isUTF8_CHAR_flags(x, send, flags);
+<span class="lineNum">     849 </span>            :         if (UNLIKELY(! cur_len)) {
+<span class="lineNum">     850 </span>            :             break;
+<span class="lineNum">     851 </span>            :         }
+<span class="lineNum">     852 </span>            :         x += cur_len;
+<span class="lineNum">     853 </span>            :         outlen++;
+<span class="lineNum">     854 </span>            :     }
+<span class="lineNum">     855 </span>            : 
+<span class="lineNum">     856 </span>            :     if (el)
+<span class="lineNum">     857 </span>            :         *el = outlen;
+<span class="lineNum">     858 </span>            : 
+<span class="lineNum">     859 </span>            :     if (ep) {
+<span class="lineNum">     860 </span>            :         *ep = x;
+<span class="lineNum">     861 </span>            :     }
+<span class="lineNum">     862 </span>            : 
+<span class="lineNum">     863 </span>            :     return (x == send);
+<span class="lineNum">     864 </span>            : }
+<span class="lineNum">     865 </span>            : 
+<span class="lineNum">     866 </span>            : /*
+<span class="lineNum">     867 </span>            : =for apidoc utf8_distance
+<span class="lineNum">     868 </span>            : 
+<span class="lineNum">     869 </span>            : Returns the number of UTF-8 characters between the UTF-8 pointers C&lt;a&gt;
+<span class="lineNum">     870 </span>            : and C&lt;b&gt;.
+<span class="lineNum">     871 </span>            : 
+<span class="lineNum">     872 </span>            : WARNING: use only if you *know* that the pointers point inside the
+<span class="lineNum">     873 </span>            : same UTF-8 buffer.
+<span class="lineNum">     874 </span>            : 
+<span class="lineNum">     875 </span>            : =cut
+<span class="lineNum">     876 </span>            : */
+<span class="lineNum">     877 </span>            : 
+<span class="lineNum">     878 </span>            : PERL_STATIC_INLINE IV
+<span class="lineNum">     879 </span>            : Perl_utf8_distance(pTHX_ const U8 *a, const U8 *b)
+<span class="lineNum">     880 </span>            : {
+<span class="lineNum">     881 </span>            :     PERL_ARGS_ASSERT_UTF8_DISTANCE;
+<span class="lineNum">     882 </span>            : 
+<span class="lineNum">     883 </span>            :     return (a &lt; b) ? -1 * (IV) utf8_length(a, b) : (IV) utf8_length(b, a);
+<span class="lineNum">     884 </span>            : }
+<span class="lineNum">     885 </span>            : 
+<span class="lineNum">     886 </span>            : /*
+<span class="lineNum">     887 </span>            : =for apidoc utf8_hop
+<span class="lineNum">     888 </span>            : 
+<span class="lineNum">     889 </span>            : Return the UTF-8 pointer C&lt;s&gt; displaced by C&lt;off&gt; characters, either
+<span class="lineNum">     890 </span>            : forward or backward.
+<span class="lineNum">     891 </span>            : 
+<span class="lineNum">     892 </span>            : WARNING: do not use the following unless you *know* C&lt;off&gt; is within
+<span class="lineNum">     893 </span>            : the UTF-8 data pointed to by C&lt;s&gt; *and* that on entry C&lt;s&gt; is aligned
+<span class="lineNum">     894 </span>            : on the first byte of character or just after the last byte of a character.
+<span class="lineNum">     895 </span>            : 
+<span class="lineNum">     896 </span>            : =cut
+<span class="lineNum">     897 </span>            : */
+<span class="lineNum">     898 </span>            : 
+<span class="lineNum">     899 </span>            : PERL_STATIC_INLINE U8 *
+<span class="lineNum">     900 </span>            : Perl_utf8_hop(const U8 *s, SSize_t off)
+<span class="lineNum">     901 </span>            : {
+<span class="lineNum">     902 </span>            :     PERL_ARGS_ASSERT_UTF8_HOP;
+<span class="lineNum">     903 </span>            : 
+<span class="lineNum">     904 </span>            :     /* Note: cannot use UTF8_IS_...() too eagerly here since e.g
+<span class="lineNum">     905 </span>            :      * the bitops (especially ~) can create illegal UTF-8.
+<span class="lineNum">     906 </span>            :      * In other words: in Perl UTF-8 is not just for Unicode. */
+<span class="lineNum">     907 </span>            : 
+<span class="lineNum">     908 </span>            :     if (off &gt;= 0) {
+<span class="lineNum">     909 </span>            :   while (off--)
+<span class="lineNum">     910 </span>            :       s += UTF8SKIP(s);
+<span class="lineNum">     911 </span>            :     }
+<span class="lineNum">     912 </span>            :     else {
+<span class="lineNum">     913 </span>            :   while (off++) {
+<span class="lineNum">     914 </span>            :       s--;
+<span class="lineNum">     915 </span>            :       while (UTF8_IS_CONTINUATION(*s))
+<span class="lineNum">     916 </span>            :     s--;
+<span class="lineNum">     917 </span>            :   }
+<span class="lineNum">     918 </span>            :     }
+<span class="lineNum">     919 </span>            :     GCC_DIAG_IGNORE(-Wcast-qual);
+<span class="lineNum">     920 </span>            :     return (U8 *)s;
+<span class="lineNum">     921 </span>            :     GCC_DIAG_RESTORE;
+<span class="lineNum">     922 </span>            : }
+<span class="lineNum">     923 </span>            : 
+<span class="lineNum">     924 </span>            : /*
+<span class="lineNum">     925 </span>            : =for apidoc utf8_hop_forward
+<span class="lineNum">     926 </span>            : 
+<span class="lineNum">     927 </span>            : Return the UTF-8 pointer C&lt;s&gt; displaced by up to C&lt;off&gt; characters,
+<span class="lineNum">     928 </span>            : forward.
+<span class="lineNum">     929 </span>            : 
+<span class="lineNum">     930 </span>            : C&lt;off&gt; must be non-negative.
+<span class="lineNum">     931 </span>            : 
+<span class="lineNum">     932 </span>            : C&lt;s&gt; must be before or equal to C&lt;end&gt;.
+<span class="lineNum">     933 </span>            : 
+<span class="lineNum">     934 </span>            : When moving forward it will not move beyond C&lt;end&gt;.
+<span class="lineNum">     935 </span>            : 
+<span class="lineNum">     936 </span>            : Will not exceed this limit even if the string is not valid &quot;UTF-8&quot;.
+<span class="lineNum">     937 </span>            : 
+<span class="lineNum">     938 </span>            : =cut
+<span class="lineNum">     939 </span>            : */
+<span class="lineNum">     940 </span>            : 
+<span class="lineNum">     941 </span>            : PERL_STATIC_INLINE U8 *
+<span class="lineNum">     942 </span>            : Perl_utf8_hop_forward(const U8 *s, SSize_t off, const U8 *end)
+<span class="lineNum">     943 </span>            : {
+<span class="lineNum">     944 </span>            :     PERL_ARGS_ASSERT_UTF8_HOP_FORWARD;
+<span class="lineNum">     945 </span>            : 
+<span class="lineNum">     946 </span>            :     /* Note: cannot use UTF8_IS_...() too eagerly here since e.g
+<span class="lineNum">     947 </span>            :      * the bitops (especially ~) can create illegal UTF-8.
+<span class="lineNum">     948 </span>            :      * In other words: in Perl UTF-8 is not just for Unicode. */
+<span class="lineNum">     949 </span>            : 
+<span class="lineNum">     950 </span>            :     assert(s &lt;= end);
+<span class="lineNum">     951 </span>            :     assert(off &gt;= 0);
+<span class="lineNum">     952 </span>            : 
+<span class="lineNum">     953 </span>            :     while (off--) {
+<span class="lineNum">     954 </span>            :         STRLEN skip = UTF8SKIP(s);
+<span class="lineNum">     955 </span>            :         if ((STRLEN)(end - s) &lt;= skip) {
+<span class="lineNum">     956 </span>            :             GCC_DIAG_IGNORE(-Wcast-qual);
+<span class="lineNum">     957 </span>            :             return (U8 *)end;
+<span class="lineNum">     958 </span>            :             GCC_DIAG_RESTORE;
+<span class="lineNum">     959 </span>            :         }
+<span class="lineNum">     960 </span>            :         s += skip;
+<span class="lineNum">     961 </span>            :     }
+<span class="lineNum">     962 </span>            : 
+<span class="lineNum">     963 </span>            :     GCC_DIAG_IGNORE(-Wcast-qual);
+<span class="lineNum">     964 </span>            :     return (U8 *)s;
+<span class="lineNum">     965 </span>            :     GCC_DIAG_RESTORE;
+<span class="lineNum">     966 </span>            : }
+<span class="lineNum">     967 </span>            : 
+<span class="lineNum">     968 </span>            : /*
+<span class="lineNum">     969 </span>            : =for apidoc utf8_hop_back
+<span class="lineNum">     970 </span>            : 
+<span class="lineNum">     971 </span>            : Return the UTF-8 pointer C&lt;s&gt; displaced by up to C&lt;off&gt; characters,
+<span class="lineNum">     972 </span>            : backward.
+<span class="lineNum">     973 </span>            : 
+<span class="lineNum">     974 </span>            : C&lt;off&gt; must be non-positive.
+<span class="lineNum">     975 </span>            : 
+<span class="lineNum">     976 </span>            : C&lt;s&gt; must be after or equal to C&lt;start&gt;.
+<span class="lineNum">     977 </span>            : 
+<span class="lineNum">     978 </span>            : When moving backward it will not move before C&lt;start&gt;.
+<span class="lineNum">     979 </span>            : 
+<span class="lineNum">     980 </span>            : Will not exceed this limit even if the string is not valid &quot;UTF-8&quot;.
+<span class="lineNum">     981 </span>            : 
+<span class="lineNum">     982 </span>            : =cut
+<span class="lineNum">     983 </span>            : */
+<span class="lineNum">     984 </span>            : 
+<span class="lineNum">     985 </span>            : PERL_STATIC_INLINE U8 *
+<span class="lineNum">     986 </span>            : Perl_utf8_hop_back(const U8 *s, SSize_t off, const U8 *start)
+<span class="lineNum">     987 </span>            : {
+<span class="lineNum">     988 </span>            :     PERL_ARGS_ASSERT_UTF8_HOP_BACK;
+<span class="lineNum">     989 </span>            : 
+<span class="lineNum">     990 </span>            :     /* Note: cannot use UTF8_IS_...() too eagerly here since e.g
+<span class="lineNum">     991 </span>            :      * the bitops (especially ~) can create illegal UTF-8.
+<span class="lineNum">     992 </span>            :      * In other words: in Perl UTF-8 is not just for Unicode. */
+<span class="lineNum">     993 </span>            : 
+<span class="lineNum">     994 </span>            :     assert(start &lt;= s);
+<span class="lineNum">     995 </span>            :     assert(off &lt;= 0);
+<span class="lineNum">     996 </span>            : 
+<span class="lineNum">     997 </span>            :     while (off++ &amp;&amp; s &gt; start) {
+<span class="lineNum">     998 </span>            :         s--;
+<span class="lineNum">     999 </span>            :         while (UTF8_IS_CONTINUATION(*s) &amp;&amp; s &gt; start)
+<span class="lineNum">    1000 </span>            :             s--;
+<span class="lineNum">    1001 </span>            :     }
+<span class="lineNum">    1002 </span>            :     
+<span class="lineNum">    1003 </span>            :     GCC_DIAG_IGNORE(-Wcast-qual);
+<span class="lineNum">    1004 </span>            :     return (U8 *)s;
+<span class="lineNum">    1005 </span>            :     GCC_DIAG_RESTORE;
+<span class="lineNum">    1006 </span>            : }
+<span class="lineNum">    1007 </span>            : 
+<span class="lineNum">    1008 </span>            : /*
+<span class="lineNum">    1009 </span>            : =for apidoc utf8_hop_safe
+<span class="lineNum">    1010 </span>            : 
+<span class="lineNum">    1011 </span>            : Return the UTF-8 pointer C&lt;s&gt; displaced by up to C&lt;off&gt; characters,
+<span class="lineNum">    1012 </span>            : either forward or backward.
+<span class="lineNum">    1013 </span>            : 
+<span class="lineNum">    1014 </span>            : When moving backward it will not move before C&lt;start&gt;.
+<span class="lineNum">    1015 </span>            : 
+<span class="lineNum">    1016 </span>            : When moving forward it will not move beyond C&lt;end&gt;.
+<span class="lineNum">    1017 </span>            : 
+<span class="lineNum">    1018 </span>            : Will not exceed those limits even if the string is not valid &quot;UTF-8&quot;.
+<span class="lineNum">    1019 </span>            : 
+<span class="lineNum">    1020 </span>            : =cut
+<span class="lineNum">    1021 </span>            : */
+<span class="lineNum">    1022 </span>            : 
+<span class="lineNum">    1023 </span>            : PERL_STATIC_INLINE U8 *
+<span class="lineNum">    1024 </span>            : Perl_utf8_hop_safe(const U8 *s, SSize_t off, const U8 *start, const U8 *end)
+<span class="lineNum">    1025 </span>            : {
+<span class="lineNum">    1026 </span>            :     PERL_ARGS_ASSERT_UTF8_HOP_SAFE;
+<span class="lineNum">    1027 </span>            : 
+<span class="lineNum">    1028 </span>            :     /* Note: cannot use UTF8_IS_...() too eagerly here since e.g
+<span class="lineNum">    1029 </span>            :      * the bitops (especially ~) can create illegal UTF-8.
+<span class="lineNum">    1030 </span>            :      * In other words: in Perl UTF-8 is not just for Unicode. */
+<span class="lineNum">    1031 </span>            : 
+<span class="lineNum">    1032 </span>            :     assert(start &lt;= s &amp;&amp; s &lt;= end);
+<span class="lineNum">    1033 </span>            : 
+<span class="lineNum">    1034 </span>            :     if (off &gt;= 0) {
+<span class="lineNum">    1035 </span>            :         return utf8_hop_forward(s, off, end);
+<span class="lineNum">    1036 </span>            :     }
+<span class="lineNum">    1037 </span>            :     else {
+<span class="lineNum">    1038 </span>            :         return utf8_hop_back(s, off, start);
+<span class="lineNum">    1039 </span>            :     }
+<span class="lineNum">    1040 </span>            : }
+<span class="lineNum">    1041 </span>            : 
+<span class="lineNum">    1042 </span>            : /*
+<span class="lineNum">    1043 </span>            : 
+<span class="lineNum">    1044 </span>            : =for apidoc is_utf8_valid_partial_char
+<span class="lineNum">    1045 </span>            : 
+<span class="lineNum">    1046 </span>            : Returns 0 if the sequence of bytes starting at C&lt;s&gt; and looking no further than
+<span class="lineNum">    1047 </span>            : S&lt;C&lt;e - 1&gt;&gt; is the UTF-8 encoding, as extended by Perl, for one or more code
+<span class="lineNum">    1048 </span>            : points.  Otherwise, it returns 1 if there exists at least one non-empty
+<span class="lineNum">    1049 </span>            : sequence of bytes that when appended to sequence C&lt;s&gt;, starting at position
+<span class="lineNum">    1050 </span>            : C&lt;e&gt; causes the entire sequence to be the well-formed UTF-8 of some code point;
+<span class="lineNum">    1051 </span>            : otherwise returns 0.
+<span class="lineNum">    1052 </span>            : 
+<span class="lineNum">    1053 </span>            : In other words this returns TRUE if C&lt;s&gt; points to a partial UTF-8-encoded code
+<span class="lineNum">    1054 </span>            : point.
+<span class="lineNum">    1055 </span>            : 
+<span class="lineNum">    1056 </span>            : This is useful when a fixed-length buffer is being tested for being well-formed
+<span class="lineNum">    1057 </span>            : UTF-8, but the final few bytes in it don't comprise a full character; that is,
+<span class="lineNum">    1058 </span>            : it is split somewhere in the middle of the final code point's UTF-8
+<span class="lineNum">    1059 </span>            : representation.  (Presumably when the buffer is refreshed with the next chunk
+<span class="lineNum">    1060 </span>            : of data, the new first bytes will complete the partial code point.)   This
+<span class="lineNum">    1061 </span>            : function is used to verify that the final bytes in the current buffer are in
+<span class="lineNum">    1062 </span>            : fact the legal beginning of some code point, so that if they aren't, the
+<span class="lineNum">    1063 </span>            : failure can be signalled without having to wait for the next read.
+<span class="lineNum">    1064 </span>            : 
+<span class="lineNum">    1065 </span>            : =cut
+<span class="lineNum">    1066 </span>            : */
+<span class="lineNum">    1067 </span>            : #define is_utf8_valid_partial_char(s, e)                                    \
+<span class="lineNum">    1068 </span>            :                                 is_utf8_valid_partial_char_flags(s, e, 0)
+<span class="lineNum">    1069 </span>            : 
+<span class="lineNum">    1070 </span>            : /*
+<span class="lineNum">    1071 </span>            : 
+<span class="lineNum">    1072 </span>            : =for apidoc is_utf8_valid_partial_char_flags
+<span class="lineNum">    1073 </span>            : 
+<span class="lineNum">    1074 </span>            : Like C&lt;L&lt;/is_utf8_valid_partial_char&gt;&gt;, it returns a boolean giving whether
+<span class="lineNum">    1075 </span>            : or not the input is a valid UTF-8 encoded partial character, but it takes an
+<span class="lineNum">    1076 </span>            : extra parameter, C&lt;flags&gt;, which can further restrict which code points are
+<span class="lineNum">    1077 </span>            : considered valid.
+<span class="lineNum">    1078 </span>            : 
+<span class="lineNum">    1079 </span>            : If C&lt;flags&gt; is 0, this behaves identically to
+<span class="lineNum">    1080 </span>            : C&lt;L&lt;/is_utf8_valid_partial_char&gt;&gt;.  Otherwise C&lt;flags&gt; can be any combination
+<span class="lineNum">    1081 </span>            : of the C&lt;UTF8_DISALLOW_I&lt;foo&gt;&gt; flags accepted by C&lt;L&lt;/utf8n_to_uvchr&gt;&gt;.  If
+<span class="lineNum">    1082 </span>            : there is any sequence of bytes that can complete the input partial character in
+<span class="lineNum">    1083 </span>            : such a way that a non-prohibited character is formed, the function returns
+<span class="lineNum">    1084 </span>            : TRUE; otherwise FALSE.  Non character code points cannot be determined based on
+<span class="lineNum">    1085 </span>            : partial character input.  But many  of the other possible excluded types can be
+<span class="lineNum">    1086 </span>            : determined from just the first one or two bytes.
+<span class="lineNum">    1087 </span>            : 
+<span class="lineNum">    1088 </span>            : =cut
+<span class="lineNum">    1089 </span>            :  */
+<span class="lineNum">    1090 </span>            : 
+<span class="lineNum">    1091 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">    1092 </span>            : S_is_utf8_valid_partial_char_flags(const U8 * const s, const U8 * const e, const U32 flags)
+<span class="lineNum">    1093 </span>            : {
+<span class="lineNum">    1094 </span>            :     PERL_ARGS_ASSERT_IS_UTF8_VALID_PARTIAL_CHAR_FLAGS;
+<span class="lineNum">    1095 </span>            : 
+<span class="lineNum">    1096 </span>            :     assert(0 == (flags &amp; ~(UTF8_DISALLOW_ILLEGAL_INTERCHANGE
+<span class="lineNum">    1097 </span>            :                           |UTF8_DISALLOW_ABOVE_31_BIT)));
+<span class="lineNum">    1098 </span>            : 
+<span class="lineNum">    1099 </span>            :     if (s &gt;= e || s + UTF8SKIP(s) &lt;= e) {
+<span class="lineNum">    1100 </span>            :         return FALSE;
+<span class="lineNum">    1101 </span>            :     }
+<span class="lineNum">    1102 </span>            : 
+<span class="lineNum">    1103 </span>            :     return cBOOL(_is_utf8_char_helper(s, e, flags));
+<span class="lineNum">    1104 </span>            : }
+<span class="lineNum">    1105 </span>            : 
+<span class="lineNum">    1106 </span>            : /*
+<span class="lineNum">    1107 </span>            : 
+<span class="lineNum">    1108 </span>            : =for apidoc is_utf8_fixed_width_buf_flags
+<span class="lineNum">    1109 </span>            : 
+<span class="lineNum">    1110 </span>            : Returns TRUE if the fixed-width buffer starting at C&lt;s&gt; with length C&lt;len&gt;
+<span class="lineNum">    1111 </span>            : is entirely valid UTF-8, subject to the restrictions given by C&lt;flags&gt;;
+<span class="lineNum">    1112 </span>            : otherwise it returns FALSE.
+<span class="lineNum">    1113 </span>            : 
+<span class="lineNum">    1114 </span>            : If C&lt;flags&gt; is 0, any well-formed UTF-8, as extended by Perl, is accepted
+<span class="lineNum">    1115 </span>            : without restriction.  If the final few bytes of the buffer do not form a
+<span class="lineNum">    1116 </span>            : complete code point, this will return TRUE anyway, provided that
+<span class="lineNum">    1117 </span>            : C&lt;L&lt;/is_utf8_valid_partial_char_flags&gt;&gt; returns TRUE for them.
+<span class="lineNum">    1118 </span>            : 
+<span class="lineNum">    1119 </span>            : If C&lt;flags&gt; in non-zero, it can be any combination of the
+<span class="lineNum">    1120 </span>            : C&lt;UTF8_DISALLOW_I&lt;foo&gt;&gt; flags accepted by C&lt;L&lt;/utf8n_to_uvchr&gt;&gt;, and with the
+<span class="lineNum">    1121 </span>            : same meanings.
+<span class="lineNum">    1122 </span>            : 
+<span class="lineNum">    1123 </span>            : This function differs from C&lt;L&lt;/is_utf8_string_flags&gt;&gt; only in that the latter
+<span class="lineNum">    1124 </span>            : returns FALSE if the final few bytes of the string don't form a complete code
+<span class="lineNum">    1125 </span>            : point.
+<span class="lineNum">    1126 </span>            : 
+<span class="lineNum">    1127 </span>            : =cut
+<span class="lineNum">    1128 </span>            :  */
+<span class="lineNum">    1129 </span>            : #define is_utf8_fixed_width_buf_flags(s, len, flags)                        \
+<span class="lineNum">    1130 </span>            :                 is_utf8_fixed_width_buf_loclen_flags(s, len, 0, 0, flags)
+<span class="lineNum">    1131 </span>            : 
+<span class="lineNum">    1132 </span>            : /*
+<span class="lineNum">    1133 </span>            : 
+<span class="lineNum">    1134 </span>            : =for apidoc is_utf8_fixed_width_buf_loc_flags
+<span class="lineNum">    1135 </span>            : 
+<span class="lineNum">    1136 </span>            : Like C&lt;L&lt;/is_utf8_fixed_width_buf_flags&gt;&gt; but stores the location of the
+<span class="lineNum">    1137 </span>            : failure in the C&lt;ep&gt; pointer.  If the function returns TRUE, C&lt;*ep&gt; will point
+<span class="lineNum">    1138 </span>            : to the beginning of any partial character at the end of the buffer; if there is
+<span class="lineNum">    1139 </span>            : no partial character C&lt;*ep&gt; will contain C&lt;s&gt;+C&lt;len&gt;.
+<span class="lineNum">    1140 </span>            : 
+<span class="lineNum">    1141 </span>            : See also C&lt;L&lt;/is_utf8_fixed_width_buf_loclen_flags&gt;&gt;.
+<span class="lineNum">    1142 </span>            : 
+<span class="lineNum">    1143 </span>            : =cut
+<span class="lineNum">    1144 </span>            : */
+<span class="lineNum">    1145 </span>            : 
+<span class="lineNum">    1146 </span>            : #define is_utf8_fixed_width_buf_loc_flags(s, len, loc, flags)               \
+<span class="lineNum">    1147 </span>            :                 is_utf8_fixed_width_buf_loclen_flags(s, len, loc, 0, flags)
+<span class="lineNum">    1148 </span>            : 
+<span class="lineNum">    1149 </span>            : /*
+<span class="lineNum">    1150 </span>            : 
+<span class="lineNum">    1151 </span>            : =for apidoc is_utf8_fixed_width_buf_loclen_flags
+<span class="lineNum">    1152 </span>            : 
+<span class="lineNum">    1153 </span>            : Like C&lt;L&lt;/is_utf8_fixed_width_buf_loc_flags&gt;&gt; but stores the number of
+<span class="lineNum">    1154 </span>            : complete, valid characters found in the C&lt;el&gt; pointer.
+<span class="lineNum">    1155 </span>            : 
+<span class="lineNum">    1156 </span>            : =cut
+<span class="lineNum">    1157 </span>            : */
+<span class="lineNum">    1158 </span>            : 
+<span class="lineNum">    1159 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">    1160 </span>            : S_is_utf8_fixed_width_buf_loclen_flags(const U8 * const s,
+<span class="lineNum">    1161 </span>            :                                        const STRLEN len,
+<span class="lineNum">    1162 </span>            :                                        const U8 **ep,
+<span class="lineNum">    1163 </span>            :                                        STRLEN *el,
+<span class="lineNum">    1164 </span>            :                                        const U32 flags)
+<span class="lineNum">    1165 </span>            : {
+<span class="lineNum">    1166 </span>            :     const U8 * maybe_partial;
+<span class="lineNum">    1167 </span>            : 
+<span class="lineNum">    1168 </span>            :     PERL_ARGS_ASSERT_IS_UTF8_FIXED_WIDTH_BUF_LOCLEN_FLAGS;
+<span class="lineNum">    1169 </span>            : 
+<span class="lineNum">    1170 </span>            :     if (! ep) {
+<span class="lineNum">    1171 </span>            :         ep  = &amp;maybe_partial;
+<span class="lineNum">    1172 </span>            :     }
+<span class="lineNum">    1173 </span>            : 
+<span class="lineNum">    1174 </span>            :     /* If it's entirely valid, return that; otherwise see if the only error is
+<span class="lineNum">    1175 </span>            :      * that the final few bytes are for a partial character */
+<span class="lineNum">    1176 </span>            :     return    is_utf8_string_loclen_flags(s, len, ep, el, flags)
+<span class="lineNum">    1177 </span>            :            || is_utf8_valid_partial_char_flags(*ep, s + len, flags);
+<span class="lineNum">    1178 </span>            : }
+<span class="lineNum">    1179 </span>            : 
+<span class="lineNum">    1180 </span>            : /* ------------------------------- perl.h ----------------------------- */
+<span class="lineNum">    1181 </span>            : 
+<span class="lineNum">    1182 </span>            : /*
+<span class="lineNum">    1183 </span>            : =head1 Miscellaneous Functions
+<span class="lineNum">    1184 </span>            : 
+<span class="lineNum">    1185 </span>            : =for apidoc AiR|bool|is_safe_syscall|const char *pv|STRLEN len|const char *what|const char *op_name
+<span class="lineNum">    1186 </span>            : 
+<span class="lineNum">    1187 </span>            : Test that the given C&lt;pv&gt; doesn't contain any internal C&lt;NUL&gt; characters.
+<span class="lineNum">    1188 </span>            : If it does, set C&lt;errno&gt; to C&lt;ENOENT&gt;, optionally warn, and return FALSE.
+<span class="lineNum">    1189 </span>            : 
+<span class="lineNum">    1190 </span>            : Return TRUE if the name is safe.
+<span class="lineNum">    1191 </span>            : 
+<span class="lineNum">    1192 </span>            : Used by the C&lt;IS_SAFE_SYSCALL()&gt; macro.
+<span class="lineNum">    1193 </span>            : 
+<span class="lineNum">    1194 </span>            : =cut
+<span class="lineNum">    1195 </span>            : */
+<span class="lineNum">    1196 </span>            : 
+<span class="lineNum">    1197 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">    1198 </span>            : S_is_safe_syscall(pTHX_ const char *pv, STRLEN len, const char *what, const char *op_name) {
+<span class="lineNum">    1199 </span>            :     /* While the Windows CE API provides only UCS-16 (or UTF-16) APIs
+<span class="lineNum">    1200 </span>            :      * perl itself uses xce*() functions which accept 8-bit strings.
+<span class="lineNum">    1201 </span>            :      */
+<span class="lineNum">    1202 </span>            : 
+<span class="lineNum">    1203 </span>            :     PERL_ARGS_ASSERT_IS_SAFE_SYSCALL;
+<span class="lineNum">    1204 </span>            : 
+<span class="lineNum">    1205 </span>            :     if (len &gt; 1) {
+<span class="lineNum">    1206 </span>            :         char *null_at;
+<span class="lineNum">    1207 </span>            :         if (UNLIKELY((null_at = (char *)memchr(pv, 0, len-1)) != NULL)) {
+<span class="lineNum">    1208 </span>            :                 SETERRNO(ENOENT, LIB_INVARG);
+<span class="lineNum">    1209 </span>            :                 Perl_ck_warner(aTHX_ packWARN(WARN_SYSCALLS),
+<span class="lineNum">    1210 </span>            :                                    &quot;Invalid \\0 character in %s for %s: %s\\0%s&quot;,
+<span class="lineNum">    1211 </span>            :                                    what, op_name, pv, null_at+1);
+<span class="lineNum">    1212 </span>            :                 return FALSE;
+<span class="lineNum">    1213 </span>            :         }
+<span class="lineNum">    1214 </span>            :     }
+<span class="lineNum">    1215 </span>            : 
+<span class="lineNum">    1216 </span>            :     return TRUE;
+<span class="lineNum">    1217 </span>            : }
+<span class="lineNum">    1218 </span>            : 
+<span class="lineNum">    1219 </span>            : /*
+<span class="lineNum">    1220 </span>            : 
+<span class="lineNum">    1221 </span>            : Return true if the supplied filename has a newline character
+<span class="lineNum">    1222 </span>            : immediately before the first (hopefully only) NUL.
+<span class="lineNum">    1223 </span>            : 
+<span class="lineNum">    1224 </span>            : My original look at this incorrectly used the len from SvPV(), but
+<span class="lineNum">    1225 </span>            : that's incorrect, since we allow for a NUL in pv[len-1].
+<span class="lineNum">    1226 </span>            : 
+<span class="lineNum">    1227 </span>            : So instead, strlen() and work from there.
+<span class="lineNum">    1228 </span>            : 
+<span class="lineNum">    1229 </span>            : This allow for the user reading a filename, forgetting to chomp it,
+<span class="lineNum">    1230 </span>            : then calling:
+<span class="lineNum">    1231 </span>            : 
+<span class="lineNum">    1232 </span>            :   open my $foo, &quot;$file\0&quot;;
+<span class="lineNum">    1233 </span>            : 
+<span class="lineNum">    1234 </span>            : */
+<span class="lineNum">    1235 </span>            : 
+<span class="lineNum">    1236 </span>            : #ifdef PERL_CORE
+<span class="lineNum">    1237 </span>            : 
+<span class="lineNum">    1238 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">    1239 </span>            : S_should_warn_nl(const char *pv) {
+<span class="lineNum">    1240 </span>            :     STRLEN len;
+<span class="lineNum">    1241 </span>            : 
+<span class="lineNum">    1242 </span>            :     PERL_ARGS_ASSERT_SHOULD_WARN_NL;
+<span class="lineNum">    1243 </span>            : 
+<span class="lineNum">    1244 </span>            :     len = strlen(pv);
+<span class="lineNum">    1245 </span>            : 
+<span class="lineNum">    1246 </span>            :     return len &gt; 0 &amp;&amp; pv[len-1] == '\n';
+<span class="lineNum">    1247 </span>            : }
+<span class="lineNum">    1248 </span>            : 
+<span class="lineNum">    1249 </span>            : #endif
+<span class="lineNum">    1250 </span>            : 
+<span class="lineNum">    1251 </span>            : /* ------------------ pp.c, regcomp.c, toke.c, universal.c ------------ */
+<span class="lineNum">    1252 </span>            : 
+<span class="lineNum">    1253 </span>            : #define MAX_CHARSET_NAME_LENGTH 2
+<span class="lineNum">    1254 </span>            : 
+<span class="lineNum">    1255 </span>            : PERL_STATIC_INLINE const char *
+<span class="lineNum">    1256 </span>            : get_regex_charset_name(const U32 flags, STRLEN* const lenp)
+<span class="lineNum">    1257 </span>            : {
+<span class="lineNum">    1258 </span>            :     /* Returns a string that corresponds to the name of the regex character set
+<span class="lineNum">    1259 </span>            :      * given by 'flags', and *lenp is set the length of that string, which
+<span class="lineNum">    1260 </span>            :      * cannot exceed MAX_CHARSET_NAME_LENGTH characters */
+<span class="lineNum">    1261 </span>            : 
+<span class="lineNum">    1262 </span>            :     *lenp = 1;
+<span class="lineNum">    1263 </span>            :     switch (get_regex_charset(flags)) {
+<span class="lineNum">    1264 </span>            :         case REGEX_DEPENDS_CHARSET: return DEPENDS_PAT_MODS;
+<span class="lineNum">    1265 </span>            :         case REGEX_LOCALE_CHARSET:  return LOCALE_PAT_MODS;
+<span class="lineNum">    1266 </span>            :         case REGEX_UNICODE_CHARSET: return UNICODE_PAT_MODS;
+<span class="lineNum">    1267 </span>            :   case REGEX_ASCII_RESTRICTED_CHARSET: return ASCII_RESTRICT_PAT_MODS;
+<span class="lineNum">    1268 </span>            :   case REGEX_ASCII_MORE_RESTRICTED_CHARSET:
+<span class="lineNum">    1269 </span>            :       *lenp = 2;
+<span class="lineNum">    1270 </span>            :       return ASCII_MORE_RESTRICT_PAT_MODS;
+<span class="lineNum">    1271 </span>            :     }
+<span class="lineNum">    1272 </span>            :     /* The NOT_REACHED; hides an assert() which has a rather complex
+<span class="lineNum">    1273 </span>            :      * definition in perl.h. */
+<span class="lineNum">    1274 </span>            :     NOT_REACHED; /* NOTREACHED */
+<span class="lineNum">    1275 </span>            :     return &quot;?&quot;;     /* Unknown */
+<span class="lineNum">    1276 </span>            : }
+<span class="lineNum">    1277 </span>            : 
+<span class="lineNum">    1278 </span>            : /*
+<span class="lineNum">    1279 </span>            : 
+<span class="lineNum">    1280 </span>            : Return false if any get magic is on the SV other than taint magic.
+<span class="lineNum">    1281 </span>            : 
+<span class="lineNum">    1282 </span>            : */
+<span class="lineNum">    1283 </span>            : 
+<span class="lineNum">    1284 </span>            : PERL_STATIC_INLINE bool
+<span class="lineNum">    1285 </span>            : S_sv_only_taint_gmagic(SV *sv) {
+<span class="lineNum">    1286 </span>            :     MAGIC *mg = SvMAGIC(sv);
+<span class="lineNum">    1287 </span>            : 
+<span class="lineNum">    1288 </span>            :     PERL_ARGS_ASSERT_SV_ONLY_TAINT_GMAGIC;
+<span class="lineNum">    1289 </span>            : 
+<span class="lineNum">    1290 </span>            :     while (mg) {
+<span class="lineNum">    1291 </span>            :         if (mg-&gt;mg_type != PERL_MAGIC_taint
+<span class="lineNum">    1292 </span>            :             &amp;&amp; !(mg-&gt;mg_flags &amp; MGf_GSKIP)
+<span class="lineNum">    1293 </span>            :             &amp;&amp; mg-&gt;mg_virtual-&gt;svt_get) {
+<span class="lineNum">    1294 </span>            :             return FALSE;
+<span class="lineNum">    1295 </span>            :         }
+<span class="lineNum">    1296 </span>            :         mg = mg-&gt;mg_moremagic;
+<span class="lineNum">    1297 </span>            :     }
+<span class="lineNum">    1298 </span>            : 
+<span class="lineNum">    1299 </span>            :     return TRUE;
+<span class="lineNum">    1300 </span>            : }
+<span class="lineNum">    1301 </span>            : 
+<span class="lineNum">    1302 </span>            : /* ------------------ cop.h ------------------------------------------- */
+<span class="lineNum">    1303 </span>            : 
+<span class="lineNum">    1304 </span>            : 
+<span class="lineNum">    1305 </span>            : /* Enter a block. Push a new base context and return its address. */
+<span class="lineNum">    1306 </span>            : 
+<span class="lineNum">    1307 </span>            : PERL_STATIC_INLINE PERL_CONTEXT *
+<span class="lineNum">    1308 </span>            : S_cx_pushblock(pTHX_ U8 type, U8 gimme, SV** sp, I32 saveix)
+<span class="lineNum">    1309 </span>            : {
+<span class="lineNum">    1310 </span>            :     PERL_CONTEXT * cx;
+<span class="lineNum">    1311 </span>            : 
+<span class="lineNum">    1312 </span>            :     PERL_ARGS_ASSERT_CX_PUSHBLOCK;
+<span class="lineNum">    1313 </span>            : 
+<span class="lineNum">    1314 </span>            :     CXINC;
+<span class="lineNum">    1315 </span>            :     cx = CX_CUR();
+<span class="lineNum">    1316 </span>            :     cx-&gt;cx_type        = type;
+<span class="lineNum">    1317 </span>            :     cx-&gt;blk_gimme      = gimme;
+<span class="lineNum">    1318 </span>            :     cx-&gt;blk_oldsaveix  = saveix;
+<span class="lineNum">    1319 </span>            :     cx-&gt;blk_oldsp      = (I32)(sp - PL_stack_base);
+<span class="lineNum">    1320 </span>            :     cx-&gt;blk_oldcop     = PL_curcop;
+<span class="lineNum">    1321 </span>            :     cx-&gt;blk_oldmarksp  = (I32)(PL_markstack_ptr - PL_markstack);
+<span class="lineNum">    1322 </span>            :     cx-&gt;blk_oldscopesp = PL_scopestack_ix;
+<span class="lineNum">    1323 </span>            :     cx-&gt;blk_oldpm      = PL_curpm;
+<span class="lineNum">    1324 </span>            :     cx-&gt;blk_old_tmpsfloor = PL_tmps_floor;
+<span class="lineNum">    1325 </span>            : 
+<span class="lineNum">    1326 </span>            :     PL_tmps_floor        = PL_tmps_ix;
+<span class="lineNum">    1327 </span>            :     CX_DEBUG(cx, &quot;PUSH&quot;);
+<span class="lineNum">    1328 </span>            :     return cx;
+<span class="lineNum">    1329 </span>            : }
+<span class="lineNum">    1330 </span>            : 
+<span class="lineNum">    1331 </span>            : 
+<span class="lineNum">    1332 </span>            : /* Exit a block (RETURN and LAST). */
+<span class="lineNum">    1333 </span>            : 
+<span class="lineNum">    1334 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1335 </span>            : S_cx_popblock(pTHX_ PERL_CONTEXT *cx)
+<span class="lineNum">    1336 </span>            : {
+<span class="lineNum">    1337 </span>            :     PERL_ARGS_ASSERT_CX_POPBLOCK;
+<span class="lineNum">    1338 </span>            : 
+<span class="lineNum">    1339 </span>            :     CX_DEBUG(cx, &quot;POP&quot;);
+<span class="lineNum">    1340 </span>            :     /* these 3 are common to cx_popblock and cx_topblock */
+<span class="lineNum">    1341 </span>            :     PL_markstack_ptr = PL_markstack + cx-&gt;blk_oldmarksp;
+<span class="lineNum">    1342 </span>            :     PL_scopestack_ix = cx-&gt;blk_oldscopesp;
+<span class="lineNum">    1343 </span>            :     PL_curpm         = cx-&gt;blk_oldpm;
+<span class="lineNum">    1344 </span>            : 
+<span class="lineNum">    1345 </span>            :     /* LEAVE_SCOPE() should have made this true. /(?{})/ cheats
+<span class="lineNum">    1346 </span>            :      * and leaves a CX entry lying around for repeated use, so
+<span class="lineNum">    1347 </span>            :      * skip for multicall */                  \
+<span class="lineNum">    1348 </span>            :     assert(   (CxTYPE(cx) == CXt_SUB &amp;&amp; CxMULTICALL(cx))
+<span class="lineNum">    1349 </span>            :             || PL_savestack_ix == cx-&gt;blk_oldsaveix);
+<span class="lineNum">    1350 </span>            :     PL_curcop     = cx-&gt;blk_oldcop;
+<span class="lineNum">    1351 </span>            :     PL_tmps_floor = cx-&gt;blk_old_tmpsfloor;
+<span class="lineNum">    1352 </span>            : }
+<span class="lineNum">    1353 </span>            : 
+<span class="lineNum">    1354 </span>            : /* Continue a block elsewhere (e.g. NEXT, REDO, GOTO).
+<span class="lineNum">    1355 </span>            :  * Whereas cx_popblock() restores the state to the point just before
+<span class="lineNum">    1356 </span>            :  * cx_pushblock() was called,  cx_topblock() restores it to the point just
+<span class="lineNum">    1357 </span>            :  * *after* cx_pushblock() was called. */
+<span class="lineNum">    1358 </span>            : 
+<span class="lineNum">    1359 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1360 </span>            : S_cx_topblock(pTHX_ PERL_CONTEXT *cx)
+<span class="lineNum">    1361 </span>            : {
+<span class="lineNum">    1362 </span>            :     PERL_ARGS_ASSERT_CX_TOPBLOCK;
+<span class="lineNum">    1363 </span>            : 
+<span class="lineNum">    1364 </span>            :     CX_DEBUG(cx, &quot;TOP&quot;);
+<span class="lineNum">    1365 </span>            :     /* these 3 are common to cx_popblock and cx_topblock */
+<span class="lineNum">    1366 </span>            :     PL_markstack_ptr = PL_markstack + cx-&gt;blk_oldmarksp;
+<span class="lineNum">    1367 </span>            :     PL_scopestack_ix = cx-&gt;blk_oldscopesp;
+<span class="lineNum">    1368 </span>            :     PL_curpm         = cx-&gt;blk_oldpm;
+<span class="lineNum">    1369 </span>            : 
+<span class="lineNum">    1370 </span>            :     PL_stack_sp      = PL_stack_base + cx-&gt;blk_oldsp;
+<span class="lineNum">    1371 </span>            : }
+<span class="lineNum">    1372 </span>            : 
+<span class="lineNum">    1373 </span>            : 
+<span class="lineNum">    1374 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1375 </span>            : S_cx_pushsub(pTHX_ PERL_CONTEXT *cx, CV *cv, OP *retop, bool hasargs)
+<span class="lineNum">    1376 </span>            : {
+<span class="lineNum">    1377 </span>            :     U8 phlags = CX_PUSHSUB_GET_LVALUE_MASK(Perl_was_lvalue_sub);
+<span class="lineNum">    1378 </span>            : 
+<span class="lineNum">    1379 </span>            :     PERL_ARGS_ASSERT_CX_PUSHSUB;
+<span class="lineNum">    1380 </span>            : 
+<span class="lineNum">    1381 </span>            :     PERL_DTRACE_PROBE_ENTRY(cv);
+<span class="lineNum">    1382 </span>            :     cx-&gt;blk_sub.cv = cv;
+<span class="lineNum">    1383 </span>            :     cx-&gt;blk_sub.olddepth = CvDEPTH(cv);
+<span class="lineNum">    1384 </span>            :     cx-&gt;blk_sub.prevcomppad = PL_comppad;
+<span class="lineNum">    1385 </span>            :     cx-&gt;cx_type |= (hasargs) ? CXp_HASARGS : 0;
+<span class="lineNum">    1386 </span>            :     cx-&gt;blk_sub.retop = retop;
+<span class="lineNum">    1387 </span>            :     SvREFCNT_inc_simple_void_NN(cv);
+<span class="lineNum">    1388 </span>            :     cx-&gt;blk_u16 = PL_op-&gt;op_private &amp; (phlags|OPpDEREF);
+<span class="lineNum">    1389 </span>            : }
+<span class="lineNum">    1390 </span>            : 
+<span class="lineNum">    1391 </span>            : 
+<span class="lineNum">    1392 </span>            : /* subsets of cx_popsub() */
+<span class="lineNum">    1393 </span>            : 
+<span class="lineNum">    1394 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1395 </span>            : S_cx_popsub_common(pTHX_ PERL_CONTEXT *cx)
+<span class="lineNum">    1396 </span>            : {
+<span class="lineNum">    1397 </span>            :     CV *cv;
+<span class="lineNum">    1398 </span>            : 
+<span class="lineNum">    1399 </span>            :     PERL_ARGS_ASSERT_CX_POPSUB_COMMON;
+<span class="lineNum">    1400 </span>            :     assert(CxTYPE(cx) == CXt_SUB);
+<span class="lineNum">    1401 </span>            : 
+<span class="lineNum">    1402 </span>            :     PL_comppad = cx-&gt;blk_sub.prevcomppad;
+<span class="lineNum">    1403 </span>            :     PL_curpad = LIKELY(PL_comppad) ? AvARRAY(PL_comppad) : NULL;
+<span class="lineNum">    1404 </span>            :     cv = cx-&gt;blk_sub.cv;
+<span class="lineNum">    1405 </span>            :     CvDEPTH(cv) = cx-&gt;blk_sub.olddepth;
+<span class="lineNum">    1406 </span>            :     cx-&gt;blk_sub.cv = NULL;
+<span class="lineNum">    1407 </span>            :     SvREFCNT_dec(cv);
+<span class="lineNum">    1408 </span>            : }
+<span class="lineNum">    1409 </span>            : 
+<span class="lineNum">    1410 </span>            : 
+<span class="lineNum">    1411 </span>            : /* handle the @_ part of leaving a sub */
+<span class="lineNum">    1412 </span>            : 
+<span class="lineNum">    1413 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1414 </span>            : S_cx_popsub_args(pTHX_ PERL_CONTEXT *cx)
+<span class="lineNum">    1415 </span>            : {
+<span class="lineNum">    1416 </span>            :     AV *av;
+<span class="lineNum">    1417 </span>            : 
+<span class="lineNum">    1418 </span>            :     PERL_ARGS_ASSERT_CX_POPSUB_ARGS;
+<span class="lineNum">    1419 </span>            :     assert(CxTYPE(cx) == CXt_SUB);
+<span class="lineNum">    1420 </span>            :     assert(AvARRAY(MUTABLE_AV(
+<span class="lineNum">    1421 </span>            :         PadlistARRAY(CvPADLIST(cx-&gt;blk_sub.cv))[
+<span class="lineNum">    1422 </span>            :                 CvDEPTH(cx-&gt;blk_sub.cv)])) == PL_curpad);
+<span class="lineNum">    1423 </span>            : 
+<span class="lineNum">    1424 </span>            :     CX_POP_SAVEARRAY(cx);
+<span class="lineNum">    1425 </span>            :     av = MUTABLE_AV(PAD_SVl(0));
+<span class="lineNum">    1426 </span>            :     if (UNLIKELY(AvREAL(av)))
+<span class="lineNum">    1427 </span>            :         /* abandon @_ if it got reified */
+<span class="lineNum">    1428 </span>            :         clear_defarray(av, 0);
+<span class="lineNum">    1429 </span>            :     else {
+<span class="lineNum">    1430 </span>            :         CLEAR_ARGARRAY(av);
+<span class="lineNum">    1431 </span>            :     }
+<span class="lineNum">    1432 </span>            : }
+<span class="lineNum">    1433 </span>            : 
+<span class="lineNum">    1434 </span>            : 
+<span class="lineNum">    1435 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1436 </span>            : S_cx_popsub(pTHX_ PERL_CONTEXT *cx)
+<span class="lineNum">    1437 </span>            : {
+<span class="lineNum">    1438 </span>            :     PERL_ARGS_ASSERT_CX_POPSUB;
+<span class="lineNum">    1439 </span>            :     assert(CxTYPE(cx) == CXt_SUB);
+<span class="lineNum">    1440 </span>            : 
+<span class="lineNum">    1441 </span>            :     PERL_DTRACE_PROBE_RETURN(cx-&gt;blk_sub.cv);
+<span class="lineNum">    1442 </span>            : 
+<span class="lineNum">    1443 </span>            :     if (CxHASARGS(cx))
+<span class="lineNum">    1444 </span>            :         cx_popsub_args(cx);
+<span class="lineNum">    1445 </span>            :     cx_popsub_common(cx);
+<span class="lineNum">    1446 </span>            : }
+<span class="lineNum">    1447 </span>            : 
+<span class="lineNum">    1448 </span>            : 
+<span class="lineNum">    1449 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1450 </span>            : S_cx_pushformat(pTHX_ PERL_CONTEXT *cx, CV *cv, OP *retop, GV *gv)
+<span class="lineNum">    1451 </span>            : {
+<span class="lineNum">    1452 </span>            :     PERL_ARGS_ASSERT_CX_PUSHFORMAT;
+<span class="lineNum">    1453 </span>            : 
+<span class="lineNum">    1454 </span>            :     cx-&gt;blk_format.cv          = cv;
+<span class="lineNum">    1455 </span>            :     cx-&gt;blk_format.retop       = retop;
+<span class="lineNum">    1456 </span>            :     cx-&gt;blk_format.gv          = gv;
+<span class="lineNum">    1457 </span>            :     cx-&gt;blk_format.dfoutgv     = PL_defoutgv;
+<span class="lineNum">    1458 </span>            :     cx-&gt;blk_format.prevcomppad = PL_comppad;
+<span class="lineNum">    1459 </span>            :     cx-&gt;blk_u16                = 0;
+<span class="lineNum">    1460 </span>            : 
+<span class="lineNum">    1461 </span>            :     SvREFCNT_inc_simple_void_NN(cv);
+<span class="lineNum">    1462 </span>            :     CvDEPTH(cv)++;
+<span class="lineNum">    1463 </span>            :     SvREFCNT_inc_void(cx-&gt;blk_format.dfoutgv);
+<span class="lineNum">    1464 </span>            : }
+<span class="lineNum">    1465 </span>            : 
+<span class="lineNum">    1466 </span>            : 
+<span class="lineNum">    1467 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1468 </span>            : S_cx_popformat(pTHX_ PERL_CONTEXT *cx)
+<span class="lineNum">    1469 </span>            : {
+<span class="lineNum">    1470 </span>            :     CV *cv;
+<span class="lineNum">    1471 </span>            :     GV *dfout;
+<span class="lineNum">    1472 </span>            : 
+<span class="lineNum">    1473 </span>            :     PERL_ARGS_ASSERT_CX_POPFORMAT;
+<span class="lineNum">    1474 </span>            :     assert(CxTYPE(cx) == CXt_FORMAT);
+<span class="lineNum">    1475 </span>            : 
+<span class="lineNum">    1476 </span>            :     dfout = cx-&gt;blk_format.dfoutgv;
+<span class="lineNum">    1477 </span>            :     setdefout(dfout);
+<span class="lineNum">    1478 </span>            :     cx-&gt;blk_format.dfoutgv = NULL;
+<span class="lineNum">    1479 </span>            :     SvREFCNT_dec_NN(dfout);
+<span class="lineNum">    1480 </span>            : 
+<span class="lineNum">    1481 </span>            :     PL_comppad = cx-&gt;blk_format.prevcomppad;
+<span class="lineNum">    1482 </span>            :     PL_curpad = LIKELY(PL_comppad) ? AvARRAY(PL_comppad) : NULL;
+<span class="lineNum">    1483 </span>            :     cv = cx-&gt;blk_format.cv;
+<span class="lineNum">    1484 </span>            :     cx-&gt;blk_format.cv = NULL;
+<span class="lineNum">    1485 </span>            :     --CvDEPTH(cv);
+<span class="lineNum">    1486 </span>            :     SvREFCNT_dec_NN(cv);
+<span class="lineNum">    1487 </span>            : }
+<span class="lineNum">    1488 </span>            : 
+<span class="lineNum">    1489 </span>            : 
+<span class="lineNum">    1490 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1491 </span>            : S_cx_pusheval(pTHX_ PERL_CONTEXT *cx, OP *retop, SV *namesv)
+<span class="lineNum">    1492 </span>            : {
+<span class="lineNum">    1493 </span>            :     PERL_ARGS_ASSERT_CX_PUSHEVAL;
+<span class="lineNum">    1494 </span>            : 
+<span class="lineNum">    1495 </span>            :     cx-&gt;blk_eval.retop         = retop;
+<span class="lineNum">    1496 </span>            :     cx-&gt;blk_eval.old_namesv    = namesv;
+<span class="lineNum">    1497 </span>            :     cx-&gt;blk_eval.old_eval_root = PL_eval_root;
+<span class="lineNum">    1498 </span>            :     cx-&gt;blk_eval.cur_text      = PL_parser ? PL_parser-&gt;linestr : NULL;
+<span class="lineNum">    1499 </span>            :     cx-&gt;blk_eval.cv            = NULL; /* later set by doeval_compile() */
+<span class="lineNum">    1500 </span>            :     cx-&gt;blk_eval.cur_top_env   = PL_top_env;
+<span class="lineNum">    1501 </span>            : 
+<span class="lineNum">    1502 </span>            :     assert(!(PL_in_eval     &amp; ~ 0x3F));
+<span class="lineNum">    1503 </span>            :     assert(!(PL_op-&gt;op_type &amp; ~0x1FF));
+<span class="lineNum">    1504 </span>            :     cx-&gt;blk_u16 = (PL_in_eval &amp; 0x3F) | ((U16)PL_op-&gt;op_type &lt;&lt; 7);
+<span class="lineNum">    1505 </span>            : }
+<span class="lineNum">    1506 </span>            : 
+<span class="lineNum">    1507 </span>            : 
+<span class="lineNum">    1508 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1509 </span>            : S_cx_popeval(pTHX_ PERL_CONTEXT *cx)
+<span class="lineNum">    1510 </span>            : {
+<span class="lineNum">    1511 </span>            :     SV *sv;
+<span class="lineNum">    1512 </span>            : 
+<span class="lineNum">    1513 </span>            :     PERL_ARGS_ASSERT_CX_POPEVAL;
+<span class="lineNum">    1514 </span>            :     assert(CxTYPE(cx) == CXt_EVAL);
+<span class="lineNum">    1515 </span>            : 
+<span class="lineNum">    1516 </span>            :     PL_in_eval = CxOLD_IN_EVAL(cx);
+<span class="lineNum">    1517 </span>            :     assert(!(PL_in_eval &amp; 0xc0));
+<span class="lineNum">    1518 </span>            :     PL_eval_root = cx-&gt;blk_eval.old_eval_root;
+<span class="lineNum">    1519 </span>            :     sv = cx-&gt;blk_eval.cur_text;
+<span class="lineNum">    1520 </span>            :     if (sv &amp;&amp; CxEVAL_TXT_REFCNTED(cx)) {
+<span class="lineNum">    1521 </span>            :         cx-&gt;blk_eval.cur_text = NULL;
+<span class="lineNum">    1522 </span>            :         SvREFCNT_dec_NN(sv);
+<span class="lineNum">    1523 </span>            :     }
+<span class="lineNum">    1524 </span>            : 
+<span class="lineNum">    1525 </span>            :     sv = cx-&gt;blk_eval.old_namesv;
+<span class="lineNum">    1526 </span>            :     if (sv) {
+<span class="lineNum">    1527 </span>            :         cx-&gt;blk_eval.old_namesv = NULL;
+<span class="lineNum">    1528 </span>            :         SvREFCNT_dec_NN(sv);
+<span class="lineNum">    1529 </span>            :     }
+<span class="lineNum">    1530 </span>            : }
+<span class="lineNum">    1531 </span>            : 
+<span class="lineNum">    1532 </span>            : 
+<span class="lineNum">    1533 </span>            : /* push a plain loop, i.e.
+<span class="lineNum">    1534 </span>            :  *     { block }
+<span class="lineNum">    1535 </span>            :  *     while (cond) { block }
+<span class="lineNum">    1536 </span>            :  *     for (init;cond;continue) { block }
+<span class="lineNum">    1537 </span>            :  * This loop can be last/redo'ed etc.
+<span class="lineNum">    1538 </span>            :  */
+<span class="lineNum">    1539 </span>            : 
+<span class="lineNum">    1540 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1541 </span>            : S_cx_pushloop_plain(pTHX_ PERL_CONTEXT *cx)
+<span class="lineNum">    1542 </span>            : {
+<span class="lineNum">    1543 </span>            :     PERL_ARGS_ASSERT_CX_PUSHLOOP_PLAIN;
+<span class="lineNum">    1544 </span>            :     cx-&gt;blk_loop.my_op = cLOOP;
+<span class="lineNum">    1545 </span>            : }
+<span class="lineNum">    1546 </span>            : 
+<span class="lineNum">    1547 </span>            : 
+<span class="lineNum">    1548 </span>            : /* push a true for loop, i.e.
+<span class="lineNum">    1549 </span>            :  *     for var (list) { block }
+<span class="lineNum">    1550 </span>            :  */
+<span class="lineNum">    1551 </span>            : 
+<span class="lineNum">    1552 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1553 </span>            : S_cx_pushloop_for(pTHX_ PERL_CONTEXT *cx, void *itervarp, SV* itersave)
+<span class="lineNum">    1554 </span>            : {
+<span class="lineNum">    1555 </span>            :     PERL_ARGS_ASSERT_CX_PUSHLOOP_FOR;
+<span class="lineNum">    1556 </span>            : 
+<span class="lineNum">    1557 </span>            :     /* this one line is common with cx_pushloop_plain */
+<span class="lineNum">    1558 </span>            :     cx-&gt;blk_loop.my_op = cLOOP;
+<span class="lineNum">    1559 </span>            : 
+<span class="lineNum">    1560 </span>            :     cx-&gt;blk_loop.itervar_u.svp = (SV**)itervarp;
+<span class="lineNum">    1561 </span>            :     cx-&gt;blk_loop.itersave      = itersave;
+<span class="lineNum">    1562 </span>            : #ifdef USE_ITHREADS
+<span class="lineNum">    1563 </span>            :     cx-&gt;blk_loop.oldcomppad = PL_comppad;
+<span class="lineNum">    1564 </span>            : #endif
+<span class="lineNum">    1565 </span>            : }
+<span class="lineNum">    1566 </span>            : 
+<span class="lineNum">    1567 </span>            : 
+<span class="lineNum">    1568 </span>            : /* pop all loop types, including plain */
+<span class="lineNum">    1569 </span>            : 
+<span class="lineNum">    1570 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1571 </span>            : S_cx_poploop(pTHX_ PERL_CONTEXT *cx)
+<span class="lineNum">    1572 </span>            : {
+<span class="lineNum">    1573 </span>            :     PERL_ARGS_ASSERT_CX_POPLOOP;
+<span class="lineNum">    1574 </span>            : 
+<span class="lineNum">    1575 </span>            :     assert(CxTYPE_is_LOOP(cx));
+<span class="lineNum">    1576 </span>            :     if (  CxTYPE(cx) == CXt_LOOP_ARY
+<span class="lineNum">    1577 </span>            :        || CxTYPE(cx) == CXt_LOOP_LAZYSV)
+<span class="lineNum">    1578 </span>            :     {
+<span class="lineNum">    1579 </span>            :         /* Free ary or cur. This assumes that state_u.ary.ary
+<span class="lineNum">    1580 </span>            :          * aligns with state_u.lazysv.cur. See cx_dup() */
+<span class="lineNum">    1581 </span>            :         SV *sv = cx-&gt;blk_loop.state_u.lazysv.cur;
+<span class="lineNum">    1582 </span>            :         cx-&gt;blk_loop.state_u.lazysv.cur = NULL;
+<span class="lineNum">    1583 </span>            :         SvREFCNT_dec_NN(sv);
+<span class="lineNum">    1584 </span>            :         if (CxTYPE(cx) == CXt_LOOP_LAZYSV) {
+<span class="lineNum">    1585 </span>            :             sv = cx-&gt;blk_loop.state_u.lazysv.end;
+<span class="lineNum">    1586 </span>            :             cx-&gt;blk_loop.state_u.lazysv.end = NULL;
+<span class="lineNum">    1587 </span>            :             SvREFCNT_dec_NN(sv);
+<span class="lineNum">    1588 </span>            :         }
+<span class="lineNum">    1589 </span>            :     }
+<span class="lineNum">    1590 </span>            :     if (cx-&gt;cx_type &amp; (CXp_FOR_PAD|CXp_FOR_GV)) {
+<span class="lineNum">    1591 </span>            :         SV *cursv;
+<span class="lineNum">    1592 </span>            :         SV **svp = (cx)-&gt;blk_loop.itervar_u.svp;
+<span class="lineNum">    1593 </span>            :         if ((cx-&gt;cx_type &amp; CXp_FOR_GV))
+<span class="lineNum">    1594 </span>            :             svp = &amp;GvSV((GV*)svp);
+<span class="lineNum">    1595 </span>            :         cursv = *svp;
+<span class="lineNum">    1596 </span>            :         *svp = cx-&gt;blk_loop.itersave;
+<span class="lineNum">    1597 </span>            :         cx-&gt;blk_loop.itersave = NULL;
+<span class="lineNum">    1598 </span>            :         SvREFCNT_dec(cursv);
+<span class="lineNum">    1599 </span>            :     }
+<span class="lineNum">    1600 </span>            : }
+<span class="lineNum">    1601 </span>            : 
+<span class="lineNum">    1602 </span>            : 
+<span class="lineNum">    1603 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1604 </span>            : S_cx_pushwhen(pTHX_ PERL_CONTEXT *cx)
+<span class="lineNum">    1605 </span>            : {
+<span class="lineNum">    1606 </span>            :     PERL_ARGS_ASSERT_CX_PUSHWHEN;
+<span class="lineNum">    1607 </span>            : 
+<span class="lineNum">    1608 </span>            :     cx-&gt;blk_givwhen.leave_op = cLOGOP-&gt;op_other;
+<span class="lineNum">    1609 </span>            : }
+<span class="lineNum">    1610 </span>            : 
+<span class="lineNum">    1611 </span>            : 
+<span class="lineNum">    1612 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1613 </span>            : S_cx_popwhen(pTHX_ PERL_CONTEXT *cx)
+<span class="lineNum">    1614 </span>            : {
+<span class="lineNum">    1615 </span>            :     PERL_ARGS_ASSERT_CX_POPWHEN;
+<span class="lineNum">    1616 </span>            :     assert(CxTYPE(cx) == CXt_WHEN);
+<span class="lineNum">    1617 </span>            : 
+<span class="lineNum">    1618 </span>            :     PERL_UNUSED_ARG(cx);
+<span class="lineNum">    1619 </span>            :     PERL_UNUSED_CONTEXT;
+<span class="lineNum">    1620 </span>            :     /* currently NOOP */
+<span class="lineNum">    1621 </span>            : }
+<span class="lineNum">    1622 </span>            : 
+<span class="lineNum">    1623 </span>            : 
+<span class="lineNum">    1624 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1625 </span>            : S_cx_pushgiven(pTHX_ PERL_CONTEXT *cx, SV *orig_defsv)
+<span class="lineNum">    1626 </span>            : {
+<span class="lineNum">    1627 </span>            :     PERL_ARGS_ASSERT_CX_PUSHGIVEN;
+<span class="lineNum">    1628 </span>            : 
+<span class="lineNum">    1629 </span>            :     cx-&gt;blk_givwhen.leave_op = cLOGOP-&gt;op_other;
+<span class="lineNum">    1630 </span>            :     cx-&gt;blk_givwhen.defsv_save = orig_defsv;
+<span class="lineNum">    1631 </span>            : }
+<span class="lineNum">    1632 </span>            : 
+<span class="lineNum">    1633 </span>            : 
+<span class="lineNum">    1634 </span>            : PERL_STATIC_INLINE void
+<span class="lineNum">    1635 </span>            : S_cx_popgiven(pTHX_ PERL_CONTEXT *cx)
+<span class="lineNum">    1636 </span>            : {
+<span class="lineNum">    1637 </span>            :     SV *sv;
+<span class="lineNum">    1638 </span>            : 
+<span class="lineNum">    1639 </span>            :     PERL_ARGS_ASSERT_CX_POPGIVEN;
+<span class="lineNum">    1640 </span>            :     assert(CxTYPE(cx) == CXt_GIVEN);
+<span class="lineNum">    1641 </span>            : 
+<span class="lineNum">    1642 </span>            :     sv = GvSV(PL_defgv);
+<span class="lineNum">    1643 </span>            :     GvSV(PL_defgv) = cx-&gt;blk_givwhen.defsv_save;
+<span class="lineNum">    1644 </span>            :     cx-&gt;blk_givwhen.defsv_save = NULL;
+<span class="lineNum">    1645 </span>            :     SvREFCNT_dec(sv);
+<span class="lineNum">    1646 </span>            : }
+<span class="lineNum">    1647 </span>            : 
+<span class="lineNum">    1648 </span>            : /* ------------------ util.h ------------------------------------------- */
+<span class="lineNum">    1649 </span>            : 
+<span class="lineNum">    1650 </span>            : /*
+<span class="lineNum">    1651 </span>            : =head1 Miscellaneous Functions
+<span class="lineNum">    1652 </span>            : 
+<span class="lineNum">    1653 </span>            : =for apidoc foldEQ
+<span class="lineNum">    1654 </span>            : 
+<span class="lineNum">    1655 </span>            : Returns true if the leading C&lt;len&gt; bytes of the strings C&lt;s1&gt; and C&lt;s2&gt; are the
+<span class="lineNum">    1656 </span>            : same
+<span class="lineNum">    1657 </span>            : case-insensitively; false otherwise.  Uppercase and lowercase ASCII range bytes
+<span class="lineNum">    1658 </span>            : match themselves and their opposite case counterparts.  Non-cased and non-ASCII
+<span class="lineNum">    1659 </span>            : range bytes match only themselves.
+<span class="lineNum">    1660 </span>            : 
+<span class="lineNum">    1661 </span>            : =cut
+<span class="lineNum">    1662 </span>            : */
+<span class="lineNum">    1663 </span>            : 
+<span class="lineNum">    1664 </span>            : PERL_STATIC_INLINE I32
+<span class="lineNum">    1665 </span>            : Perl_foldEQ(const char *s1, const char *s2, I32 len)
+<span class="lineNum">    1666 </span>            : {
+<span class="lineNum">    1667 </span>            :     const U8 *a = (const U8 *)s1;
+<span class="lineNum">    1668 </span>            :     const U8 *b = (const U8 *)s2;
+<span class="lineNum">    1669 </span>            : 
+<span class="lineNum">    1670 </span>            :     PERL_ARGS_ASSERT_FOLDEQ;
+<span class="lineNum">    1671 </span>            : 
+<span class="lineNum">    1672 </span>            :     assert(len &gt;= 0);
+<span class="lineNum">    1673 </span>            : 
+<span class="lineNum">    1674 </span>            :     while (len--) {
+<span class="lineNum">    1675 </span>            :   if (*a != *b &amp;&amp; *a != PL_fold[*b])
+<span class="lineNum">    1676 </span>            :       return 0;
+<span class="lineNum">    1677 </span>            :   a++,b++;
+<span class="lineNum">    1678 </span>            :     }
+<span class="lineNum">    1679 </span>            :     return 1;
+<span class="lineNum">    1680 </span>            : }
+<span class="lineNum">    1681 </span>            : 
+<span class="lineNum">    1682 </span>            : PERL_STATIC_INLINE I32
+<span class="lineNum">    1683 </span>            : Perl_foldEQ_latin1(const char *s1, const char *s2, I32 len)
+<span class="lineNum">    1684 </span>            : {
+<span class="lineNum">    1685 </span>            :     /* Compare non-utf8 using Unicode (Latin1) semantics.  Does not work on
+<span class="lineNum">    1686 </span>            :      * MICRO_SIGN, LATIN_SMALL_LETTER_SHARP_S, nor
+<span class="lineNum">    1687 </span>            :      * LATIN_SMALL_LETTER_Y_WITH_DIAERESIS, and does not check for these.  Nor
+<span class="lineNum">    1688 </span>            :      * does it check that the strings each have at least 'len' characters */
+<span class="lineNum">    1689 </span>            : 
+<span class="lineNum">    1690 </span>            :     const U8 *a = (const U8 *)s1;
+<span class="lineNum">    1691 </span>            :     const U8 *b = (const U8 *)s2;
+<span class="lineNum">    1692 </span>            : 
+<span class="lineNum">    1693 </span>            :     PERL_ARGS_ASSERT_FOLDEQ_LATIN1;
+<span class="lineNum">    1694 </span>            : 
+<span class="lineNum">    1695 </span>            :     assert(len &gt;= 0);
+<span class="lineNum">    1696 </span>            : 
+<span class="lineNum">    1697 </span>            :     while (len--) {
+<span class="lineNum">    1698 </span>            :   if (*a != *b &amp;&amp; *a != PL_fold_latin1[*b]) {
+<span class="lineNum">    1699 </span>            :       return 0;
+<span class="lineNum">    1700 </span>            :   }
+<span class="lineNum">    1701 </span>            :   a++, b++;
+<span class="lineNum">    1702 </span>            :     }
+<span class="lineNum">    1703 </span>            :     return 1;
+<span class="lineNum">    1704 </span>            : }
+<span class="lineNum">    1705 </span>            : 
+<span class="lineNum">    1706 </span>            : /*
+<span class="lineNum">    1707 </span>            : =for apidoc foldEQ_locale
+<span class="lineNum">    1708 </span>            : 
+<span class="lineNum">    1709 </span>            : Returns true if the leading C&lt;len&gt; bytes of the strings C&lt;s1&gt; and C&lt;s2&gt; are the
+<span class="lineNum">    1710 </span>            : same case-insensitively in the current locale; false otherwise.
+<span class="lineNum">    1711 </span>            : 
+<span class="lineNum">    1712 </span>            : =cut
+<span class="lineNum">    1713 </span>            : */
+<span class="lineNum">    1714 </span>            : 
+<span class="lineNum">    1715 </span>            : PERL_STATIC_INLINE I32
+<span class="lineNum">    1716 </span>            : Perl_foldEQ_locale(const char *s1, const char *s2, I32 len)
+<span class="lineNum">    1717 </span>            : {
+<span class="lineNum">    1718 </span>            :     dVAR;
+<span class="lineNum">    1719 </span>            :     const U8 *a = (const U8 *)s1;
+<span class="lineNum">    1720 </span>            :     const U8 *b = (const U8 *)s2;
+<span class="lineNum">    1721 </span>            : 
+<span class="lineNum">    1722 </span>            :     PERL_ARGS_ASSERT_FOLDEQ_LOCALE;
+<span class="lineNum">    1723 </span>            : 
+<span class="lineNum">    1724 </span>            :     assert(len &gt;= 0);
+<span class="lineNum">    1725 </span>            : 
+<span class="lineNum">    1726 </span>            :     while (len--) {
+<span class="lineNum">    1727 </span>            :   if (*a != *b &amp;&amp; *a != PL_fold_locale[*b])
+<span class="lineNum">    1728 </span>            :       return 0;
+<span class="lineNum">    1729 </span>            :   a++,b++;
+<span class="lineNum">    1730 </span>            :     }
+<span class="lineNum">    1731 </span>            :     return 1;
+<span class="lineNum">    1732 </span>            : }
+<span class="lineNum">    1733 </span>            : 
+<span class="lineNum">    1734 </span>            : /*
+<span class="lineNum">    1735 </span>            :  * ex: set ts=8 sts=4 sw=4 et:
+<span class="lineNum">    1736 </span>            :  */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
