@@ -31,18 +31,18 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">708</td>
-            <td class="headerCovTableEntry">1005</td>
-            <td class="headerCovTableEntryLo">70.4 %</td>
+            <td class="headerCovTableEntry">719</td>
+            <td class="headerCovTableEntry">1018</td>
+            <td class="headerCovTableEntryLo">70.6 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2020-09-12 13:02:59</td>
+            <td class="headerValue">2020-09-15 10:11:08</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">48</td>
-            <td class="headerCovTableEntry">59</td>
-            <td class="headerCovTableEntryMed">81.4 %</td>
+            <td class="headerCovTableEntry">49</td>
+            <td class="headerCovTableEntry">60</td>
+            <td class="headerCovTableEntryMed">81.7 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -2966,10 +2966,45 @@
 <span class="lineNum">    2904 </span><span class="lineCov">          1 :   return psFormat;</span>
 <span class="lineNum">    2905 </span>            : }
 <span class="lineNum">    2906 </span>            : 
-<span class="lineNum">    2907 </span>            : #endif /* USE_WMS_SVR || USE_WFS_SVR  || USE_WCS_SVR */
-<span class="lineNum">    2908 </span>            : 
-<span class="lineNum">    2909 </span>            : 
-<span class="lineNum">    2910 </span>            : 
+<span class="lineNum">    2907 </span>            : /************************************************************************/
+<span class="lineNum">    2908 </span>            : /*                         msUpdateGMLFieldMetadata                     */
+<span class="lineNum">    2909 </span>            : /*                                                                      */
+<span class="lineNum">    2910 </span>            : /*      Updates a fields GML metadata if it has not already             */
+<span class="lineNum">    2911 </span>            : /*      been set. Nullable is not implemented for all drivers           */
+<a name="2912"><span class="lineNum">    2912 </span>            : /*      and can be set to 0 if unknown                                  */</a>
+<span class="lineNum">    2913 </span>            : /************************************************************************/
+<span class="lineNum">    2914 </span><span class="lineCov">          1 : int msUpdateGMLFieldMetadata(layerObj *layer, const char *field_name, const char *gml_type,</span>
+<span class="lineNum">    2915 </span>            :                              const char *gml_width, const char *gml_precision, const short nullable)
+<span class="lineNum">    2916 </span>            : {
+<span class="lineNum">    2917 </span>            : 
+<span class="lineNum">    2918 </span>            :     char md_item_name[256];
+<span class="lineNum">    2919 </span>            : 
+<span class="lineNum">    2920 </span>            :     snprintf( md_item_name, sizeof(md_item_name), &quot;gml_%s_type&quot;, field_name );
+<span class="lineNum">    2921 </span><span class="lineCov">          1 :     if( msLookupHashTable(&amp;(layer-&gt;metadata), md_item_name) == NULL )</span>
+<span class="lineNum">    2922 </span><span class="lineCov">          1 :     msInsertHashTable(&amp;(layer-&gt;metadata), md_item_name, gml_type );</span>
+<span class="lineNum">    2923 </span>            : 
+<span class="lineNum">    2924 </span>            :     snprintf( md_item_name, sizeof(md_item_name), &quot;gml_%s_width&quot;, field_name );
+<span class="lineNum">    2925 </span><span class="lineCov">          1 :     if( strlen(gml_width) &gt; 0</span>
+<span class="lineNum">    2926 </span><span class="lineCov">          1 :         &amp;&amp; msLookupHashTable(&amp;(layer-&gt;metadata), md_item_name) == NULL )</span>
+<span class="lineNum">    2927 </span><span class="lineCov">          1 :     msInsertHashTable(&amp;(layer-&gt;metadata), md_item_name, gml_width );</span>
+<span class="lineNum">    2928 </span>            : 
+<span class="lineNum">    2929 </span>            :     snprintf( md_item_name, sizeof(md_item_name), &quot;gml_%s_precision&quot;, field_name );
+<span class="lineNum">    2930 </span><span class="lineCov">          1 :     if( strlen(gml_precision) &gt; 0</span>
+<span class="lineNum">    2931 </span><span class="lineCov">          1 :         &amp;&amp; msLookupHashTable(&amp;(layer-&gt;metadata), md_item_name) == NULL )</span>
+<span class="lineNum">    2932 </span><span class="lineCov">          1 :     msInsertHashTable(&amp;(layer-&gt;metadata), md_item_name, gml_precision );</span>
+<span class="lineNum">    2933 </span>            : 
+<span class="lineNum">    2934 </span>            :     snprintf( md_item_name, sizeof(md_item_name), &quot;gml_%s_nillable&quot;, field_name );
+<span class="lineNum">    2935 </span><span class="lineCov">          1 :     if( nullable &gt; 0 </span>
+<span class="lineNum">    2936 </span><span class="lineNoCov">          0 :         &amp;&amp; msLookupHashTable(&amp;(layer-&gt;metadata), md_item_name) == NULL )</span>
+<span class="lineNum">    2937 </span><span class="lineNoCov">          0 :     msInsertHashTable(&amp;(layer-&gt;metadata), md_item_name, &quot;true&quot; );</span>
+<span class="lineNum">    2938 </span>            : 
+<span class="lineNum">    2939 </span><span class="lineCov">          1 :     return MS_TRUE;</span>
+<span class="lineNum">    2940 </span>            : }
+<span class="lineNum">    2941 </span>            : 
+<span class="lineNum">    2942 </span>            : #endif /* USE_WMS_SVR || USE_WFS_SVR  || USE_WCS_SVR */
+<span class="lineNum">    2943 </span>            : 
+<span class="lineNum">    2944 </span>            : 
+<span class="lineNum">    2945 </span>            : 
 </pre>
       </td>
     </tr>
