@@ -1,0 +1,675 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - MapServer/renderers/agg/include/agg_rasterizer_outline_aa.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">MapServer/renderers/agg/include</a> - agg_rasterizer_outline_aa.h<span style="font-size: 80%;"> (source / <a href="agg_rasterizer_outline_aa.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">42</td>
+            <td class="headerCovTableEntry">192</td>
+            <td class="headerCovTableEntryLo">21.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-09-22 21:51:23</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>            : // Anti-Grain Geometry - Version 2.4
+<span class="lineNum">       3 </span>            : // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
+<span class="lineNum">       4 </span>            : //
+<span class="lineNum">       5 </span>            : // Permission to copy, use, modify, sell and distribute this software 
+<span class="lineNum">       6 </span>            : // is granted provided this copyright notice appears in all copies. 
+<span class="lineNum">       7 </span>            : // This software is provided &quot;as is&quot; without express or implied
+<span class="lineNum">       8 </span>            : // warranty, and with no claim as to its suitability for any purpose.
+<span class="lineNum">       9 </span>            : //
+<span class="lineNum">      10 </span>            : //----------------------------------------------------------------------------
+<span class="lineNum">      11 </span>            : // Contact: mcseem@antigrain.com
+<span class="lineNum">      12 </span>            : //          mcseemagg@yahoo.com
+<span class="lineNum">      13 </span>            : //          http://www.antigrain.com
+<span class="lineNum">      14 </span>            : //----------------------------------------------------------------------------
+<span class="lineNum">      15 </span>            : #ifndef AGG_RASTERIZER_OUTLINE_AA_INCLUDED
+<span class="lineNum">      16 </span>            : #define AGG_RASTERIZER_OUTLINE_AA_INCLUDED
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &quot;agg_basics.h&quot;
+<span class="lineNum">      19 </span>            : #include &quot;agg_line_aa_basics.h&quot;
+<span class="lineNum">      20 </span>            : #include &quot;agg_vertex_sequence.h&quot;
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : namespace mapserver
+<span class="lineNum">      23 </span>            : {
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            :     //-------------------------------------------------------------------------
+<span class="lineNum">      26 </span>            :     inline bool cmp_dist_start(int d) { return d &gt; 0;  }
+<span class="lineNum">      27 </span>            :     inline bool cmp_dist_end(int d)   { return d &lt;= 0; }
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            :     //-----------------------------------------------------------line_aa_vertex
+<span class="lineNum">      32 </span>            :     // Vertex (x, y) with the distance to the next one. The last vertex has 
+<span class="lineNum">      33 </span>            :     // the distance between the last and the first points
+<span class="lineNum">      34 </span>            :     struct line_aa_vertex
+<span class="lineNum">      35 </span>            :     {
+<span class="lineNum">      36 </span>            :         int x;
+<span class="lineNum">      37 </span>            :         int y;
+<span class="lineNum">      38 </span>            :         int len;
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            :         line_aa_vertex() {}
+<span class="lineNum">      41 </span><span class="lineCov">          1 :         line_aa_vertex(int x_, int y_) :</span>
+<span class="lineNum">      42 </span>            :             x(x_),
+<span class="lineNum">      43 </span>            :             y(y_),
+<span class="lineNum">      44 </span><span class="lineCov">          1 :             len(0)</span>
+<span class="lineNum">      45 </span>            :         {
+<span class="lineNum">      46 </span>            :         }
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span><span class="lineCov">          1 :         bool operator () (const line_aa_vertex&amp; val)</span>
+<span class="lineNum">      49 </span>            :         {
+<span class="lineNum">      50 </span><span class="lineCov">          1 :             double dx = val.x - x;</span>
+<span class="lineNum">      51 </span><span class="lineCov">          1 :             double dy = val.y - y;</span>
+<span class="lineNum">      52 </span><span class="lineCov">          1 :             return (len = uround(sqrt(dx * dx + dy * dy))) &gt; </span>
+<span class="lineNum">      53 </span><span class="lineCov">          1 :                    (line_subpixel_scale + line_subpixel_scale / 2);</span>
+<span class="lineNum">      54 </span>            :         }
+<span class="lineNum">      55 </span>            :     };
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            :     //----------------------------------------------------------outline_aa_join_e
+<span class="lineNum">      59 </span>            :     enum outline_aa_join_e
+<span class="lineNum">      60 </span>            :     {
+<span class="lineNum">      61 </span>            :         outline_no_join,             //-----outline_no_join
+<span class="lineNum">      62 </span>            :         outline_miter_join,          //-----outline_miter_join
+<span class="lineNum">      63 </span>            :         outline_round_join,          //-----outline_round_join
+<span class="lineNum">      64 </span>            :         outline_miter_accurate_join  //-----outline_accurate_join
+<span class="lineNum">      65 </span>            :     };
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            :     //=======================================================rasterizer_outline_aa
+<span class="lineNum">      68 </span><span class="lineCov">          1 :     template&lt;class Renderer, class Coord=line_coord&gt; class rasterizer_outline_aa</span>
+<span class="lineNum">      69 </span>            :     {
+<span class="lineNum">      70 </span>            :     private:
+<span class="lineNum">      71 </span>            :         //------------------------------------------------------------------------
+<span class="lineNum">      72 </span>            :         struct draw_vars
+<span class="lineNum">      73 </span>            :         {
+<span class="lineNum">      74 </span>            :             unsigned idx;
+<span class="lineNum">      75 </span>            :             int x1, y1, x2, y2;
+<span class="lineNum">      76 </span>            :             line_parameters curr, next;
+<span class="lineNum">      77 </span>            :             int lcurr, lnext;
+<span class="lineNum">      78 </span>            :             int xb1, yb1, xb2, yb2;
+<span class="lineNum">      79 </span>            :             unsigned flags;
+<span class="lineNum">      80 </span>            :         };
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            :         void draw(draw_vars&amp; dv, unsigned start, unsigned end);
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            :     public:
+<span class="lineNum">      85 </span>            :         typedef line_aa_vertex                  vertex_type;
+<span class="lineNum">      86 </span>            :         typedef vertex_sequence&lt;vertex_type, 6&gt; vertex_storage_type;
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span><span class="lineCov">          1 :         explicit rasterizer_outline_aa(Renderer&amp; ren) : </span>
+<span class="lineNum">      89 </span>            :             m_ren(&amp;ren), 
+<span class="lineNum">      90 </span>            :             m_line_join(ren.accurate_join_only() ? 
+<span class="lineNum">      91 </span>            :                             outline_miter_accurate_join : 
+<span class="lineNum">      92 </span>            :                             outline_round_join),
+<span class="lineNum">      93 </span>            :             m_round_cap(false),
+<span class="lineNum">      94 </span>            :             m_start_x(0),
+<span class="lineNum">      95 </span><span class="lineCov">          1 :             m_start_y(0)</span>
+<span class="lineNum">      96 </span>            :         {}
+<span class="lineNum">      97 </span>            :         void attach(Renderer&amp; ren) { m_ren = &amp;ren; }
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            :         //------------------------------------------------------------------------
+<span class="lineNum">     100 </span>            :         void line_join(outline_aa_join_e join) 
+<span class="lineNum">     101 </span>            :         { 
+<span class="lineNum">     102 </span>            :             m_line_join = m_ren-&gt;accurate_join_only() ? 
+<span class="lineNum">     103 </span>            :                 outline_miter_accurate_join : 
+<span class="lineNum">     104 </span>            :                 join; 
+<span class="lineNum">     105 </span>            :         }
+<span class="lineNum">     106 </span>            :         bool line_join() const { return m_line_join; }
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            :         //------------------------------------------------------------------------
+<span class="lineNum">     109 </span>            :         void round_cap(bool v) { m_round_cap = v; }
+<span class="lineNum">     110 </span>            :         bool round_cap() const { return m_round_cap; }
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :         //------------------------------------------------------------------------
+<span class="lineNum">     113 </span>            :         void move_to(int x, int y)
+<span class="lineNum">     114 </span>            :         {
+<span class="lineNum">     115 </span><span class="lineCov">          1 :             m_src_vertices.modify_last(vertex_type(m_start_x = x, m_start_y = y));</span>
+<span class="lineNum">     116 </span>            :         }
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            :         //------------------------------------------------------------------------
+<span class="lineNum">     119 </span>            :         void line_to(int x, int y)
+<span class="lineNum">     120 </span>            :         {
+<span class="lineNum">     121 </span><span class="lineCov">          1 :             m_src_vertices.add(vertex_type(x, y));</span>
+<span class="lineNum">     122 </span>            :         }
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :         //------------------------------------------------------------------------
+<span class="lineNum">     125 </span><span class="lineCov">          1 :         void move_to_d(double x, double y)</span>
+<span class="lineNum">     126 </span>            :         {
+<span class="lineNum">     127 </span>            :             move_to(Coord::conv(x), Coord::conv(y));
+<span class="lineNum">     128 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            :         //------------------------------------------------------------------------
+<span class="lineNum">     131 </span><span class="lineCov">          1 :         void line_to_d(double x, double y)</span>
+<span class="lineNum">     132 </span>            :         {
+<span class="lineNum">     133 </span>            :             line_to(Coord::conv(x), Coord::conv(y));
+<span class="lineNum">     134 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            :         //------------------------------------------------------------------------
+<span class="lineNum">     137 </span>            :         void render(bool close_polygon);
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span>            :         //------------------------------------------------------------------------
+<span class="lineNum">     140 </span><span class="lineCov">          1 :         void add_vertex(double x, double y, unsigned cmd)</span>
+<span class="lineNum">     141 </span>            :         {
+<span class="lineNum">     142 </span><span class="lineCov">          1 :             if(is_move_to(cmd)) </span>
+<span class="lineNum">     143 </span>            :             {
+<span class="lineNum">     144 </span><span class="lineCov">          1 :                 render(false);</span>
+<span class="lineNum">     145 </span><span class="lineCov">          1 :                 move_to_d(x, y);</span>
+<span class="lineNum">     146 </span>            :             }
+<span class="lineNum">     147 </span>            :             else 
+<span class="lineNum">     148 </span>            :             {
+<span class="lineNum">     149 </span><span class="lineCov">          1 :                 if(is_end_poly(cmd))</span>
+<span class="lineNum">     150 </span>            :                 {
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                     render(is_closed(cmd));</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :                     if(is_closed(cmd)) </span>
+<span class="lineNum">     153 </span>            :                     {
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :                         move_to(m_start_x, m_start_y);</span>
+<span class="lineNum">     155 </span>            :                     }
+<span class="lineNum">     156 </span>            :                 }
+<span class="lineNum">     157 </span>            :                 else
+<span class="lineNum">     158 </span>            :                 {
+<span class="lineNum">     159 </span><span class="lineCov">          1 :                     line_to_d(x, y);</span>
+<span class="lineNum">     160 </span>            :                 }
+<span class="lineNum">     161 </span>            :             }
+<span class="lineNum">     162 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     163 </span>            : 
+<a name="164"><span class="lineNum">     164 </span>            :         //------------------------------------------------------------------------</a>
+<span class="lineNum">     165 </span>            :         template&lt;class VertexSource&gt;
+<span class="lineNum">     166 </span><span class="lineCov">          1 :         void add_path(VertexSource&amp; vs, unsigned path_id=0)</span>
+<span class="lineNum">     167 </span>            :         {
+<span class="lineNum">     168 </span>            :             double x;
+<span class="lineNum">     169 </span>            :             double y;
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            :             unsigned cmd;
+<span class="lineNum">     172 </span>            :             vs.rewind(path_id);
+<span class="lineNum">     173 </span><span class="lineCov">          1 :             while(!is_stop(cmd = vs.vertex(&amp;x, &amp;y)))</span>
+<span class="lineNum">     174 </span>            :             {
+<span class="lineNum">     175 </span><span class="lineCov">          1 :                 add_vertex(x, y, cmd);</span>
+<span class="lineNum">     176 </span>            :             }
+<span class="lineNum">     177 </span><span class="lineCov">          1 :             render(false);</span>
+<span class="lineNum">     178 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            :         //------------------------------------------------------------------------
+<span class="lineNum">     182 </span>            :         template&lt;class VertexSource, class ColorStorage, class PathId&gt;
+<span class="lineNum">     183 </span>            :         void render_all_paths(VertexSource&amp; vs, 
+<span class="lineNum">     184 </span>            :                               const ColorStorage&amp; colors, 
+<span class="lineNum">     185 </span>            :                               const PathId&amp; path_id,
+<span class="lineNum">     186 </span>            :                               unsigned num_paths)
+<span class="lineNum">     187 </span>            :         {
+<span class="lineNum">     188 </span>            :             for(unsigned i = 0; i &lt; num_paths; i++)
+<span class="lineNum">     189 </span>            :             {
+<span class="lineNum">     190 </span>            :                 m_ren-&gt;color(colors[i]);
+<span class="lineNum">     191 </span>            :                 add_path(vs, path_id[i]);
+<span class="lineNum">     192 </span>            :             }
+<span class="lineNum">     193 </span>            :         }
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span>            :         //------------------------------------------------------------------------
+<span class="lineNum">     197 </span>            :         template&lt;class Ctrl&gt; void render_ctrl(Ctrl&amp; c)
+<span class="lineNum">     198 </span>            :         {
+<span class="lineNum">     199 </span>            :             unsigned i;
+<span class="lineNum">     200 </span>            :             for(i = 0; i &lt; c.num_paths(); i++)
+<span class="lineNum">     201 </span>            :             {
+<span class="lineNum">     202 </span>            :                 m_ren-&gt;color(c.color(i));
+<span class="lineNum">     203 </span>            :                 add_path(c, i);
+<span class="lineNum">     204 </span>            :             }
+<span class="lineNum">     205 </span>            :         }
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span>            :     private:
+<span class="lineNum">     208 </span>            :         rasterizer_outline_aa(const rasterizer_outline_aa&lt;Renderer, Coord&gt;&amp;);
+<span class="lineNum">     209 </span>            :         const rasterizer_outline_aa&lt;Renderer, Coord&gt;&amp; operator = 
+<span class="lineNum">     210 </span>            :             (const rasterizer_outline_aa&lt;Renderer, Coord&gt;&amp;);
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            :         Renderer*           m_ren;
+<span class="lineNum">     213 </span>            :         vertex_storage_type m_src_vertices;
+<span class="lineNum">     214 </span>            :         outline_aa_join_e   m_line_join;
+<span class="lineNum">     215 </span>            :         bool                m_round_cap;
+<span class="lineNum">     216 </span>            :         int                 m_start_x;
+<span class="lineNum">     217 </span>            :         int                 m_start_y;
+<span class="lineNum">     218 </span>            :     };
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span>            : 
+<a name="227"><span class="lineNum">     227 </span>            :     //----------------------------------------------------------------------------</a>
+<span class="lineNum">     228 </span>            :     template&lt;class Renderer, class Coord&gt; 
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :     void rasterizer_outline_aa&lt;Renderer, Coord&gt;::draw(draw_vars&amp; dv, </span>
+<span class="lineNum">     230 </span>            :                                                       unsigned start, 
+<span class="lineNum">     231 </span>            :                                                       unsigned end)
+<span class="lineNum">     232 </span>            :     {
+<span class="lineNum">     233 </span>            :         unsigned i;
+<span class="lineNum">     234 </span>            :         const vertex_storage_type::value_type* v;
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :         for(i = start; i &lt; end; i++)</span>
+<span class="lineNum">     237 </span>            :         {
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :             if(m_line_join == outline_round_join)</span>
+<span class="lineNum">     239 </span>            :             {
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :                 dv.xb1 = dv.curr.x1 + (dv.curr.y2 - dv.curr.y1); </span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :                 dv.yb1 = dv.curr.y1 - (dv.curr.x2 - dv.curr.x1); </span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :                 dv.xb2 = dv.curr.x2 + (dv.curr.y2 - dv.curr.y1); </span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :                 dv.yb2 = dv.curr.y2 - (dv.curr.x2 - dv.curr.x1);</span>
+<span class="lineNum">     244 </span>            :             }
+<span class="lineNum">     245 </span>            : 
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :             switch(dv.flags)</span>
+<span class="lineNum">     247 </span>            :             {
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :             case 0: m_ren-&gt;line3(dv.curr, dv.xb1, dv.yb1, dv.xb2, dv.yb2); break;</span>
+<span class="lineNum">     249 </span>            :             case 1: m_ren-&gt;line2(dv.curr, dv.xb2, dv.yb2); break;
+<span class="lineNum">     250 </span>            :             case 2: m_ren-&gt;line1(dv.curr, dv.xb1, dv.yb1); break;
+<span class="lineNum">     251 </span>            :             case 3: m_ren-&gt;line0(dv.curr); break;
+<span class="lineNum">     252 </span>            :             }
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :             if(m_line_join == outline_round_join &amp;&amp; (dv.flags &amp; 2) == 0)</span>
+<span class="lineNum">     255 </span>            :             {
+<span class="lineNum">     256 </span>            :                 m_ren-&gt;pie(dv.curr.x2, dv.curr.y2, 
+<span class="lineNum">     257 </span>            :                            dv.curr.x2 + (dv.curr.y2 - dv.curr.y1),
+<span class="lineNum">     258 </span>            :                            dv.curr.y2 - (dv.curr.x2 - dv.curr.x1),
+<span class="lineNum">     259 </span>            :                            dv.curr.x2 + (dv.next.y2 - dv.next.y1),
+<span class="lineNum">     260 </span>            :                            dv.curr.y2 - (dv.next.x2 - dv.next.x1));
+<span class="lineNum">     261 </span>            :             }
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :             dv.x1 = dv.x2;</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :             dv.y1 = dv.y2;</span>
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :             dv.lcurr = dv.lnext;</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :             dv.lnext = m_src_vertices[dv.idx].len;</span>
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :             ++dv.idx;</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :             if(dv.idx &gt;= m_src_vertices.size()) dv.idx = 0; </span>
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :             v = &amp;m_src_vertices[dv.idx];</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :             dv.x2 = v-&gt;x;</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :             dv.y2 = v-&gt;y;</span>
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :             dv.curr = dv.next;</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :             dv.next = line_parameters(dv.x1, dv.y1, dv.x2, dv.y2, dv.lnext);</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :             dv.xb1 = dv.xb2;</span>
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :             dv.yb1 = dv.yb2;</span>
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :             switch(m_line_join)</span>
+<span class="lineNum">     281 </span>            :             {
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :             case outline_no_join:</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :                 dv.flags = 3;</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :             case outline_miter_join:</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :                 dv.flags &gt;&gt;= 1;</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                 dv.flags |= ((dv.curr.diagonal_quadrant() == </span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :                               dv.next.diagonal_quadrant()) &lt;&lt; 1);</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                 if((dv.flags &amp; 2) == 0)</span>
+<span class="lineNum">     291 </span>            :                 {
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :                     bisectrix(dv.curr, dv.next, &amp;dv.xb2, &amp;dv.yb2);</span>
+<span class="lineNum">     293 </span>            :                 }
+<span class="lineNum">     294 </span>            :                 break;
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :             case outline_round_join:</span>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                 dv.flags &gt;&gt;= 1;</span>
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :                 dv.flags |= ((dv.curr.diagonal_quadrant() == </span>
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :                               dv.next.diagonal_quadrant()) &lt;&lt; 1);</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :             case outline_miter_accurate_join:</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                 dv.flags = 0;</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :                 bisectrix(dv.curr, dv.next, &amp;dv.xb2, &amp;dv.yb2);</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     306 </span>            :             }
+<span class="lineNum">     307 </span>            :         }
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     309 </span>            : 
+<span class="lineNum">     310 </span>            : 
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span>            : 
+<a name="313"><span class="lineNum">     313 </span>            :     //----------------------------------------------------------------------------</a>
+<span class="lineNum">     314 </span>            :     template&lt;class Renderer, class Coord&gt; 
+<span class="lineNum">     315 </span><span class="lineCov">          1 :     void rasterizer_outline_aa&lt;Renderer, Coord&gt;::render(bool close_polygon)</span>
+<span class="lineNum">     316 </span>            :     {
+<span class="lineNum">     317 </span><span class="lineCov">          1 :         m_src_vertices.close(close_polygon);</span>
+<span class="lineNum">     318 </span>            :         draw_vars dv;
+<span class="lineNum">     319 </span>            :         const vertex_storage_type::value_type* v;
+<span class="lineNum">     320 </span>            :         int x1;
+<span class="lineNum">     321 </span>            :         int y1;
+<span class="lineNum">     322 </span>            :         int x2;
+<span class="lineNum">     323 </span>            :         int y2;
+<span class="lineNum">     324 </span>            :         int lprev;
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span><span class="lineCov">          1 :         if(close_polygon)</span>
+<span class="lineNum">     327 </span>            :         {
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :             if(m_src_vertices.size() &gt;= 3)</span>
+<span class="lineNum">     329 </span>            :             {
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :                 dv.idx = 2;</span>
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                 v     = &amp;m_src_vertices[m_src_vertices.size() - 1];</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                 x1    = v-&gt;x;</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :                 y1    = v-&gt;y;</span>
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :                 lprev = v-&gt;len;</span>
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span>            :                 v  = &amp;m_src_vertices[0];
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :                 x2 = v-&gt;x;</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :                 y2 = v-&gt;y;</span>
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :                 dv.lcurr = v-&gt;len;</span>
+<span class="lineNum">     341 </span>            :                 line_parameters prev(x1, y1, x2, y2, lprev);
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span>            :                 v = &amp;m_src_vertices[1];
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :                 dv.x1    = v-&gt;x;</span>
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :                 dv.y1    = v-&gt;y;</span>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :                 dv.lnext = v-&gt;len;</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :                 dv.curr = line_parameters(x2, y2, dv.x1, dv.y1, dv.lcurr);</span>
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span>            :                 v = &amp;m_src_vertices[dv.idx];
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :                 dv.x2 = v-&gt;x;</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                 dv.y2 = v-&gt;y;</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :                 dv.next = line_parameters(dv.x1, dv.y1, dv.x2, dv.y2, dv.lnext);</span>
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :                 dv.xb1 = 0;</span>
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :                 dv.yb1 = 0;</span>
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :                 dv.xb2 = 0;</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :                 dv.yb2 = 0;</span>
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :                 switch(m_line_join)</span>
+<span class="lineNum">     360 </span>            :                 {
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :                 case outline_no_join:</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :                     dv.flags = 3;</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :                     break;</span>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :                 case outline_miter_join:</span>
+<span class="lineNum">     366 </span>            :                 case outline_round_join:
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :                     dv.flags = </span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :                             (prev.diagonal_quadrant() == dv.curr.diagonal_quadrant()) |</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :                         ((dv.curr.diagonal_quadrant() == dv.next.diagonal_quadrant()) &lt;&lt; 1);</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :                     break;</span>
+<span class="lineNum">     371 </span>            : 
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :                 case outline_miter_accurate_join:</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :                     dv.flags = 0;</span>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :                     break;</span>
+<span class="lineNum">     375 </span>            :                 }
+<span class="lineNum">     376 </span>            : 
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :                 if((dv.flags &amp; 1) == 0 &amp;&amp; m_line_join != outline_round_join)</span>
+<span class="lineNum">     378 </span>            :                 {
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :                     bisectrix(prev, dv.curr, &amp;dv.xb1, &amp;dv.yb1);</span>
+<span class="lineNum">     380 </span>            :                 }
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :                 if((dv.flags &amp; 2) == 0 &amp;&amp; m_line_join != outline_round_join)</span>
+<span class="lineNum">     383 </span>            :                 {
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                     bisectrix(dv.curr, dv.next, &amp;dv.xb2, &amp;dv.yb2);</span>
+<span class="lineNum">     385 </span>            :                 }
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :                 draw(dv, 0, m_src_vertices.size());</span>
+<span class="lineNum">     387 </span>            :             }
+<span class="lineNum">     388 </span>            :         }
+<span class="lineNum">     389 </span>            :         else
+<span class="lineNum">     390 </span>            :         {
+<span class="lineNum">     391 </span><span class="lineCov">          1 :             switch(m_src_vertices.size())</span>
+<span class="lineNum">     392 </span>            :             {
+<span class="lineNum">     393 </span>            :                 case 0:
+<span class="lineNum">     394 </span>            :                 case 1:
+<span class="lineNum">     395 </span>            :                     break;
+<span class="lineNum">     396 </span>            : 
+<span class="lineNum">     397 </span><span class="lineCov">          1 :                 case 2:</span>
+<span class="lineNum">     398 </span>            :                 {
+<span class="lineNum">     399 </span><span class="lineCov">          1 :                     v     = &amp;m_src_vertices[0];</span>
+<span class="lineNum">     400 </span><span class="lineCov">          1 :                     x1    = v-&gt;x;</span>
+<span class="lineNum">     401 </span><span class="lineCov">          1 :                     y1    = v-&gt;y;</span>
+<span class="lineNum">     402 </span><span class="lineCov">          1 :                     lprev = v-&gt;len;</span>
+<span class="lineNum">     403 </span>            :                     v     = &amp;m_src_vertices[1];
+<span class="lineNum">     404 </span><span class="lineCov">          1 :                     x2    = v-&gt;x;</span>
+<span class="lineNum">     405 </span><span class="lineCov">          1 :                     y2    = v-&gt;y;</span>
+<span class="lineNum">     406 </span>            :                     line_parameters lp(x1, y1, x2, y2, lprev);
+<span class="lineNum">     407 </span>            :                     if(m_round_cap) 
+<span class="lineNum">     408 </span>            :                     {
+<span class="lineNum">     409 </span>            :                         m_ren-&gt;semidot(cmp_dist_start, x1, y1, x1 + (y2 - y1), y1 - (x2 - x1));
+<span class="lineNum">     410 </span>            :                     }
+<span class="lineNum">     411 </span><span class="lineCov">          1 :                     m_ren-&gt;line3(lp, </span>
+<span class="lineNum">     412 </span>            :                                  x1 + (y2 - y1), 
+<span class="lineNum">     413 </span>            :                                  y1 - (x2 - x1),
+<span class="lineNum">     414 </span>            :                                  x2 + (y2 - y1), 
+<span class="lineNum">     415 </span>            :                                  y2 - (x2 - x1));
+<span class="lineNum">     416 </span>            :                     if(m_round_cap) 
+<span class="lineNum">     417 </span>            :                     {
+<span class="lineNum">     418 </span>            :                         m_ren-&gt;semidot(cmp_dist_end, x2, y2, x2 + (y2 - y1), y2 - (x2 - x1));
+<span class="lineNum">     419 </span>            :                     }
+<span class="lineNum">     420 </span>            :                 }
+<span class="lineNum">     421 </span><span class="lineCov">          1 :                 break;</span>
+<span class="lineNum">     422 </span>            : 
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :                 case 3:</span>
+<span class="lineNum">     424 </span>            :                 {
+<span class="lineNum">     425 </span>            :                     int x3, y3;
+<span class="lineNum">     426 </span>            :                     int lnext;
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :                     v     = &amp;m_src_vertices[0];</span>
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :                     x1    = v-&gt;x;</span>
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :                     y1    = v-&gt;y;</span>
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :                     lprev = v-&gt;len;</span>
+<span class="lineNum">     431 </span>            :                     v     = &amp;m_src_vertices[1];
+<span class="lineNum">     432 </span><span class="lineNoCov">          0 :                     x2    = v-&gt;x;</span>
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :                     y2    = v-&gt;y;</span>
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :                     lnext = v-&gt;len;</span>
+<span class="lineNum">     435 </span>            :                     v     = &amp;m_src_vertices[2];
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :                     x3    = v-&gt;x;</span>
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :                     y3    = v-&gt;y;</span>
+<span class="lineNum">     438 </span>            :                     line_parameters lp1(x1, y1, x2, y2, lprev);
+<span class="lineNum">     439 </span>            :                     line_parameters lp2(x2, y2, x3, y3, lnext);
+<span class="lineNum">     440 </span>            : 
+<span class="lineNum">     441 </span>            :                     if(m_round_cap) 
+<span class="lineNum">     442 </span>            :                     {
+<span class="lineNum">     443 </span>            :                         m_ren-&gt;semidot(cmp_dist_start, x1, y1, x1 + (y2 - y1), y1 - (x2 - x1));
+<span class="lineNum">     444 </span>            :                     }
+<span class="lineNum">     445 </span>            : 
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :                     if(m_line_join == outline_round_join)</span>
+<span class="lineNum">     447 </span>            :                     {
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :                         m_ren-&gt;line3(lp1, x1 + (y2 - y1), y1 - (x2 - x1), </span>
+<span class="lineNum">     449 </span>            :                                           x2 + (y2 - y1), y2 - (x2 - x1));
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :                         m_ren-&gt;pie(x2, y2, x2 + (y2 - y1), y2 - (x2 - x1),</span>
+<span class="lineNum">     452 </span>            :                                            x2 + (y3 - y2), y2 - (x3 - x2));
+<span class="lineNum">     453 </span>            : 
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :                         m_ren-&gt;line3(lp2, x2 + (y3 - y2), y2 - (x3 - x2),</span>
+<span class="lineNum">     455 </span>            :                                           x3 + (y3 - y2), y3 - (x3 - x2));
+<span class="lineNum">     456 </span>            :                     }
+<span class="lineNum">     457 </span>            :                     else
+<span class="lineNum">     458 </span>            :                     {
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :                         bisectrix(lp1, lp2, &amp;dv.xb1, &amp;dv.yb1);</span>
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :                         m_ren-&gt;line3(lp1, x1 + (y2 - y1), y1 - (x2 - x1),</span>
+<span class="lineNum">     461 </span>            :                                           dv.xb1,         dv.yb1);
+<span class="lineNum">     462 </span>            : 
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :                         m_ren-&gt;line3(lp2, dv.xb1,         dv.yb1,</span>
+<span class="lineNum">     464 </span>            :                                           x3 + (y3 - y2), y3 - (x3 - x2));
+<span class="lineNum">     465 </span>            :                     }
+<span class="lineNum">     466 </span>            :                     if(m_round_cap) 
+<span class="lineNum">     467 </span>            :                     {
+<span class="lineNum">     468 </span>            :                         m_ren-&gt;semidot(cmp_dist_end, x3, y3, x3 + (y3 - y2), y3 - (x3 - x2));
+<span class="lineNum">     469 </span>            :                     }
+<span class="lineNum">     470 </span>            :                 }
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     472 </span>            : 
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :                 default:</span>
+<span class="lineNum">     474 </span>            :                 {
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :                     dv.idx = 3;</span>
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :                     v     = &amp;m_src_vertices[0];</span>
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :                     x1    = v-&gt;x;</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :                     y1    = v-&gt;y;</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :                     lprev = v-&gt;len;</span>
+<span class="lineNum">     481 </span>            : 
+<span class="lineNum">     482 </span>            :                     v  = &amp;m_src_vertices[1];
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :                     x2 = v-&gt;x;</span>
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :                     y2 = v-&gt;y;</span>
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :                     dv.lcurr = v-&gt;len;</span>
+<span class="lineNum">     486 </span>            :                     line_parameters prev(x1, y1, x2, y2, lprev);
+<span class="lineNum">     487 </span>            : 
+<span class="lineNum">     488 </span>            :                     v = &amp;m_src_vertices[2];
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :                     dv.x1    = v-&gt;x;</span>
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :                     dv.y1    = v-&gt;y;</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                     dv.lnext = v-&gt;len;</span>
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :                     dv.curr = line_parameters(x2, y2, dv.x1, dv.y1, dv.lcurr);</span>
+<span class="lineNum">     493 </span>            : 
+<span class="lineNum">     494 </span>            :                     v = &amp;m_src_vertices[dv.idx];
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                     dv.x2 = v-&gt;x;</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                     dv.y2 = v-&gt;y;</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :                     dv.next = line_parameters(dv.x1, dv.y1, dv.x2, dv.y2, dv.lnext);</span>
+<span class="lineNum">     498 </span>            : 
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :                     dv.xb1 = 0;</span>
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :                     dv.yb1 = 0;</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :                     dv.xb2 = 0;</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :                     dv.yb2 = 0;</span>
+<span class="lineNum">     503 </span>            : 
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :                     switch(m_line_join)</span>
+<span class="lineNum">     505 </span>            :                     {
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :                     case outline_no_join:</span>
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :                         dv.flags = 3;</span>
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :                     case outline_miter_join:</span>
+<span class="lineNum">     511 </span>            :                     case outline_round_join:
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :                         dv.flags = </span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                                 (prev.diagonal_quadrant() == dv.curr.diagonal_quadrant()) |</span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :                             ((dv.curr.diagonal_quadrant() == dv.next.diagonal_quadrant()) &lt;&lt; 1);</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     516 </span>            : 
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :                     case outline_miter_accurate_join:</span>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :                         dv.flags = 0;</span>
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     520 </span>            :                     }
+<span class="lineNum">     521 </span>            : 
+<span class="lineNum">     522 </span>            :                     if(m_round_cap) 
+<span class="lineNum">     523 </span>            :                     {
+<span class="lineNum">     524 </span>            :                         m_ren-&gt;semidot(cmp_dist_start, x1, y1, x1 + (y2 - y1), y1 - (x2 - x1));
+<span class="lineNum">     525 </span>            :                     }
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :                     if((dv.flags &amp; 1) == 0)</span>
+<span class="lineNum">     527 </span>            :                     {
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :                         if(m_line_join == outline_round_join)</span>
+<span class="lineNum">     529 </span>            :                         {
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :                             m_ren-&gt;line3(prev, x1 + (y2 - y1), y1 - (x2 - x1),</span>
+<span class="lineNum">     531 </span>            :                                                x2 + (y2 - y1), y2 - (x2 - x1));
+<span class="lineNum">     532 </span>            :                             m_ren-&gt;pie(prev.x2, prev.y2, 
+<span class="lineNum">     533 </span>            :                                        x2 + (y2 - y1), y2 - (x2 - x1),
+<span class="lineNum">     534 </span>            :                                        dv.curr.x1 + (dv.curr.y2 - dv.curr.y1), 
+<span class="lineNum">     535 </span>            :                                        dv.curr.y1 - (dv.curr.x2 - dv.curr.x1));
+<span class="lineNum">     536 </span>            :                         }
+<span class="lineNum">     537 </span>            :                         else
+<span class="lineNum">     538 </span>            :                         {
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                             bisectrix(prev, dv.curr, &amp;dv.xb1, &amp;dv.yb1);</span>
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :                             m_ren-&gt;line3(prev, x1 + (y2 - y1), y1 - (x2 - x1),</span>
+<span class="lineNum">     541 </span>            :                                                dv.xb1,         dv.yb1);
+<span class="lineNum">     542 </span>            :                         }
+<span class="lineNum">     543 </span>            :                     }
+<span class="lineNum">     544 </span>            :                     else
+<span class="lineNum">     545 </span>            :                     {
+<span class="lineNum">     546 </span>            :                         m_ren-&gt;line1(prev, 
+<span class="lineNum">     547 </span>            :                                      x1 + (y2 - y1), 
+<span class="lineNum">     548 </span>            :                                      y1 - (x2 - x1));
+<span class="lineNum">     549 </span>            :                     }
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :                     if((dv.flags &amp; 2) == 0 &amp;&amp; m_line_join != outline_round_join)</span>
+<span class="lineNum">     551 </span>            :                     {
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :                         bisectrix(dv.curr, dv.next, &amp;dv.xb2, &amp;dv.yb2);</span>
+<span class="lineNum">     553 </span>            :                     }
+<span class="lineNum">     554 </span>            : 
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :                     draw(dv, 1, m_src_vertices.size() - 2);</span>
+<span class="lineNum">     556 </span>            : 
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :                     if((dv.flags &amp; 1) == 0)</span>
+<span class="lineNum">     558 </span>            :                     {
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 :                         if(m_line_join == outline_round_join)</span>
+<span class="lineNum">     560 </span>            :                         {
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :                             m_ren-&gt;line3(dv.curr, </span>
+<span class="lineNum">     562 </span>            :                                          dv.curr.x1 + (dv.curr.y2 - dv.curr.y1), 
+<span class="lineNum">     563 </span>            :                                          dv.curr.y1 - (dv.curr.x2 - dv.curr.x1),
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :                                          dv.curr.x2 + (dv.curr.y2 - dv.curr.y1), </span>
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 :                                          dv.curr.y2 - (dv.curr.x2 - dv.curr.x1));</span>
+<span class="lineNum">     566 </span>            :                         }
+<span class="lineNum">     567 </span>            :                         else
+<span class="lineNum">     568 </span>            :                         {
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 :                             m_ren-&gt;line3(dv.curr, dv.xb1, dv.yb1,</span>
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :                                          dv.curr.x2 + (dv.curr.y2 - dv.curr.y1), </span>
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :                                          dv.curr.y2 - (dv.curr.x2 - dv.curr.x1));</span>
+<span class="lineNum">     572 </span>            :                         }
+<span class="lineNum">     573 </span>            :                     }
+<span class="lineNum">     574 </span>            :                     else
+<span class="lineNum">     575 </span>            :                     {
+<span class="lineNum">     576 </span>            :                         m_ren-&gt;line2(dv.curr, 
+<span class="lineNum">     577 </span>            :                                      dv.curr.x2 + (dv.curr.y2 - dv.curr.y1), 
+<span class="lineNum">     578 </span>            :                                      dv.curr.y2 - (dv.curr.x2 - dv.curr.x1));
+<span class="lineNum">     579 </span>            :                     }
+<span class="lineNum">     580 </span>            :                     if(m_round_cap) 
+<span class="lineNum">     581 </span>            :                     {
+<span class="lineNum">     582 </span>            :                         m_ren-&gt;semidot(cmp_dist_end, dv.curr.x2, dv.curr.y2,
+<span class="lineNum">     583 </span>            :                                        dv.curr.x2 + (dv.curr.y2 - dv.curr.y1),
+<span class="lineNum">     584 </span>            :                                        dv.curr.y2 - (dv.curr.x2 - dv.curr.x1));
+<span class="lineNum">     585 </span>            :                     }
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span>            :                 }
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     589 </span>            :             }
+<span class="lineNum">     590 </span>            :         }
+<span class="lineNum">     591 </span>            :         m_src_vertices.remove_all();
+<span class="lineNum">     592 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     593 </span>            : 
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span>            : }
+<span class="lineNum">     596 </span>            : 
+<span class="lineNum">     597 </span>            : 
+<span class="lineNum">     598 </span>            : #endif
+<span class="lineNum">     599 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

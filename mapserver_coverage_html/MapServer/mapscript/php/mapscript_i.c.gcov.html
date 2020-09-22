@@ -1,0 +1,2161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - MapServer/mapscript/php/mapscript_i.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">MapServer/mapscript/php</a> - mapscript_i.c<span style="font-size: 80%;"> (source / <a href="mapscript_i.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">884</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-09-22 21:51:23</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">239</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>            :  * $Id$
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * Project:  MapServer
+<span class="lineNum">       5 </span>            :  * Purpose:  Interface file for MapServer PHP scripting extension
+<span class="lineNum">       6 </span>            :  *           called MapScript. This file was originally based on
+<span class="lineNum">       7 </span>            :  *           the SWIG interface file mapscript.i
+<span class="lineNum">       8 </span>            :  * Author:   Daniel Morissette, DM Solutions Group (dmorissette@dmsolutions.ca)
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  **********************************************************************
+<span class="lineNum">      11 </span>            :  * Copyright (c) 2000, 2007, Daniel Morissette, DM Solutions Group Inc.
+<span class="lineNum">      12 </span>            :  *
+<span class="lineNum">      13 </span>            :  * Permission is hereby granted, free of charge, to any person obtaining a
+<span class="lineNum">      14 </span>            :  * copy of this software and associated documentation files (the &quot;Software&quot;),
+<span class="lineNum">      15 </span>            :  * to deal in the Software without restriction, including without limitation
+<span class="lineNum">      16 </span>            :  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+<span class="lineNum">      17 </span>            :  * and/or sell copies of the Software, and to permit persons to whom the
+<span class="lineNum">      18 </span>            :  * Software is furnished to do so, subject to the following conditions:
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  * The above copyright notice and this permission notice shall be included in
+<span class="lineNum">      21 </span>            :  * all copies of this Software or works derived from this Software.
+<span class="lineNum">      22 </span>            :  *
+<span class="lineNum">      23 </span>            :  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<span class="lineNum">      24 </span>            :  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<span class="lineNum">      25 </span>            :  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+<span class="lineNum">      26 </span>            :  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<span class="lineNum">      27 </span>            :  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+<span class="lineNum">      28 </span>            :  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+<span class="lineNum">      29 </span>            :  * DEALINGS IN THE SOFTWARE.
+<span class="lineNum">      30 </span>            :  **********************************************************************/
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #include &quot;php_mapscript.h&quot;
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : /* grab mapserver declarations to wrap
+<span class="lineNum">      35 </span>            :  */
+<span class="lineNum">      36 </span>            : #include &quot;../../mapserver.h&quot;
+<span class="lineNum">      37 </span>            : #include &quot;../../mapows.h&quot;
+<span class="lineNum">      38 </span>            : #include &quot;../../maperror.h&quot;
+<span class="lineNum">      39 </span>            : #include &quot;../../mapprimitive.h&quot;
+<span class="lineNum">      40 </span>            : #include &quot;../../mapsymbol.h&quot;
+<span class="lineNum">      41 </span>            : #include &quot;../../mapshape.h&quot;
+<span class="lineNum">      42 </span>            : #include &quot;../../mapproject.h&quot;
+<span class="lineNum">      43 </span>            : #include &quot;../../maphash.h&quot;
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : /**********************************************************************
+<a name="46"><span class="lineNum">      46 </span>            :  * class extensions for mapObj</a>
+<span class="lineNum">      47 </span>            :  **********************************************************************/
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 : mapObj *mapObj_new(char *filename, char *new_path)</span>
+<span class="lineNum">      49 </span>            : {
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :   if(filename &amp;&amp; strlen(filename))</span>
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :     return msLoadMap(filename, new_path);</span>
+<span class="lineNum">      52 </span>            :   else { /* create an empty map, no layers etc... */
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :     return msNewMapObj();</span>
+<span class="lineNum">      54 </span>            :   }
+<a name="55"><span class="lineNum">      55 </span>            : }</a>
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 : mapObj *mapObj_newFromString(char *map_text, char *new_path)</span>
+<span class="lineNum">      58 </span>            : {
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :   if(map_text &amp;&amp; strlen(map_text))</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :     return msLoadMapFromString(map_text, new_path);</span>
+<span class="lineNum">      62 </span>            :   else { /* create an empty map, no layers etc... */
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :     return msNewMapObj();</span>
+<span class="lineNum">      64 </span>            :   }
+<a name="65"><span class="lineNum">      65 </span>            : }</a>
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 : void  mapObj_destroy(mapObj* self)</span>
+<span class="lineNum">      68 </span>            : {
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :   msFreeMap(self);</span>
+<a name="70"><span class="lineNum">      70 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 : mapObj *mapObj_clone(mapObj* self)</span>
+<span class="lineNum">      73 </span>            : {
+<span class="lineNum">      74 </span>            :   mapObj *dstMap;
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :   dstMap = msNewMapObj();</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :   if (msCopyMap(dstMap, self) != MS_SUCCESS) {</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :     msFreeMap(dstMap);</span>
+<span class="lineNum">      78 </span>            :     dstMap = NULL;
+<span class="lineNum">      79 </span>            :   }
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :   return dstMap;</span>
+<a name="81"><span class="lineNum">      81 </span>            : }</a>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 : int mapObj_setRotation(mapObj* self, double rotation_angle )</span>
+<span class="lineNum">      84 </span>            : {
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :   return msMapSetRotation( self, rotation_angle );</span>
+<a name="86"><span class="lineNum">      86 </span>            : }</a>
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 : layerObj *mapObj_getLayer(mapObj* self, int i)</span>
+<span class="lineNum">      89 </span>            : {
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :   if(i &gt;= 0 &amp;&amp; i &lt; self-&gt;numlayers)</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :     return (self-&gt;layers[i]); /* returns an EXISTING layer */</span>
+<span class="lineNum">      92 </span>            :   else
+<span class="lineNum">      93 </span>            :     return NULL;
+<a name="94"><span class="lineNum">      94 </span>            : }</a>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 : layerObj *mapObj_getLayerByName(mapObj* self, char *name)</span>
+<span class="lineNum">      97 </span>            : {
+<span class="lineNum">      98 </span>            :   int i;
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :   i = msGetLayerIndex(self, name);</span>
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :   if(i != -1)</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :     return (self-&gt;layers[i]); /* returns an EXISTING layer */</span>
+<span class="lineNum">     104 </span>            :   else
+<span class="lineNum">     105 </span>            :     return NULL;
+<a name="106"><span class="lineNum">     106 </span>            : }</a>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 : int *mapObj_getLayersIndexByGroup(mapObj* self, char *groupname,</span>
+<span class="lineNum">     109 </span>            :                                   int *pnCount)
+<span class="lineNum">     110 </span>            : {
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :   return msGetLayersIndexByGroup(self, groupname, pnCount);</span>
+<span class="lineNum">     112 </span>            : }
+<a name="113"><span class="lineNum">     113 </span>            : </a>
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 : int mapObj_getSymbolByName(mapObj* self, char *name)</span>
+<span class="lineNum">     116 </span>            : {
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :   return msGetSymbolIndex(&amp;self-&gt;symbolset, name, MS_TRUE);</span>
+<a name="118"><span class="lineNum">     118 </span>            : }</a>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 : void mapObj_prepareQuery(mapObj* self)</span>
+<span class="lineNum">     121 </span>            : {
+<span class="lineNum">     122 </span>            :   int status;
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :   status = msCalculateScale(self-&gt;extent, self-&gt;units, self-&gt;width, self-&gt;height, self-&gt;resolution, &amp;self-&gt;scaledenom);</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :   if(status != MS_SUCCESS) self-&gt;scaledenom = -1; // degenerate extents ok here</span>
+<a name="126"><span class="lineNum">     126 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 : imageObj *mapObj_prepareImage(mapObj* self)</span>
+<span class="lineNum">     129 </span>            : {
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :   return msPrepareImage(self, MS_FALSE);</span>
+<a name="131"><span class="lineNum">     131 </span>            : }</a>
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 : imageObj *mapObj_draw(mapObj* self)</span>
+<span class="lineNum">     134 </span>            : {
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :   return msDrawMap(self, MS_FALSE);</span>
+<a name="136"><span class="lineNum">     136 </span>            : }</a>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 : imageObj *mapObj_drawQuery(mapObj* self)</span>
+<span class="lineNum">     139 </span>            : {
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :   return msDrawMap(self, MS_TRUE);</span>
+<a name="141"><span class="lineNum">     141 </span>            : }</a>
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 : imageObj *mapObj_drawLegend(mapObj* self)</span>
+<span class="lineNum">     144 </span>            : {
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :   return msDrawLegend(self, MS_FALSE, NULL);</span>
+<span class="lineNum">     146 </span>            : }
+<a name="147"><span class="lineNum">     147 </span>            : </a>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 : imageObj *mapObj_drawScalebar(mapObj* self)</span>
+<span class="lineNum">     150 </span>            : {
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :   return msDrawScalebar(self);</span>
+<a name="152"><span class="lineNum">     152 </span>            : }</a>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 : imageObj *mapObj_drawReferenceMap(mapObj* self)</span>
+<span class="lineNum">     155 </span>            : {
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :   return msDrawReferenceMap(self);</span>
+<span class="lineNum">     157 </span>            : }
+<a name="158"><span class="lineNum">     158 </span>            : </a>
+<span class="lineNum">     159 </span>            : //TODO
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 : int mapObj_embedScalebar(mapObj* self, imageObj *img)</span>
+<span class="lineNum">     161 </span>            : {
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :   return msEmbedScalebar(self, img);</span>
+<span class="lineNum">     163 </span>            : }
+<a name="164"><span class="lineNum">     164 </span>            : </a>
+<span class="lineNum">     165 </span>            : //TODO
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 : int mapObj_embedLegend(mapObj* self, imageObj *img)</span>
+<span class="lineNum">     167 </span>            : {
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :   return msEmbedLegend(self, img);</span>
+<a name="169"><span class="lineNum">     169 </span>            : }</a>
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 : int mapObj_drawLabelCache(mapObj* self, imageObj *img)</span>
+<span class="lineNum">     172 </span>            : {
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :   return msDrawLabelCache(self, img);</span>
+<a name="174"><span class="lineNum">     174 </span>            : }</a>
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 : labelCacheMemberObj* mapObj_getLabel(mapObj* self, int i)</span>
+<span class="lineNum">     177 </span>            : {
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :   msSetError(MS_MISCERR, &quot;LabelCacheMember access is not available&quot;, &quot;getLabel()&quot;);</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :   return NULL;</span>
+<a name="180"><span class="lineNum">     180 </span>            : }</a>
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 : int mapObj_queryByPoint(mapObj* self, pointObj *point, int mode, double buffer)</span>
+<span class="lineNum">     183 </span>            : {
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :   msInitQuery(&amp;(self-&gt;query));</span>
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :   self-&gt;query.type = MS_QUERY_BY_POINT;</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :   self-&gt;query.mode = mode;</span>
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :   self-&gt;query.point = *point;</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :   self-&gt;query.buffer = buffer;</span>
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :   return msQueryByPoint(self);</span>
+<a name="192"><span class="lineNum">     192 </span>            : }</a>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 : int mapObj_queryByRect(mapObj* self, rectObj rect)</span>
+<span class="lineNum">     195 </span>            : {
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :   msInitQuery(&amp;(self-&gt;query));</span>
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :   self-&gt;query.type = MS_QUERY_BY_RECT;</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :   self-&gt;query.mode = MS_QUERY_MULTIPLE;</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :   self-&gt;query.rect = rect;</span>
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :   return msQueryByRect(self);</span>
+<a name="203"><span class="lineNum">     203 </span>            : }</a>
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 : int mapObj_queryByFeatures(mapObj* self, int slayer)</span>
+<span class="lineNum">     206 </span>            : {
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :   self-&gt;query.slayer = slayer;</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :   return msQueryByFeatures(self);</span>
+<a name="209"><span class="lineNum">     209 </span>            : }</a>
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 : int mapObj_queryByFilter(mapObj* self, char *string)</span>
+<span class="lineNum">     212 </span>            : {
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :   msInitQuery(&amp;(self-&gt;query));</span>
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :   self-&gt;query.type = MS_QUERY_BY_FILTER;</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :   self-&gt;query.mode = MS_QUERY_MULTIPLE;</span>
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :   self-&gt;query.filter.string = msStrdup(string);</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :   self-&gt;query.filter.type = MS_EXPRESSION;</span>
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :   self-&gt;query.rect = self-&gt;extent;</span>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :   return msQueryByFilter(self);</span>
+<a name="224"><span class="lineNum">     224 </span>            : }</a>
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 : int mapObj_queryByShape(mapObj *self, shapeObj *shape)</span>
+<span class="lineNum">     227 </span>            : {
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :   msInitQuery(&amp;(self-&gt;query));</span>
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :   self-&gt;query.type = MS_QUERY_BY_SHAPE;</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :   self-&gt;query.mode = MS_QUERY_MULTIPLE;</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :   self-&gt;query.shape = (shapeObj *) malloc(sizeof(shapeObj));</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :   msInitShape(self-&gt;query.shape);</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :   msCopyShape(shape, self-&gt;query.shape);</span>
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :   return msQueryByShape(self);</span>
+<a name="237"><span class="lineNum">     237 </span>            : }</a>
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 : int mapObj_queryByIndex(mapObj *self, int qlayer, int tileindex, int shapeindex, int bAddToQuery)</span>
+<span class="lineNum">     240 </span>            : {
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :   msInitQuery(&amp;(self-&gt;query));</span>
+<span class="lineNum">     242 </span>            : 
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :   self-&gt;query.type = MS_QUERY_BY_INDEX;</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :   self-&gt;query.mode = MS_QUERY_SINGLE;</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :   self-&gt;query.tileindex = tileindex;</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :   self-&gt;query.shapeindex = shapeindex;</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :   self-&gt;query.clear_resultcache = !bAddToQuery;</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :   self-&gt;query.layer = qlayer;</span>
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :   return msQueryByIndex(self);</span>
+<a name="251"><span class="lineNum">     251 </span>            : }</a>
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 : int mapObj_saveQuery(mapObj *self, char *filename, int results)</span>
+<span class="lineNum">     254 </span>            : {
+<a name="255"><span class="lineNum">     255 </span><span class="lineNoCov">          0 :   return msSaveQuery(self, filename, results);</span></a>
+<span class="lineNum">     256 </span>            : }
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 : int mapObj_loadQuery(mapObj *self, char *filename)</span>
+<span class="lineNum">     258 </span>            : {
+<a name="259"><span class="lineNum">     259 </span><span class="lineNoCov">          0 :   return msLoadQuery(self, filename);</span></a>
+<span class="lineNum">     260 </span>            : }
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 : void mapObj_freeQuery(mapObj *self, int qlayer)</span>
+<span class="lineNum">     262 </span>            : {
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :   msQueryFree(self, qlayer);</span>
+<a name="264"><span class="lineNum">     264 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 : int mapObj_setWKTProjection(mapObj *self, char *string)</span>
+<span class="lineNum">     267 </span>            : {
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :   return msOGCWKT2ProjectionObj(string, &amp;(self-&gt;projection), self-&gt;debug);</span>
+<a name="269"><span class="lineNum">     269 </span>            : }</a>
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 : char *mapObj_getProjection(mapObj* self)</span>
+<span class="lineNum">     272 </span>            : {
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :   return msGetProjectionString(&amp;self-&gt;projection);</span>
+<a name="274"><span class="lineNum">     274 </span>            : }</a>
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 : int mapObj_setProjection(mapObj* self, char *string)</span>
+<span class="lineNum">     277 </span>            : {
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :   return(msLoadProjectionString(&amp;(self-&gt;projection), string));</span>
+<a name="279"><span class="lineNum">     279 </span>            : }</a>
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 : int mapObj_save(mapObj* self, char *filename)</span>
+<span class="lineNum">     282 </span>            : {
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :   return msSaveMap(self, filename);</span>
+<a name="284"><span class="lineNum">     284 </span>            : }</a>
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 : const char *mapObj_getMetaData(mapObj *self, char *name)</span>
+<span class="lineNum">     287 </span>            : {
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :   return(msLookupHashTable(&amp;(self-&gt;web.metadata), name));</span>
+<a name="289"><span class="lineNum">     289 </span>            : }</a>
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 : int mapObj_setMetaData(mapObj *self, char *name, char *value)</span>
+<span class="lineNum">     292 </span>            : {
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :   if (msInsertHashTable(&amp;(self-&gt;web.metadata), name, value) == NULL)</span>
+<span class="lineNum">     294 </span>            :     return MS_FAILURE;
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<a name="296"><span class="lineNum">     296 </span>            : }</a>
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 : int mapObj_removeMetaData(mapObj *self, char *name)</span>
+<span class="lineNum">     299 </span>            : {
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :   return(msRemoveHashTable(&amp;(self-&gt;web.metadata), name));</span>
+<a name="301"><span class="lineNum">     301 </span>            : }</a>
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 : int mapObj_moveLayerup(mapObj *self, int layerindex)</span>
+<span class="lineNum">     304 </span>            : {
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :   return msMoveLayerUp(self, layerindex);</span>
+<a name="306"><span class="lineNum">     306 </span>            : }</a>
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 : int mapObj_moveLayerdown(mapObj *self, int layerindex)</span>
+<span class="lineNum">     309 </span>            : {
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :   return msMoveLayerDown(self, layerindex);</span>
+<a name="311"><span class="lineNum">     311 </span>            : }</a>
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 : int *mapObj_getLayersdrawingOrder(mapObj *self)</span>
+<span class="lineNum">     314 </span>            : {
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :   return self-&gt;layerorder;</span>
+<a name="316"><span class="lineNum">     316 </span>            : }</a>
+<span class="lineNum">     317 </span>            : 
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 : int mapObj_setLayersdrawingOrder(mapObj *self, int *panIndexes)</span>
+<span class="lineNum">     319 </span>            : {
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :   return msSetLayersdrawingOrder(self, panIndexes);</span>
+<a name="321"><span class="lineNum">     321 </span>            : }</a>
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 : char *mapObj_processTemplate(mapObj *self, int bGenerateImages,</span>
+<span class="lineNum">     324 </span>            :                              char **names, char **values,
+<span class="lineNum">     325 </span>            :                              int numentries)
+<span class="lineNum">     326 </span>            : {
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :   return msProcessTemplate(self, bGenerateImages,</span>
+<span class="lineNum">     328 </span>            :                            names, values, numentries);
+<a name="329"><span class="lineNum">     329 </span>            : }</a>
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 : char *mapObj_processLegendTemplate(mapObj *self,</span>
+<span class="lineNum">     332 </span>            :                                    char **names, char **values,
+<span class="lineNum">     333 </span>            :                                    int numentries)
+<span class="lineNum">     334 </span>            : {
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :   return msProcessLegendTemplate(self, names, values, numentries);</span>
+<span class="lineNum">     336 </span>            : }
+<a name="337"><span class="lineNum">     337 </span>            : </a>
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 : char *mapObj_processQueryTemplate(mapObj *self, int bGenerateImages,</span>
+<span class="lineNum">     340 </span>            :                                   char **names, char **values,
+<span class="lineNum">     341 </span>            :                                   int numentries)
+<span class="lineNum">     342 </span>            : {
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :   return msProcessQueryTemplate(self, bGenerateImages, names, values,</span>
+<span class="lineNum">     344 </span>            :                                 numentries);
+<a name="345"><span class="lineNum">     345 </span>            : }</a>
+<span class="lineNum">     346 </span>            : 
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 : int mapObj_setSymbolSet(mapObj *self,</span>
+<span class="lineNum">     348 </span>            :                         char *szFileName)
+<span class="lineNum">     349 </span>            : {
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :   msFreeSymbolSet(&amp;self-&gt;symbolset);</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :   msInitSymbolSet(&amp;self-&gt;symbolset);</span>
+<span class="lineNum">     352 </span>            : 
+<span class="lineNum">     353 </span>            :   // Set symbolset filename
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :   self-&gt;symbolset.filename = msStrdup(szFileName);</span>
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span>            :   // Symbolset shares same fontset as main mapfile
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :   self-&gt;symbolset.fontset = &amp;(self-&gt;fontset);</span>
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :   return msLoadSymbolSet(&amp;self-&gt;symbolset, self);</span>
+<a name="360"><span class="lineNum">     360 </span>            : }</a>
+<span class="lineNum">     361 </span>            : 
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 : int mapObj_getNumSymbols(mapObj *self)</span>
+<span class="lineNum">     363 </span>            : {
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :   return self-&gt;symbolset.numsymbols;</span>
+<a name="365"><span class="lineNum">     365 </span>            : }</a>
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 : int mapObj_setFontSet(mapObj *self, char *szFileName)</span>
+<span class="lineNum">     368 </span>            : {
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :   msFreeFontSet(&amp;(self-&gt;fontset));</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :   msInitFontSet(&amp;(self-&gt;fontset));</span>
+<span class="lineNum">     371 </span>            : 
+<span class="lineNum">     372 </span>            :   // Set fontset filename
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :   self-&gt;fontset.filename = msStrdup(szFileName);</span>
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :   return msLoadFontSet(&amp;(self-&gt;fontset), self);</span>
+<a name="376"><span class="lineNum">     376 </span>            : }</a>
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 : int mapObj_saveMapContext(mapObj *self, char *szFilename)</span>
+<span class="lineNum">     379 </span>            : {
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :   return msSaveMapContext(self, szFilename);</span>
+<a name="381"><span class="lineNum">     381 </span>            : }</a>
+<span class="lineNum">     382 </span>            : 
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 : int mapObj_loadMapContext(mapObj *self, char *szFilename, int bUniqueLayerName)</span>
+<span class="lineNum">     384 </span>            : {
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :   return msLoadMapContext(self, szFilename, bUniqueLayerName);</span>
+<span class="lineNum">     386 </span>            : }
+<span class="lineNum">     387 </span>            : 
+<a name="388"><span class="lineNum">     388 </span>            : </a>
+<span class="lineNum">     389 </span>            : 
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 : int mapObj_selectOutputFormat(mapObj *self,</span>
+<span class="lineNum">     391 </span>            :                               const char *imagetype)
+<span class="lineNum">     392 </span>            : {
+<span class="lineNum">     393 </span>            :   outputFormatObj *format = NULL;
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :   format = msSelectOutputFormat(self, imagetype);</span>
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :   if (format) {</span>
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 :     msApplyOutputFormat( &amp;(self-&gt;outputformat), format,</span>
+<span class="lineNum">     398 </span>            :                          self-&gt;transparent, self-&gt;interlace,
+<span class="lineNum">     399 </span>            :                          self-&gt;imagequality );
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :     return(MS_SUCCESS);</span>
+<span class="lineNum">     401 </span>            :   }
+<span class="lineNum">     402 </span>            :   return(MS_FAILURE);
+<span class="lineNum">     403 </span>            : 
+<a name="404"><span class="lineNum">     404 </span>            : }</a>
+<span class="lineNum">     405 </span>            : 
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 : int mapObj_applySLD(mapObj *self, char *sld)</span>
+<span class="lineNum">     407 </span>            : {
+<a name="408"><span class="lineNum">     408 </span><span class="lineNoCov">          0 :   return msSLDApplySLD(self, sld, -1, NULL, NULL);</span></a>
+<span class="lineNum">     409 </span>            : }
+<span class="lineNum">     410 </span><span class="lineNoCov">          0 : int mapObj_applySLDURL(mapObj *self, char *sld)</span>
+<span class="lineNum">     411 </span>            : {
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :   return msSLDApplySLDURL(self, sld, -1, NULL, NULL);</span>
+<a name="413"><span class="lineNum">     413 </span>            : }</a>
+<span class="lineNum">     414 </span>            : 
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 : char *mapObj_generateSLD(mapObj *self)</span>
+<span class="lineNum">     416 </span>            : {
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :   return msSLDGenerateSLD(self, -1, NULL);</span>
+<span class="lineNum">     418 </span>            : }
+<a name="419"><span class="lineNum">     419 </span>            : </a>
+<span class="lineNum">     420 </span>            : 
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 : int mapObj_loadOWSParameters(mapObj *self, cgiRequestObj *request,</span>
+<span class="lineNum">     422 </span>            :                              char *wmtver_string)
+<span class="lineNum">     423 </span>            : {
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :   return msMapLoadOWSParameters(self, request, wmtver_string);</span>
+<a name="425"><span class="lineNum">     425 </span>            : }</a>
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 : int mapObj_OWSDispatch(mapObj *self, cgiRequestObj *req )</span>
+<span class="lineNum">     428 </span>            : {
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :   return msOWSDispatch( self, req, MS_TRUE);</span>
+<a name="430"><span class="lineNum">     430 </span>            : }</a>
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span><span class="lineNoCov">          0 : int mapObj_insertLayer(mapObj *self, layerObj *layer, int index)</span>
+<span class="lineNum">     433 </span>            : {
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :   if (self &amp;&amp; layer)</span>
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :     return msInsertLayer(self, layer, index);</span>
+<span class="lineNum">     436 </span>            : 
+<span class="lineNum">     437 </span>            :   return -1;
+<a name="438"><span class="lineNum">     438 </span>            : }</a>
+<span class="lineNum">     439 </span>            : 
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 : layerObj *mapObj_removeLayer(mapObj *self, int layerindex)</span>
+<span class="lineNum">     441 </span>            : {
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :   return msRemoveLayer(self, layerindex);</span>
+<a name="443"><span class="lineNum">     443 </span>            : }</a>
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 : int mapObj_setCenter(mapObj *self, pointObj *center)</span>
+<span class="lineNum">     446 </span>            : {
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :   return msMapSetCenter(self, center);</span>
+<a name="448"><span class="lineNum">     448 </span>            : }</a>
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 : int mapObj_offsetExtent(mapObj *self, double x, double y)</span>
+<span class="lineNum">     451 </span>            : {
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :   return msMapOffsetExtent(self, x, y);</span>
+<a name="453"><span class="lineNum">     453 </span>            : }</a>
+<span class="lineNum">     454 </span>            : 
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 : int mapObj_scaleExtent(mapObj *self, double zoomfactor, double minscaledenom,</span>
+<span class="lineNum">     456 </span>            :                        double maxscaledenom)
+<span class="lineNum">     457 </span>            : {
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :   return msMapScaleExtent(self, zoomfactor, minscaledenom, maxscaledenom);</span>
+<a name="459"><span class="lineNum">     459 </span>            : }</a>
+<span class="lineNum">     460 </span>            : 
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 : char *mapObj_convertToString(mapObj *self)</span>
+<span class="lineNum">     462 </span>            : {
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :   return msWriteMapToString(self);</span>
+<span class="lineNum">     464 </span>            : }
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span>            : /**********************************************************************
+<a name="467"><span class="lineNum">     467 </span>            :  * class extensions for layerObj, always within the context of a map</a>
+<span class="lineNum">     468 </span>            :  **********************************************************************/
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 : layerObj *layerObj_new(mapObj *map)</span>
+<span class="lineNum">     470 </span>            : {
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :   if(msGrowMapLayers(map) == NULL)</span>
+<span class="lineNum">     472 </span>            :     return(NULL);
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :   if(initLayer((map-&gt;layers[map-&gt;numlayers]), map) == -1)</span>
+<span class="lineNum">     475 </span>            :     return(NULL);
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :   map-&gt;layers[map-&gt;numlayers]-&gt;index = map-&gt;numlayers;</span>
+<span class="lineNum">     478 </span>            :   //Update the layer order list with the layer's index.
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :   map-&gt;layerorder[map-&gt;numlayers] = map-&gt;numlayers;</span>
+<span class="lineNum">     480 </span>            : 
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :   map-&gt;numlayers++;</span>
+<span class="lineNum">     482 </span>            : 
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :   return (map-&gt;layers[map-&gt;numlayers-1]);</span>
+<a name="484"><span class="lineNum">     484 </span>            : }</a>
+<span class="lineNum">     485 </span>            : 
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 : void layerObj_destroy(layerObj *self)</span>
+<span class="lineNum">     487 </span>            : {
+<span class="lineNum">     488 </span>            :   /* if the layer has a parent_map, let's the map object destroy it */
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :   if ((self-&gt;map == NULL) &amp;&amp; (self-&gt;refcount == 1)) {</span>
+<span class="lineNum">     490 </span>            :     /* if there is no other PHP Object that use this C layer object, delete it */
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :     freeLayer(self);</span>
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :     free(self);</span>
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :     self = NULL;</span>
+<span class="lineNum">     494 </span>            :   } else {
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :     MS_REFCNT_DECR(self);</span>
+<span class="lineNum">     496 </span>            :   }
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :   return;</span>
+<a name="498"><span class="lineNum">     498 </span>            : }</a>
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 : layerObj *layerObj_clone(layerObj *layer)</span>
+<span class="lineNum">     501 </span>            : {
+<span class="lineNum">     502 </span>            :   layerObj *dstLayer;
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :   dstLayer = (layerObj *)malloc(sizeof(layerObj));</span>
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :   initLayer(dstLayer, layer-&gt;map);</span>
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :   msCopyLayer(dstLayer, layer);</span>
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :   return dstLayer;</span>
+<span class="lineNum">     507 </span>            : }
+<a name="508"><span class="lineNum">     508 </span>            : </a>
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 : int layerObj_updateFromString(layerObj *self, char *snippet)</span>
+<span class="lineNum">     511 </span>            : {
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :   return msUpdateLayerFromString(self, snippet, MS_FALSE);</span>
+<a name="513"><span class="lineNum">     513 </span>            : }</a>
+<span class="lineNum">     514 </span>            : 
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 : char *layerObj_convertToString(layerObj *self)</span>
+<span class="lineNum">     516 </span>            : {
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :   return msWriteLayerToString(self);</span>
+<a name="518"><span class="lineNum">     518 </span>            : }</a>
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 : int layerObj_open(layerObj *self)</span>
+<span class="lineNum">     521 </span>            : {
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :   return msLayerOpen(self);</span>
+<span class="lineNum">     523 </span>            : }
+<a name="524"><span class="lineNum">     524 </span>            : </a>
+<span class="lineNum">     525 </span>            : 
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 : int layerObj_whichShapes(layerObj *self, rectObj *poRect)</span>
+<span class="lineNum">     527 </span>            : {
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :   int oldconnectiontype = self-&gt;connectiontype;</span>
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :   self-&gt;connectiontype = MS_INLINE;</span>
+<span class="lineNum">     530 </span>            : 
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :   if(msLayerWhichItems(self, MS_FALSE, NULL) != MS_SUCCESS) {</span>
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :     self-&gt;connectiontype = oldconnectiontype;</span>
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">     534 </span>            :   }
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :   self-&gt;connectiontype = oldconnectiontype;</span>
+<span class="lineNum">     536 </span>            : 
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :   return msLayerWhichShapes(self, *poRect, MS_FALSE);</span>
+<span class="lineNum">     538 </span>            : }
+<a name="539"><span class="lineNum">     539 </span>            : </a>
+<span class="lineNum">     540 </span>            : 
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 : shapeObj *layerObj_nextShape(layerObj *self)</span>
+<span class="lineNum">     542 </span>            : {
+<span class="lineNum">     543 </span>            :   int status;
+<span class="lineNum">     544 </span>            :   shapeObj *shape;
+<span class="lineNum">     545 </span>            : 
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :   shape = (shapeObj *)malloc(sizeof(shapeObj));</span>
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :   if (!shape) return NULL;</span>
+<span class="lineNum">     548 </span><span class="lineNoCov">          0 :   msInitShape(shape);</span>
+<span class="lineNum">     549 </span>            : 
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :   status = msLayerNextShape(self, shape);</span>
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :   if(status != MS_SUCCESS) {</span>
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :     msFreeShape(shape);</span>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :     free(shape);</span>
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">     555 </span>            :   } else
+<span class="lineNum">     556 </span>            :     return shape;
+<a name="557"><span class="lineNum">     557 </span>            : }</a>
+<span class="lineNum">     558 </span>            : 
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 : void layerObj_close(layerObj *self)</span>
+<span class="lineNum">     560 </span>            : {
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :   msLayerClose(self);</span>
+<a name="562"><span class="lineNum">     562 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     563 </span>            : 
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 : resultObj *layerObj_getResult(layerObj *self, int i)</span>
+<span class="lineNum">     565 </span>            : {
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :   if(!self-&gt;resultcache) return NULL;</span>
+<span class="lineNum">     567 </span>            : 
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :   if(i &gt;= 0 &amp;&amp; i &lt; self-&gt;resultcache-&gt;numresults)</span>
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 :     return &amp;self-&gt;resultcache-&gt;results[i];</span>
+<span class="lineNum">     570 </span>            :   else
+<span class="lineNum">     571 </span>            :     return NULL;
+<a name="572"><span class="lineNum">     572 </span>            : }</a>
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 : classObj *layerObj_getClass(layerObj *self, int i)   // returns an EXISTING class</span>
+<span class="lineNum">     575 </span>            : {
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :   if(i &gt;= 0 &amp;&amp; i &lt; self-&gt;numclasses)</span>
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :     return (self-&gt;class[i]);</span>
+<span class="lineNum">     578 </span>            :   else
+<span class="lineNum">     579 </span>            :     return(NULL);
+<a name="580"><span class="lineNum">     580 </span>            : }</a>
+<span class="lineNum">     581 </span>            : 
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 : int layerObj_getClassIndex(layerObj *self, mapObj *map, shapeObj *shape,</span>
+<span class="lineNum">     583 </span>            :                            int *classgroup, int numclasses)
+<span class="lineNum">     584 </span>            : {
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :   return msShapeGetClass(self, map, shape, classgroup, numclasses);</span>
+<a name="586"><span class="lineNum">     586 </span>            : }</a>
+<span class="lineNum">     587 </span>            : 
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 : int layerObj_draw(layerObj *self, mapObj *map, imageObj *img)</span>
+<span class="lineNum">     589 </span>            : {
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :   return msDrawLayer(map, self, img);</span>
+<a name="591"><span class="lineNum">     591 </span>            : }</a>
+<span class="lineNum">     592 </span>            : 
+<span class="lineNum">     593 </span><span class="lineNoCov">          0 : int layerObj_drawQuery(layerObj *self, mapObj *map, imageObj *img)</span>
+<span class="lineNum">     594 </span>            : {
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :   return msDrawQueryLayer(map, self, img);</span>
+<a name="596"><span class="lineNum">     596 </span>            : }</a>
+<span class="lineNum">     597 </span>            : 
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 : int layerObj_queryByAttributes(layerObj *self, mapObj *map, char *qitem, char *qstring, int mode)</span>
+<span class="lineNum">     599 </span>            : {
+<span class="lineNum">     600 </span>            :   int status;
+<span class="lineNum">     601 </span>            :   int retval;
+<span class="lineNum">     602 </span>            : 
+<span class="lineNum">     603 </span><span class="lineNoCov">          0 :   msInitQuery(&amp;(map-&gt;query));</span>
+<span class="lineNum">     604 </span>            :   
+<span class="lineNum">     605 </span><span class="lineNoCov">          0 :   map-&gt;query.type = MS_QUERY_BY_FILTER;</span>
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :   map-&gt;query.mode = mode;</span>
+<span class="lineNum">     607 </span>            : 
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :   if(qitem) map-&gt;query.filteritem = msStrdup(qitem);</span>
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :   if(qstring) {</span>
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :     msInitExpression(&amp;map-&gt;query.filter);</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :     msLoadExpressionString(&amp;map-&gt;query.filter, qstring);</span>
+<span class="lineNum">     612 </span>            :   }
+<span class="lineNum">     613 </span>            : 
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :   map-&gt;query.layer = self-&gt;index;</span>
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :   map-&gt;query.rect = map-&gt;extent;</span>
+<span class="lineNum">     616 </span>            : 
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 :   status = self-&gt;status;</span>
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :   self-&gt;status = MS_ON;</span>
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :   retval = msQueryByFilter(map);</span>
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 :   self-&gt;status = status;</span>
+<span class="lineNum">     621 </span>            : 
+<span class="lineNum">     622 </span><span class="lineNoCov">          0 :   return retval;</span>
+<a name="623"><span class="lineNum">     623 </span>            : }</a>
+<span class="lineNum">     624 </span>            : 
+<span class="lineNum">     625 </span><span class="lineNoCov">          0 : int layerObj_queryByPoint(layerObj *self, mapObj *map, pointObj *point, int mode, double buffer)</span>
+<span class="lineNum">     626 </span>            : {
+<span class="lineNum">     627 </span>            :   int status;
+<span class="lineNum">     628 </span>            :   int retval;
+<span class="lineNum">     629 </span>            : 
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :   msInitQuery(&amp;(map-&gt;query));</span>
+<span class="lineNum">     631 </span>            : 
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :   map-&gt;query.type = MS_QUERY_BY_POINT;</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :   map-&gt;query.mode = mode;</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :   map-&gt;query.point = *point;</span>
+<span class="lineNum">     635 </span><span class="lineNoCov">          0 :   map-&gt;query.buffer = buffer;</span>
+<span class="lineNum">     636 </span><span class="lineNoCov">          0 :   map-&gt;query.layer = self-&gt;index;</span>
+<span class="lineNum">     637 </span>            : 
+<span class="lineNum">     638 </span><span class="lineNoCov">          0 :   status = self-&gt;status;</span>
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :   self-&gt;status = MS_ON;</span>
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :   retval = msQueryByPoint(map);</span>
+<span class="lineNum">     641 </span><span class="lineNoCov">          0 :   self-&gt;status = status;</span>
+<span class="lineNum">     642 </span>            : 
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :   return retval;</span>
+<a name="644"><span class="lineNum">     644 </span>            : }</a>
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span><span class="lineNoCov">          0 : int layerObj_queryByRect(layerObj *self, mapObj *map, rectObj rect)</span>
+<span class="lineNum">     647 </span>            : {
+<span class="lineNum">     648 </span>            :   int status;
+<span class="lineNum">     649 </span>            :   int retval;
+<span class="lineNum">     650 </span>            : 
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :   msInitQuery(&amp;(map-&gt;query));</span>
+<span class="lineNum">     652 </span>            : 
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :   map-&gt;query.type = MS_QUERY_BY_RECT;</span>
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :   map-&gt;query.mode = MS_QUERY_MULTIPLE;</span>
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :   map-&gt;query.rect = rect;</span>
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 :   map-&gt;query.layer = self-&gt;index;</span>
+<span class="lineNum">     657 </span>            : 
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :   status = self-&gt;status;</span>
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :   self-&gt;status = MS_ON;</span>
+<span class="lineNum">     660 </span><span class="lineNoCov">          0 :   retval = msQueryByRect(map);</span>
+<span class="lineNum">     661 </span><span class="lineNoCov">          0 :   self-&gt;status = status;</span>
+<span class="lineNum">     662 </span>            : 
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :   return retval;</span>
+<a name="664"><span class="lineNum">     664 </span>            : }</a>
+<span class="lineNum">     665 </span>            : 
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 : int layerObj_queryByFeatures(layerObj *self, mapObj *map, int slayer)</span>
+<span class="lineNum">     667 </span>            : {
+<span class="lineNum">     668 </span>            :   int status;
+<span class="lineNum">     669 </span>            :   int retval;
+<span class="lineNum">     670 </span>            : 
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :   map-&gt;query.slayer = slayer;</span>
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :   map-&gt;query.layer = self-&gt;index;</span>
+<span class="lineNum">     673 </span>            : 
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 :   status = self-&gt;status;</span>
+<span class="lineNum">     675 </span><span class="lineNoCov">          0 :   self-&gt;status = MS_ON;</span>
+<span class="lineNum">     676 </span><span class="lineNoCov">          0 :   retval = msQueryByFeatures(map);</span>
+<span class="lineNum">     677 </span><span class="lineNoCov">          0 :   self-&gt;status = status;</span>
+<span class="lineNum">     678 </span>            : 
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :   return retval;</span>
+<a name="680"><span class="lineNum">     680 </span>            : }</a>
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span><span class="lineNoCov">          0 : int layerObj_queryByShape(layerObj *self, mapObj *map, shapeObj *shape)</span>
+<span class="lineNum">     683 </span>            : {
+<span class="lineNum">     684 </span>            :   int status;
+<span class="lineNum">     685 </span>            :   int retval;
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :   msInitQuery(&amp;(map-&gt;query));</span>
+<span class="lineNum">     688 </span>            : 
+<span class="lineNum">     689 </span><span class="lineNoCov">          0 :   map-&gt;query.type = MS_QUERY_BY_SHAPE;</span>
+<span class="lineNum">     690 </span><span class="lineNoCov">          0 :   map-&gt;query.mode = MS_QUERY_MULTIPLE;</span>
+<span class="lineNum">     691 </span><span class="lineNoCov">          0 :   map-&gt;query.shape = (shapeObj *) malloc(sizeof(shapeObj));</span>
+<span class="lineNum">     692 </span><span class="lineNoCov">          0 :   msInitShape(map-&gt;query.shape);</span>
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :   msCopyShape(shape, map-&gt;query.shape);</span>
+<span class="lineNum">     694 </span><span class="lineNoCov">          0 :   map-&gt;query.layer = self-&gt;index;</span>
+<span class="lineNum">     695 </span>            : 
+<span class="lineNum">     696 </span><span class="lineNoCov">          0 :   status = self-&gt;status;</span>
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :   self-&gt;status = MS_ON;</span>
+<span class="lineNum">     698 </span><span class="lineNoCov">          0 :   retval = msQueryByShape(map);</span>
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 :   self-&gt;status = status;</span>
+<span class="lineNum">     700 </span>            : 
+<span class="lineNum">     701 </span><span class="lineNoCov">          0 :   return retval;</span>
+<a name="702"><span class="lineNum">     702 </span>            : }</a>
+<span class="lineNum">     703 </span>            : 
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 : int layerObj_queryByFilter(layerObj *self, mapObj *map, char *string)</span>
+<span class="lineNum">     705 </span>            : {
+<span class="lineNum">     706 </span>            :   int status;
+<span class="lineNum">     707 </span>            :   int retval;
+<span class="lineNum">     708 </span>            : 
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :   msInitQuery(&amp;(map-&gt;query));</span>
+<span class="lineNum">     710 </span>            : 
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :   map-&gt;query.type = MS_QUERY_BY_FILTER;</span>
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :   map-&gt;query.mode = MS_QUERY_MULTIPLE;</span>
+<span class="lineNum">     713 </span>            : 
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :   map-&gt;query.filter.string = msStrdup(string);</span>
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :   map-&gt;query.filter.type = MS_EXPRESSION;</span>
+<span class="lineNum">     716 </span>            : 
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :   map-&gt;query.layer = self-&gt;index;</span>
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :   map-&gt;query.rect = map-&gt;extent;</span>
+<span class="lineNum">     719 </span>            : 
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :   status = self-&gt;status;</span>
+<span class="lineNum">     721 </span><span class="lineNoCov">          0 :   self-&gt;status = MS_ON;</span>
+<span class="lineNum">     722 </span><span class="lineNoCov">          0 :   retval = msQueryByFilter(map);</span>
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :   self-&gt;status = status;</span>
+<span class="lineNum">     724 </span>            : 
+<span class="lineNum">     725 </span><span class="lineNoCov">          0 :   return retval;</span>
+<a name="726"><span class="lineNum">     726 </span>            : }</a>
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 : int layerObj_queryByIndex(layerObj *self, mapObj *map, int tileindex, int shapeindex, int addtoquery)</span>
+<span class="lineNum">     729 </span>            : {
+<span class="lineNum">     730 </span>            :   int status;
+<span class="lineNum">     731 </span>            :   int retval;
+<span class="lineNum">     732 </span>            : 
+<span class="lineNum">     733 </span><span class="lineNoCov">          0 :   msInitQuery(&amp;(map-&gt;query));</span>
+<span class="lineNum">     734 </span>            : 
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 :   map-&gt;query.type = MS_QUERY_BY_INDEX;</span>
+<span class="lineNum">     736 </span><span class="lineNoCov">          0 :   map-&gt;query.mode = MS_QUERY_SINGLE;</span>
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 :   map-&gt;query.tileindex = tileindex;</span>
+<span class="lineNum">     738 </span><span class="lineNoCov">          0 :   map-&gt;query.shapeindex = shapeindex;</span>
+<span class="lineNum">     739 </span><span class="lineNoCov">          0 :   map-&gt;query.clear_resultcache = !addtoquery;</span>
+<span class="lineNum">     740 </span><span class="lineNoCov">          0 :   map-&gt;query.layer = self-&gt;index;</span>
+<span class="lineNum">     741 </span>            : 
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 :   status = self-&gt;status;</span>
+<span class="lineNum">     743 </span><span class="lineNoCov">          0 :   self-&gt;status = MS_ON;</span>
+<span class="lineNum">     744 </span><span class="lineNoCov">          0 :   retval = msQueryByIndex(map);</span>
+<span class="lineNum">     745 </span><span class="lineNoCov">          0 :   self-&gt;status = status;</span>
+<span class="lineNum">     746 </span>            : 
+<span class="lineNum">     747 </span><span class="lineNoCov">          0 :   return retval;</span>
+<a name="748"><span class="lineNum">     748 </span>            : }</a>
+<span class="lineNum">     749 </span>            : 
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 : int layerObj_setFilter(layerObj *self, char *string)</span>
+<span class="lineNum">     751 </span>            : {
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 :   if (!string || strlen(string) == 0) {</span>
+<span class="lineNum">     753 </span><span class="lineNoCov">          0 :     msFreeExpression(&amp;self-&gt;filter);</span>
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :     return MS_SUCCESS;</span>
+<span class="lineNum">     755 </span><span class="lineNoCov">          0 :   } else return msLoadExpressionString(&amp;self-&gt;filter, string);</span>
+<a name="756"><span class="lineNum">     756 </span>            : }</a>
+<span class="lineNum">     757 </span>            : 
+<span class="lineNum">     758 </span><span class="lineNoCov">          0 : char *layerObj_getFilter(layerObj *self)</span>
+<span class="lineNum">     759 </span>            : {
+<span class="lineNum">     760 </span><span class="lineNoCov">          0 :   return msGetExpressionString(&amp;(self-&gt;filter));</span>
+<a name="761"><span class="lineNum">     761 </span>            : }</a>
+<span class="lineNum">     762 </span>            : 
+<span class="lineNum">     763 </span><span class="lineNoCov">          0 : int layerObj_setWKTProjection(layerObj *self, char *string)</span>
+<span class="lineNum">     764 </span>            : {
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :   self-&gt;project = MS_TRUE;</span>
+<span class="lineNum">     766 </span><span class="lineNoCov">          0 :   return msOGCWKT2ProjectionObj(string, &amp;(self-&gt;projection), self-&gt;debug);</span>
+<a name="767"><span class="lineNum">     767 </span>            : }</a>
+<span class="lineNum">     768 </span>            : 
+<span class="lineNum">     769 </span><span class="lineNoCov">          0 : char *layerObj_getProjection(layerObj* self)</span>
+<span class="lineNum">     770 </span>            : {
+<span class="lineNum">     771 </span><span class="lineNoCov">          0 :   return msGetProjectionString(&amp;self-&gt;projection);</span>
+<a name="772"><span class="lineNum">     772 </span>            : }</a>
+<span class="lineNum">     773 </span>            : 
+<span class="lineNum">     774 </span><span class="lineNoCov">          0 : int layerObj_setProjection(layerObj *self, char *string)</span>
+<span class="lineNum">     775 </span>            : {
+<span class="lineNum">     776 </span>            :   int nReturn;
+<span class="lineNum">     777 </span><span class="lineNoCov">          0 :   nReturn = msLoadProjectionString(&amp;(self-&gt;projection), string);</span>
+<span class="lineNum">     778 </span><span class="lineNoCov">          0 :   if (nReturn == MS_SUCCESS)</span>
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 :     self-&gt;project = MS_TRUE;</span>
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :   return nReturn;</span>
+<span class="lineNum">     781 </span>            : 
+<a name="782"><span class="lineNum">     782 </span>            : }</a>
+<span class="lineNum">     783 </span>            : 
+<span class="lineNum">     784 </span><span class="lineNoCov">          0 : int layerObj_addFeature(layerObj *self, shapeObj *shape)</span>
+<span class="lineNum">     785 </span>            : {
+<span class="lineNum">     786 </span><span class="lineNoCov">          0 :   if(self-&gt;features != NULL &amp;&amp; self-&gt;features-&gt;tailifhead != NULL)</span>
+<span class="lineNum">     787 </span><span class="lineNoCov">          0 :     shape-&gt;index = self-&gt;features-&gt;tailifhead-&gt;shape.index + 1;</span>
+<span class="lineNum">     788 </span>            :   else
+<span class="lineNum">     789 </span><span class="lineNoCov">          0 :     shape-&gt;index = 0;</span>
+<span class="lineNum">     790 </span><span class="lineNoCov">          0 :   if(insertFeatureList(&amp;(self-&gt;features), shape) == NULL)</span>
+<span class="lineNum">     791 </span>            :     return MS_FAILURE;
+<span class="lineNum">     792 </span>            :   else
+<span class="lineNum">     793 </span><span class="lineNoCov">          0 :     return MS_SUCCESS;</span>
+<a name="794"><span class="lineNum">     794 </span>            : }</a>
+<span class="lineNum">     795 </span>            : 
+<span class="lineNum">     796 </span><span class="lineNoCov">          0 : const char *layerObj_getMetaData(layerObj *self, char *name)</span>
+<span class="lineNum">     797 </span>            : {
+<span class="lineNum">     798 </span><span class="lineNoCov">          0 :   return(msLookupHashTable(&amp;(self-&gt;metadata), name));</span>
+<span class="lineNum">     799 </span>            : }
+<a name="800"><span class="lineNum">     800 </span>            : </a>
+<span class="lineNum">     801 </span>            : 
+<span class="lineNum">     802 </span><span class="lineNoCov">          0 : int layerObj_setMetaData(layerObj *self, char *name, char *value)</span>
+<span class="lineNum">     803 </span>            : {
+<span class="lineNum">     804 </span><span class="lineNoCov">          0 :   if (msInsertHashTable(&amp;(self-&gt;metadata), name, value) == NULL)</span>
+<span class="lineNum">     805 </span>            :     return MS_FAILURE;
+<span class="lineNum">     806 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<a name="807"><span class="lineNum">     807 </span>            : }</a>
+<span class="lineNum">     808 </span>            : 
+<span class="lineNum">     809 </span><span class="lineNoCov">          0 : int layerObj_removeMetaData(layerObj *self, char *name)</span>
+<span class="lineNum">     810 </span>            : {
+<span class="lineNum">     811 </span><span class="lineNoCov">          0 :   return(msRemoveHashTable(&amp;(self-&gt;metadata), name));</span>
+<a name="812"><span class="lineNum">     812 </span>            : }</a>
+<span class="lineNum">     813 </span>            : 
+<span class="lineNum">     814 </span><span class="lineNoCov">          0 : char *layerObj_getWMSFeatureInfoURL(layerObj *self, mapObj *map, int click_x, int click_y,</span>
+<span class="lineNum">     815 </span>            :                                     int feature_count, char *info_format)
+<span class="lineNum">     816 </span>            : {
+<span class="lineNum">     817 </span>            :   // NOTE: the returned string should be freed by the caller but right
+<span class="lineNum">     818 </span>            :   // now we're leaking it.
+<span class="lineNum">     819 </span><span class="lineNoCov">          0 :   return(msWMSGetFeatureInfoURL(map, self, click_x, click_y,</span>
+<span class="lineNum">     820 </span>            :                                 feature_count, info_format));
+<a name="821"><span class="lineNum">     821 </span>            : }</a>
+<span class="lineNum">     822 </span>            : 
+<span class="lineNum">     823 </span><span class="lineNoCov">          0 : char *layerObj_executeWFSGetFeature(layerObj *self)</span>
+<span class="lineNum">     824 </span>            : {
+<span class="lineNum">     825 </span><span class="lineNoCov">          0 :   return (msWFSExecuteGetFeature(self));</span>
+<a name="826"><span class="lineNum">     826 </span>            : }</a>
+<span class="lineNum">     827 </span>            : 
+<span class="lineNum">     828 </span><span class="lineNoCov">          0 : int layerObj_applySLD(layerObj *self, char *sld, char *stylelayer)</span>
+<span class="lineNum">     829 </span>            : {
+<a name="830"><span class="lineNum">     830 </span><span class="lineNoCov">          0 :   return msSLDApplySLD(self-&gt;map, sld, self-&gt;index, stylelayer, NULL);</span></a>
+<span class="lineNum">     831 </span>            : }
+<span class="lineNum">     832 </span><span class="lineNoCov">          0 : int layerObj_applySLDURL(layerObj *self, char *sld, char *stylelayer)</span>
+<span class="lineNum">     833 </span>            : {
+<span class="lineNum">     834 </span><span class="lineNoCov">          0 :   return msSLDApplySLDURL(self-&gt;map, sld, self-&gt;index, stylelayer, NULL);</span>
+<a name="835"><span class="lineNum">     835 </span>            : }</a>
+<span class="lineNum">     836 </span>            : 
+<span class="lineNum">     837 </span><span class="lineNoCov">          0 : char *layerObj_generateSLD(layerObj *self)</span>
+<span class="lineNum">     838 </span>            : {
+<span class="lineNum">     839 </span><span class="lineNoCov">          0 :   return msSLDGenerateSLD(self-&gt;map, self-&gt;index, NULL);</span>
+<a name="840"><span class="lineNum">     840 </span>            : }</a>
+<span class="lineNum">     841 </span>            : 
+<span class="lineNum">     842 </span><span class="lineNoCov">          0 : int layerObj_moveClassUp(layerObj *self, int index)</span>
+<span class="lineNum">     843 </span>            : {
+<span class="lineNum">     844 </span><span class="lineNoCov">          0 :   return msMoveClassUp(self, index);</span>
+<a name="845"><span class="lineNum">     845 </span>            : }</a>
+<span class="lineNum">     846 </span>            : 
+<span class="lineNum">     847 </span><span class="lineNoCov">          0 : int layerObj_moveClassDown(layerObj *self, int index)</span>
+<span class="lineNum">     848 </span>            : {
+<span class="lineNum">     849 </span><span class="lineNoCov">          0 :   return msMoveClassDown(self, index);</span>
+<a name="850"><span class="lineNum">     850 </span>            : }</a>
+<span class="lineNum">     851 </span>            : 
+<span class="lineNum">     852 </span><span class="lineNoCov">          0 : classObj *layerObj_removeClass(layerObj *self, int index)</span>
+<span class="lineNum">     853 </span>            : {
+<span class="lineNum">     854 </span><span class="lineNoCov">          0 :   return msRemoveClass(self, index);</span>
+<a name="855"><span class="lineNum">     855 </span>            : }</a>
+<span class="lineNum">     856 </span>            : 
+<span class="lineNum">     857 </span><span class="lineNoCov">          0 : int layerObj_setConnectionType(layerObj *self, int connectiontype,</span>
+<span class="lineNum">     858 </span>            :                                const char *library_str)
+<span class="lineNum">     859 </span>            : {
+<span class="lineNum">     860 </span>            :   /* Caller is responsible to close previous layer correctly before calling
+<span class="lineNum">     861 </span>            :    * msConnectLayer()
+<span class="lineNum">     862 </span>            :    */
+<span class="lineNum">     863 </span><span class="lineNoCov">          0 :   if (msLayerIsOpen(self))</span>
+<span class="lineNum">     864 </span><span class="lineNoCov">          0 :     msLayerClose(self);</span>
+<span class="lineNum">     865 </span>            : 
+<span class="lineNum">     866 </span><span class="lineNoCov">          0 :   return msConnectLayer(self, connectiontype, library_str);</span>
+<span class="lineNum">     867 </span>            : }
+<span class="lineNum">     868 </span>            : 
+<span class="lineNum">     869 </span>            : /**********************************************************************
+<a name="870"><span class="lineNum">     870 </span>            :  * class extensions for labelObj</a>
+<span class="lineNum">     871 </span>            :  **********************************************************************/
+<span class="lineNum">     872 </span><span class="lineNoCov">          0 : labelObj *labelObj_new()</span>
+<span class="lineNum">     873 </span>            : {
+<span class="lineNum">     874 </span>            :   labelObj *label;
+<span class="lineNum">     875 </span>            : 
+<span class="lineNum">     876 </span><span class="lineNoCov">          0 :   label = (labelObj *)malloc(sizeof(labelObj));</span>
+<span class="lineNum">     877 </span><span class="lineNoCov">          0 :   if(!label)</span>
+<span class="lineNum">     878 </span>            :     return(NULL);
+<span class="lineNum">     879 </span>            : 
+<span class="lineNum">     880 </span><span class="lineNoCov">          0 :   initLabel(label);</span>
+<span class="lineNum">     881 </span>            : 
+<span class="lineNum">     882 </span><span class="lineNoCov">          0 :   return label;</span>
+<a name="883"><span class="lineNum">     883 </span>            : }</a>
+<span class="lineNum">     884 </span>            : 
+<span class="lineNum">     885 </span><span class="lineNoCov">          0 : void labelObj_destroy(labelObj *self)</span>
+<span class="lineNum">     886 </span>            : {
+<span class="lineNum">     887 </span><span class="lineNoCov">          0 :   if (freeLabel(self) == MS_SUCCESS)</span>
+<span class="lineNum">     888 </span><span class="lineNoCov">          0 :     free(self);</span>
+<span class="lineNum">     889 </span>            : 
+<a name="890"><span class="lineNum">     890 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     891 </span>            : 
+<span class="lineNum">     892 </span><span class="lineNoCov">          0 : labelObj *labelObj_clone(labelObj *label)</span>
+<span class="lineNum">     893 </span>            : {
+<span class="lineNum">     894 </span>            :   labelObj *dstLabel;
+<span class="lineNum">     895 </span><span class="lineNoCov">          0 :   dstLabel = (labelObj *)malloc(sizeof(labelObj));</span>
+<span class="lineNum">     896 </span><span class="lineNoCov">          0 :   initLabel(dstLabel);</span>
+<span class="lineNum">     897 </span><span class="lineNoCov">          0 :   dstLabel-&gt;font = NULL;</span>
+<span class="lineNum">     898 </span><span class="lineNoCov">          0 :   msCopyLabel(dstLabel, label);</span>
+<span class="lineNum">     899 </span>            : 
+<span class="lineNum">     900 </span><span class="lineNoCov">          0 :   return dstLabel;</span>
+<a name="901"><span class="lineNum">     901 </span>            : }</a>
+<span class="lineNum">     902 </span>            : 
+<span class="lineNum">     903 </span><span class="lineNoCov">          0 : int labelObj_updateFromString(labelObj *self, char *snippet)</span>
+<span class="lineNum">     904 </span>            : {
+<span class="lineNum">     905 </span><span class="lineNoCov">          0 :   return msUpdateLabelFromString(self, snippet, MS_FALSE);</span>
+<a name="906"><span class="lineNum">     906 </span>            : }</a>
+<span class="lineNum">     907 </span>            : 
+<span class="lineNum">     908 </span><span class="lineNoCov">          0 : char *labelObj_convertToString(labelObj *self)</span>
+<span class="lineNum">     909 </span>            : {
+<span class="lineNum">     910 </span><span class="lineNoCov">          0 :   return msWriteLabelToString(self);</span>
+<a name="911"><span class="lineNum">     911 </span>            : }</a>
+<span class="lineNum">     912 </span>            : 
+<span class="lineNum">     913 </span><span class="lineNoCov">          0 : int labelObj_moveStyleUp(labelObj *self, int index)</span>
+<span class="lineNum">     914 </span>            : {
+<span class="lineNum">     915 </span><span class="lineNoCov">          0 :   return msMoveLabelStyleUp(self, index);</span>
+<a name="916"><span class="lineNum">     916 </span>            : }</a>
+<span class="lineNum">     917 </span>            : 
+<span class="lineNum">     918 </span><span class="lineNoCov">          0 : int labelObj_moveStyleDown(labelObj *self, int index)</span>
+<span class="lineNum">     919 </span>            : {
+<span class="lineNum">     920 </span><span class="lineNoCov">          0 :   return msMoveLabelStyleDown(self, index);</span>
+<a name="921"><span class="lineNum">     921 </span>            : }</a>
+<span class="lineNum">     922 </span>            : 
+<span class="lineNum">     923 </span><span class="lineNoCov">          0 : int labelObj_deleteStyle(labelObj *self, int index)</span>
+<span class="lineNum">     924 </span>            : {
+<span class="lineNum">     925 </span><span class="lineNoCov">          0 :   return msDeleteLabelStyle(self, index);</span>
+<a name="926"><span class="lineNum">     926 </span>            : }</a>
+<span class="lineNum">     927 </span>            : 
+<span class="lineNum">     928 </span><span class="lineNoCov">          0 : int labelObj_setExpression(labelObj *self, char *string)</span>
+<span class="lineNum">     929 </span>            : {
+<span class="lineNum">     930 </span><span class="lineNoCov">          0 :   if (!string || strlen(string) == 0) {</span>
+<span class="lineNum">     931 </span><span class="lineNoCov">          0 :     msFreeExpression(&amp;self-&gt;expression);</span>
+<span class="lineNum">     932 </span><span class="lineNoCov">          0 :     return MS_SUCCESS;</span>
+<span class="lineNum">     933 </span><span class="lineNoCov">          0 :   } else return msLoadExpressionString(&amp;self-&gt;expression, string);</span>
+<a name="934"><span class="lineNum">     934 </span>            : }</a>
+<span class="lineNum">     935 </span>            : 
+<span class="lineNum">     936 </span><span class="lineNoCov">          0 : char *labelObj_getExpressionString(labelObj *self)</span>
+<span class="lineNum">     937 </span>            : {
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :   return msGetExpressionString(&amp;(self-&gt;expression));</span>
+<a name="939"><span class="lineNum">     939 </span>            : }</a>
+<span class="lineNum">     940 </span>            : 
+<span class="lineNum">     941 </span><span class="lineNoCov">          0 : int labelObj_setText(labelObj *self, layerObj *layer, char *string)</span>
+<span class="lineNum">     942 </span>            : {
+<span class="lineNum">     943 </span><span class="lineNoCov">          0 :   if (!string || strlen(string) == 0) {</span>
+<span class="lineNum">     944 </span><span class="lineNoCov">          0 :     msFreeExpression(&amp;self-&gt;text);</span>
+<span class="lineNum">     945 </span><span class="lineNoCov">          0 :     return MS_SUCCESS;</span>
+<span class="lineNum">     946 </span>            :   }
+<span class="lineNum">     947 </span><span class="lineNoCov">          0 :   return msLoadExpressionString(&amp;self-&gt;text, string);</span>
+<a name="948"><span class="lineNum">     948 </span>            : }</a>
+<span class="lineNum">     949 </span>            : 
+<span class="lineNum">     950 </span><span class="lineNoCov">          0 : char *labelObj_getTextString(labelObj *self)</span>
+<span class="lineNum">     951 </span>            : {
+<span class="lineNum">     952 </span><span class="lineNoCov">          0 :   return msGetExpressionString(&amp;(self-&gt;text));</span>
+<span class="lineNum">     953 </span>            : }
+<span class="lineNum">     954 </span>            : 
+<span class="lineNum">     955 </span>            : /**********************************************************************
+<a name="956"><span class="lineNum">     956 </span>            :  * class extensions for legendObj</a>
+<span class="lineNum">     957 </span>            :  **********************************************************************/
+<span class="lineNum">     958 </span><span class="lineNoCov">          0 : int legendObj_updateFromString(legendObj *self, char *snippet)</span>
+<span class="lineNum">     959 </span>            : {
+<span class="lineNum">     960 </span><span class="lineNoCov">          0 :   return msUpdateLegendFromString(self, snippet, MS_FALSE);</span>
+<a name="961"><span class="lineNum">     961 </span>            : }</a>
+<span class="lineNum">     962 </span>            : 
+<span class="lineNum">     963 </span><span class="lineNoCov">          0 : char *legendObj_convertToString(legendObj *self)</span>
+<span class="lineNum">     964 </span>            : {
+<span class="lineNum">     965 </span><span class="lineNoCov">          0 :   return msWriteLegendToString(self);</span>
+<span class="lineNum">     966 </span>            : }
+<span class="lineNum">     967 </span>            : 
+<span class="lineNum">     968 </span>            : /**********************************************************************
+<a name="969"><span class="lineNum">     969 </span>            :  * class extensions for queryMapObj</a>
+<span class="lineNum">     970 </span>            :  **********************************************************************/
+<span class="lineNum">     971 </span><span class="lineNoCov">          0 : int queryMapObj_updateFromString(queryMapObj *self, char *snippet)</span>
+<span class="lineNum">     972 </span>            : {
+<span class="lineNum">     973 </span><span class="lineNoCov">          0 :   return msUpdateQueryMapFromString(self, snippet, MS_FALSE);</span>
+<a name="974"><span class="lineNum">     974 </span>            : }</a>
+<span class="lineNum">     975 </span>            : 
+<span class="lineNum">     976 </span><span class="lineNoCov">          0 : char *queryMapObj_convertToString(queryMapObj *self)</span>
+<span class="lineNum">     977 </span>            : {
+<span class="lineNum">     978 </span><span class="lineNoCov">          0 :   return msWriteQueryMapToString(self);</span>
+<span class="lineNum">     979 </span>            : }
+<span class="lineNum">     980 </span>            : 
+<span class="lineNum">     981 </span>            : /**********************************************************************
+<span class="lineNum">     982 </span>            :  * class extensions for referenceMapObj
+<a name="983"><span class="lineNum">     983 </span>            :  **********************************************************************/</a>
+<span class="lineNum">     984 </span>            : 
+<span class="lineNum">     985 </span><span class="lineNoCov">          0 : int referenceMapObj_updateFromString(referenceMapObj *self, char *snippet)</span>
+<span class="lineNum">     986 </span>            : {
+<span class="lineNum">     987 </span><span class="lineNoCov">          0 :   return msUpdateReferenceMapFromString(self, snippet, MS_FALSE);</span>
+<a name="988"><span class="lineNum">     988 </span>            : }</a>
+<span class="lineNum">     989 </span>            : 
+<span class="lineNum">     990 </span><span class="lineNoCov">          0 : char *referenceMapObj_convertToString(referenceMapObj *self)</span>
+<span class="lineNum">     991 </span>            : {
+<span class="lineNum">     992 </span><span class="lineNoCov">          0 :   return msWriteReferenceMapToString(self);</span>
+<span class="lineNum">     993 </span>            : }
+<span class="lineNum">     994 </span>            : 
+<span class="lineNum">     995 </span>            : /**********************************************************************
+<span class="lineNum">     996 </span>            :  * class extensions for scaleBarObj
+<a name="997"><span class="lineNum">     997 </span>            :  **********************************************************************/</a>
+<span class="lineNum">     998 </span>            : 
+<span class="lineNum">     999 </span><span class="lineNoCov">          0 : int scalebarObj_updateFromString(scalebarObj *self, char *snippet)</span>
+<span class="lineNum">    1000 </span>            : {
+<span class="lineNum">    1001 </span><span class="lineNoCov">          0 :   return msUpdateScalebarFromString(self, snippet, MS_FALSE);</span>
+<a name="1002"><span class="lineNum">    1002 </span>            : }</a>
+<span class="lineNum">    1003 </span>            : 
+<span class="lineNum">    1004 </span><span class="lineNoCov">          0 : char *scalebarObj_convertToString(scalebarObj *self)</span>
+<span class="lineNum">    1005 </span>            : {
+<span class="lineNum">    1006 </span><span class="lineNoCov">          0 :   return msWriteScalebarToString(self);</span>
+<span class="lineNum">    1007 </span>            : }
+<span class="lineNum">    1008 </span>            : 
+<span class="lineNum">    1009 </span>            : /**********************************************************************
+<span class="lineNum">    1010 </span>            :  * class extensions for webObj
+<a name="1011"><span class="lineNum">    1011 </span>            :  **********************************************************************/</a>
+<span class="lineNum">    1012 </span>            : 
+<span class="lineNum">    1013 </span><span class="lineNoCov">          0 : int webObj_updateFromString(webObj *self, char *snippet)</span>
+<span class="lineNum">    1014 </span>            : {
+<span class="lineNum">    1015 </span><span class="lineNoCov">          0 :   return msUpdateWebFromString(self, snippet, MS_FALSE);</span>
+<a name="1016"><span class="lineNum">    1016 </span>            : }</a>
+<span class="lineNum">    1017 </span>            : 
+<span class="lineNum">    1018 </span><span class="lineNoCov">          0 : char *webObj_convertToString(webObj *self)</span>
+<span class="lineNum">    1019 </span>            : {
+<span class="lineNum">    1020 </span><span class="lineNoCov">          0 :   return msWriteWebToString(self);</span>
+<span class="lineNum">    1021 </span>            : }
+<span class="lineNum">    1022 </span>            : 
+<span class="lineNum">    1023 </span>            : /**********************************************************************
+<a name="1024"><span class="lineNum">    1024 </span>            :  * class extensions for classObj, always within the context of a layer</a>
+<span class="lineNum">    1025 </span>            :  **********************************************************************/
+<span class="lineNum">    1026 </span><span class="lineNoCov">          0 : classObj *classObj_new(layerObj *layer, classObj *class)</span>
+<span class="lineNum">    1027 </span>            : {
+<span class="lineNum">    1028 </span><span class="lineNoCov">          0 :   if(msGrowLayerClasses(layer) == NULL)</span>
+<span class="lineNum">    1029 </span>            :     return NULL;
+<span class="lineNum">    1030 </span>            : 
+<span class="lineNum">    1031 </span><span class="lineNoCov">          0 :   if(initClass((layer-&gt;class[layer-&gt;numclasses])) == -1)</span>
+<span class="lineNum">    1032 </span>            :     return NULL;
+<span class="lineNum">    1033 </span>            : 
+<span class="lineNum">    1034 </span><span class="lineNoCov">          0 :   if (class) {</span>
+<span class="lineNum">    1035 </span><span class="lineNoCov">          0 :     msCopyClass((layer-&gt;class[layer-&gt;numclasses]), class, layer);</span>
+<span class="lineNum">    1036 </span><span class="lineNoCov">          0 :     layer-&gt;class[layer-&gt;numclasses]-&gt;layer = layer;</span>
+<span class="lineNum">    1037 </span>            :   }
+<span class="lineNum">    1038 </span>            : 
+<span class="lineNum">    1039 </span><span class="lineNoCov">          0 :   layer-&gt;class[layer-&gt;numclasses]-&gt;layer = layer;</span>
+<span class="lineNum">    1040 </span>            : 
+<span class="lineNum">    1041 </span><span class="lineNoCov">          0 :   layer-&gt;numclasses++;</span>
+<span class="lineNum">    1042 </span>            : 
+<span class="lineNum">    1043 </span><span class="lineNoCov">          0 :   return (layer-&gt;class[layer-&gt;numclasses-1]);</span>
+<a name="1044"><span class="lineNum">    1044 </span>            : }</a>
+<span class="lineNum">    1045 </span>            : 
+<span class="lineNum">    1046 </span><span class="lineNoCov">          0 : int classObj_addLabel(classObj *self, labelObj *label)</span>
+<span class="lineNum">    1047 </span>            : {
+<span class="lineNum">    1048 </span><span class="lineNoCov">          0 :   return msAddLabelToClass(self, label);</span>
+<a name="1049"><span class="lineNum">    1049 </span>            : }</a>
+<span class="lineNum">    1050 </span>            : 
+<span class="lineNum">    1051 </span><span class="lineNoCov">          0 : labelObj *classObj_removeLabel(classObj *self, int index)</span>
+<span class="lineNum">    1052 </span>            : {
+<span class="lineNum">    1053 </span><span class="lineNoCov">          0 :   return msRemoveLabelFromClass(self, index);</span>
+<a name="1054"><span class="lineNum">    1054 </span>            : }</a>
+<span class="lineNum">    1055 </span>            : 
+<span class="lineNum">    1056 </span><span class="lineNoCov">          0 : labelObj *classObj_getLabel(classObj *self, int i)   // returns an EXISTING label</span>
+<span class="lineNum">    1057 </span>            : {
+<span class="lineNum">    1058 </span><span class="lineNoCov">          0 :   if(i &gt;= 0 &amp;&amp; i &lt; self-&gt;numlabels)</span>
+<span class="lineNum">    1059 </span><span class="lineNoCov">          0 :     return (self-&gt;labels[i]);</span>
+<span class="lineNum">    1060 </span>            :   else
+<span class="lineNum">    1061 </span>            :     return(NULL);
+<a name="1062"><span class="lineNum">    1062 </span>            : }</a>
+<span class="lineNum">    1063 </span>            : 
+<span class="lineNum">    1064 </span><span class="lineNoCov">          0 : int classObj_updateFromString(classObj *self, char *snippet)</span>
+<span class="lineNum">    1065 </span>            : {
+<span class="lineNum">    1066 </span><span class="lineNoCov">          0 :   return msUpdateClassFromString(self, snippet, MS_FALSE);</span>
+<a name="1067"><span class="lineNum">    1067 </span>            : }</a>
+<span class="lineNum">    1068 </span>            : 
+<span class="lineNum">    1069 </span><span class="lineNoCov">          0 : char *classObj_convertToString(classObj *self)</span>
+<span class="lineNum">    1070 </span>            : {
+<span class="lineNum">    1071 </span><span class="lineNoCov">          0 :   return msWriteClassToString(self);</span>
+<a name="1072"><span class="lineNum">    1072 </span>            : }</a>
+<span class="lineNum">    1073 </span>            : 
+<span class="lineNum">    1074 </span><span class="lineNoCov">          0 : void  classObj_destroy(classObj *self)</span>
+<span class="lineNum">    1075 </span>            : {
+<span class="lineNum">    1076 </span><span class="lineNoCov">          0 :   return; /* do nothing, map deconstrutor takes care of it all */</span>
+<a name="1077"><span class="lineNum">    1077 </span>            : }</a>
+<span class="lineNum">    1078 </span>            : 
+<span class="lineNum">    1079 </span><span class="lineNoCov">          0 : int classObj_setExpression(classObj *self, char *string)</span>
+<span class="lineNum">    1080 </span>            : {
+<span class="lineNum">    1081 </span><span class="lineNoCov">          0 :   if (!string || strlen(string) == 0) {</span>
+<span class="lineNum">    1082 </span><span class="lineNoCov">          0 :     msFreeExpression(&amp;self-&gt;expression);</span>
+<span class="lineNum">    1083 </span><span class="lineNoCov">          0 :     return MS_SUCCESS;</span>
+<span class="lineNum">    1084 </span><span class="lineNoCov">          0 :   } else return msLoadExpressionString(&amp;self-&gt;expression, string);</span>
+<a name="1085"><span class="lineNum">    1085 </span>            : }</a>
+<span class="lineNum">    1086 </span>            : 
+<span class="lineNum">    1087 </span><span class="lineNoCov">          0 : char *classObj_getExpressionString(classObj *self)</span>
+<span class="lineNum">    1088 </span>            : {
+<span class="lineNum">    1089 </span><span class="lineNoCov">          0 :   return msGetExpressionString(&amp;(self-&gt;expression));</span>
+<a name="1090"><span class="lineNum">    1090 </span>            : }</a>
+<span class="lineNum">    1091 </span>            : 
+<span class="lineNum">    1092 </span><span class="lineNoCov">          0 : int classObj_setText(classObj *self, layerObj *layer, char *string)</span>
+<span class="lineNum">    1093 </span>            : {
+<span class="lineNum">    1094 </span><span class="lineNoCov">          0 :   if (!string || strlen(string) == 0) {</span>
+<span class="lineNum">    1095 </span><span class="lineNoCov">          0 :     msFreeExpression(&amp;self-&gt;text);</span>
+<span class="lineNum">    1096 </span><span class="lineNoCov">          0 :     return MS_SUCCESS;</span>
+<span class="lineNum">    1097 </span>            :   }
+<span class="lineNum">    1098 </span><span class="lineNoCov">          0 :   return msLoadExpressionString(&amp;self-&gt;text, string);</span>
+<a name="1099"><span class="lineNum">    1099 </span>            : }</a>
+<span class="lineNum">    1100 </span>            : 
+<span class="lineNum">    1101 </span><span class="lineNoCov">          0 : char *classObj_getTextString(classObj *self)</span>
+<span class="lineNum">    1102 </span>            : {
+<span class="lineNum">    1103 </span><span class="lineNoCov">          0 :   return msGetExpressionString(&amp;(self-&gt;text));</span>
+<a name="1104"><span class="lineNum">    1104 </span>            : }</a>
+<span class="lineNum">    1105 </span>            : 
+<span class="lineNum">    1106 </span><span class="lineNoCov">          0 : int classObj_drawLegendIcon(classObj *self, mapObj *map, layerObj *layer, int width, int height, imageObj *dstImg, int dstX, int dstY)</span>
+<span class="lineNum">    1107 </span>            : {
+<span class="lineNum">    1108 </span>            : #ifdef USE_GD
+<span class="lineNum">    1109 </span>            :   msClearLayerPenValues(layer); // just in case the mapfile has already been processed
+<span class="lineNum">    1110 </span>            : #endif
+<span class="lineNum">    1111 </span><span class="lineNoCov">          0 :   return msDrawLegendIcon(map, layer, self, width, height, dstImg, dstX, dstY, MS_TRUE, NULL);</span>
+<a name="1112"><span class="lineNum">    1112 </span>            : }</a>
+<span class="lineNum">    1113 </span>            : 
+<span class="lineNum">    1114 </span><span class="lineNoCov">          0 : imageObj *classObj_createLegendIcon(classObj *self, mapObj *map, layerObj *layer, int width, int height)</span>
+<span class="lineNum">    1115 </span>            : {
+<span class="lineNum">    1116 </span><span class="lineNoCov">          0 :   return msCreateLegendIcon(map, layer, self, width, height, MS_TRUE);</span>
+<span class="lineNum">    1117 </span>            : }
+<a name="1118"><span class="lineNum">    1118 </span>            : </a>
+<span class="lineNum">    1119 </span>            : 
+<span class="lineNum">    1120 </span><span class="lineNoCov">          0 : int classObj_setSymbolByName(classObj *self, mapObj *map, char* pszSymbolName)</span>
+<span class="lineNum">    1121 </span>            : {
+<span class="lineNum">    1122 </span>            :   /*
+<span class="lineNum">    1123 </span>            :    self-&gt;symbol = msGetSymbolIndex(&amp;map-&gt;symbolset, pszSymbolName, MS_TRUE);
+<span class="lineNum">    1124 </span>            :     return self-&gt;symbol;
+<span class="lineNum">    1125 </span>            :   */
+<span class="lineNum">    1126 </span><span class="lineNoCov">          0 :   return -1;</span>
+<a name="1127"><span class="lineNum">    1127 </span>            : }</a>
+<span class="lineNum">    1128 </span>            : 
+<span class="lineNum">    1129 </span><span class="lineNoCov">          0 : int classObj_setOverlaySymbolByName(classObj *self, mapObj *map, char* pszOverlaySymbolName)</span>
+<span class="lineNum">    1130 </span>            : {
+<span class="lineNum">    1131 </span>            :   /*
+<span class="lineNum">    1132 </span>            :     self-&gt;overlaysymbol = msGetSymbolIndex(&amp;map-&gt;symbolset, pszOverlaySymbolName, MS_TRUE);
+<span class="lineNum">    1133 </span>            :     return self-&gt;overlaysymbol;
+<span class="lineNum">    1134 </span>            :   */
+<span class="lineNum">    1135 </span><span class="lineNoCov">          0 :   return -1;</span>
+<span class="lineNum">    1136 </span>            : 
+<a name="1137"><span class="lineNum">    1137 </span>            : }</a>
+<span class="lineNum">    1138 </span>            : 
+<span class="lineNum">    1139 </span><span class="lineNoCov">          0 : classObj *classObj_clone(classObj *class, layerObj *layer)</span>
+<span class="lineNum">    1140 </span>            : {
+<span class="lineNum">    1141 </span>            :   classObj *dstClass;
+<span class="lineNum">    1142 </span><span class="lineNoCov">          0 :   dstClass = (classObj *)malloc(sizeof(classObj));</span>
+<span class="lineNum">    1143 </span>            : 
+<span class="lineNum">    1144 </span><span class="lineNoCov">          0 :   initClass(dstClass);</span>
+<span class="lineNum">    1145 </span><span class="lineNoCov">          0 :   msCopyClass(dstClass, class, layer);</span>
+<span class="lineNum">    1146 </span>            : 
+<span class="lineNum">    1147 </span><span class="lineNoCov">          0 :   return dstClass;</span>
+<a name="1148"><span class="lineNum">    1148 </span>            : }</a>
+<span class="lineNum">    1149 </span>            : 
+<span class="lineNum">    1150 </span><span class="lineNoCov">          0 : int classObj_moveStyleUp(classObj *self, int index)</span>
+<span class="lineNum">    1151 </span>            : {
+<span class="lineNum">    1152 </span><span class="lineNoCov">          0 :   return msMoveStyleUp(self, index);</span>
+<a name="1153"><span class="lineNum">    1153 </span>            : }</a>
+<span class="lineNum">    1154 </span>            : 
+<span class="lineNum">    1155 </span><span class="lineNoCov">          0 : int classObj_moveStyleDown(classObj *self, int index)</span>
+<span class="lineNum">    1156 </span>            : {
+<span class="lineNum">    1157 </span><span class="lineNoCov">          0 :   return msMoveStyleDown(self, index);</span>
+<a name="1158"><span class="lineNum">    1158 </span>            : }</a>
+<span class="lineNum">    1159 </span>            : 
+<span class="lineNum">    1160 </span><span class="lineNoCov">          0 : int classObj_deleteStyle(classObj *self, int index)</span>
+<span class="lineNum">    1161 </span>            : {
+<span class="lineNum">    1162 </span><span class="lineNoCov">          0 :   return msDeleteStyle(self, index);</span>
+<span class="lineNum">    1163 </span>            : }
+<span class="lineNum">    1164 </span>            : 
+<span class="lineNum">    1165 </span>            : /**********************************************************************
+<a name="1166"><span class="lineNum">    1166 </span>            :  * class extensions for pointObj, useful many places</a>
+<span class="lineNum">    1167 </span>            :  **********************************************************************/
+<span class="lineNum">    1168 </span><span class="lineNoCov">          0 : pointObj *pointObj_new()</span>
+<span class="lineNum">    1169 </span>            : {
+<span class="lineNum">    1170 </span><span class="lineNoCov">          0 :   return (pointObj *)malloc(sizeof(pointObj));</span>
+<a name="1171"><span class="lineNum">    1171 </span>            : }</a>
+<span class="lineNum">    1172 </span>            : 
+<span class="lineNum">    1173 </span><span class="lineNoCov">          0 : void pointObj_destroy(pointObj *self)</span>
+<span class="lineNum">    1174 </span>            : {
+<span class="lineNum">    1175 </span><span class="lineNoCov">          0 :   free(self);</span>
+<a name="1176"><span class="lineNum">    1176 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1177 </span>            : 
+<span class="lineNum">    1178 </span><span class="lineNoCov">          0 : int pointObj_project(pointObj *self, projectionObj *in, projectionObj *out)</span>
+<span class="lineNum">    1179 </span>            : {
+<span class="lineNum">    1180 </span><span class="lineNoCov">          0 :   return msProjectPoint(in, out, self);</span>
+<a name="1181"><span class="lineNum">    1181 </span>            : }</a>
+<span class="lineNum">    1182 </span>            : 
+<span class="lineNum">    1183 </span><span class="lineNoCov">          0 : int pointObj_draw(pointObj *self, mapObj *map, layerObj *layer,</span>
+<span class="lineNum">    1184 </span>            :                   imageObj *img, int class_index, char *label_string)
+<span class="lineNum">    1185 </span>            : {
+<span class="lineNum">    1186 </span><span class="lineNoCov">          0 :   return msDrawPoint(map, layer, self, img, class_index, label_string);</span>
+<a name="1187"><span class="lineNum">    1187 </span>            : }</a>
+<span class="lineNum">    1188 </span>            : 
+<span class="lineNum">    1189 </span><span class="lineNoCov">          0 : double pointObj_distanceToPoint(pointObj *self, pointObj *point)</span>
+<span class="lineNum">    1190 </span>            : {
+<span class="lineNum">    1191 </span><span class="lineNoCov">          0 :   return msDistancePointToPoint(self, point);</span>
+<a name="1192"><span class="lineNum">    1192 </span>            : }</a>
+<span class="lineNum">    1193 </span>            : 
+<span class="lineNum">    1194 </span><span class="lineNoCov">          0 : double pointObj_distanceToLine(pointObj *self, pointObj *a, pointObj *b)</span>
+<span class="lineNum">    1195 </span>            : {
+<span class="lineNum">    1196 </span><span class="lineNoCov">          0 :   return msDistancePointToSegment(self, a, b);</span>
+<a name="1197"><span class="lineNum">    1197 </span>            : }</a>
+<span class="lineNum">    1198 </span>            : 
+<span class="lineNum">    1199 </span><span class="lineNoCov">          0 : double pointObj_distanceToShape(pointObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1200 </span>            : {
+<span class="lineNum">    1201 </span><span class="lineNoCov">          0 :   return msDistancePointToShape(self, shape);</span>
+<span class="lineNum">    1202 </span>            : }
+<span class="lineNum">    1203 </span>            : 
+<span class="lineNum">    1204 </span>            : /**********************************************************************
+<span class="lineNum">    1205 </span>            :  * class extensions for lineObj (eg. a line or group of points),
+<a name="1206"><span class="lineNum">    1206 </span>            :  * useful many places</a>
+<span class="lineNum">    1207 </span>            :  **********************************************************************/
+<span class="lineNum">    1208 </span><span class="lineNoCov">          0 : lineObj *lineObj_new()</span>
+<span class="lineNum">    1209 </span>            : {
+<span class="lineNum">    1210 </span>            :   lineObj *line;
+<span class="lineNum">    1211 </span>            : 
+<span class="lineNum">    1212 </span><span class="lineNoCov">          0 :   line = (lineObj *)malloc(sizeof(lineObj));</span>
+<span class="lineNum">    1213 </span><span class="lineNoCov">          0 :   if(!line)</span>
+<span class="lineNum">    1214 </span>            :     return(NULL);
+<span class="lineNum">    1215 </span>            : 
+<span class="lineNum">    1216 </span><span class="lineNoCov">          0 :   line-&gt;numpoints=0;</span>
+<span class="lineNum">    1217 </span><span class="lineNoCov">          0 :   line-&gt;point=NULL;</span>
+<span class="lineNum">    1218 </span>            : 
+<span class="lineNum">    1219 </span><span class="lineNoCov">          0 :   return line;</span>
+<a name="1220"><span class="lineNum">    1220 </span>            : }</a>
+<span class="lineNum">    1221 </span>            : 
+<span class="lineNum">    1222 </span><span class="lineNoCov">          0 : void lineObj_destroy(lineObj *self)</span>
+<span class="lineNum">    1223 </span>            : {
+<span class="lineNum">    1224 </span><span class="lineNoCov">          0 :   free(self-&gt;point);</span>
+<span class="lineNum">    1225 </span><span class="lineNoCov">          0 :   free(self);</span>
+<a name="1226"><span class="lineNum">    1226 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1227 </span>            : 
+<span class="lineNum">    1228 </span><span class="lineNoCov">          0 : lineObj *lineObj_clone(lineObj *line)</span>
+<span class="lineNum">    1229 </span>            : {
+<span class="lineNum">    1230 </span>            :   lineObj *dstLine;
+<span class="lineNum">    1231 </span><span class="lineNoCov">          0 :   dstLine = (lineObj *)malloc(sizeof(lineObj));</span>
+<span class="lineNum">    1232 </span><span class="lineNoCov">          0 :   dstLine-&gt;numpoints= line-&gt;numpoints;</span>
+<span class="lineNum">    1233 </span><span class="lineNoCov">          0 :   dstLine-&gt;point = (pointObj *)malloc(sizeof(pointObj)*(dstLine-&gt;numpoints));</span>
+<span class="lineNum">    1234 </span><span class="lineNoCov">          0 :   msCopyLine(dstLine, line);</span>
+<span class="lineNum">    1235 </span>            : 
+<span class="lineNum">    1236 </span>            : 
+<span class="lineNum">    1237 </span><span class="lineNoCov">          0 :   return dstLine;</span>
+<a name="1238"><span class="lineNum">    1238 </span>            : }</a>
+<span class="lineNum">    1239 </span>            : 
+<span class="lineNum">    1240 </span><span class="lineNoCov">          0 : int lineObj_project(lineObj *self, projectionObj *in, projectionObj *out)</span>
+<span class="lineNum">    1241 </span>            : {
+<span class="lineNum">    1242 </span><span class="lineNoCov">          0 :   return msProjectLine(in, out, self);</span>
+<a name="1243"><span class="lineNum">    1243 </span>            : }</a>
+<span class="lineNum">    1244 </span>            : 
+<span class="lineNum">    1245 </span><span class="lineNoCov">          0 : pointObj *lineObj_get(lineObj *self, int i)</span>
+<span class="lineNum">    1246 </span>            : {
+<span class="lineNum">    1247 </span><span class="lineNoCov">          0 :   if(i&lt;0 || i&gt;=self-&gt;numpoints)</span>
+<span class="lineNum">    1248 </span>            :     return NULL;
+<span class="lineNum">    1249 </span>            :   else
+<span class="lineNum">    1250 </span><span class="lineNoCov">          0 :     return &amp;(self-&gt;point[i]);</span>
+<a name="1251"><span class="lineNum">    1251 </span>            : }</a>
+<span class="lineNum">    1252 </span>            : 
+<span class="lineNum">    1253 </span><span class="lineNoCov">          0 : int lineObj_add(lineObj *self, pointObj *p)</span>
+<span class="lineNum">    1254 </span>            : {
+<span class="lineNum">    1255 </span><span class="lineNoCov">          0 :   if(self-&gt;numpoints == 0) { /* new */</span>
+<span class="lineNum">    1256 </span><span class="lineNoCov">          0 :     self-&gt;point = (pointObj *)malloc(sizeof(pointObj));</span>
+<span class="lineNum">    1257 </span><span class="lineNoCov">          0 :     if(!self-&gt;point)</span>
+<span class="lineNum">    1258 </span>            :       return MS_FAILURE;
+<span class="lineNum">    1259 </span>            :   } else { /* extend array */
+<span class="lineNum">    1260 </span><span class="lineNoCov">          0 :     self-&gt;point = (pointObj *)realloc(self-&gt;point, sizeof(pointObj)*(self-&gt;numpoints+1));</span>
+<span class="lineNum">    1261 </span><span class="lineNoCov">          0 :     if(!self-&gt;point)</span>
+<span class="lineNum">    1262 </span>            :       return MS_FAILURE;
+<span class="lineNum">    1263 </span>            :   }
+<span class="lineNum">    1264 </span>            : 
+<span class="lineNum">    1265 </span><span class="lineNoCov">          0 :   self-&gt;point[self-&gt;numpoints].x = p-&gt;x;</span>
+<span class="lineNum">    1266 </span><span class="lineNoCov">          0 :   self-&gt;point[self-&gt;numpoints].y = p-&gt;y;</span>
+<span class="lineNum">    1267 </span>            : #ifdef USE_POINT_Z_M
+<span class="lineNum">    1268 </span><span class="lineNoCov">          0 :   self-&gt;point[self-&gt;numpoints].m = p-&gt;m;</span>
+<span class="lineNum">    1269 </span>            : #endif
+<span class="lineNum">    1270 </span><span class="lineNoCov">          0 :   self-&gt;numpoints++;</span>
+<span class="lineNum">    1271 </span>            : 
+<span class="lineNum">    1272 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1273 </span>            : }
+<span class="lineNum">    1274 </span>            : 
+<span class="lineNum">    1275 </span>            : 
+<span class="lineNum">    1276 </span>            : /**********************************************************************
+<a name="1277"><span class="lineNum">    1277 </span>            :  * class extensions for shapeObj</a>
+<span class="lineNum">    1278 </span>            :  **********************************************************************/
+<span class="lineNum">    1279 </span><span class="lineNoCov">          0 : shapeObj *shapeObj_new(int type)</span>
+<span class="lineNum">    1280 </span>            : {
+<span class="lineNum">    1281 </span>            :   shapeObj *shape;
+<span class="lineNum">    1282 </span>            : 
+<span class="lineNum">    1283 </span><span class="lineNoCov">          0 :   shape = (shapeObj *)malloc(sizeof(shapeObj));</span>
+<span class="lineNum">    1284 </span><span class="lineNoCov">          0 :   if(!shape)</span>
+<span class="lineNum">    1285 </span>            :     return NULL;
+<span class="lineNum">    1286 </span>            : 
+<span class="lineNum">    1287 </span><span class="lineNoCov">          0 :   msInitShape(shape);</span>
+<span class="lineNum">    1288 </span><span class="lineNoCov">          0 :   shape-&gt;type = type;</span>
+<span class="lineNum">    1289 </span><span class="lineNoCov">          0 :   return shape;</span>
+<a name="1290"><span class="lineNum">    1290 </span>            : }</a>
+<span class="lineNum">    1291 </span>            : 
+<span class="lineNum">    1292 </span><span class="lineNoCov">          0 : void shapeObj_destroy(shapeObj *self)</span>
+<span class="lineNum">    1293 </span>            : {
+<span class="lineNum">    1294 </span><span class="lineNoCov">          0 :   msFreeShape(self);</span>
+<span class="lineNum">    1295 </span><span class="lineNoCov">          0 :   free(self);</span>
+<a name="1296"><span class="lineNum">    1296 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1297 </span>            : 
+<span class="lineNum">    1298 </span><span class="lineNoCov">          0 : int shapeObj_project(shapeObj *self, projectionObj *in, projectionObj *out)</span>
+<span class="lineNum">    1299 </span>            : {
+<span class="lineNum">    1300 </span><span class="lineNoCov">          0 :   return msProjectShape(in, out, self);</span>
+<a name="1301"><span class="lineNum">    1301 </span>            : }</a>
+<span class="lineNum">    1302 </span>            : 
+<span class="lineNum">    1303 </span><span class="lineNoCov">          0 : lineObj *shapeObj_get(shapeObj *self, int i)</span>
+<span class="lineNum">    1304 </span>            : {
+<span class="lineNum">    1305 </span><span class="lineNoCov">          0 :   if(i&lt;0 || i&gt;=self-&gt;numlines)</span>
+<span class="lineNum">    1306 </span>            :     return NULL;
+<span class="lineNum">    1307 </span>            :   else
+<span class="lineNum">    1308 </span><span class="lineNoCov">          0 :     return &amp;(self-&gt;line[i]);</span>
+<a name="1309"><span class="lineNum">    1309 </span>            : }</a>
+<span class="lineNum">    1310 </span>            : 
+<span class="lineNum">    1311 </span><span class="lineNoCov">          0 : int shapeObj_add(shapeObj *self, lineObj *line)</span>
+<span class="lineNum">    1312 </span>            : {
+<span class="lineNum">    1313 </span><span class="lineNoCov">          0 :   return msAddLine(self, line);</span>
+<a name="1314"><span class="lineNum">    1314 </span>            : }</a>
+<span class="lineNum">    1315 </span>            : 
+<span class="lineNum">    1316 </span><span class="lineNoCov">          0 : int shapeObj_draw(shapeObj *self, mapObj *map, layerObj *layer,</span>
+<span class="lineNum">    1317 </span>            :                   imageObj *img)
+<span class="lineNum">    1318 </span>            : {
+<span class="lineNum">    1319 </span><span class="lineNoCov">          0 :   return msDrawShape(map, layer, self, img, -1, MS_DRAWMODE_FEATURES|MS_DRAWMODE_LABELS);</span>
+<a name="1320"><span class="lineNum">    1320 </span>            : }</a>
+<span class="lineNum">    1321 </span>            : 
+<span class="lineNum">    1322 </span><span class="lineNoCov">          0 : void shapeObj_setBounds(shapeObj *self)</span>
+<span class="lineNum">    1323 </span>            : {
+<span class="lineNum">    1324 </span>            :   int i, j;
+<span class="lineNum">    1325 </span>            : 
+<span class="lineNum">    1326 </span><span class="lineNoCov">          0 :   self-&gt;bounds.minx = self-&gt;bounds.maxx = self-&gt;line[0].point[0].x;</span>
+<span class="lineNum">    1327 </span><span class="lineNoCov">          0 :   self-&gt;bounds.miny = self-&gt;bounds.maxy = self-&gt;line[0].point[0].y;</span>
+<span class="lineNum">    1328 </span>            : 
+<span class="lineNum">    1329 </span><span class="lineNoCov">          0 :   for( i=0; i&lt;self-&gt;numlines; i++ ) {</span>
+<span class="lineNum">    1330 </span><span class="lineNoCov">          0 :     for( j=0; j&lt;self-&gt;line[i].numpoints; j++ ) {</span>
+<span class="lineNum">    1331 </span><span class="lineNoCov">          0 :       self-&gt;bounds.minx = MS_MIN(self-&gt;bounds.minx, self-&gt;line[i].point[j].x);</span>
+<span class="lineNum">    1332 </span><span class="lineNoCov">          0 :       self-&gt;bounds.maxx = MS_MAX(self-&gt;bounds.maxx, self-&gt;line[i].point[j].x);</span>
+<span class="lineNum">    1333 </span><span class="lineNoCov">          0 :       self-&gt;bounds.miny = MS_MIN(self-&gt;bounds.miny, self-&gt;line[i].point[j].y);</span>
+<span class="lineNum">    1334 </span><span class="lineNoCov">          0 :       self-&gt;bounds.maxy = MS_MAX(self-&gt;bounds.maxy, self-&gt;line[i].point[j].y);</span>
+<span class="lineNum">    1335 </span>            :     }
+<span class="lineNum">    1336 </span>            :   }
+<span class="lineNum">    1337 </span>            : 
+<span class="lineNum">    1338 </span><span class="lineNoCov">          0 :   return;</span>
+<a name="1339"><span class="lineNum">    1339 </span>            : }</a>
+<span class="lineNum">    1340 </span>            : 
+<span class="lineNum">    1341 </span><span class="lineNoCov">          0 : int shapeObj_copy(shapeObj *self, shapeObj *dest)</span>
+<span class="lineNum">    1342 </span>            : {
+<span class="lineNum">    1343 </span><span class="lineNoCov">          0 :   return(msCopyShape(self, dest));</span>
+<a name="1344"><span class="lineNum">    1344 </span>            : }</a>
+<span class="lineNum">    1345 </span>            : 
+<span class="lineNum">    1346 </span><span class="lineNoCov">          0 : int shapeObj_contains(shapeObj *self, pointObj *point)</span>
+<span class="lineNum">    1347 </span>            : {
+<span class="lineNum">    1348 </span><span class="lineNoCov">          0 :   if(self-&gt;type == MS_SHAPE_POLYGON)</span>
+<span class="lineNum">    1349 </span><span class="lineNoCov">          0 :     return msIntersectPointPolygon(point, self);</span>
+<span class="lineNum">    1350 </span>            : 
+<span class="lineNum">    1351 </span>            :   return -1;
+<a name="1352"><span class="lineNum">    1352 </span>            : }</a>
+<span class="lineNum">    1353 </span>            : 
+<span class="lineNum">    1354 </span><span class="lineNoCov">          0 : int shapeObj_intersects(shapeObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1355 </span>            : {
+<span class="lineNum">    1356 </span><span class="lineNoCov">          0 :   switch(self-&gt;type) {</span>
+<span class="lineNum">    1357 </span><span class="lineNoCov">          0 :     case(MS_SHAPE_LINE):</span>
+<span class="lineNum">    1358 </span><span class="lineNoCov">          0 :       switch(shape-&gt;type) {</span>
+<span class="lineNum">    1359 </span><span class="lineNoCov">          0 :         case(MS_SHAPE_LINE):</span>
+<span class="lineNum">    1360 </span><span class="lineNoCov">          0 :           return msIntersectPolylines(self, shape);</span>
+<span class="lineNum">    1361 </span><span class="lineNoCov">          0 :         case(MS_SHAPE_POLYGON):</span>
+<span class="lineNum">    1362 </span><span class="lineNoCov">          0 :           return msIntersectPolylinePolygon(self, shape);</span>
+<span class="lineNum">    1363 </span>            :       }
+<span class="lineNum">    1364 </span>            :       break;
+<span class="lineNum">    1365 </span><span class="lineNoCov">          0 :     case(MS_SHAPE_POLYGON):</span>
+<span class="lineNum">    1366 </span><span class="lineNoCov">          0 :       switch(shape-&gt;type) {</span>
+<span class="lineNum">    1367 </span><span class="lineNoCov">          0 :         case(MS_SHAPE_LINE):</span>
+<span class="lineNum">    1368 </span><span class="lineNoCov">          0 :           return msIntersectPolylinePolygon(shape, self);</span>
+<span class="lineNum">    1369 </span><span class="lineNoCov">          0 :         case(MS_SHAPE_POLYGON):</span>
+<span class="lineNum">    1370 </span><span class="lineNoCov">          0 :           return msIntersectPolygons(self, shape);</span>
+<span class="lineNum">    1371 </span>            :       }
+<span class="lineNum">    1372 </span>            :       break;
+<span class="lineNum">    1373 </span>            :   }
+<span class="lineNum">    1374 </span>            : 
+<span class="lineNum">    1375 </span>            :   return -1;
+<a name="1376"><span class="lineNum">    1376 </span>            : }</a>
+<span class="lineNum">    1377 </span>            : 
+<span class="lineNum">    1378 </span><span class="lineNoCov">          0 : pointObj *shapeObj_getpointusingmeasure(shapeObj *self, double m)</span>
+<span class="lineNum">    1379 </span>            : {
+<span class="lineNum">    1380 </span><span class="lineNoCov">          0 :   if (self)</span>
+<span class="lineNum">    1381 </span><span class="lineNoCov">          0 :     return msGetPointUsingMeasure(self, m);</span>
+<span class="lineNum">    1382 </span>            : 
+<span class="lineNum">    1383 </span>            :   return NULL;
+<a name="1384"><span class="lineNum">    1384 </span>            : }</a>
+<span class="lineNum">    1385 </span>            : 
+<span class="lineNum">    1386 </span><span class="lineNoCov">          0 : pointObj *shapeObj_getmeasureusingpoint(shapeObj *self, pointObj *point)</span>
+<span class="lineNum">    1387 </span>            : {
+<span class="lineNum">    1388 </span><span class="lineNoCov">          0 :   if (self)</span>
+<span class="lineNum">    1389 </span><span class="lineNoCov">          0 :     return msGetMeasureUsingPoint(self, point);</span>
+<span class="lineNum">    1390 </span>            : 
+<span class="lineNum">    1391 </span>            :   return NULL;
+<span class="lineNum">    1392 </span>            : }
+<a name="1393"><span class="lineNum">    1393 </span>            : </a>
+<span class="lineNum">    1394 </span>            : 
+<span class="lineNum">    1395 </span><span class="lineNoCov">          0 : shapeObj *shapeObj_buffer(shapeObj *self, double width)</span>
+<span class="lineNum">    1396 </span>            : {
+<span class="lineNum">    1397 </span><span class="lineNoCov">          0 :   return msGEOSBuffer(self, width);</span>
+<span class="lineNum">    1398 </span>            : }
+<a name="1399"><span class="lineNum">    1399 </span>            : </a>
+<span class="lineNum">    1400 </span>            : 
+<span class="lineNum">    1401 </span><span class="lineNoCov">          0 : shapeObj *shapeObj_simplify(shapeObj *self, double tolerance)</span>
+<span class="lineNum">    1402 </span>            : {
+<span class="lineNum">    1403 </span><span class="lineNoCov">          0 :   return msGEOSSimplify(self, tolerance);</span>
+<span class="lineNum">    1404 </span>            : }
+<a name="1405"><span class="lineNum">    1405 </span>            : </a>
+<span class="lineNum">    1406 </span>            : 
+<span class="lineNum">    1407 </span><span class="lineNoCov">          0 : shapeObj *shapeObj_topologypreservingsimplify(shapeObj *self, double tolerance)</span>
+<span class="lineNum">    1408 </span>            : {
+<span class="lineNum">    1409 </span><span class="lineNoCov">          0 :   return msGEOSTopologyPreservingSimplify(self, tolerance);</span>
+<span class="lineNum">    1410 </span>            : }
+<a name="1411"><span class="lineNum">    1411 </span>            : </a>
+<span class="lineNum">    1412 </span>            : 
+<span class="lineNum">    1413 </span><span class="lineNoCov">          0 : shapeObj *shapeObj_convexHull(shapeObj *self)</span>
+<span class="lineNum">    1414 </span>            : {
+<span class="lineNum">    1415 </span><span class="lineNoCov">          0 :   return msGEOSConvexHull(self);</span>
+<a name="1416"><span class="lineNum">    1416 </span>            : }</a>
+<span class="lineNum">    1417 </span>            : 
+<span class="lineNum">    1418 </span><span class="lineNoCov">          0 : shapeObj *shapeObj_boundary(shapeObj *self)</span>
+<span class="lineNum">    1419 </span>            : {
+<span class="lineNum">    1420 </span><span class="lineNoCov">          0 :   return msGEOSBoundary(self);</span>
+<a name="1421"><span class="lineNum">    1421 </span>            : }</a>
+<span class="lineNum">    1422 </span>            : 
+<span class="lineNum">    1423 </span><span class="lineNoCov">          0 : int shapeObj_contains_geos(shapeObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1424 </span>            : {
+<span class="lineNum">    1425 </span><span class="lineNoCov">          0 :   return msGEOSContains(self, shape);</span>
+<a name="1426"><span class="lineNum">    1426 </span>            : }</a>
+<span class="lineNum">    1427 </span>            : 
+<span class="lineNum">    1428 </span><span class="lineNoCov">          0 : shapeObj *shapeObj_Union(shapeObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1429 </span>            : {
+<span class="lineNum">    1430 </span><span class="lineNoCov">          0 :   return msGEOSUnion(self, shape);</span>
+<a name="1431"><span class="lineNum">    1431 </span>            : }</a>
+<span class="lineNum">    1432 </span>            : 
+<span class="lineNum">    1433 </span><span class="lineNoCov">          0 : shapeObj *shapeObj_intersection(shapeObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1434 </span>            : {
+<span class="lineNum">    1435 </span><span class="lineNoCov">          0 :   return msGEOSIntersection(self, shape);</span>
+<a name="1436"><span class="lineNum">    1436 </span>            : }</a>
+<span class="lineNum">    1437 </span>            : 
+<span class="lineNum">    1438 </span><span class="lineNoCov">          0 : shapeObj *shapeObj_difference(shapeObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1439 </span>            : {
+<span class="lineNum">    1440 </span><span class="lineNoCov">          0 :   return msGEOSDifference(self, shape);</span>
+<a name="1441"><span class="lineNum">    1441 </span>            : }</a>
+<span class="lineNum">    1442 </span>            : 
+<span class="lineNum">    1443 </span><span class="lineNoCov">          0 : shapeObj *shapeObj_symdifference(shapeObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1444 </span>            : {
+<span class="lineNum">    1445 </span><span class="lineNoCov">          0 :   return msGEOSSymDifference(self, shape);</span>
+<a name="1446"><span class="lineNum">    1446 </span>            : }</a>
+<span class="lineNum">    1447 </span>            : 
+<span class="lineNum">    1448 </span><span class="lineNoCov">          0 : int shapeObj_overlaps(shapeObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1449 </span>            : {
+<span class="lineNum">    1450 </span><span class="lineNoCov">          0 :   return msGEOSOverlaps(self, shape);</span>
+<a name="1451"><span class="lineNum">    1451 </span>            : }</a>
+<span class="lineNum">    1452 </span>            : 
+<span class="lineNum">    1453 </span><span class="lineNoCov">          0 : int shapeObj_within(shapeObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1454 </span>            : {
+<span class="lineNum">    1455 </span><span class="lineNoCov">          0 :   return msGEOSWithin(self, shape);</span>
+<a name="1456"><span class="lineNum">    1456 </span>            : }</a>
+<span class="lineNum">    1457 </span>            : 
+<span class="lineNum">    1458 </span><span class="lineNoCov">          0 : int shapeObj_crosses(shapeObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1459 </span>            : {
+<span class="lineNum">    1460 </span><span class="lineNoCov">          0 :   return msGEOSCrosses(self, shape);</span>
+<a name="1461"><span class="lineNum">    1461 </span>            : }</a>
+<span class="lineNum">    1462 </span>            : 
+<span class="lineNum">    1463 </span><span class="lineNoCov">          0 : int shapeObj_touches(shapeObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1464 </span>            : {
+<span class="lineNum">    1465 </span><span class="lineNoCov">          0 :   return msGEOSTouches(self, shape);</span>
+<a name="1466"><span class="lineNum">    1466 </span>            : }</a>
+<span class="lineNum">    1467 </span>            : 
+<span class="lineNum">    1468 </span><span class="lineNoCov">          0 : int shapeObj_equals(shapeObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1469 </span>            : {
+<span class="lineNum">    1470 </span><span class="lineNoCov">          0 :   return msGEOSEquals(self, shape);</span>
+<a name="1471"><span class="lineNum">    1471 </span>            : }</a>
+<span class="lineNum">    1472 </span>            : 
+<span class="lineNum">    1473 </span><span class="lineNoCov">          0 : int shapeObj_disjoint(shapeObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1474 </span>            : {
+<span class="lineNum">    1475 </span><span class="lineNoCov">          0 :   return msGEOSDisjoint(self, shape);</span>
+<span class="lineNum">    1476 </span>            : }
+<a name="1477"><span class="lineNum">    1477 </span>            : </a>
+<span class="lineNum">    1478 </span>            : 
+<span class="lineNum">    1479 </span><span class="lineNoCov">          0 : pointObj *shapeObj_getcentroid(shapeObj *self)</span>
+<span class="lineNum">    1480 </span>            : {
+<span class="lineNum">    1481 </span><span class="lineNoCov">          0 :   return msGEOSGetCentroid(self);</span>
+<a name="1482"><span class="lineNum">    1482 </span>            : }</a>
+<span class="lineNum">    1483 </span>            : 
+<span class="lineNum">    1484 </span><span class="lineNoCov">          0 : double shapeObj_getarea(shapeObj *self)</span>
+<span class="lineNum">    1485 </span>            : {
+<span class="lineNum">    1486 </span><span class="lineNoCov">          0 :   return msGEOSArea(self);</span>
+<a name="1487"><span class="lineNum">    1487 </span>            : }</a>
+<span class="lineNum">    1488 </span>            : 
+<span class="lineNum">    1489 </span><span class="lineNoCov">          0 : double shapeObj_getlength(shapeObj *self)</span>
+<span class="lineNum">    1490 </span>            : {
+<span class="lineNum">    1491 </span><span class="lineNoCov">          0 :   return msGEOSLength(self);</span>
+<a name="1492"><span class="lineNum">    1492 </span>            : }</a>
+<span class="lineNum">    1493 </span>            : 
+<span class="lineNum">    1494 </span><span class="lineNoCov">          0 : pointObj *shapeObj_getLabelPoint(shapeObj *self)</span>
+<span class="lineNum">    1495 </span>            : {
+<span class="lineNum">    1496 </span><span class="lineNoCov">          0 :   pointObj *point = (pointObj *)calloc(1, sizeof(pointObj));</span>
+<span class="lineNum">    1497 </span><span class="lineNoCov">          0 :   if (point == NULL) {</span>
+<span class="lineNum">    1498 </span><span class="lineNoCov">          0 :     msSetError(MS_MEMERR, &quot;Failed to allocate memory for point&quot;, &quot;getLabelPoint()&quot;);</span>
+<span class="lineNum">    1499 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    1500 </span>            :   }
+<span class="lineNum">    1501 </span>            : 
+<span class="lineNum">    1502 </span><span class="lineNoCov">          0 :   if(self-&gt;type == MS_SHAPE_POLYGON &amp;&amp; msPolygonLabelPoint(self, point, -1) == MS_SUCCESS)</span>
+<span class="lineNum">    1503 </span>            :     return point;
+<span class="lineNum">    1504 </span>            : 
+<span class="lineNum">    1505 </span><span class="lineNoCov">          0 :   free(point);</span>
+<span class="lineNum">    1506 </span><span class="lineNoCov">          0 :   return NULL;</span>
+<span class="lineNum">    1507 </span>            : }
+<span class="lineNum">    1508 </span>            : 
+<span class="lineNum">    1509 </span>            : 
+<span class="lineNum">    1510 </span>            : /**********************************************************************
+<a name="1511"><span class="lineNum">    1511 </span>            :  * class extensions for rectObj</a>
+<span class="lineNum">    1512 </span>            :  **********************************************************************/
+<span class="lineNum">    1513 </span><span class="lineNoCov">          0 : rectObj *rectObj_new()</span>
+<span class="lineNum">    1514 </span>            : {
+<span class="lineNum">    1515 </span>            :   rectObj *rect;
+<span class="lineNum">    1516 </span>            : 
+<span class="lineNum">    1517 </span><span class="lineNoCov">          0 :   rect = (rectObj *)calloc(1, sizeof(rectObj));</span>
+<span class="lineNum">    1518 </span><span class="lineNoCov">          0 :   if(!rect)</span>
+<span class="lineNum">    1519 </span>            :     return(NULL);
+<span class="lineNum">    1520 </span>            : 
+<span class="lineNum">    1521 </span><span class="lineNoCov">          0 :   rect-&gt;minx = -1;</span>
+<span class="lineNum">    1522 </span><span class="lineNoCov">          0 :   rect-&gt;miny = -1;</span>
+<span class="lineNum">    1523 </span><span class="lineNoCov">          0 :   rect-&gt;maxx = -1;</span>
+<span class="lineNum">    1524 </span><span class="lineNoCov">          0 :   rect-&gt;maxy = -1;</span>
+<span class="lineNum">    1525 </span>            : 
+<span class="lineNum">    1526 </span><span class="lineNoCov">          0 :   return(rect);</span>
+<a name="1527"><span class="lineNum">    1527 </span>            : }</a>
+<span class="lineNum">    1528 </span>            : 
+<span class="lineNum">    1529 </span><span class="lineNoCov">          0 : void rectObj_destroy(rectObj *self)</span>
+<span class="lineNum">    1530 </span>            : {
+<span class="lineNum">    1531 </span><span class="lineNoCov">          0 :   free(self);</span>
+<a name="1532"><span class="lineNum">    1532 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1533 </span>            : 
+<span class="lineNum">    1534 </span><span class="lineNoCov">          0 : int rectObj_project(rectObj *self, projectionObj *in, projectionObj *out)</span>
+<span class="lineNum">    1535 </span>            : {
+<span class="lineNum">    1536 </span><span class="lineNoCov">          0 :   return msProjectRect(in, out, self);</span>
+<a name="1537"><span class="lineNum">    1537 </span>            : }</a>
+<span class="lineNum">    1538 </span>            : 
+<span class="lineNum">    1539 </span><span class="lineNoCov">          0 : double rectObj_fit(rectObj *self, int width, int height)</span>
+<span class="lineNum">    1540 </span>            : {
+<span class="lineNum">    1541 </span><span class="lineNoCov">          0 :   return  msAdjustExtent(self, width, height);</span>
+<a name="1542"><span class="lineNum">    1542 </span>            : }</a>
+<span class="lineNum">    1543 </span>            : 
+<span class="lineNum">    1544 </span><span class="lineNoCov">          0 : int rectObj_draw(rectObj *self, mapObj *map, layerObj *layer,</span>
+<span class="lineNum">    1545 </span>            :                  imageObj *img, int classindex, char *text)
+<span class="lineNum">    1546 </span>            : {
+<span class="lineNum">    1547 </span>            :   shapeObj shape;
+<span class="lineNum">    1548 </span>            : 
+<span class="lineNum">    1549 </span><span class="lineNoCov">          0 :   msInitShape(&amp;shape);</span>
+<span class="lineNum">    1550 </span><span class="lineNoCov">          0 :   msRectToPolygon(*self, &amp;shape);</span>
+<span class="lineNum">    1551 </span><span class="lineNoCov">          0 :   shape.classindex = classindex;</span>
+<span class="lineNum">    1552 </span>            : 
+<span class="lineNum">    1553 </span><span class="lineNoCov">          0 :   if(text &amp;&amp; layer-&gt;class[classindex]-&gt;numlabels &gt; 0) {</span>
+<span class="lineNum">    1554 </span><span class="lineNoCov">          0 :     shape.text = msStrdup(text);</span>
+<span class="lineNum">    1555 </span>            :   }
+<span class="lineNum">    1556 </span>            :   
+<span class="lineNum">    1557 </span><span class="lineNoCov">          0 :   if(MS_SUCCESS != msDrawShape(map, layer, &amp;shape, img, -1, MS_DRAWMODE_FEATURES|MS_DRAWMODE_LABELS)) {</span>
+<span class="lineNum">    1558 </span>            :     /* error message has been set already */
+<span class="lineNum">    1559 </span>            :   }
+<span class="lineNum">    1560 </span>            : 
+<span class="lineNum">    1561 </span><span class="lineNoCov">          0 :   msFreeShape(&amp;shape);</span>
+<span class="lineNum">    1562 </span>            : 
+<span class="lineNum">    1563 </span><span class="lineNoCov">          0 :   return 0;</span>
+<span class="lineNum">    1564 </span>            : }
+<span class="lineNum">    1565 </span>            : 
+<span class="lineNum">    1566 </span>            : /**********************************************************************
+<a name="1567"><span class="lineNum">    1567 </span>            :  * class extensions for shapefileObj</a>
+<span class="lineNum">    1568 </span>            :  **********************************************************************/
+<span class="lineNum">    1569 </span><span class="lineNoCov">          0 : shapefileObj *shapefileObj_new(char *filename, int type)</span>
+<span class="lineNum">    1570 </span>            : {
+<span class="lineNum">    1571 </span>            :   shapefileObj *shapefile;
+<span class="lineNum">    1572 </span>            :   int status;
+<span class="lineNum">    1573 </span>            : 
+<span class="lineNum">    1574 </span><span class="lineNoCov">          0 :   shapefile = (shapefileObj *)calloc(1,sizeof(shapefileObj));</span>
+<span class="lineNum">    1575 </span><span class="lineNoCov">          0 :   if(!shapefile)</span>
+<span class="lineNum">    1576 </span>            :     return NULL;
+<span class="lineNum">    1577 </span>            : 
+<span class="lineNum">    1578 </span><span class="lineNoCov">          0 :   if(type == -1)</span>
+<span class="lineNum">    1579 </span><span class="lineNoCov">          0 :     status = msShapefileOpen(shapefile, &quot;rb&quot;, filename, MS_TRUE);</span>
+<span class="lineNum">    1580 </span><span class="lineNoCov">          0 :   else if (type == -2)</span>
+<span class="lineNum">    1581 </span><span class="lineNoCov">          0 :     status = msShapefileOpen(shapefile, &quot;rb+&quot;, filename, MS_TRUE);</span>
+<span class="lineNum">    1582 </span>            :   else
+<span class="lineNum">    1583 </span><span class="lineNoCov">          0 :     status = msShapefileCreate(shapefile, filename, type);</span>
+<span class="lineNum">    1584 </span>            : 
+<span class="lineNum">    1585 </span><span class="lineNoCov">          0 :   if(status == -1) {</span>
+<span class="lineNum">    1586 </span><span class="lineNoCov">          0 :     msShapefileClose(shapefile);</span>
+<span class="lineNum">    1587 </span><span class="lineNoCov">          0 :     free(shapefile);</span>
+<span class="lineNum">    1588 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    1589 </span>            :   }
+<span class="lineNum">    1590 </span>            : 
+<span class="lineNum">    1591 </span>            :   return(shapefile);
+<a name="1592"><span class="lineNum">    1592 </span>            : }</a>
+<span class="lineNum">    1593 </span>            : 
+<span class="lineNum">    1594 </span><span class="lineNoCov">          0 : void shapefileObj_destroy(shapefileObj *self)</span>
+<span class="lineNum">    1595 </span>            : {
+<span class="lineNum">    1596 </span><span class="lineNoCov">          0 :   msShapefileClose(self);</span>
+<span class="lineNum">    1597 </span><span class="lineNoCov">          0 :   free(self);</span>
+<a name="1598"><span class="lineNum">    1598 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1599 </span>            : 
+<span class="lineNum">    1600 </span><span class="lineNoCov">          0 : int shapefileObj_get(shapefileObj *self, int i, shapeObj *shape)</span>
+<span class="lineNum">    1601 </span>            : {
+<span class="lineNum">    1602 </span><span class="lineNoCov">          0 :   if(i&lt;0 || i&gt;=self-&gt;numshapes)</span>
+<span class="lineNum">    1603 </span>            :     return -1;
+<span class="lineNum">    1604 </span>            : 
+<span class="lineNum">    1605 </span><span class="lineNoCov">          0 :   msFreeShape(shape); /* frees all lines and points before re-filling */</span>
+<span class="lineNum">    1606 </span><span class="lineNoCov">          0 :   msSHPReadShape(self-&gt;hSHP, i, shape);</span>
+<span class="lineNum">    1607 </span><span class="lineNoCov">          0 :   self-&gt;lastshape = i;</span>
+<span class="lineNum">    1608 </span>            : 
+<span class="lineNum">    1609 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<a name="1610"><span class="lineNum">    1610 </span>            : }</a>
+<span class="lineNum">    1611 </span>            : 
+<span class="lineNum">    1612 </span><span class="lineNoCov">          0 : int shapefileObj_getPoint(shapefileObj *self, int i, pointObj *point)</span>
+<span class="lineNum">    1613 </span>            : {
+<span class="lineNum">    1614 </span><span class="lineNoCov">          0 :   if(i&lt;0 || i&gt;=self-&gt;numshapes)</span>
+<span class="lineNum">    1615 </span>            :     return -1;
+<span class="lineNum">    1616 </span>            : 
+<span class="lineNum">    1617 </span><span class="lineNoCov">          0 :   return msSHPReadPoint(self-&gt;hSHP, i, point);</span>
+<a name="1618"><span class="lineNum">    1618 </span>            : }</a>
+<span class="lineNum">    1619 </span>            : 
+<span class="lineNum">    1620 </span><span class="lineNoCov">          0 : int shapefileObj_getTransformed(shapefileObj *self, mapObj *map,</span>
+<span class="lineNum">    1621 </span>            :                                 int i, shapeObj *shape)
+<span class="lineNum">    1622 </span>            : {
+<span class="lineNum">    1623 </span><span class="lineNoCov">          0 :   if(i&lt;0 || i&gt;=self-&gt;numshapes)</span>
+<span class="lineNum">    1624 </span>            :     return -1;
+<span class="lineNum">    1625 </span>            : 
+<span class="lineNum">    1626 </span><span class="lineNoCov">          0 :   msFreeShape(shape); /* frees all lines and points before re-filling */</span>
+<span class="lineNum">    1627 </span><span class="lineNoCov">          0 :   msSHPReadShape(self-&gt;hSHP, i, shape);</span>
+<span class="lineNum">    1628 </span><span class="lineNoCov">          0 :   msTransformShapeSimplify(shape, map-&gt;extent, map-&gt;cellsize);</span>
+<span class="lineNum">    1629 </span>            : 
+<span class="lineNum">    1630 </span><span class="lineNoCov">          0 :   return 0;</span>
+<a name="1631"><span class="lineNum">    1631 </span>            : }</a>
+<span class="lineNum">    1632 </span>            : 
+<span class="lineNum">    1633 </span><span class="lineNoCov">          0 : void shapefileObj_getExtent(shapefileObj *self, int i, rectObj *rect)</span>
+<span class="lineNum">    1634 </span>            : {
+<span class="lineNum">    1635 </span><span class="lineNoCov">          0 :   msSHPReadBounds(self-&gt;hSHP, i, rect);</span>
+<a name="1636"><span class="lineNum">    1636 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1637 </span>            : 
+<span class="lineNum">    1638 </span><span class="lineNoCov">          0 : int shapefileObj_add(shapefileObj *self, shapeObj *shape)</span>
+<span class="lineNum">    1639 </span>            : {
+<span class="lineNum">    1640 </span><span class="lineNoCov">          0 :   return msSHPWriteShape(self-&gt;hSHP, shape);</span>
+<a name="1641"><span class="lineNum">    1641 </span>            : }</a>
+<span class="lineNum">    1642 </span>            : 
+<span class="lineNum">    1643 </span><span class="lineNoCov">          0 : int shapefileObj_addPoint(shapefileObj *self, pointObj *point)</span>
+<span class="lineNum">    1644 </span>            : {
+<span class="lineNum">    1645 </span><span class="lineNoCov">          0 :   return msSHPWritePoint(self-&gt;hSHP, point);</span>
+<span class="lineNum">    1646 </span>            : }
+<span class="lineNum">    1647 </span>            : 
+<span class="lineNum">    1648 </span>            : /**********************************************************************
+<a name="1649"><span class="lineNum">    1649 </span>            :  * class extensions for projectionObj</a>
+<span class="lineNum">    1650 </span>            :  **********************************************************************/
+<span class="lineNum">    1651 </span><span class="lineNoCov">          0 : projectionObj *projectionObj_new(char *string)</span>
+<span class="lineNum">    1652 </span>            : {
+<span class="lineNum">    1653 </span>            : 
+<span class="lineNum">    1654 </span>            :   int status;
+<span class="lineNum">    1655 </span>            :   projectionObj *proj=NULL;
+<span class="lineNum">    1656 </span>            : 
+<span class="lineNum">    1657 </span><span class="lineNoCov">          0 :   proj = (projectionObj *)malloc(sizeof(projectionObj));</span>
+<span class="lineNum">    1658 </span><span class="lineNoCov">          0 :   if(!proj) return NULL;</span>
+<span class="lineNum">    1659 </span><span class="lineNoCov">          0 :   msInitProjection(proj);</span>
+<span class="lineNum">    1660 </span>            : 
+<span class="lineNum">    1661 </span><span class="lineNoCov">          0 :   status = msLoadProjectionString(proj, string);</span>
+<span class="lineNum">    1662 </span><span class="lineNoCov">          0 :   if(status == -1) {</span>
+<span class="lineNum">    1663 </span><span class="lineNoCov">          0 :     msFreeProjection(proj);</span>
+<span class="lineNum">    1664 </span><span class="lineNoCov">          0 :     free(proj);</span>
+<span class="lineNum">    1665 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    1666 </span>            :   }
+<span class="lineNum">    1667 </span>            : 
+<span class="lineNum">    1668 </span>            :   return proj;
+<a name="1669"><span class="lineNum">    1669 </span>            : }</a>
+<span class="lineNum">    1670 </span>            : 
+<span class="lineNum">    1671 </span><span class="lineNoCov">          0 : int projectionObj_getUnits(projectionObj *self)</span>
+<span class="lineNum">    1672 </span>            : {
+<span class="lineNum">    1673 </span><span class="lineNoCov">          0 :   return GetMapserverUnitUsingProj(self);</span>
+<a name="1674"><span class="lineNum">    1674 </span>            : }</a>
+<span class="lineNum">    1675 </span>            : 
+<span class="lineNum">    1676 </span><span class="lineNoCov">          0 : void projectionObj_destroy(projectionObj *self)</span>
+<span class="lineNum">    1677 </span>            : {
+<span class="lineNum">    1678 </span><span class="lineNoCov">          0 :   msFreeProjection(self);</span>
+<span class="lineNum">    1679 </span><span class="lineNoCov">          0 :   free(self);</span>
+<a name="1680"><span class="lineNum">    1680 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1681 </span>            : 
+<span class="lineNum">    1682 </span><span class="lineNoCov">          0 : projectionObj *projectionObj_clone(projectionObj *projection)</span>
+<span class="lineNum">    1683 </span>            : {
+<span class="lineNum">    1684 </span>            :   projectionObj *dstProjection;
+<span class="lineNum">    1685 </span><span class="lineNoCov">          0 :   dstProjection = (projectionObj *)malloc(sizeof(projectionObj));</span>
+<span class="lineNum">    1686 </span><span class="lineNoCov">          0 :   msInitProjection(dstProjection);</span>
+<span class="lineNum">    1687 </span><span class="lineNoCov">          0 :   msCopyProjection(dstProjection, projection);</span>
+<span class="lineNum">    1688 </span>            : 
+<span class="lineNum">    1689 </span><span class="lineNoCov">          0 :   return dstProjection;</span>
+<span class="lineNum">    1690 </span>            : }
+<span class="lineNum">    1691 </span>            : 
+<span class="lineNum">    1692 </span>            : /**********************************************************************
+<a name="1693"><span class="lineNum">    1693 </span>            :  * class extensions for labelCacheObj - TP mods</a>
+<span class="lineNum">    1694 </span>            :  **********************************************************************/
+<span class="lineNum">    1695 </span><span class="lineNoCov">          0 : void labelCacheObj_freeCache(labelCacheObj *self)</span>
+<span class="lineNum">    1696 </span>            : {
+<span class="lineNum">    1697 </span><span class="lineNoCov">          0 :   msFreeLabelCache(self);</span>
+<span class="lineNum">    1698 </span>            : 
+<span class="lineNum">    1699 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1700 </span>            : 
+<span class="lineNum">    1701 </span>            : /**********************************************************************
+<a name="1702"><span class="lineNum">    1702 </span>            :  * class extensions for DBFInfo - TP mods</a>
+<span class="lineNum">    1703 </span>            :  **********************************************************************/
+<span class="lineNum">    1704 </span><span class="lineNoCov">          0 : char *DBFInfo_getFieldName(DBFInfo *self, int iField)</span>
+<span class="lineNum">    1705 </span>            : {
+<span class="lineNum">    1706 </span>            :   static char pszFieldName[1000];
+<span class="lineNum">    1707 </span>            :   int pnWidth;
+<span class="lineNum">    1708 </span>            :   int pnDecimals;
+<span class="lineNum">    1709 </span><span class="lineNoCov">          0 :   msDBFGetFieldInfo(self, iField, &amp;pszFieldName[0], &amp;pnWidth, &amp;pnDecimals);</span>
+<span class="lineNum">    1710 </span><span class="lineNoCov">          0 :   return pszFieldName;</span>
+<a name="1711"><span class="lineNum">    1711 </span>            : }</a>
+<span class="lineNum">    1712 </span>            : 
+<span class="lineNum">    1713 </span><span class="lineNoCov">          0 : int DBFInfo_getFieldWidth(DBFInfo *self, int iField)</span>
+<span class="lineNum">    1714 </span>            : {
+<span class="lineNum">    1715 </span>            :   char pszFieldName[1000];
+<span class="lineNum">    1716 </span>            :   int pnWidth;
+<span class="lineNum">    1717 </span>            :   int pnDecimals;
+<span class="lineNum">    1718 </span><span class="lineNoCov">          0 :   msDBFGetFieldInfo(self, iField, &amp;pszFieldName[0], &amp;pnWidth, &amp;pnDecimals);</span>
+<span class="lineNum">    1719 </span><span class="lineNoCov">          0 :   return pnWidth;</span>
+<a name="1720"><span class="lineNum">    1720 </span>            : }</a>
+<span class="lineNum">    1721 </span>            : 
+<span class="lineNum">    1722 </span><span class="lineNoCov">          0 : int DBFInfo_getFieldDecimals(DBFInfo *self, int iField)</span>
+<span class="lineNum">    1723 </span>            : {
+<span class="lineNum">    1724 </span>            :   char pszFieldName[1000];
+<span class="lineNum">    1725 </span>            :   int pnWidth;
+<span class="lineNum">    1726 </span>            :   int pnDecimals;
+<span class="lineNum">    1727 </span><span class="lineNoCov">          0 :   msDBFGetFieldInfo(self, iField, &amp;pszFieldName[0], &amp;pnWidth, &amp;pnDecimals);</span>
+<span class="lineNum">    1728 </span><span class="lineNoCov">          0 :   return pnDecimals;</span>
+<a name="1729"><span class="lineNum">    1729 </span>            : }</a>
+<span class="lineNum">    1730 </span>            : 
+<span class="lineNum">    1731 </span><span class="lineNoCov">          0 : DBFFieldType DBFInfo_getFieldType(DBFInfo *self, int iField)</span>
+<span class="lineNum">    1732 </span>            : {
+<span class="lineNum">    1733 </span><span class="lineNoCov">          0 :   return msDBFGetFieldInfo(self, iField, NULL, NULL, NULL);</span>
+<span class="lineNum">    1734 </span>            : }
+<span class="lineNum">    1735 </span>            : 
+<span class="lineNum">    1736 </span>            : /**********************************************************************
+<a name="1737"><span class="lineNum">    1737 </span>            :  * class extensions for styleObj, always within the context of a class</a>
+<span class="lineNum">    1738 </span>            :  **********************************************************************/
+<span class="lineNum">    1739 </span><span class="lineNoCov">          0 : styleObj *styleObj_new(classObj *class, styleObj *style)</span>
+<span class="lineNum">    1740 </span>            : {
+<span class="lineNum">    1741 </span><span class="lineNoCov">          0 :   if(msGrowClassStyles(class) == NULL)</span>
+<span class="lineNum">    1742 </span>            :     return NULL;
+<span class="lineNum">    1743 </span>            : 
+<span class="lineNum">    1744 </span><span class="lineNoCov">          0 :   if(initStyle(class-&gt;styles[class-&gt;numstyles]) == -1)</span>
+<span class="lineNum">    1745 </span>            :     return NULL;
+<span class="lineNum">    1746 </span>            : 
+<span class="lineNum">    1747 </span><span class="lineNoCov">          0 :   if (style)</span>
+<span class="lineNum">    1748 </span><span class="lineNoCov">          0 :     msCopyStyle(class-&gt;styles[class-&gt;numstyles], style);</span>
+<span class="lineNum">    1749 </span>            : 
+<span class="lineNum">    1750 </span><span class="lineNoCov">          0 :   class-&gt;numstyles++;</span>
+<span class="lineNum">    1751 </span>            : 
+<span class="lineNum">    1752 </span><span class="lineNoCov">          0 :   return class-&gt;styles[class-&gt;numstyles-1];</span>
+<a name="1753"><span class="lineNum">    1753 </span>            : }</a>
+<span class="lineNum">    1754 </span>            : 
+<span class="lineNum">    1755 </span><span class="lineNoCov">          0 : styleObj *styleObj_label_new(labelObj *label, styleObj *style)</span>
+<span class="lineNum">    1756 </span>            : {
+<span class="lineNum">    1757 </span><span class="lineNoCov">          0 :   if(msGrowLabelStyles(label) == NULL)</span>
+<span class="lineNum">    1758 </span>            :     return NULL;
+<span class="lineNum">    1759 </span>            : 
+<span class="lineNum">    1760 </span><span class="lineNoCov">          0 :   if(initStyle(label-&gt;styles[label-&gt;numstyles]) == -1)</span>
+<span class="lineNum">    1761 </span>            :     return NULL;
+<span class="lineNum">    1762 </span>            : 
+<span class="lineNum">    1763 </span><span class="lineNoCov">          0 :   if (style)</span>
+<span class="lineNum">    1764 </span><span class="lineNoCov">          0 :     msCopyStyle(label-&gt;styles[label-&gt;numstyles], style);</span>
+<span class="lineNum">    1765 </span>            : 
+<span class="lineNum">    1766 </span><span class="lineNoCov">          0 :   label-&gt;numstyles++;</span>
+<span class="lineNum">    1767 </span>            : 
+<span class="lineNum">    1768 </span><span class="lineNoCov">          0 :   return label-&gt;styles[label-&gt;numstyles-1];</span>
+<a name="1769"><span class="lineNum">    1769 </span>            : }</a>
+<span class="lineNum">    1770 </span>            : 
+<span class="lineNum">    1771 </span><span class="lineNoCov">          0 : int styleObj_updateFromString(styleObj *self, char *snippet)</span>
+<span class="lineNum">    1772 </span>            : {
+<span class="lineNum">    1773 </span><span class="lineNoCov">          0 :   return msUpdateStyleFromString(self, snippet, MS_FALSE);</span>
+<a name="1774"><span class="lineNum">    1774 </span>            : }</a>
+<span class="lineNum">    1775 </span>            : 
+<span class="lineNum">    1776 </span><span class="lineNoCov">          0 : char *styleObj_convertToString(styleObj *self)</span>
+<span class="lineNum">    1777 </span>            : {
+<span class="lineNum">    1778 </span><span class="lineNoCov">          0 :   return msWriteStyleToString(self);</span>
+<a name="1779"><span class="lineNum">    1779 </span>            : }</a>
+<span class="lineNum">    1780 </span>            : 
+<span class="lineNum">    1781 </span><span class="lineNoCov">          0 : int styleObj_setSymbolByName(styleObj *self, mapObj *map, char* pszSymbolName)</span>
+<span class="lineNum">    1782 </span>            : {
+<span class="lineNum">    1783 </span><span class="lineNoCov">          0 :   self-&gt;symbol = msGetSymbolIndex(&amp;map-&gt;symbolset, pszSymbolName, MS_TRUE);</span>
+<span class="lineNum">    1784 </span><span class="lineNoCov">          0 :   return self-&gt;symbol;</span>
+<a name="1785"><span class="lineNum">    1785 </span>            : }</a>
+<span class="lineNum">    1786 </span>            : 
+<span class="lineNum">    1787 </span><span class="lineNoCov">          0 : styleObj *styleObj_clone(styleObj *style)</span>
+<span class="lineNum">    1788 </span>            : {
+<span class="lineNum">    1789 </span>            :   styleObj *newstyle = NULL;
+<span class="lineNum">    1790 </span><span class="lineNoCov">          0 :   if (!style)</span>
+<span class="lineNum">    1791 </span>            :     return NULL;
+<span class="lineNum">    1792 </span>            : 
+<span class="lineNum">    1793 </span><span class="lineNoCov">          0 :   newstyle = (styleObj *)malloc(sizeof(styleObj));</span>
+<span class="lineNum">    1794 </span><span class="lineNoCov">          0 :   initStyle(newstyle);</span>
+<span class="lineNum">    1795 </span>            : 
+<span class="lineNum">    1796 </span><span class="lineNoCov">          0 :   msCopyStyle(newstyle, style);</span>
+<span class="lineNum">    1797 </span>            : 
+<span class="lineNum">    1798 </span><span class="lineNoCov">          0 :   return newstyle;</span>
+<a name="1799"><span class="lineNum">    1799 </span>            : }</a>
+<span class="lineNum">    1800 </span>            : 
+<span class="lineNum">    1801 </span><span class="lineNoCov">          0 : void styleObj_setGeomTransform(styleObj *style, char *transform)</span>
+<span class="lineNum">    1802 </span>            : {
+<span class="lineNum">    1803 </span><span class="lineNoCov">          0 :   if (!style)</span>
+<span class="lineNum">    1804 </span>            :     return;
+<span class="lineNum">    1805 </span>            : 
+<span class="lineNum">    1806 </span><span class="lineNoCov">          0 :   msStyleSetGeomTransform(style, transform);</span>
+<span class="lineNum">    1807 </span>            : }
+<a name="1808"><span class="lineNum">    1808 </span>            : </a>
+<span class="lineNum">    1809 </span>            : 
+<span class="lineNum">    1810 </span><span class="lineNoCov">          0 : cgiRequestObj *cgirequestObj_new()</span>
+<span class="lineNum">    1811 </span>            : {
+<span class="lineNum">    1812 </span>            :   cgiRequestObj *request;
+<span class="lineNum">    1813 </span><span class="lineNoCov">          0 :   request = msAllocCgiObj();</span>
+<span class="lineNum">    1814 </span>            : 
+<span class="lineNum">    1815 </span><span class="lineNoCov">          0 :   return request;</span>
+<a name="1816"><span class="lineNum">    1816 </span>            : }</a>
+<span class="lineNum">    1817 </span>            : 
+<span class="lineNum">    1818 </span><span class="lineNoCov">          0 : int cgirequestObj_loadParams(cgiRequestObj *self,</span>
+<span class="lineNum">    1819 </span>            :                              char* (*getenv2)(const char*, void* thread_context),
+<span class="lineNum">    1820 </span>            :                              char *raw_post_data,
+<span class="lineNum">    1821 </span>            :                              ms_uint32 raw_post_data_length,
+<span class="lineNum">    1822 </span>            :                              void* thread_context)
+<span class="lineNum">    1823 </span>            : {
+<span class="lineNum">    1824 </span><span class="lineNoCov">          0 :   self-&gt;NumParams = loadParams(self, getenv2, raw_post_data, raw_post_data_length, thread_context);</span>
+<span class="lineNum">    1825 </span><span class="lineNoCov">          0 :   return self-&gt;NumParams;</span>
+<span class="lineNum">    1826 </span>            : }
+<a name="1827"><span class="lineNum">    1827 </span>            : </a>
+<span class="lineNum">    1828 </span>            : 
+<span class="lineNum">    1829 </span><span class="lineNoCov">          0 : void cgirequestObj_setParameter(cgiRequestObj *self, char *name, char *value)</span>
+<span class="lineNum">    1830 </span>            : {
+<span class="lineNum">    1831 </span>            :   int i;
+<span class="lineNum">    1832 </span>            : 
+<span class="lineNum">    1833 </span><span class="lineNoCov">          0 :   if (self-&gt;NumParams == MS_DEFAULT_CGI_PARAMS) {</span>
+<span class="lineNum">    1834 </span><span class="lineNoCov">          0 :     msSetError(MS_CHILDERR, &quot;Maximum number of items, %d, has been reached&quot;, &quot;setItem()&quot;, MS_DEFAULT_CGI_PARAMS);</span>
+<span class="lineNum">    1835 </span>            :   }
+<span class="lineNum">    1836 </span>            : 
+<span class="lineNum">    1837 </span><span class="lineNoCov">          0 :   for (i=0; i&lt;self-&gt;NumParams; i++) {</span>
+<span class="lineNum">    1838 </span><span class="lineNoCov">          0 :     if (strcasecmp(self-&gt;ParamNames[i], name) == 0) {</span>
+<span class="lineNum">    1839 </span><span class="lineNoCov">          0 :       free(self-&gt;ParamValues[i]);</span>
+<span class="lineNum">    1840 </span><span class="lineNoCov">          0 :       self-&gt;ParamValues[i] = msStrdup(value);</span>
+<span class="lineNum">    1841 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">    1842 </span>            :     }
+<span class="lineNum">    1843 </span>            :   }
+<span class="lineNum">    1844 </span><span class="lineNoCov">          0 :   if (i == self-&gt;NumParams) {</span>
+<span class="lineNum">    1845 </span><span class="lineNoCov">          0 :     self-&gt;ParamNames[self-&gt;NumParams] = msStrdup(name);</span>
+<span class="lineNum">    1846 </span><span class="lineNoCov">          0 :     self-&gt;ParamValues[self-&gt;NumParams] = msStrdup(value);</span>
+<span class="lineNum">    1847 </span><span class="lineNoCov">          0 :     self-&gt;NumParams++;</span>
+<span class="lineNum">    1848 </span>            :   }
+<a name="1849"><span class="lineNum">    1849 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1850 </span>            : 
+<span class="lineNum">    1851 </span><span class="lineNoCov">          0 : void cgirequestObj_addParameter(cgiRequestObj *self, char *name, char *value)</span>
+<span class="lineNum">    1852 </span>            : {
+<span class="lineNum">    1853 </span><span class="lineNoCov">          0 :   if (self-&gt;NumParams == MS_DEFAULT_CGI_PARAMS) {</span>
+<span class="lineNum">    1854 </span><span class="lineNoCov">          0 :     msSetError(MS_CHILDERR, &quot;Maximum number of items, %d, has been reached&quot;, &quot;addParameter()&quot;, MS_DEFAULT_CGI_PARAMS);</span>
+<span class="lineNum">    1855 </span>            :   }
+<span class="lineNum">    1856 </span><span class="lineNoCov">          0 :   self-&gt;ParamNames[self-&gt;NumParams] = msStrdup(name);</span>
+<span class="lineNum">    1857 </span><span class="lineNoCov">          0 :   self-&gt;ParamValues[self-&gt;NumParams] = msStrdup(value);</span>
+<span class="lineNum">    1858 </span><span class="lineNoCov">          0 :   self-&gt;NumParams++;</span>
+<a name="1859"><span class="lineNum">    1859 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1860 </span>            : 
+<span class="lineNum">    1861 </span><span class="lineNoCov">          0 : char *cgirequestObj_getName(cgiRequestObj *self, int index)</span>
+<span class="lineNum">    1862 </span>            : {
+<span class="lineNum">    1863 </span><span class="lineNoCov">          0 :   if (index &lt; 0 || index &gt;= self-&gt;NumParams) {</span>
+<span class="lineNum">    1864 </span><span class="lineNoCov">          0 :     msSetError(MS_CHILDERR, &quot;Invalid index, valid range is [0, %d]&quot;, &quot;getName()&quot;, self-&gt;NumParams-1);</span>
+<span class="lineNum">    1865 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    1866 </span>            :   }
+<span class="lineNum">    1867 </span><span class="lineNoCov">          0 :   return self-&gt;ParamNames[index];</span>
+<a name="1868"><span class="lineNum">    1868 </span>            : }</a>
+<span class="lineNum">    1869 </span>            : 
+<span class="lineNum">    1870 </span><span class="lineNoCov">          0 : char *cgirequestObj_getValue(cgiRequestObj *self, int index)</span>
+<span class="lineNum">    1871 </span>            : {
+<span class="lineNum">    1872 </span><span class="lineNoCov">          0 :   if (index &lt; 0 || index &gt;= self-&gt;NumParams) {</span>
+<span class="lineNum">    1873 </span><span class="lineNoCov">          0 :     msSetError(MS_CHILDERR, &quot;Invalid index, valid range is [0, %d]&quot;, &quot;getValue()&quot;, self-&gt;NumParams-1);</span>
+<span class="lineNum">    1874 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    1875 </span>            :   }
+<span class="lineNum">    1876 </span><span class="lineNoCov">          0 :   return self-&gt;ParamValues[index];</span>
+<a name="1877"><span class="lineNum">    1877 </span>            : }</a>
+<span class="lineNum">    1878 </span>            : 
+<span class="lineNum">    1879 </span><span class="lineNoCov">          0 : char *cgirequestObj_getValueByName(cgiRequestObj *self, const char *name)</span>
+<span class="lineNum">    1880 </span>            : {
+<span class="lineNum">    1881 </span>            :   int i;
+<span class="lineNum">    1882 </span><span class="lineNoCov">          0 :   for (i=0; i&lt;self-&gt;NumParams; i++) {</span>
+<span class="lineNum">    1883 </span><span class="lineNoCov">          0 :     if (strcasecmp(self-&gt;ParamNames[i], name) == 0) {</span>
+<span class="lineNum">    1884 </span><span class="lineNoCov">          0 :       return self-&gt;ParamValues[i];</span>
+<span class="lineNum">    1885 </span>            :     }
+<span class="lineNum">    1886 </span>            :   }
+<a name="1887"><span class="lineNum">    1887 </span>            :   return NULL;</a>
+<span class="lineNum">    1888 </span>            : }
+<span class="lineNum">    1889 </span><span class="lineNoCov">          0 : void cgirequestObj_destroy(cgiRequestObj *self)</span>
+<span class="lineNum">    1890 </span>            : {
+<span class="lineNum">    1891 </span><span class="lineNoCov">          0 :   free(self);</span>
+<span class="lineNum">    1892 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1893 </span>            : 
+<span class="lineNum">    1894 </span>            : 
+<span class="lineNum">    1895 </span>            : /**********************************************************************
+<span class="lineNum">    1896 </span>            :  * class extensions hashTableObj
+<span class="lineNum">    1897 </span>            :  **********************************************************************/
+<a name="1898"><span class="lineNum">    1898 </span>            : </a>
+<span class="lineNum">    1899 </span>            : // New instance
+<span class="lineNum">    1900 </span><span class="lineNoCov">          0 : hashTableObj *hashTableObj_new()</span>
+<span class="lineNum">    1901 </span>            : {
+<span class="lineNum">    1902 </span><span class="lineNoCov">          0 :   return msCreateHashTable();</span>
+<span class="lineNum">    1903 </span>            : }
+<a name="1904"><span class="lineNum">    1904 </span>            : </a>
+<span class="lineNum">    1905 </span>            : // set a hash item given key and value
+<span class="lineNum">    1906 </span><span class="lineNoCov">          0 : int hashTableObj_set(hashTableObj *self, const char *key, const char *value)</span>
+<span class="lineNum">    1907 </span>            : {
+<span class="lineNum">    1908 </span><span class="lineNoCov">          0 :   if (msInsertHashTable(self, key, value) == NULL) {</span>
+<span class="lineNum">    1909 </span>            :     return MS_FAILURE;
+<span class="lineNum">    1910 </span>            :   }
+<span class="lineNum">    1911 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1912 </span>            : }
+<a name="1913"><span class="lineNum">    1913 </span>            : </a>
+<span class="lineNum">    1914 </span>            : // get value from item by its key
+<span class="lineNum">    1915 </span><span class="lineNoCov">          0 : const char *hashTableObj_get(hashTableObj *self, const char *key)</span>
+<span class="lineNum">    1916 </span>            : {
+<span class="lineNum">    1917 </span><span class="lineNoCov">          0 :   return (msLookupHashTable(self, key));</span>
+<span class="lineNum">    1918 </span>            : }
+<a name="1919"><span class="lineNum">    1919 </span>            : </a>
+<span class="lineNum">    1920 </span>            : // Remove one item from hash table
+<span class="lineNum">    1921 </span><span class="lineNoCov">          0 : int hashTableObj_remove(hashTableObj *self, const char *key)</span>
+<span class="lineNum">    1922 </span>            : {
+<span class="lineNum">    1923 </span><span class="lineNoCov">          0 :   return (msRemoveHashTable(self, key));</span>
+<span class="lineNum">    1924 </span>            : }
+<a name="1925"><span class="lineNum">    1925 </span>            : </a>
+<span class="lineNum">    1926 </span>            : // Clear all items in hash table (to NULL)
+<span class="lineNum">    1927 </span><span class="lineNoCov">          0 : void hashTableObj_clear(hashTableObj *self)</span>
+<span class="lineNum">    1928 </span>            : {
+<span class="lineNum">    1929 </span><span class="lineNoCov">          0 :   msFreeHashItems(self);</span>
+<span class="lineNum">    1930 </span><span class="lineNoCov">          0 :   initHashTable(self);</span>
+<span class="lineNum">    1931 </span><span class="lineNoCov">          0 : }</span>
+<a name="1932"><span class="lineNum">    1932 </span>            : </a>
+<span class="lineNum">    1933 </span>            : // Return the next key or first key if previousKey == NULL
+<span class="lineNum">    1934 </span><span class="lineNoCov">          0 : char *hashTableObj_nextKey(hashTableObj *self, const char *previousKey)</span>
+<span class="lineNum">    1935 </span>            : {
+<span class="lineNum">    1936 </span><span class="lineNoCov">          0 :   return ((char *)msNextKeyFromHashTable(self, previousKey));</span>
+<a name="1937"><span class="lineNum">    1937 </span>            : }</a>
+<span class="lineNum">    1938 </span>            : 
+<span class="lineNum">    1939 </span><span class="lineNoCov">          0 : resultObj *resultObj_new()</span>
+<span class="lineNum">    1940 </span>            : {
+<span class="lineNum">    1941 </span><span class="lineNoCov">          0 :   resultObj *r = (resultObj *) msSmallMalloc(sizeof(resultObj));</span>
+<span class="lineNum">    1942 </span><span class="lineNoCov">          0 :   r-&gt;tileindex = -1;</span>
+<span class="lineNum">    1943 </span><span class="lineNoCov">          0 :   r-&gt;shapeindex = -1;</span>
+<span class="lineNum">    1944 </span><span class="lineNoCov">          0 :   r-&gt;resultindex = -1;</span>
+<span class="lineNum">    1945 </span><span class="lineNoCov">          0 :   return r;</span>
+<span class="lineNum">    1946 </span>            : }
+<span class="lineNum">    1947 </span>            : 
+<span class="lineNum">    1948 </span>            : /**********************************************************************
+<span class="lineNum">    1949 </span>            :  * class extensions clusterObj
+<a name="1950"><span class="lineNum">    1950 </span>            :  **********************************************************************/</a>
+<span class="lineNum">    1951 </span>            : 
+<span class="lineNum">    1952 </span><span class="lineNoCov">          0 : int clusterObj_updateFromString(clusterObj *self, char *snippet)</span>
+<span class="lineNum">    1953 </span>            : {
+<span class="lineNum">    1954 </span><span class="lineNoCov">          0 :   return msUpdateClusterFromString(self, snippet);</span>
+<a name="1955"><span class="lineNum">    1955 </span>            : }</a>
+<span class="lineNum">    1956 </span>            : 
+<span class="lineNum">    1957 </span><span class="lineNoCov">          0 : char *clusterObj_convertToString(clusterObj *self)</span>
+<span class="lineNum">    1958 </span>            : {
+<span class="lineNum">    1959 </span><span class="lineNoCov">          0 :   return msWriteClusterToString(self);</span>
+<a name="1960"><span class="lineNum">    1960 </span>            : }</a>
+<span class="lineNum">    1961 </span>            : 
+<span class="lineNum">    1962 </span><span class="lineNoCov">          0 : int clusterObj_setGroup(clusterObj *self, char *string)</span>
+<span class="lineNum">    1963 </span>            : {
+<span class="lineNum">    1964 </span><span class="lineNoCov">          0 :   if (!string || strlen(string) == 0) {</span>
+<span class="lineNum">    1965 </span><span class="lineNoCov">          0 :     msFreeExpression(&amp;self-&gt;group);</span>
+<span class="lineNum">    1966 </span><span class="lineNoCov">          0 :     return MS_SUCCESS;</span>
+<span class="lineNum">    1967 </span><span class="lineNoCov">          0 :   } else return msLoadExpressionString(&amp;self-&gt;group, string);</span>
+<a name="1968"><span class="lineNum">    1968 </span>            : }</a>
+<span class="lineNum">    1969 </span>            : 
+<span class="lineNum">    1970 </span><span class="lineNoCov">          0 : char *clusterObj_getGroupString(clusterObj *self)</span>
+<span class="lineNum">    1971 </span>            : {
+<span class="lineNum">    1972 </span><span class="lineNoCov">          0 :   return msGetExpressionString(&amp;(self-&gt;group));</span>
+<a name="1973"><span class="lineNum">    1973 </span>            : }</a>
+<span class="lineNum">    1974 </span>            : 
+<span class="lineNum">    1975 </span><span class="lineNoCov">          0 : int clusterObj_setFilter(clusterObj *self, char *string)</span>
+<span class="lineNum">    1976 </span>            : {
+<span class="lineNum">    1977 </span><span class="lineNoCov">          0 :   if (!string || strlen(string) == 0) {</span>
+<span class="lineNum">    1978 </span><span class="lineNoCov">          0 :     msFreeExpression(&amp;self-&gt;filter);</span>
+<span class="lineNum">    1979 </span><span class="lineNoCov">          0 :     return MS_SUCCESS;</span>
+<span class="lineNum">    1980 </span><span class="lineNoCov">          0 :   } else return msLoadExpressionString(&amp;self-&gt;filter, string);</span>
+<a name="1981"><span class="lineNum">    1981 </span>            : }</a>
+<span class="lineNum">    1982 </span>            : 
+<span class="lineNum">    1983 </span><span class="lineNoCov">          0 : char *clusterObj_getFilterString(clusterObj *self)</span>
+<span class="lineNum">    1984 </span>            : {
+<span class="lineNum">    1985 </span><span class="lineNoCov">          0 :   return msGetExpressionString(&amp;(self-&gt;filter));</span>
+<a name="1986"><span class="lineNum">    1986 </span>            : }</a>
+<span class="lineNum">    1987 </span>            : 
+<span class="lineNum">    1988 </span><span class="lineNoCov">          0 : outputFormatObj* outputFormatObj_new(const char *driver, char *name)</span>
+<span class="lineNum">    1989 </span>            : {
+<span class="lineNum">    1990 </span>            :   outputFormatObj *format;
+<span class="lineNum">    1991 </span>            : 
+<span class="lineNum">    1992 </span><span class="lineNoCov">          0 :   format = msCreateDefaultOutputFormat(NULL, driver, name);</span>
+<span class="lineNum">    1993 </span>            : 
+<span class="lineNum">    1994 </span>            :   /* in the case of unsupported formats, msCreateDefaultOutputFormat
+<span class="lineNum">    1995 </span>            :      should return NULL */
+<span class="lineNum">    1996 </span><span class="lineNoCov">          0 :   if (!format) {</span>
+<span class="lineNum">    1997 </span><span class="lineNoCov">          0 :     msSetError(MS_MISCERR, &quot;Unsupported format driver: %s&quot;,</span>
+<span class="lineNum">    1998 </span>            :                &quot;outputFormatObj()&quot;, driver);
+<span class="lineNum">    1999 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    2000 </span>            :   }
+<span class="lineNum">    2001 </span>            : 
+<span class="lineNum">    2002 </span><span class="lineNoCov">          0 :   msInitializeRendererVTable(format);</span>
+<span class="lineNum">    2003 </span>            : 
+<span class="lineNum">    2004 </span>            :   /* Else, continue */
+<span class="lineNum">    2005 </span><span class="lineNoCov">          0 :   format-&gt;refcount++;</span>
+<span class="lineNum">    2006 </span><span class="lineNoCov">          0 :   format-&gt;inmapfile = MS_TRUE;</span>
+<span class="lineNum">    2007 </span>            : 
+<span class="lineNum">    2008 </span><span class="lineNoCov">          0 :   return format;</span>
+<a name="2009"><span class="lineNum">    2009 </span>            : }</a>
+<span class="lineNum">    2010 </span>            : 
+<span class="lineNum">    2011 </span><span class="lineNoCov">          0 : void  outputFormatObj_destroy(outputFormatObj* self)</span>
+<span class="lineNum">    2012 </span>            : {
+<span class="lineNum">    2013 </span><span class="lineNoCov">          0 :   if ( --self-&gt;refcount &lt; 1 )</span>
+<span class="lineNum">    2014 </span><span class="lineNoCov">          0 :     msFreeOutputFormat( self );</span>
+<a name="2015"><span class="lineNum">    2015 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    2016 </span>            : 
+<span class="lineNum">    2017 </span><span class="lineNoCov">          0 : imageObj *symbolObj_getImage(symbolObj *self, outputFormatObj *input_format)</span>
+<span class="lineNum">    2018 </span>            : {
+<span class="lineNum">    2019 </span>            :   imageObj *image = NULL;
+<span class="lineNum">    2020 </span>            :   outputFormatObj *format = NULL;
+<span class="lineNum">    2021 </span>            :   rendererVTableObj *renderer = NULL;
+<span class="lineNum">    2022 </span>            :   int retval;
+<span class="lineNum">    2023 </span>            : 
+<span class="lineNum">    2024 </span><span class="lineNoCov">          0 :   if (self-&gt;type != MS_SYMBOL_PIXMAP) {</span>
+<span class="lineNum">    2025 </span><span class="lineNoCov">          0 :     msSetError(MS_SYMERR, &quot;Can't return image from non-pixmap symbol&quot;,</span>
+<span class="lineNum">    2026 </span>            :                &quot;getImage()&quot;);
+<span class="lineNum">    2027 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    2028 </span>            :   }
+<span class="lineNum">    2029 </span>            : 
+<span class="lineNum">    2030 </span><span class="lineNoCov">          0 :   if (input_format) {</span>
+<span class="lineNum">    2031 </span>            :     format = input_format;
+<span class="lineNum">    2032 </span>            :   } else {
+<span class="lineNum">    2033 </span><span class="lineNoCov">          0 :     format = msCreateDefaultOutputFormat(NULL, &quot;AGG/PNG&quot;, &quot;png&quot;);</span>
+<span class="lineNum">    2034 </span>            : 
+<span class="lineNum">    2035 </span><span class="lineNoCov">          0 :     if (format)</span>
+<span class="lineNum">    2036 </span><span class="lineNoCov">          0 :       msInitializeRendererVTable(format);</span>
+<span class="lineNum">    2037 </span>            :   }
+<span class="lineNum">    2038 </span>            : 
+<span class="lineNum">    2039 </span><span class="lineNoCov">          0 :   if (format == NULL) {</span>
+<span class="lineNum">    2040 </span><span class="lineNoCov">          0 :     msSetError(MS_IMGERR, &quot;Could not create output format&quot;,</span>
+<span class="lineNum">    2041 </span>            :                &quot;getImage()&quot;);
+<span class="lineNum">    2042 </span><span class="lineNoCov">          0 :     return NULL;</span>
+<span class="lineNum">    2043 </span>            :   }
+<span class="lineNum">    2044 </span>            : 
+<span class="lineNum">    2045 </span><span class="lineNoCov">          0 :   renderer = format-&gt;vtable;</span>
+<span class="lineNum">    2046 </span><span class="lineNoCov">          0 :   msPreloadImageSymbol(renderer, self);</span>
+<span class="lineNum">    2047 </span><span class="lineNoCov">          0 :   if (self-&gt;pixmap_buffer) {</span>
+<span class="lineNum">    2048 </span><span class="lineNoCov">          0 :     image = msImageCreate(self-&gt;pixmap_buffer-&gt;width, self-&gt;pixmap_buffer-&gt;height, format, NULL, NULL,</span>
+<span class="lineNum">    2049 </span>            :                           MS_DEFAULT_RESOLUTION, MS_DEFAULT_RESOLUTION, NULL);
+<span class="lineNum">    2050 </span><span class="lineNoCov">          0 :     if(!image) {</span>
+<span class="lineNum">    2051 </span>            :       return NULL;
+<span class="lineNum">    2052 </span>            :     }
+<span class="lineNum">    2053 </span><span class="lineNoCov">          0 :     retval = renderer-&gt;mergeRasterBuffer(image, self-&gt;pixmap_buffer, 1.0, 0, 0, 0, 0,</span>
+<span class="lineNum">    2054 </span><span class="lineNoCov">          0 :                                 self-&gt;pixmap_buffer-&gt;width, self-&gt;pixmap_buffer-&gt;height);</span>
+<span class="lineNum">    2055 </span><span class="lineNoCov">          0 :     if(retval != MS_SUCCESS) {</span>
+<span class="lineNum">    2056 </span><span class="lineNoCov">          0 :       msFreeImage(image);</span>
+<span class="lineNum">    2057 </span><span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">    2058 </span>            :     }
+<span class="lineNum">    2059 </span>            :   }
+<span class="lineNum">    2060 </span>            : 
+<span class="lineNum">    2061 </span>            :   return image;
+<a name="2062"><span class="lineNum">    2062 </span>            : }</a>
+<span class="lineNum">    2063 </span>            : 
+<span class="lineNum">    2064 </span><span class="lineNoCov">          0 : int symbolObj_setImage(symbolObj *self, imageObj *image)</span>
+<span class="lineNum">    2065 </span>            : {
+<span class="lineNum">    2066 </span>            :   rendererVTableObj *renderer = NULL;
+<span class="lineNum">    2067 </span>            : 
+<span class="lineNum">    2068 </span><span class="lineNoCov">          0 :   renderer = image-&gt;format-&gt;vtable;</span>
+<span class="lineNum">    2069 </span>            : 
+<span class="lineNum">    2070 </span><span class="lineNoCov">          0 :   if (self-&gt;pixmap_buffer) {</span>
+<span class="lineNum">    2071 </span><span class="lineNoCov">          0 :     msFreeRasterBuffer(self-&gt;pixmap_buffer);</span>
+<span class="lineNum">    2072 </span><span class="lineNoCov">          0 :     free(self-&gt;pixmap_buffer);</span>
+<span class="lineNum">    2073 </span>            :   }
+<span class="lineNum">    2074 </span>            : 
+<span class="lineNum">    2075 </span><span class="lineNoCov">          0 :   self-&gt;pixmap_buffer = (rasterBufferObj*)malloc(sizeof(rasterBufferObj));</span>
+<span class="lineNum">    2076 </span><span class="lineNoCov">          0 :   if (!self-&gt;pixmap_buffer) {</span>
+<span class="lineNum">    2077 </span><span class="lineNoCov">          0 :     msSetError(MS_MEMERR, NULL, &quot;setImage()&quot;);</span>
+<span class="lineNum">    2078 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    2079 </span>            :   }
+<span class="lineNum">    2080 </span><span class="lineNoCov">          0 :   self-&gt;type = MS_SYMBOL_PIXMAP;</span>
+<span class="lineNum">    2081 </span><span class="lineNoCov">          0 :   if(renderer-&gt;getRasterBufferCopy(image, self-&gt;pixmap_buffer) != MS_SUCCESS)</span>
+<span class="lineNum">    2082 </span>            :     return MS_FAILURE;
+<span class="lineNum">    2083 </span>            : 
+<span class="lineNum">    2084 </span><span class="lineNoCov">          0 :   return MS_SUCCESS;</span>
+<span class="lineNum">    2085 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

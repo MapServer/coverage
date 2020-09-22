@@ -1,0 +1,378 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - mapserver.info - MapServer/renderers/agg/include/clipper.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">MapServer/renderers/agg/include</a> - clipper.hpp<span style="font-size: 80%;"> (source / <a href="clipper.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">mapserver.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">20.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-09-22 21:51:23</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*******************************************************************************</a>
+<span class="lineNum">       2 </span>            : *                                                                              *
+<span class="lineNum">       3 </span>            : * Author    :  Angus Johnson                                                   *
+<span class="lineNum">       4 </span>            : * Version   :  4.6.3                                                           *
+<span class="lineNum">       5 </span>            : * Date      :  11 November 2011                                                *
+<span class="lineNum">       6 </span>            : * Website   :  http://www.angusj.com                                           *
+<span class="lineNum">       7 </span>            : * Copyright :  Angus Johnson 2010-2011                                         *
+<span class="lineNum">       8 </span>            : *                                                                              *
+<span class="lineNum">       9 </span>            : * License:                                                                     *
+<span class="lineNum">      10 </span>            : * Use, modification &amp; distribution is subject to Boost Software License Ver 1. *
+<span class="lineNum">      11 </span>            : * http://www.boost.org/LICENSE_1_0.txt                                         *
+<span class="lineNum">      12 </span>            : *                                                                              *
+<span class="lineNum">      13 </span>            : * Attributions:                                                                *
+<span class="lineNum">      14 </span>            : * The code in this library is an extension of Bala Vatti's clipping algorithm: *
+<span class="lineNum">      15 </span>            : * &quot;A generic solution to polygon clipping&quot;                                     *
+<span class="lineNum">      16 </span>            : * Communications of the ACM, Vol 35, Issue 7 (July 1992) pp 56-63.             *
+<span class="lineNum">      17 </span>            : * http://portal.acm.org/citation.cfm?id=129906                                 *
+<span class="lineNum">      18 </span>            : *                                                                              *
+<span class="lineNum">      19 </span>            : * Computer graphics and geometric modeling: implementation and algorithms      *
+<span class="lineNum">      20 </span>            : * By Max K. Agoston                                                            *
+<span class="lineNum">      21 </span>            : * Springer; 1 edition (January 4, 2005)                                        *
+<span class="lineNum">      22 </span>            : * http://books.google.com/books?q=vatti+clipping+agoston                       *
+<span class="lineNum">      23 </span>            : *                                                                              *
+<span class="lineNum">      24 </span>            : * See also:                                                                    *
+<span class="lineNum">      25 </span>            : * &quot;Polygon Offsetting by Computing Winding Numbers&quot;                            *
+<span class="lineNum">      26 </span>            : * Paper no. DETC2005-85513 pp. 565-575                                         *
+<span class="lineNum">      27 </span>            : * ASME 2005 International Design Engineering Technical Conferences             *
+<span class="lineNum">      28 </span>            : * and Computers and Information in Engineering Conference (IDETC/CIE2005)      *
+<span class="lineNum">      29 </span>            : * September 24-28, 2005 , Long Beach, California, USA                          *
+<span class="lineNum">      30 </span>            : * http://www.me.berkeley.edu/~mcmains/pubs/DAC05OffsetPolygon.pdf              *
+<span class="lineNum">      31 </span>            : *                                                                              *
+<span class="lineNum">      32 </span>            : *******************************************************************************/
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : #ifndef clipper_hpp
+<span class="lineNum">      35 </span>            : #define clipper_hpp
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      38 </span>            : #include &lt;stdexcept&gt;
+<span class="lineNum">      39 </span>            : #include &lt;cstring&gt;
+<span class="lineNum">      40 </span>            : #include &lt;cstdlib&gt;
+<span class="lineNum">      41 </span>            : #include &lt;ostream&gt;
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : namespace ClipperLib {
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : enum ClipType { ctIntersection, ctUnion, ctDifference, ctXor };
+<span class="lineNum">      46 </span>            : enum PolyType { ptSubject, ptClip };
+<span class="lineNum">      47 </span>            : //By far the most widely used winding rules for polygon filling are
+<span class="lineNum">      48 </span>            : //EvenOdd &amp; NonZero (GDI, GDI+, XLib, OpenGL, Cairo, AGG, Quartz, SVG, Gr32)
+<span class="lineNum">      49 </span>            : //Others rules include Positive, Negative and ABS_GTR_EQ_TWO (only in OpenGL)
+<span class="lineNum">      50 </span>            : //see http://glprogramming.com/red/chapter11.html
+<span class="lineNum">      51 </span>            : enum PolyFillType { pftEvenOdd, pftNonZero, pftPositive, pftNegative };
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : typedef signed long long long64;
+<span class="lineNum">      54 </span>            : typedef unsigned long long ulong64;
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : struct IntPoint {
+<span class="lineNum">      57 </span>            : public:
+<span class="lineNum">      58 </span>            :   long64 X;
+<span class="lineNum">      59 </span>            :   long64 Y;
+<span class="lineNum">      60 </span><span class="lineCov">          1 :   IntPoint(long64 x = 0, long64 y = 0): X(x), Y(y) {};</span>
+<span class="lineNum">      61 </span>            :   friend std::ostream&amp; operator &lt;&lt;(std::ostream &amp;s, IntPoint &amp;p);
+<span class="lineNum">      62 </span>            : };
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            : typedef std::vector&lt; IntPoint &gt; Polygon;
+<span class="lineNum">      65 </span>            : typedef std::vector&lt; Polygon &gt; Polygons;
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : std::ostream&amp; operator &lt;&lt;(std::ostream &amp;s, Polygon &amp;p);
+<a name="68"><span class="lineNum">      68 </span>            : std::ostream&amp; operator &lt;&lt;(std::ostream &amp;s, Polygons &amp;p);</a>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 : struct ExPolygon {</span>
+<span class="lineNum">      71 </span>            :   Polygon  outer;
+<span class="lineNum">      72 </span>            :   Polygons holes;
+<span class="lineNum">      73 </span>            : };
+<span class="lineNum">      74 </span>            : typedef std::vector&lt; ExPolygon &gt; ExPolygons;
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            : enum JoinType { jtSquare, jtMiter, jtRound };
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            : bool Orientation(const Polygon &amp;poly);
+<span class="lineNum">      79 </span>            : double Area(const Polygon &amp;poly);
+<span class="lineNum">      80 </span>            : void OffsetPolygons(const Polygons &amp;in_polys, Polygons &amp;out_polys,
+<span class="lineNum">      81 </span>            :   double delta, JoinType jointype = jtSquare, double MiterLimit = 2);
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            : void ReversePoints(Polygon&amp; p);
+<span class="lineNum">      84 </span>            : void ReversePoints(Polygons&amp; p);
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            : //used internally ...
+<span class="lineNum">      87 </span>            : enum EdgeSide { esLeft, esRight };
+<span class="lineNum">      88 </span>            : enum IntersectProtects { ipNone = 0, ipLeft = 1, ipRight = 2, ipBoth = 3 };
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            : struct TEdge {
+<span class="lineNum">      91 </span>            :   long64 xbot;
+<span class="lineNum">      92 </span>            :   long64 ybot;
+<span class="lineNum">      93 </span>            :   long64 xcurr;
+<span class="lineNum">      94 </span>            :   long64 ycurr;
+<span class="lineNum">      95 </span>            :   long64 xtop;
+<span class="lineNum">      96 </span>            :   long64 ytop;
+<span class="lineNum">      97 </span>            :   double dx;
+<span class="lineNum">      98 </span>            :   long64 tmpX;
+<span class="lineNum">      99 </span>            :   PolyType polyType;
+<span class="lineNum">     100 </span>            :   EdgeSide side;
+<span class="lineNum">     101 </span>            :   int windDelta; //1 or -1 depending on winding direction
+<span class="lineNum">     102 </span>            :   int windCnt;
+<span class="lineNum">     103 </span>            :   int windCnt2; //winding count of the opposite polytype
+<span class="lineNum">     104 </span>            :   int outIdx;
+<span class="lineNum">     105 </span>            :   TEdge *next;
+<span class="lineNum">     106 </span>            :   TEdge *prev;
+<span class="lineNum">     107 </span>            :   TEdge *nextInLML;
+<span class="lineNum">     108 </span>            :   TEdge *nextInAEL;
+<span class="lineNum">     109 </span>            :   TEdge *prevInAEL;
+<span class="lineNum">     110 </span>            :   TEdge *nextInSEL;
+<span class="lineNum">     111 </span>            :   TEdge *prevInSEL;
+<span class="lineNum">     112 </span>            : };
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            : struct IntersectNode {
+<span class="lineNum">     115 </span>            :   TEdge          *edge1;
+<span class="lineNum">     116 </span>            :   TEdge          *edge2;
+<span class="lineNum">     117 </span>            :   IntPoint        pt;
+<span class="lineNum">     118 </span>            :   IntersectNode  *next;
+<span class="lineNum">     119 </span>            : };
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            : struct LocalMinima {
+<span class="lineNum">     122 </span>            :   long64        Y;
+<span class="lineNum">     123 </span>            :   TEdge        *leftBound;
+<span class="lineNum">     124 </span>            :   TEdge        *rightBound;
+<span class="lineNum">     125 </span>            :   LocalMinima  *next;
+<span class="lineNum">     126 </span>            : };
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            : struct Scanbeam {
+<span class="lineNum">     129 </span>            :   long64    Y;
+<span class="lineNum">     130 </span>            :   Scanbeam *next;
+<span class="lineNum">     131 </span>            : };
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            : struct OutPt; //forward declaration
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            : struct OutRec {
+<span class="lineNum">     136 </span>            :   int     idx;
+<span class="lineNum">     137 </span>            :   bool    isHole;
+<span class="lineNum">     138 </span>            :   OutRec *FirstLeft;
+<span class="lineNum">     139 </span>            :   OutRec *AppendLink;
+<span class="lineNum">     140 </span>            :   OutPt  *pts;
+<span class="lineNum">     141 </span>            :   OutPt  *bottomPt;
+<span class="lineNum">     142 </span>            :   TEdge  *bottomE1;
+<span class="lineNum">     143 </span>            :   TEdge  *bottomE2;
+<span class="lineNum">     144 </span>            : };
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            : struct OutPt {
+<span class="lineNum">     147 </span>            :   int     idx;
+<span class="lineNum">     148 </span>            :   IntPoint pt;
+<span class="lineNum">     149 </span>            :   OutPt   *next;
+<span class="lineNum">     150 </span>            :   OutPt   *prev;
+<span class="lineNum">     151 </span>            : };
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            : struct JoinRec {
+<span class="lineNum">     154 </span>            :   IntPoint  pt1a;
+<span class="lineNum">     155 </span>            :   IntPoint  pt1b;
+<span class="lineNum">     156 </span>            :   int       poly1Idx;
+<span class="lineNum">     157 </span>            :   IntPoint  pt2a;
+<span class="lineNum">     158 </span>            :   IntPoint  pt2b;
+<span class="lineNum">     159 </span>            :   int       poly2Idx;
+<span class="lineNum">     160 </span>            : };
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            : struct HorzJoinRec {
+<span class="lineNum">     163 </span>            :   TEdge    *edge;
+<span class="lineNum">     164 </span>            :   int       savedIdx;
+<span class="lineNum">     165 </span>            : };
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            : struct IntRect { long64 left; long64 top; long64 right; long64 bottom; };
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            : typedef std::vector &lt; OutRec* &gt; PolyOutList;
+<span class="lineNum">     170 </span>            : typedef std::vector &lt; TEdge* &gt; EdgeList;
+<span class="lineNum">     171 </span>            : typedef std::vector &lt; JoinRec* &gt; JoinList;
+<span class="lineNum">     172 </span>            : typedef std::vector &lt; HorzJoinRec* &gt; HorzJoinList;
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span>            : //ClipperBase is the ancestor to the Clipper class. It should not be
+<span class="lineNum">     175 </span>            : //instantiated directly. This class simply abstracts the conversion of sets of
+<span class="lineNum">     176 </span>            : //polygon coordinates into edge objects that are stored in a LocalMinima list.
+<span class="lineNum">     177 </span>            : class ClipperBase
+<span class="lineNum">     178 </span>            : {
+<span class="lineNum">     179 </span>            : public:
+<span class="lineNum">     180 </span>            :   ClipperBase();
+<span class="lineNum">     181 </span>            :   virtual ~ClipperBase();
+<span class="lineNum">     182 </span>            :   bool AddPolygon(const Polygon &amp;pg, PolyType polyType);
+<span class="lineNum">     183 </span>            :   bool AddPolygons( const Polygons &amp;ppg, PolyType polyType);
+<span class="lineNum">     184 </span>            :   virtual void Clear();
+<span class="lineNum">     185 </span>            :   IntRect GetBounds();
+<span class="lineNum">     186 </span>            : protected:
+<span class="lineNum">     187 </span>            :   void DisposeLocalMinimaList();
+<span class="lineNum">     188 </span>            :   TEdge* AddBoundsToLML(TEdge *e);
+<span class="lineNum">     189 </span>            :   void PopLocalMinima();
+<span class="lineNum">     190 </span>            :   virtual void Reset();
+<span class="lineNum">     191 </span>            :   void InsertLocalMinima(LocalMinima *newLm);
+<span class="lineNum">     192 </span>            :   LocalMinima      *m_CurrentLM;
+<span class="lineNum">     193 </span>            :   LocalMinima      *m_MinimaList;
+<span class="lineNum">     194 </span>            :   bool              m_UseFullRange;
+<span class="lineNum">     195 </span>            :   EdgeList          m_edges;
+<span class="lineNum">     196 </span>            : };
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            : class Clipper : public virtual ClipperBase
+<span class="lineNum">     199 </span>            : {
+<span class="lineNum">     200 </span>            : public:
+<span class="lineNum">     201 </span>            :   Clipper();
+<span class="lineNum">     202 </span>            :   ~Clipper();
+<span class="lineNum">     203 </span>            :   bool Execute(ClipType clipType,
+<span class="lineNum">     204 </span>            :   Polygons &amp;solution,
+<span class="lineNum">     205 </span>            :   PolyFillType subjFillType = pftEvenOdd,
+<span class="lineNum">     206 </span>            :   PolyFillType clipFillType = pftEvenOdd);
+<span class="lineNum">     207 </span>            :   bool Execute(ClipType clipType,
+<span class="lineNum">     208 </span>            :   ExPolygons &amp;solution,
+<span class="lineNum">     209 </span>            :   PolyFillType subjFillType = pftEvenOdd,
+<span class="lineNum">     210 </span>            :   PolyFillType clipFillType = pftEvenOdd);
+<span class="lineNum">     211 </span>            :   void Clear();
+<span class="lineNum">     212 </span>            :   bool ReverseSolution() {return m_ReverseOutput;};
+<span class="lineNum">     213 </span>            :   void ReverseSolution(bool value) {m_ReverseOutput = value;};
+<span class="lineNum">     214 </span>            : protected:
+<span class="lineNum">     215 </span>            :   void Reset();
+<span class="lineNum">     216 </span>            :   virtual bool ExecuteInternal(bool fixHoleLinkages);
+<span class="lineNum">     217 </span>            : private:
+<span class="lineNum">     218 </span>            :   PolyOutList       m_PolyOuts;
+<span class="lineNum">     219 </span>            :   JoinList          m_Joins;
+<span class="lineNum">     220 </span>            :   HorzJoinList      m_HorizJoins;
+<span class="lineNum">     221 </span>            :   ClipType          m_ClipType;
+<span class="lineNum">     222 </span>            :   Scanbeam         *m_Scanbeam;
+<span class="lineNum">     223 </span>            :   TEdge           *m_ActiveEdges;
+<span class="lineNum">     224 </span>            :   TEdge           *m_SortedEdges;
+<span class="lineNum">     225 </span>            :   IntersectNode    *m_IntersectNodes;
+<span class="lineNum">     226 </span>            :   bool              m_ExecuteLocked;
+<span class="lineNum">     227 </span>            :   PolyFillType      m_ClipFillType;
+<span class="lineNum">     228 </span>            :   PolyFillType      m_SubjFillType;
+<span class="lineNum">     229 </span>            :   bool              m_ReverseOutput;
+<span class="lineNum">     230 </span>            :   void DisposeScanbeamList();
+<span class="lineNum">     231 </span>            :   void SetWindingCount(TEdge&amp; edge);
+<span class="lineNum">     232 </span>            :   bool IsEvenOddFillType(const TEdge&amp; edge) const;
+<span class="lineNum">     233 </span>            :   bool IsEvenOddAltFillType(const TEdge&amp; edge) const;
+<span class="lineNum">     234 </span>            :   void InsertScanbeam(const long64 Y);
+<span class="lineNum">     235 </span>            :   long64 PopScanbeam();
+<span class="lineNum">     236 </span>            :   void InsertLocalMinimaIntoAEL(const long64 botY);
+<span class="lineNum">     237 </span>            :   void InsertEdgeIntoAEL(TEdge *edge);
+<span class="lineNum">     238 </span>            :   void AddEdgeToSEL(TEdge *edge);
+<span class="lineNum">     239 </span>            :   void CopyAELToSEL();
+<span class="lineNum">     240 </span>            :   void DeleteFromSEL(TEdge *e);
+<span class="lineNum">     241 </span>            :   void DeleteFromAEL(TEdge *e);
+<span class="lineNum">     242 </span>            :   void UpdateEdgeIntoAEL(TEdge *&amp;e);
+<span class="lineNum">     243 </span>            :   void SwapPositionsInSEL(TEdge *edge1, TEdge *edge2);
+<span class="lineNum">     244 </span>            :   bool IsContributing(const TEdge&amp; edge) const;
+<span class="lineNum">     245 </span>            :   bool IsTopHorz(const long64 XPos);
+<span class="lineNum">     246 </span>            :   void SwapPositionsInAEL(TEdge *edge1, TEdge *edge2);
+<span class="lineNum">     247 </span>            :   void DoMaxima(TEdge *e, long64 topY);
+<span class="lineNum">     248 </span>            :   void ProcessHorizontals();
+<span class="lineNum">     249 </span>            :   void ProcessHorizontal(TEdge *horzEdge);
+<span class="lineNum">     250 </span>            :   void AddLocalMaxPoly(TEdge *e1, TEdge *e2, const IntPoint &amp;pt);
+<span class="lineNum">     251 </span>            :   void AddLocalMinPoly(TEdge *e1, TEdge *e2, const IntPoint &amp;pt);
+<span class="lineNum">     252 </span>            :   void AppendPolygon(TEdge *e1, TEdge *e2);
+<span class="lineNum">     253 </span>            :   void DoEdge1(TEdge *edge1, TEdge *edge2, const IntPoint &amp;pt);
+<span class="lineNum">     254 </span>            :   void DoEdge2(TEdge *edge1, TEdge *edge2, const IntPoint &amp;pt);
+<span class="lineNum">     255 </span>            :   void DoBothEdges(TEdge *edge1, TEdge *edge2, const IntPoint &amp;pt);
+<span class="lineNum">     256 </span>            :   void IntersectEdges(TEdge *e1, TEdge *e2,
+<span class="lineNum">     257 </span>            :     const IntPoint &amp;pt, IntersectProtects protects);
+<span class="lineNum">     258 </span>            :   OutRec* CreateOutRec();
+<span class="lineNum">     259 </span>            :   void AddOutPt(TEdge *e, TEdge *altE, const IntPoint &amp;pt);
+<span class="lineNum">     260 </span>            :   void DisposeAllPolyPts();
+<span class="lineNum">     261 </span>            :   void DisposeOutRec(PolyOutList::size_type index, bool ignorePts = false);
+<span class="lineNum">     262 </span>            :   bool ProcessIntersections(const long64 botY, const long64 topY);
+<span class="lineNum">     263 </span>            :   void AddIntersectNode(TEdge *e1, TEdge *e2, const IntPoint &amp;pt);
+<span class="lineNum">     264 </span>            :   void BuildIntersectList(const long64 botY, const long64 topY);
+<span class="lineNum">     265 </span>            :   void ProcessIntersectList();
+<span class="lineNum">     266 </span>            :   void ProcessEdgesAtTopOfScanbeam(const long64 topY);
+<span class="lineNum">     267 </span>            :   void BuildResult(Polygons&amp; polys);
+<span class="lineNum">     268 </span>            :   void BuildResultEx(ExPolygons&amp; polys);
+<span class="lineNum">     269 </span>            :   void SetHoleState(TEdge *e, OutRec *OutRec);
+<span class="lineNum">     270 </span>            :   void DisposeIntersectNodes();
+<span class="lineNum">     271 </span>            :   bool FixupIntersections();
+<span class="lineNum">     272 </span>            :   void FixupOutPolygon(OutRec &amp;outRec);
+<span class="lineNum">     273 </span>            :   bool IsHole(TEdge *e);
+<span class="lineNum">     274 </span>            :   void FixHoleLinkage(OutRec *outRec);
+<span class="lineNum">     275 </span>            :   void CheckHoleLinkages1(OutRec *outRec1, OutRec *outRec2);
+<span class="lineNum">     276 </span>            :   void CheckHoleLinkages2(OutRec *outRec1, OutRec *outRec2);
+<span class="lineNum">     277 </span>            :   void AddJoin(TEdge *e1, TEdge *e2, int e1OutIdx = -1, int e2OutIdx = -1);
+<span class="lineNum">     278 </span>            :   void ClearJoins();
+<span class="lineNum">     279 </span>            :   void AddHorzJoin(TEdge *e, int idx);
+<span class="lineNum">     280 </span>            :   void ClearHorzJoins();
+<span class="lineNum">     281 </span>            :   void JoinCommonEdges(bool fixHoleLinkages);
+<span class="lineNum">     282 </span>            : };
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span>            : //------------------------------------------------------------------------------
+<span class="lineNum">     285 </span>            : //------------------------------------------------------------------------------
+<span class="lineNum">     286 </span>            : 
+<span class="lineNum">     287 </span>            : class clipperException : public std::exception
+<a name="288"><span class="lineNum">     288 </span>            : {</a>
+<a name="289"><span class="lineNum">     289 </span>            :   public:</a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineNoCov">          0 :     clipperException(const char* description): m_descr(description) {}</span></a>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :     virtual ~clipperException() throw() {}</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :     virtual const char* what() const throw() {return m_descr.c_str();}</span>
+<span class="lineNum">     293 </span>            :   private:
+<span class="lineNum">     294 </span>            :     std::string m_descr;
+<span class="lineNum">     295 </span>            : };
+<span class="lineNum">     296 </span>            : //------------------------------------------------------------------------------
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span>            : } //ClipperLib namespace
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span>            : #endif //clipper_hpp
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
