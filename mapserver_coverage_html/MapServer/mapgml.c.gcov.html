@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2020-10-04 13:33:23</td>
+            <td class="headerValue">2020-10-04 13:54:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">30</td>
@@ -1312,139 +1312,139 @@
 <span class="lineNum">    1250 </span>            :   return;
 <a name="1251"><span class="lineNum">    1251 </span>            : }</a>
 <span class="lineNum">    1252 </span>            : 
-<span class="lineNum">    1253 </span><span class="lineCov">          1 : gmlGroupListObj *msGMLGetGroups(layerObj *layer, const char *metadata_namespaces)</span>
-<span class="lineNum">    1254 </span>            : {
-<span class="lineNum">    1255 </span>            :   int i;
-<span class="lineNum">    1256 </span>            :   const char *value=NULL;
-<span class="lineNum">    1257 </span>            :   char tag[64];
-<span class="lineNum">    1258 </span>            : 
-<span class="lineNum">    1259 </span>            :   char **names=NULL;
-<span class="lineNum">    1260 </span><span class="lineCov">          1 :   int numnames=0;</span>
-<span class="lineNum">    1261 </span>            : 
-<span class="lineNum">    1262 </span>            :   gmlGroupListObj *groupList=NULL;
-<span class="lineNum">    1263 </span>            :   gmlGroupObj *group=NULL;
+<span class="lineNum">    1253 </span><span class="lineCov">          1 : static void msGMLWriteGroup(FILE *stream,</span>
+<span class="lineNum">    1254 </span>            :                             gmlGroupObj *group, shapeObj *shape,
+<span class="lineNum">    1255 </span>            :                             gmlItemListObj *itemList,
+<span class="lineNum">    1256 </span>            :                             gmlConstantListObj *constantList,
+<span class="lineNum">    1257 </span>            :                             const char *namespace, const char *tab,
+<span class="lineNum">    1258 </span>            :                             OWSGMLVersion outputformat,
+<span class="lineNum">    1259 </span>            :                             const char *pszFID)
+<span class="lineNum">    1260 </span>            : {
+<span class="lineNum">    1261 </span>            :   int i,j;
+<span class="lineNum">    1262 </span>            :   int add_namespace = MS_TRUE;
+<span class="lineNum">    1263 </span>            :   char *itemtab;
 <span class="lineNum">    1264 </span>            : 
-<span class="lineNum">    1265 </span>            :   /* allocate the collection */
-<span class="lineNum">    1266 </span><span class="lineCov">          1 :   groupList = (gmlGroupListObj *) malloc(sizeof(gmlGroupListObj));</span>
-<span class="lineNum">    1267 </span><span class="lineCov">          1 :   MS_CHECK_ALLOC(groupList, sizeof(gmlGroupListObj), NULL) ;</span>
-<span class="lineNum">    1268 </span><span class="lineCov">          1 :   groupList-&gt;groups = NULL;</span>
-<span class="lineNum">    1269 </span><span class="lineCov">          1 :   groupList-&gt;numgroups = 0;</span>
-<span class="lineNum">    1270 </span>            : 
-<span class="lineNum">    1271 </span>            :   /* list of groups (TODO: make this automatic by parsing metadata) */
-<span class="lineNum">    1272 </span><span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;groups&quot;)) != NULL &amp;&amp;</span>
-<span class="lineNum">    1273 </span><span class="lineCov">          1 :       value[0] != '\0' ) {</span>
-<span class="lineNum">    1274 </span><span class="lineCov">          1 :     names = msStringSplit(value, ',', &amp;numnames);</span>
-<span class="lineNum">    1275 </span>            : 
-<span class="lineNum">    1276 </span>            :     /* allocation an array of gmlGroupObj's */
-<span class="lineNum">    1277 </span><span class="lineCov">          1 :     groupList-&gt;numgroups = numnames;</span>
-<span class="lineNum">    1278 </span><span class="lineCov">          1 :     groupList-&gt;groups = (gmlGroupObj *) malloc(sizeof(gmlGroupObj)*groupList-&gt;numgroups);</span>
-<span class="lineNum">    1279 </span><span class="lineCov">          1 :     if (groupList-&gt;groups == NULL) {</span>
-<span class="lineNum">    1280 </span><span class="lineNoCov">          0 :       msSetError(MS_MEMERR, &quot;Out of memory allocating %u bytes.\n&quot;, &quot;msGMLGetGroups()&quot;,</span>
-<span class="lineNum">    1281 </span>            :                  (unsigned int)(sizeof(gmlGroupObj)*groupList-&gt;numgroups));
-<span class="lineNum">    1282 </span><span class="lineNoCov">          0 :       free(groupList);</span>
-<span class="lineNum">    1283 </span><span class="lineNoCov">          0 :       return NULL;</span>
-<span class="lineNum">    1284 </span>            :     }
-<span class="lineNum">    1285 </span>            : 
-<span class="lineNum">    1286 </span><span class="lineCov">          1 :     for(i=0; i&lt;groupList-&gt;numgroups; i++) {</span>
-<span class="lineNum">    1287 </span><span class="lineCov">          1 :       group = &amp;(groupList-&gt;groups[i]);</span>
-<span class="lineNum">    1288 </span>            : 
-<span class="lineNum">    1289 </span><span class="lineCov">          1 :       group-&gt;name = msStrdup(names[i]); /* initialize a few things */</span>
-<span class="lineNum">    1290 </span><span class="lineCov">          1 :       group-&gt;items = NULL;</span>
-<span class="lineNum">    1291 </span><span class="lineCov">          1 :       group-&gt;numitems = 0;</span>
-<span class="lineNum">    1292 </span><span class="lineCov">          1 :       group-&gt;type = NULL;</span>
-<span class="lineNum">    1293 </span>            : 
-<span class="lineNum">    1294 </span>            :       snprintf(tag, 64, &quot;%s_group&quot;, group-&gt;name);
-<span class="lineNum">    1295 </span><span class="lineCov">          1 :       if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, tag)) != NULL)</span>
-<span class="lineNum">    1296 </span><span class="lineCov">          1 :         group-&gt;items = msStringSplit(value, ',', &amp;group-&gt;numitems);</span>
-<span class="lineNum">    1297 </span>            : 
-<span class="lineNum">    1298 </span><span class="lineCov">          1 :       snprintf(tag, 64, &quot;%s_type&quot;, group-&gt;name);</span>
-<span class="lineNum">    1299 </span><span class="lineCov">          1 :       if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, tag)) != NULL)</span>
-<span class="lineNum">    1300 </span><span class="lineNoCov">          0 :         group-&gt;type = msStrdup(value);</span>
-<span class="lineNum">    1301 </span>            :     }
+<span class="lineNum">    1265 </span>            :   gmlItemObj *item=NULL;
+<span class="lineNum">    1266 </span>            :   gmlConstantObj *constant=NULL;
+<span class="lineNum">    1267 </span>            : 
+<span class="lineNum">    1268 </span><span class="lineCov">          1 :   if(!stream || !group) return;</span>
+<span class="lineNum">    1269 </span>            : 
+<span class="lineNum">    1270 </span>            :   /* setup the item/constant tab */
+<span class="lineNum">    1271 </span><span class="lineCov">          1 :   itemtab = (char *) msSmallMalloc(sizeof(char)*strlen(tab)+3);</span>
+<span class="lineNum">    1272 </span>            : 
+<span class="lineNum">    1273 </span>            :   sprintf(itemtab, &quot;%s  &quot;, tab);
+<span class="lineNum">    1274 </span>            : 
+<span class="lineNum">    1275 </span><span class="lineCov">          1 :   if(!namespace || strchr(group-&gt;name, ':') != NULL) add_namespace = MS_FALSE;</span>
+<span class="lineNum">    1276 </span>            : 
+<span class="lineNum">    1277 </span>            :   /* start the group */
+<span class="lineNum">    1278 </span>            :   if(add_namespace == MS_TRUE)
+<span class="lineNum">    1279 </span><span class="lineCov">          1 :     msIO_fprintf(stream, &quot;%s&lt;%s:%s&gt;\n&quot;, tab, namespace, group-&gt;name);</span>
+<span class="lineNum">    1280 </span>            :   else
+<span class="lineNum">    1281 </span><span class="lineNoCov">          0 :     msIO_fprintf(stream, &quot;%s&lt;%s&gt;\n&quot;, tab, group-&gt;name);</span>
+<span class="lineNum">    1282 </span>            : 
+<span class="lineNum">    1283 </span>            :   /* now the items/constants in the group */
+<span class="lineNum">    1284 </span><span class="lineCov">          1 :   for(i=0; i&lt;group-&gt;numitems; i++) {</span>
+<span class="lineNum">    1285 </span><span class="lineNoCov">          0 :     for(j=0; j&lt;constantList-&gt;numconstants; j++) {</span>
+<span class="lineNum">    1286 </span><span class="lineNoCov">          0 :       constant = &amp;(constantList-&gt;constants[j]);</span>
+<span class="lineNum">    1287 </span><span class="lineNoCov">          0 :       if(strcasecmp(constant-&gt;name, group-&gt;items[i]) == 0) {</span>
+<span class="lineNum">    1288 </span><span class="lineNoCov">          0 :         msGMLWriteConstant(stream, constant, namespace, itemtab);</span>
+<span class="lineNum">    1289 </span>            :         break;
+<span class="lineNum">    1290 </span>            :       }
+<span class="lineNum">    1291 </span>            :     }
+<span class="lineNum">    1292 </span><span class="lineCov">          1 :     if(j != constantList-&gt;numconstants) continue; /* found this one */</span>
+<span class="lineNum">    1293 </span><span class="lineCov">          1 :     for(j=0; j&lt;itemList-&gt;numitems; j++) {</span>
+<span class="lineNum">    1294 </span><span class="lineCov">          1 :       item = &amp;(itemList-&gt;items[j]);</span>
+<span class="lineNum">    1295 </span><span class="lineCov">          1 :       if(strcasecmp(item-&gt;name, group-&gt;items[i]) == 0) {</span>
+<span class="lineNum">    1296 </span>            :         /* the number of items matches the number of values exactly */
+<span class="lineNum">    1297 </span><span class="lineCov">          1 :         msGMLWriteItem(stream, item, shape-&gt;values[j], namespace, itemtab, outputformat, pszFID);</span>
+<span class="lineNum">    1298 </span>            :         break;
+<span class="lineNum">    1299 </span>            :       }
+<span class="lineNum">    1300 </span>            :     }
+<span class="lineNum">    1301 </span>            :   }
 <span class="lineNum">    1302 </span>            : 
-<span class="lineNum">    1303 </span><span class="lineCov">          1 :     msFreeCharArray(names, numnames);</span>
-<span class="lineNum">    1304 </span>            :   }
-<span class="lineNum">    1305 </span>            : 
-<span class="lineNum">    1306 </span>            :   return groupList;
-<a name="1307"><span class="lineNum">    1307 </span>            : }</a>
+<span class="lineNum">    1303 </span>            :   /* end the group */
+<span class="lineNum">    1304 </span><span class="lineCov">          1 :   if(add_namespace == MS_TRUE)</span>
+<span class="lineNum">    1305 </span><span class="lineCov">          1 :     msIO_fprintf(stream, &quot;%s&lt;/%s:%s&gt;\n&quot;, tab, namespace, group-&gt;name);</span>
+<span class="lineNum">    1306 </span>            :   else
+<span class="lineNum">    1307 </span><span class="lineNoCov">          0 :     msIO_fprintf(stream, &quot;%s&lt;/%s&gt;\n&quot;, tab, group-&gt;name);</span>
 <span class="lineNum">    1308 </span>            : 
-<span class="lineNum">    1309 </span><span class="lineCov">          1 : void msGMLFreeGroups(gmlGroupListObj *groupList)</span>
-<span class="lineNum">    1310 </span>            : {
-<span class="lineNum">    1311 </span>            :   int i;
-<span class="lineNum">    1312 </span>            : 
-<span class="lineNum">    1313 </span><span class="lineCov">          1 :   if(!groupList) return;</span>
+<span class="lineNum">    1309 </span><span class="lineCov">          1 :   msFree(itemtab);</span>
+<span class="lineNum">    1310 </span>            : 
+<span class="lineNum">    1311 </span>            :   return;
+<span class="lineNum">    1312 </span>            : }
+<a name="1313"><span class="lineNum">    1313 </span>            : #endif</a>
 <span class="lineNum">    1314 </span>            : 
-<span class="lineNum">    1315 </span><span class="lineCov">          1 :   for(i=0; i&lt;groupList-&gt;numgroups; i++) {</span>
-<span class="lineNum">    1316 </span><span class="lineCov">          1 :     msFree(groupList-&gt;groups[i].name);</span>
-<span class="lineNum">    1317 </span><span class="lineCov">          1 :     msFreeCharArray(groupList-&gt;groups[i].items, groupList-&gt;groups[i].numitems);</span>
-<span class="lineNum">    1318 </span><span class="lineCov">          1 :     msFree(groupList-&gt;groups[i].type);</span>
-<span class="lineNum">    1319 </span>            :   }
-<span class="lineNum">    1320 </span><span class="lineCov">          1 :   msFree(groupList-&gt;groups);</span>
-<span class="lineNum">    1321 </span>            : 
-<span class="lineNum">    1322 </span><span class="lineCov">          1 :   free(groupList);</span>
-<a name="1323"><span class="lineNum">    1323 </span>            : }</a>
-<span class="lineNum">    1324 </span>            : 
-<span class="lineNum">    1325 </span><span class="lineCov">          1 : static void msGMLWriteGroup(FILE *stream,</span>
-<span class="lineNum">    1326 </span>            :                             gmlGroupObj *group, shapeObj *shape,
-<span class="lineNum">    1327 </span>            :                             gmlItemListObj *itemList,
-<span class="lineNum">    1328 </span>            :                             gmlConstantListObj *constantList,
-<span class="lineNum">    1329 </span>            :                             const char *namespace, const char *tab,
-<span class="lineNum">    1330 </span>            :                             OWSGMLVersion outputformat,
-<span class="lineNum">    1331 </span>            :                             const char *pszFID)
-<span class="lineNum">    1332 </span>            : {
-<span class="lineNum">    1333 </span>            :   int i,j;
-<span class="lineNum">    1334 </span>            :   int add_namespace = MS_TRUE;
-<span class="lineNum">    1335 </span>            :   char *itemtab;
-<span class="lineNum">    1336 </span>            : 
-<span class="lineNum">    1337 </span>            :   gmlItemObj *item=NULL;
-<span class="lineNum">    1338 </span>            :   gmlConstantObj *constant=NULL;
-<span class="lineNum">    1339 </span>            : 
-<span class="lineNum">    1340 </span><span class="lineCov">          1 :   if(!stream || !group) return;</span>
-<span class="lineNum">    1341 </span>            : 
-<span class="lineNum">    1342 </span>            :   /* setup the item/constant tab */
-<span class="lineNum">    1343 </span><span class="lineCov">          1 :   itemtab = (char *) msSmallMalloc(sizeof(char)*strlen(tab)+3);</span>
-<span class="lineNum">    1344 </span>            : 
-<span class="lineNum">    1345 </span>            :   sprintf(itemtab, &quot;%s  &quot;, tab);
-<span class="lineNum">    1346 </span>            : 
-<span class="lineNum">    1347 </span><span class="lineCov">          1 :   if(!namespace || strchr(group-&gt;name, ':') != NULL) add_namespace = MS_FALSE;</span>
-<span class="lineNum">    1348 </span>            : 
-<span class="lineNum">    1349 </span>            :   /* start the group */
-<span class="lineNum">    1350 </span>            :   if(add_namespace == MS_TRUE)
-<span class="lineNum">    1351 </span><span class="lineCov">          1 :     msIO_fprintf(stream, &quot;%s&lt;%s:%s&gt;\n&quot;, tab, namespace, group-&gt;name);</span>
-<span class="lineNum">    1352 </span>            :   else
-<span class="lineNum">    1353 </span><span class="lineNoCov">          0 :     msIO_fprintf(stream, &quot;%s&lt;%s&gt;\n&quot;, tab, group-&gt;name);</span>
-<span class="lineNum">    1354 </span>            : 
-<span class="lineNum">    1355 </span>            :   /* now the items/constants in the group */
-<span class="lineNum">    1356 </span><span class="lineCov">          1 :   for(i=0; i&lt;group-&gt;numitems; i++) {</span>
-<span class="lineNum">    1357 </span><span class="lineNoCov">          0 :     for(j=0; j&lt;constantList-&gt;numconstants; j++) {</span>
-<span class="lineNum">    1358 </span><span class="lineNoCov">          0 :       constant = &amp;(constantList-&gt;constants[j]);</span>
-<span class="lineNum">    1359 </span><span class="lineNoCov">          0 :       if(strcasecmp(constant-&gt;name, group-&gt;items[i]) == 0) {</span>
-<span class="lineNum">    1360 </span><span class="lineNoCov">          0 :         msGMLWriteConstant(stream, constant, namespace, itemtab);</span>
-<span class="lineNum">    1361 </span>            :         break;
-<span class="lineNum">    1362 </span>            :       }
+<span class="lineNum">    1315 </span><span class="lineCov">          1 : gmlGroupListObj *msGMLGetGroups(layerObj *layer, const char *metadata_namespaces)</span>
+<span class="lineNum">    1316 </span>            : {
+<span class="lineNum">    1317 </span>            :   int i;
+<span class="lineNum">    1318 </span>            :   const char *value=NULL;
+<span class="lineNum">    1319 </span>            :   char tag[64];
+<span class="lineNum">    1320 </span>            : 
+<span class="lineNum">    1321 </span>            :   char **names=NULL;
+<span class="lineNum">    1322 </span><span class="lineCov">          1 :   int numnames=0;</span>
+<span class="lineNum">    1323 </span>            : 
+<span class="lineNum">    1324 </span>            :   gmlGroupListObj *groupList=NULL;
+<span class="lineNum">    1325 </span>            :   gmlGroupObj *group=NULL;
+<span class="lineNum">    1326 </span>            : 
+<span class="lineNum">    1327 </span>            :   /* allocate the collection */
+<span class="lineNum">    1328 </span><span class="lineCov">          1 :   groupList = (gmlGroupListObj *) malloc(sizeof(gmlGroupListObj));</span>
+<span class="lineNum">    1329 </span><span class="lineCov">          1 :   MS_CHECK_ALLOC(groupList, sizeof(gmlGroupListObj), NULL) ;</span>
+<span class="lineNum">    1330 </span><span class="lineCov">          1 :   groupList-&gt;groups = NULL;</span>
+<span class="lineNum">    1331 </span><span class="lineCov">          1 :   groupList-&gt;numgroups = 0;</span>
+<span class="lineNum">    1332 </span>            : 
+<span class="lineNum">    1333 </span>            :   /* list of groups (TODO: make this automatic by parsing metadata) */
+<span class="lineNum">    1334 </span><span class="lineCov">          1 :   if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, &quot;groups&quot;)) != NULL &amp;&amp;</span>
+<span class="lineNum">    1335 </span><span class="lineCov">          1 :       value[0] != '\0' ) {</span>
+<span class="lineNum">    1336 </span><span class="lineCov">          1 :     names = msStringSplit(value, ',', &amp;numnames);</span>
+<span class="lineNum">    1337 </span>            : 
+<span class="lineNum">    1338 </span>            :     /* allocation an array of gmlGroupObj's */
+<span class="lineNum">    1339 </span><span class="lineCov">          1 :     groupList-&gt;numgroups = numnames;</span>
+<span class="lineNum">    1340 </span><span class="lineCov">          1 :     groupList-&gt;groups = (gmlGroupObj *) malloc(sizeof(gmlGroupObj)*groupList-&gt;numgroups);</span>
+<span class="lineNum">    1341 </span><span class="lineCov">          1 :     if (groupList-&gt;groups == NULL) {</span>
+<span class="lineNum">    1342 </span><span class="lineNoCov">          0 :       msSetError(MS_MEMERR, &quot;Out of memory allocating %u bytes.\n&quot;, &quot;msGMLGetGroups()&quot;,</span>
+<span class="lineNum">    1343 </span>            :                  (unsigned int)(sizeof(gmlGroupObj)*groupList-&gt;numgroups));
+<span class="lineNum">    1344 </span><span class="lineNoCov">          0 :       free(groupList);</span>
+<span class="lineNum">    1345 </span><span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">    1346 </span>            :     }
+<span class="lineNum">    1347 </span>            : 
+<span class="lineNum">    1348 </span><span class="lineCov">          1 :     for(i=0; i&lt;groupList-&gt;numgroups; i++) {</span>
+<span class="lineNum">    1349 </span><span class="lineCov">          1 :       group = &amp;(groupList-&gt;groups[i]);</span>
+<span class="lineNum">    1350 </span>            : 
+<span class="lineNum">    1351 </span><span class="lineCov">          1 :       group-&gt;name = msStrdup(names[i]); /* initialize a few things */</span>
+<span class="lineNum">    1352 </span><span class="lineCov">          1 :       group-&gt;items = NULL;</span>
+<span class="lineNum">    1353 </span><span class="lineCov">          1 :       group-&gt;numitems = 0;</span>
+<span class="lineNum">    1354 </span><span class="lineCov">          1 :       group-&gt;type = NULL;</span>
+<span class="lineNum">    1355 </span>            : 
+<span class="lineNum">    1356 </span>            :       snprintf(tag, 64, &quot;%s_group&quot;, group-&gt;name);
+<span class="lineNum">    1357 </span><span class="lineCov">          1 :       if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, tag)) != NULL)</span>
+<span class="lineNum">    1358 </span><span class="lineCov">          1 :         group-&gt;items = msStringSplit(value, ',', &amp;group-&gt;numitems);</span>
+<span class="lineNum">    1359 </span>            : 
+<span class="lineNum">    1360 </span><span class="lineCov">          1 :       snprintf(tag, 64, &quot;%s_type&quot;, group-&gt;name);</span>
+<span class="lineNum">    1361 </span><span class="lineCov">          1 :       if((value = msOWSLookupMetadata(&amp;(layer-&gt;metadata), metadata_namespaces, tag)) != NULL)</span>
+<span class="lineNum">    1362 </span><span class="lineNoCov">          0 :         group-&gt;type = msStrdup(value);</span>
 <span class="lineNum">    1363 </span>            :     }
-<span class="lineNum">    1364 </span><span class="lineCov">          1 :     if(j != constantList-&gt;numconstants) continue; /* found this one */</span>
-<span class="lineNum">    1365 </span><span class="lineCov">          1 :     for(j=0; j&lt;itemList-&gt;numitems; j++) {</span>
-<span class="lineNum">    1366 </span><span class="lineCov">          1 :       item = &amp;(itemList-&gt;items[j]);</span>
-<span class="lineNum">    1367 </span><span class="lineCov">          1 :       if(strcasecmp(item-&gt;name, group-&gt;items[i]) == 0) {</span>
-<span class="lineNum">    1368 </span>            :         /* the number of items matches the number of values exactly */
-<span class="lineNum">    1369 </span><span class="lineCov">          1 :         msGMLWriteItem(stream, item, shape-&gt;values[j], namespace, itemtab, outputformat, pszFID);</span>
-<span class="lineNum">    1370 </span>            :         break;
-<span class="lineNum">    1371 </span>            :       }
-<span class="lineNum">    1372 </span>            :     }
-<span class="lineNum">    1373 </span>            :   }
+<span class="lineNum">    1364 </span>            : 
+<span class="lineNum">    1365 </span><span class="lineCov">          1 :     msFreeCharArray(names, numnames);</span>
+<span class="lineNum">    1366 </span>            :   }
+<span class="lineNum">    1367 </span>            : 
+<span class="lineNum">    1368 </span>            :   return groupList;
+<a name="1369"><span class="lineNum">    1369 </span>            : }</a>
+<span class="lineNum">    1370 </span>            : 
+<span class="lineNum">    1371 </span><span class="lineCov">          1 : void msGMLFreeGroups(gmlGroupListObj *groupList)</span>
+<span class="lineNum">    1372 </span>            : {
+<span class="lineNum">    1373 </span>            :   int i;
 <span class="lineNum">    1374 </span>            : 
-<span class="lineNum">    1375 </span>            :   /* end the group */
-<span class="lineNum">    1376 </span><span class="lineCov">          1 :   if(add_namespace == MS_TRUE)</span>
-<span class="lineNum">    1377 </span><span class="lineCov">          1 :     msIO_fprintf(stream, &quot;%s&lt;/%s:%s&gt;\n&quot;, tab, namespace, group-&gt;name);</span>
-<span class="lineNum">    1378 </span>            :   else
-<span class="lineNum">    1379 </span><span class="lineNoCov">          0 :     msIO_fprintf(stream, &quot;%s&lt;/%s&gt;\n&quot;, tab, group-&gt;name);</span>
-<span class="lineNum">    1380 </span>            : 
-<span class="lineNum">    1381 </span><span class="lineCov">          1 :   msFree(itemtab);</span>
-<span class="lineNum">    1382 </span>            : 
-<span class="lineNum">    1383 </span>            :   return;
-<span class="lineNum">    1384 </span>            : }
-<span class="lineNum">    1385 </span>            : #endif
+<span class="lineNum">    1375 </span><span class="lineCov">          1 :   if(!groupList) return;</span>
+<span class="lineNum">    1376 </span>            : 
+<span class="lineNum">    1377 </span><span class="lineCov">          1 :   for(i=0; i&lt;groupList-&gt;numgroups; i++) {</span>
+<span class="lineNum">    1378 </span><span class="lineCov">          1 :     msFree(groupList-&gt;groups[i].name);</span>
+<span class="lineNum">    1379 </span><span class="lineCov">          1 :     msFreeCharArray(groupList-&gt;groups[i].items, groupList-&gt;groups[i].numitems);</span>
+<span class="lineNum">    1380 </span><span class="lineCov">          1 :     msFree(groupList-&gt;groups[i].type);</span>
+<span class="lineNum">    1381 </span>            :   }
+<span class="lineNum">    1382 </span><span class="lineCov">          1 :   msFree(groupList-&gt;groups);</span>
+<span class="lineNum">    1383 </span>            : 
+<span class="lineNum">    1384 </span><span class="lineCov">          1 :   free(groupList);</span>
+<span class="lineNum">    1385 </span>            : }
 <a name="1386"><span class="lineNum">    1386 </span>            : </a>
 <span class="lineNum">    1387 </span>            : /* Dump GML query results for WMS GetFeatureInfo */
 <span class="lineNum">    1388 </span><span class="lineCov">          1 : int msGMLWriteQuery(mapObj *map, char *filename, const char *namespaces)</span>
