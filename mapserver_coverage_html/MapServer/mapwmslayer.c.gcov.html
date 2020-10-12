@@ -31,13 +31,13 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">347</td>
-            <td class="headerCovTableEntry">575</td>
+            <td class="headerCovTableEntry">346</td>
+            <td class="headerCovTableEntry">574</td>
             <td class="headerCovTableEntryLo">60.3 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2020-10-05 13:08:23</td>
+            <td class="headerValue">2020-10-12 19:53:14</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">10</td>
@@ -1476,231 +1476,230 @@
 <span class="lineNum">    1414 </span>            :    * to attach a &quot;VSI&quot; name to this buffer.
 <span class="lineNum">    1415 </span>            :    * ------------------------------------------------------------------ */
 <span class="lineNum">    1416 </span><span class="lineCov">          1 :   if( pasReqInfo[iReq].pszOutputFile == NULL ) {</span>
-<span class="lineNum">    1417 </span><span class="lineCov">          1 :     msCleanVSIDir( &quot;/vsimem/msout&quot; );</span>
-<span class="lineNum">    1418 </span><span class="lineCov">          1 :     mem_filename = msTmpFile(map, NULL, &quot;/vsimem/msout/&quot;, &quot;img.tmp&quot; );</span>
-<span class="lineNum">    1419 </span>            : 
-<span class="lineNum">    1420 </span><span class="lineCov">          1 :     VSIFCloseL(</span>
-<span class="lineNum">    1421 </span>            :       VSIFileFromMemBuffer( mem_filename,
-<span class="lineNum">    1422 </span><span class="lineCov">          1 :                             (GByte*) pasReqInfo[iReq].result_data,</span>
-<span class="lineNum">    1423 </span><span class="lineCov">          1 :                             (vsi_l_offset) pasReqInfo[iReq].result_size,</span>
-<span class="lineNum">    1424 </span>            :                             FALSE ) );
-<span class="lineNum">    1425 </span>            :   }
-<span class="lineNum">    1426 </span>            : 
-<span class="lineNum">    1427 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1428 </span>            :    * Prepare layer for drawing, reprojecting the image received from the
-<span class="lineNum">    1429 </span>            :    * server if needed...
-<span class="lineNum">    1430 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1431 </span>            :   /* keep the current type that will be restored at the end of this  */
-<span class="lineNum">    1432 </span>            :   /* function. */
-<span class="lineNum">    1433 </span><span class="lineCov">          1 :   currenttype = lp-&gt;type;</span>
-<span class="lineNum">    1434 </span><span class="lineCov">          1 :   currentconnectiontype = lp-&gt;connectiontype;</span>
-<span class="lineNum">    1435 </span><span class="lineCov">          1 :   lp-&gt;type = MS_LAYER_RASTER;</span>
-<span class="lineNum">    1436 </span><span class="lineCov">          1 :   lp-&gt;connectiontype = MS_SHAPEFILE;</span>
-<span class="lineNum">    1437 </span>            : 
-<span class="lineNum">    1438 </span>            :   /* set the classes to 0 so that It won't do client side */
-<span class="lineNum">    1439 </span>            :   /* classification if an sld was set. */
-<span class="lineNum">    1440 </span><span class="lineCov">          1 :   numclasses = lp-&gt;numclasses;</span>
-<span class="lineNum">    1441 </span>            : 
-<span class="lineNum">    1442 </span>            :   /* ensure the file connection is closed right away after the layer */
-<span class="lineNum">    1443 </span>            :   /* is rendered */
-<span class="lineNum">    1444 </span><span class="lineCov">          1 :   msLayerSetProcessingKey( lp, &quot;CLOSE_CONNECTION&quot;, &quot;NORMAL&quot;);</span>
-<span class="lineNum">    1445 </span>            : 
-<span class="lineNum">    1446 </span><span class="lineCov">          1 :   if (msOWSLookupMetadata(&amp;(lp-&gt;metadata), &quot;MO&quot;, &quot;sld_body&quot;) ||</span>
-<span class="lineNum">    1447 </span><span class="lineCov">          1 :       msOWSLookupMetadata(&amp;(lp-&gt;metadata), &quot;MO&quot;, &quot;sld_url&quot;))</span>
-<span class="lineNum">    1448 </span><span class="lineNoCov">          0 :     lp-&gt;numclasses = 0;</span>
-<span class="lineNum">    1449 </span>            : 
-<span class="lineNum">    1450 </span><span class="lineCov">          1 :   if (lp-&gt;data) free(lp-&gt;data);</span>
-<span class="lineNum">    1451 </span><span class="lineCov">          1 :   if( mem_filename != NULL )</span>
-<span class="lineNum">    1452 </span><span class="lineCov">          1 :     lp-&gt;data = mem_filename;</span>
-<span class="lineNum">    1453 </span>            :   else
-<span class="lineNum">    1454 </span><span class="lineNoCov">          0 :     lp-&gt;data =  msStrdup(pasReqInfo[iReq].pszOutputFile);</span>
-<span class="lineNum">    1455 </span>            : 
-<span class="lineNum">    1456 </span>            :   /* #3138 If PROCESSING &quot;RESAMPLE=...&quot; is set we cannot use the simple case */
-<span class="lineNum">    1457 </span><span class="lineCov">          1 :   if (!msProjectionsDiffer(&amp;(map-&gt;projection), &amp;(lp-&gt;projection)) &amp;&amp;</span>
-<span class="lineNum">    1458 </span><span class="lineCov">          1 :       (msLayerGetProcessingKey(lp, &quot;RESAMPLE&quot;) == NULL) ) {</span>
-<span class="lineNum">    1459 </span>            :     /* The simple case... no reprojection needed... render layer directly. */
-<span class="lineNum">    1460 </span><span class="lineCov">          1 :     lp-&gt;transform = MS_FALSE;</span>
-<span class="lineNum">    1461 </span>            :     /* if (msDrawRasterLayerLow(map, lp, img) != 0) */
-<span class="lineNum">    1462 </span>            :     /* status = MS_FAILURE; */
-<span class="lineNum">    1463 </span><span class="lineCov">          1 :     if (msDrawLayer(map, lp, img) != 0)</span>
-<span class="lineNum">    1464 </span>            :       status = MS_FAILURE;
-<span class="lineNum">    1465 </span>            :   } else {
-<span class="lineNum">    1466 </span>            :     FILE *fp;
-<span class="lineNum">    1467 </span>            :     char *wldfile;
-<span class="lineNum">    1468 </span>            :     /* OK, we have to resample the raster to map projection... */
-<span class="lineNum">    1469 </span><span class="lineCov">          1 :     lp-&gt;transform = MS_TRUE;</span>
-<span class="lineNum">    1470 </span><span class="lineCov">          1 :     msLayerSetProcessingKey( lp, &quot;LOAD_WHOLE_IMAGE&quot;, &quot;YES&quot; );</span>
-<span class="lineNum">    1471 </span>            : 
-<span class="lineNum">    1472 </span>            :     /* Create a world file with raster extents */
-<span class="lineNum">    1473 </span>            :     /* One line per value, in this order: cx, 0, 0, cy, ulx, uly */
-<span class="lineNum">    1474 </span><span class="lineCov">          1 :     wldfile = msBuildPath(szPath, lp-&gt;map-&gt;mappath, lp-&gt;data);</span>
-<span class="lineNum">    1475 </span><span class="lineCov">          1 :     if (wldfile &amp;&amp; (strlen(wldfile)&gt;=3))</span>
-<span class="lineNum">    1476 </span><span class="lineCov">          1 :       strcpy(wldfile+strlen(wldfile)-3, &quot;wld&quot;);</span>
-<span class="lineNum">    1477 </span><span class="lineCov">          1 :     if (wldfile &amp;&amp; (fp = VSIFOpenL(wldfile, &quot;wt&quot;)) != NULL) {</span>
-<span class="lineNum">    1478 </span><span class="lineCov">          1 :       double dfCellSizeX = MS_OWS_CELLSIZE(pasReqInfo[iReq].bbox.minx,</span>
-<span class="lineNum">    1479 </span>            :                                            pasReqInfo[iReq].bbox.maxx,
-<span class="lineNum">    1480 </span>            :                                            pasReqInfo[iReq].width);
-<span class="lineNum">    1481 </span><span class="lineCov">          1 :       double dfCellSizeY = MS_OWS_CELLSIZE(pasReqInfo[iReq].bbox.maxy,</span>
-<span class="lineNum">    1482 </span>            :                                            pasReqInfo[iReq].bbox.miny,
-<span class="lineNum">    1483 </span>            :                                            pasReqInfo[iReq].height);
-<span class="lineNum">    1484 </span>            :       char world_text[5000];
-<span class="lineNum">    1485 </span>            : 
-<span class="lineNum">    1486 </span><span class="lineCov">          1 :       sprintf( world_text, &quot;%.12f\n0\n0\n%.12f\n%.12f\n%.12f\n&quot;,</span>
-<span class="lineNum">    1487 </span>            :                dfCellSizeX,
-<span class="lineNum">    1488 </span>            :                dfCellSizeY,
-<span class="lineNum">    1489 </span><span class="lineCov">          1 :                pasReqInfo[iReq].bbox.minx + dfCellSizeX * 0.5,</span>
-<span class="lineNum">    1490 </span><span class="lineCov">          1 :                pasReqInfo[iReq].bbox.maxy + dfCellSizeY * 0.5 );</span>
-<span class="lineNum">    1491 </span>            : 
-<span class="lineNum">    1492 </span><span class="lineCov">          1 :       VSIFWriteL( world_text, 1, strlen(world_text), fp );</span>
-<span class="lineNum">    1493 </span><span class="lineCov">          1 :       VSIFCloseL( fp );</span>
-<span class="lineNum">    1494 </span>            : 
-<span class="lineNum">    1495 </span>            :       /* GDAL should be called to reproject automatically. */
-<span class="lineNum">    1496 </span><span class="lineCov">          1 :       if (msDrawLayer(map, lp, img) != 0)</span>
-<span class="lineNum">    1497 </span>            :         status = MS_FAILURE;
-<span class="lineNum">    1498 </span>            : 
-<span class="lineNum">    1499 </span><span class="lineCov">          1 :       if (!lp-&gt;debug)</span>
-<span class="lineNum">    1500 </span><span class="lineCov">          1 :         VSIUnlink( wldfile );</span>
-<span class="lineNum">    1501 </span>            :     } else {
-<span class="lineNum">    1502 </span><span class="lineNoCov">          0 :       msSetError(MS_WMSCONNERR,</span>
-<span class="lineNum">    1503 </span>            :                  &quot;Unable to create wld file for WMS slide.&quot;,
-<span class="lineNum">    1504 </span>            :                  &quot;msDrawWMSLayer()&quot;);
-<span class="lineNum">    1505 </span>            :       status = MS_FAILURE;
-<span class="lineNum">    1506 </span>            :     }
-<span class="lineNum">    1507 </span>            : 
-<span class="lineNum">    1508 </span>            :   }
-<span class="lineNum">    1509 </span>            : 
-<span class="lineNum">    1510 </span>            :   /* We're done with the remote server's response... delete it. */
-<span class="lineNum">    1511 </span><span class="lineCov">          1 :   if (!lp-&gt;debug)</span>
-<span class="lineNum">    1512 </span><span class="lineCov">          1 :     VSIUnlink(lp-&gt;data);</span>
-<span class="lineNum">    1513 </span>            : 
-<span class="lineNum">    1514 </span>            :   /* restore prveious type */
-<span class="lineNum">    1515 </span><span class="lineCov">          1 :   lp-&gt;type = currenttype;</span>
-<span class="lineNum">    1516 </span><span class="lineCov">          1 :   lp-&gt;connectiontype = currentconnectiontype;</span>
-<span class="lineNum">    1517 </span>            : 
-<span class="lineNum">    1518 </span>            :   /* restore previous numclasses */
-<span class="lineNum">    1519 </span><span class="lineCov">          1 :   lp-&gt;numclasses = numclasses;</span>
-<span class="lineNum">    1520 </span>            : 
-<span class="lineNum">    1521 </span><span class="lineCov">          1 :   free(lp-&gt;data);</span>
-<span class="lineNum">    1522 </span><span class="lineCov">          1 :   lp-&gt;data = NULL;</span>
-<span class="lineNum">    1523 </span>            : 
-<span class="lineNum">    1524 </span><span class="lineCov">          1 :   return status;</span>
-<span class="lineNum">    1525 </span>            : 
-<span class="lineNum">    1526 </span>            : #else
-<span class="lineNum">    1527 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1528 </span>            :    * WMS CONNECTION Support not included...
-<span class="lineNum">    1529 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1530 </span>            :   msSetError(MS_WMSCONNERR, &quot;WMS CLIENT CONNECTION support is not available.&quot;,
-<span class="lineNum">    1531 </span>            :              &quot;msDrawWMSLayer()&quot;);
-<span class="lineNum">    1532 </span>            :   return(MS_FAILURE);
-<span class="lineNum">    1533 </span>            : 
-<span class="lineNum">    1534 </span>            : #endif /* USE_WMS_LYR */
-<span class="lineNum">    1535 </span>            : 
-<span class="lineNum">    1536 </span>            : }
-<a name="1537"><span class="lineNum">    1537 </span>            : </a>
-<span class="lineNum">    1538 </span>            : 
-<span class="lineNum">    1539 </span><span class="lineCov">          1 : int msWMSLayerExecuteRequest(mapObj *map, int nOWSLayers, int nClickX, int nClickY,</span>
-<span class="lineNum">    1540 </span>            :                              int nFeatureCount, const char *pszInfoFormat, int type)
-<span class="lineNum">    1541 </span>            : {
-<span class="lineNum">    1542 </span>            : #ifdef USE_WMS_LYR
-<span class="lineNum">    1543 </span>            : 
-<span class="lineNum">    1544 </span>            :   msIOContext *context;
-<span class="lineNum">    1545 </span>            : 
-<span class="lineNum">    1546 </span>            :   httpRequestObj *pasReqInfo;
-<span class="lineNum">    1547 </span>            :   wmsParamsObj sLastWMSParams;
-<span class="lineNum">    1548 </span><span class="lineCov">          1 :   int i, numReq = 0;</span>
-<span class="lineNum">    1549 </span>            : 
-<span class="lineNum">    1550 </span><span class="lineCov">          1 :   pasReqInfo = (httpRequestObj *)msSmallMalloc((nOWSLayers+1)*sizeof(httpRequestObj));</span>
-<span class="lineNum">    1551 </span><span class="lineCov">          1 :   msHTTPInitRequestObj(pasReqInfo, nOWSLayers+1);</span>
-<span class="lineNum">    1552 </span><span class="lineCov">          1 :   msInitWmsParamsObj(&amp;sLastWMSParams);</span>
-<span class="lineNum">    1553 </span>            : 
-<span class="lineNum">    1554 </span>            :   /* Generate the http request */
-<span class="lineNum">    1555 </span><span class="lineCov">          1 :   for (i=0; i&lt;map-&gt;numlayers; i++) {</span>
-<span class="lineNum">    1556 </span><span class="lineCov">          1 :     if (GET_LAYER(map,map-&gt;layerorder[i])-&gt;status == MS_ON) {</span>
-<span class="lineNum">    1557 </span><span class="lineCov">          1 :       if (type == WMS_GETFEATUREINFO ) {</span>
-<span class="lineNum">    1558 </span><span class="lineCov">          1 :         if( msPrepareWMSLayerRequest(map-&gt;layerorder[i], map, GET_LAYER(map,map-&gt;layerorder[i]),</span>
-<span class="lineNum">    1559 </span>            :                                    WMS_GETFEATUREINFO,
-<span class="lineNum">    1560 </span>            :                                    MS_WMS, &amp;sLastWMSParams,
-<span class="lineNum">    1561 </span>            :                                    nClickX, nClickY, nFeatureCount, pszInfoFormat,
-<span class="lineNum">    1562 </span>            :                                    pasReqInfo, &amp;numReq) == MS_FAILURE) {
-<span class="lineNum">    1563 </span><span class="lineNoCov">          0 :           msFreeWmsParamsObj(&amp;sLastWMSParams);</span>
-<span class="lineNum">    1564 </span><span class="lineNoCov">          0 :           msFree(pasReqInfo);</span>
-<span class="lineNum">    1565 </span><span class="lineNoCov">          0 :           return MS_FAILURE;</span>
-<span class="lineNum">    1566 </span>            :         }
-<span class="lineNum">    1567 </span><span class="lineCov">          1 :       } else if (msPrepareWMSLayerRequest(map-&gt;layerorder[i], map, GET_LAYER(map,map-&gt;layerorder[i]),</span>
-<span class="lineNum">    1568 </span>            :                                           WMS_GETLEGENDGRAPHIC,
-<span class="lineNum">    1569 </span>            :                                           MS_WMS, &amp;sLastWMSParams,
-<span class="lineNum">    1570 </span>            :                                           0, 0, 0, NULL,
-<span class="lineNum">    1571 </span>            :                                           pasReqInfo, &amp;numReq) == MS_FAILURE) {
-<span class="lineNum">    1572 </span><span class="lineNoCov">          0 :         msFreeWmsParamsObj(&amp;sLastWMSParams);</span>
-<span class="lineNum">    1573 </span><span class="lineNoCov">          0 :         msFree(pasReqInfo);</span>
-<span class="lineNum">    1574 </span><span class="lineNoCov">          0 :         return MS_FAILURE;</span>
-<span class="lineNum">    1575 </span>            :       }
-<span class="lineNum">    1576 </span>            :     }
-<span class="lineNum">    1577 </span>            :   }
-<span class="lineNum">    1578 </span>            : 
-<span class="lineNum">    1579 </span><span class="lineCov">          1 :   if (msOWSExecuteRequests(pasReqInfo, numReq, map, MS_FALSE) == MS_FAILURE) {</span>
-<span class="lineNum">    1580 </span><span class="lineNoCov">          0 :     msHTTPFreeRequestObj(pasReqInfo, numReq);</span>
-<span class="lineNum">    1581 </span><span class="lineNoCov">          0 :     msFree(pasReqInfo);</span>
-<span class="lineNum">    1582 </span><span class="lineNoCov">          0 :     msFreeWmsParamsObj(&amp;sLastWMSParams);</span>
-<span class="lineNum">    1583 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1584 </span>            :   }
-<span class="lineNum">    1585 </span>            : 
-<span class="lineNum">    1586 </span><span class="lineCov">          1 :   context = msIO_getHandler( stdout );</span>
-<span class="lineNum">    1587 </span><span class="lineCov">          1 :   if( context == NULL ) {</span>
-<span class="lineNum">    1588 </span><span class="lineNoCov">          0 :     msHTTPFreeRequestObj(pasReqInfo, numReq);</span>
-<span class="lineNum">    1589 </span><span class="lineNoCov">          0 :     msFree(pasReqInfo);</span>
-<span class="lineNum">    1590 </span><span class="lineNoCov">          0 :     msFreeWmsParamsObj(&amp;sLastWMSParams);</span>
-<span class="lineNum">    1591 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
-<span class="lineNum">    1592 </span>            :   }
-<span class="lineNum">    1593 </span>            : 
-<span class="lineNum">    1594 </span><span class="lineCov">          1 :   msIO_printf(&quot;Content-Type: %s%c%c&quot;,pasReqInfo[0].pszContentType, 10,10);</span>
-<span class="lineNum">    1595 </span>            : 
-<span class="lineNum">    1596 </span><span class="lineCov">          1 :   if( pasReqInfo[0].pszOutputFile ) {</span>
-<span class="lineNum">    1597 </span>            :     FILE *fp;
-<span class="lineNum">    1598 </span>            :     char szBuf[MS_BUFFER_LENGTH];
-<span class="lineNum">    1599 </span>            : 
-<span class="lineNum">    1600 </span><span class="lineNoCov">          0 :     fp = fopen(pasReqInfo[0].pszOutputFile, &quot;r&quot;);</span>
-<span class="lineNum">    1601 </span><span class="lineNoCov">          0 :     if (fp) {</span>
-<span class="lineNum">    1602 </span>            :       while(1) {
-<span class="lineNum">    1603 </span>            :         size_t nSize;
-<span class="lineNum">    1604 </span>            :         nSize = fread(szBuf, sizeof(char), MS_BUFFER_LENGTH-1, fp);
-<span class="lineNum">    1605 </span><span class="lineNoCov">          0 :         if (nSize &gt; 0)</span>
-<span class="lineNum">    1606 </span><span class="lineNoCov">          0 :           msIO_contextWrite( context,</span>
-<span class="lineNum">    1607 </span>            :                              szBuf,
-<span class="lineNum">    1608 </span>            :                              nSize);
-<span class="lineNum">    1609 </span><span class="lineNoCov">          0 :         if (nSize != MS_BUFFER_LENGTH-1)</span>
-<span class="lineNum">    1610 </span>            :           break;
-<span class="lineNum">    1611 </span>            :       }
-<span class="lineNum">    1612 </span><span class="lineNoCov">          0 :       fclose(fp);</span>
-<span class="lineNum">    1613 </span><span class="lineNoCov">          0 :       if (!map-&gt;debug)</span>
-<span class="lineNum">    1614 </span><span class="lineNoCov">          0 :         unlink(pasReqInfo[0].pszOutputFile);</span>
-<span class="lineNum">    1615 </span>            :     } else {
-<span class="lineNum">    1616 </span><span class="lineNoCov">          0 :       msSetError(MS_IOERR, &quot;'%s'.&quot;,</span>
-<span class="lineNum">    1617 </span>            :                  &quot;msWMSLayerExecuteRequest()&quot;, pasReqInfo[0].pszOutputFile);
-<span class="lineNum">    1618 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
-<span class="lineNum">    1619 </span>            :     }
-<span class="lineNum">    1620 </span>            :   } else {
-<span class="lineNum">    1621 </span><span class="lineCov">          1 :     msIO_contextWrite( context,</span>
-<span class="lineNum">    1622 </span><span class="lineCov">          1 :                        pasReqInfo[0].result_data,</span>
-<span class="lineNum">    1623 </span>            :                        pasReqInfo[0].result_size );
-<span class="lineNum">    1624 </span>            :   }
-<span class="lineNum">    1625 </span>            : 
-<span class="lineNum">    1626 </span><span class="lineCov">          1 :   msHTTPFreeRequestObj(pasReqInfo, numReq);</span>
-<span class="lineNum">    1627 </span><span class="lineCov">          1 :   msFree(pasReqInfo);</span>
-<span class="lineNum">    1628 </span><span class="lineCov">          1 :   msFreeWmsParamsObj(&amp;sLastWMSParams);</span>
-<span class="lineNum">    1629 </span>            : 
-<span class="lineNum">    1630 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
-<span class="lineNum">    1631 </span>            : #else
-<span class="lineNum">    1632 </span>            :   /* ------------------------------------------------------------------
-<span class="lineNum">    1633 </span>            :    * WMS CONNECTION Support not included...
-<span class="lineNum">    1634 </span>            :    * ------------------------------------------------------------------ */
-<span class="lineNum">    1635 </span>            :   msSetError(MS_WMSCONNERR, &quot;WMS CLIENT CONNECTION support is not available.&quot;,
-<span class="lineNum">    1636 </span>            :              &quot;msWMSLayerExecuteRequest()&quot;);
-<span class="lineNum">    1637 </span>            :   return(MS_FAILURE);
-<span class="lineNum">    1638 </span>            : 
-<span class="lineNum">    1639 </span>            : #endif /* USE_WMS_LYR */
-<span class="lineNum">    1640 </span>            : 
-<span class="lineNum">    1641 </span>            : }
+<span class="lineNum">    1417 </span><span class="lineCov">          1 :     mem_filename = msTmpFile(map, NULL, &quot;/vsimem/msout/&quot;, &quot;img.tmp&quot; );</span>
+<span class="lineNum">    1418 </span>            : 
+<span class="lineNum">    1419 </span><span class="lineCov">          1 :     VSIFCloseL(</span>
+<span class="lineNum">    1420 </span>            :       VSIFileFromMemBuffer( mem_filename,
+<span class="lineNum">    1421 </span><span class="lineCov">          1 :                             (GByte*) pasReqInfo[iReq].result_data,</span>
+<span class="lineNum">    1422 </span><span class="lineCov">          1 :                             (vsi_l_offset) pasReqInfo[iReq].result_size,</span>
+<span class="lineNum">    1423 </span>            :                             FALSE ) );
+<span class="lineNum">    1424 </span>            :   }
+<span class="lineNum">    1425 </span>            : 
+<span class="lineNum">    1426 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1427 </span>            :    * Prepare layer for drawing, reprojecting the image received from the
+<span class="lineNum">    1428 </span>            :    * server if needed...
+<span class="lineNum">    1429 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1430 </span>            :   /* keep the current type that will be restored at the end of this  */
+<span class="lineNum">    1431 </span>            :   /* function. */
+<span class="lineNum">    1432 </span><span class="lineCov">          1 :   currenttype = lp-&gt;type;</span>
+<span class="lineNum">    1433 </span><span class="lineCov">          1 :   currentconnectiontype = lp-&gt;connectiontype;</span>
+<span class="lineNum">    1434 </span><span class="lineCov">          1 :   lp-&gt;type = MS_LAYER_RASTER;</span>
+<span class="lineNum">    1435 </span><span class="lineCov">          1 :   lp-&gt;connectiontype = MS_SHAPEFILE;</span>
+<span class="lineNum">    1436 </span>            : 
+<span class="lineNum">    1437 </span>            :   /* set the classes to 0 so that It won't do client side */
+<span class="lineNum">    1438 </span>            :   /* classification if an sld was set. */
+<span class="lineNum">    1439 </span><span class="lineCov">          1 :   numclasses = lp-&gt;numclasses;</span>
+<span class="lineNum">    1440 </span>            : 
+<span class="lineNum">    1441 </span>            :   /* ensure the file connection is closed right away after the layer */
+<span class="lineNum">    1442 </span>            :   /* is rendered */
+<span class="lineNum">    1443 </span><span class="lineCov">          1 :   msLayerSetProcessingKey( lp, &quot;CLOSE_CONNECTION&quot;, &quot;NORMAL&quot;);</span>
+<span class="lineNum">    1444 </span>            : 
+<span class="lineNum">    1445 </span><span class="lineCov">          1 :   if (msOWSLookupMetadata(&amp;(lp-&gt;metadata), &quot;MO&quot;, &quot;sld_body&quot;) ||</span>
+<span class="lineNum">    1446 </span><span class="lineCov">          1 :       msOWSLookupMetadata(&amp;(lp-&gt;metadata), &quot;MO&quot;, &quot;sld_url&quot;))</span>
+<span class="lineNum">    1447 </span><span class="lineNoCov">          0 :     lp-&gt;numclasses = 0;</span>
+<span class="lineNum">    1448 </span>            : 
+<span class="lineNum">    1449 </span><span class="lineCov">          1 :   if (lp-&gt;data) free(lp-&gt;data);</span>
+<span class="lineNum">    1450 </span><span class="lineCov">          1 :   if( mem_filename != NULL )</span>
+<span class="lineNum">    1451 </span><span class="lineCov">          1 :     lp-&gt;data = mem_filename;</span>
+<span class="lineNum">    1452 </span>            :   else
+<span class="lineNum">    1453 </span><span class="lineNoCov">          0 :     lp-&gt;data =  msStrdup(pasReqInfo[iReq].pszOutputFile);</span>
+<span class="lineNum">    1454 </span>            : 
+<span class="lineNum">    1455 </span>            :   /* #3138 If PROCESSING &quot;RESAMPLE=...&quot; is set we cannot use the simple case */
+<span class="lineNum">    1456 </span><span class="lineCov">          1 :   if (!msProjectionsDiffer(&amp;(map-&gt;projection), &amp;(lp-&gt;projection)) &amp;&amp;</span>
+<span class="lineNum">    1457 </span><span class="lineCov">          1 :       (msLayerGetProcessingKey(lp, &quot;RESAMPLE&quot;) == NULL) ) {</span>
+<span class="lineNum">    1458 </span>            :     /* The simple case... no reprojection needed... render layer directly. */
+<span class="lineNum">    1459 </span><span class="lineCov">          1 :     lp-&gt;transform = MS_FALSE;</span>
+<span class="lineNum">    1460 </span>            :     /* if (msDrawRasterLayerLow(map, lp, img) != 0) */
+<span class="lineNum">    1461 </span>            :     /* status = MS_FAILURE; */
+<span class="lineNum">    1462 </span><span class="lineCov">          1 :     if (msDrawLayer(map, lp, img) != 0)</span>
+<span class="lineNum">    1463 </span>            :       status = MS_FAILURE;
+<span class="lineNum">    1464 </span>            :   } else {
+<span class="lineNum">    1465 </span>            :     FILE *fp;
+<span class="lineNum">    1466 </span>            :     char *wldfile;
+<span class="lineNum">    1467 </span>            :     /* OK, we have to resample the raster to map projection... */
+<span class="lineNum">    1468 </span><span class="lineCov">          1 :     lp-&gt;transform = MS_TRUE;</span>
+<span class="lineNum">    1469 </span><span class="lineCov">          1 :     msLayerSetProcessingKey( lp, &quot;LOAD_WHOLE_IMAGE&quot;, &quot;YES&quot; );</span>
+<span class="lineNum">    1470 </span>            : 
+<span class="lineNum">    1471 </span>            :     /* Create a world file with raster extents */
+<span class="lineNum">    1472 </span>            :     /* One line per value, in this order: cx, 0, 0, cy, ulx, uly */
+<span class="lineNum">    1473 </span><span class="lineCov">          1 :     wldfile = msBuildPath(szPath, lp-&gt;map-&gt;mappath, lp-&gt;data);</span>
+<span class="lineNum">    1474 </span><span class="lineCov">          1 :     if (wldfile &amp;&amp; (strlen(wldfile)&gt;=3))</span>
+<span class="lineNum">    1475 </span><span class="lineCov">          1 :       strcpy(wldfile+strlen(wldfile)-3, &quot;wld&quot;);</span>
+<span class="lineNum">    1476 </span><span class="lineCov">          1 :     if (wldfile &amp;&amp; (fp = VSIFOpenL(wldfile, &quot;wt&quot;)) != NULL) {</span>
+<span class="lineNum">    1477 </span><span class="lineCov">          1 :       double dfCellSizeX = MS_OWS_CELLSIZE(pasReqInfo[iReq].bbox.minx,</span>
+<span class="lineNum">    1478 </span>            :                                            pasReqInfo[iReq].bbox.maxx,
+<span class="lineNum">    1479 </span>            :                                            pasReqInfo[iReq].width);
+<span class="lineNum">    1480 </span><span class="lineCov">          1 :       double dfCellSizeY = MS_OWS_CELLSIZE(pasReqInfo[iReq].bbox.maxy,</span>
+<span class="lineNum">    1481 </span>            :                                            pasReqInfo[iReq].bbox.miny,
+<span class="lineNum">    1482 </span>            :                                            pasReqInfo[iReq].height);
+<span class="lineNum">    1483 </span>            :       char world_text[5000];
+<span class="lineNum">    1484 </span>            : 
+<span class="lineNum">    1485 </span><span class="lineCov">          1 :       sprintf( world_text, &quot;%.12f\n0\n0\n%.12f\n%.12f\n%.12f\n&quot;,</span>
+<span class="lineNum">    1486 </span>            :                dfCellSizeX,
+<span class="lineNum">    1487 </span>            :                dfCellSizeY,
+<span class="lineNum">    1488 </span><span class="lineCov">          1 :                pasReqInfo[iReq].bbox.minx + dfCellSizeX * 0.5,</span>
+<span class="lineNum">    1489 </span><span class="lineCov">          1 :                pasReqInfo[iReq].bbox.maxy + dfCellSizeY * 0.5 );</span>
+<span class="lineNum">    1490 </span>            : 
+<span class="lineNum">    1491 </span><span class="lineCov">          1 :       VSIFWriteL( world_text, 1, strlen(world_text), fp );</span>
+<span class="lineNum">    1492 </span><span class="lineCov">          1 :       VSIFCloseL( fp );</span>
+<span class="lineNum">    1493 </span>            : 
+<span class="lineNum">    1494 </span>            :       /* GDAL should be called to reproject automatically. */
+<span class="lineNum">    1495 </span><span class="lineCov">          1 :       if (msDrawLayer(map, lp, img) != 0)</span>
+<span class="lineNum">    1496 </span>            :         status = MS_FAILURE;
+<span class="lineNum">    1497 </span>            : 
+<span class="lineNum">    1498 </span><span class="lineCov">          1 :       if (!lp-&gt;debug || mem_filename != NULL)</span>
+<span class="lineNum">    1499 </span><span class="lineCov">          1 :         VSIUnlink( wldfile );</span>
+<span class="lineNum">    1500 </span>            :     } else {
+<span class="lineNum">    1501 </span><span class="lineNoCov">          0 :       msSetError(MS_WMSCONNERR,</span>
+<span class="lineNum">    1502 </span>            :                  &quot;Unable to create wld file for WMS slide.&quot;,
+<span class="lineNum">    1503 </span>            :                  &quot;msDrawWMSLayer()&quot;);
+<span class="lineNum">    1504 </span>            :       status = MS_FAILURE;
+<span class="lineNum">    1505 </span>            :     }
+<span class="lineNum">    1506 </span>            : 
+<span class="lineNum">    1507 </span>            :   }
+<span class="lineNum">    1508 </span>            : 
+<span class="lineNum">    1509 </span>            :   /* We're done with the remote server's response... delete it. */
+<span class="lineNum">    1510 </span><span class="lineCov">          1 :   if (!lp-&gt;debug || mem_filename != NULL)</span>
+<span class="lineNum">    1511 </span><span class="lineCov">          1 :     VSIUnlink(lp-&gt;data);</span>
+<span class="lineNum">    1512 </span>            : 
+<span class="lineNum">    1513 </span>            :   /* restore prveious type */
+<span class="lineNum">    1514 </span><span class="lineCov">          1 :   lp-&gt;type = currenttype;</span>
+<span class="lineNum">    1515 </span><span class="lineCov">          1 :   lp-&gt;connectiontype = currentconnectiontype;</span>
+<span class="lineNum">    1516 </span>            : 
+<span class="lineNum">    1517 </span>            :   /* restore previous numclasses */
+<span class="lineNum">    1518 </span><span class="lineCov">          1 :   lp-&gt;numclasses = numclasses;</span>
+<span class="lineNum">    1519 </span>            : 
+<span class="lineNum">    1520 </span><span class="lineCov">          1 :   free(lp-&gt;data);</span>
+<span class="lineNum">    1521 </span><span class="lineCov">          1 :   lp-&gt;data = NULL;</span>
+<span class="lineNum">    1522 </span>            : 
+<span class="lineNum">    1523 </span><span class="lineCov">          1 :   return status;</span>
+<span class="lineNum">    1524 </span>            : 
+<span class="lineNum">    1525 </span>            : #else
+<span class="lineNum">    1526 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1527 </span>            :    * WMS CONNECTION Support not included...
+<span class="lineNum">    1528 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1529 </span>            :   msSetError(MS_WMSCONNERR, &quot;WMS CLIENT CONNECTION support is not available.&quot;,
+<span class="lineNum">    1530 </span>            :              &quot;msDrawWMSLayer()&quot;);
+<span class="lineNum">    1531 </span>            :   return(MS_FAILURE);
+<span class="lineNum">    1532 </span>            : 
+<span class="lineNum">    1533 </span>            : #endif /* USE_WMS_LYR */
+<span class="lineNum">    1534 </span>            : 
+<span class="lineNum">    1535 </span>            : }
+<a name="1536"><span class="lineNum">    1536 </span>            : </a>
+<span class="lineNum">    1537 </span>            : 
+<span class="lineNum">    1538 </span><span class="lineCov">          1 : int msWMSLayerExecuteRequest(mapObj *map, int nOWSLayers, int nClickX, int nClickY,</span>
+<span class="lineNum">    1539 </span>            :                              int nFeatureCount, const char *pszInfoFormat, int type)
+<span class="lineNum">    1540 </span>            : {
+<span class="lineNum">    1541 </span>            : #ifdef USE_WMS_LYR
+<span class="lineNum">    1542 </span>            : 
+<span class="lineNum">    1543 </span>            :   msIOContext *context;
+<span class="lineNum">    1544 </span>            : 
+<span class="lineNum">    1545 </span>            :   httpRequestObj *pasReqInfo;
+<span class="lineNum">    1546 </span>            :   wmsParamsObj sLastWMSParams;
+<span class="lineNum">    1547 </span><span class="lineCov">          1 :   int i, numReq = 0;</span>
+<span class="lineNum">    1548 </span>            : 
+<span class="lineNum">    1549 </span><span class="lineCov">          1 :   pasReqInfo = (httpRequestObj *)msSmallMalloc((nOWSLayers+1)*sizeof(httpRequestObj));</span>
+<span class="lineNum">    1550 </span><span class="lineCov">          1 :   msHTTPInitRequestObj(pasReqInfo, nOWSLayers+1);</span>
+<span class="lineNum">    1551 </span><span class="lineCov">          1 :   msInitWmsParamsObj(&amp;sLastWMSParams);</span>
+<span class="lineNum">    1552 </span>            : 
+<span class="lineNum">    1553 </span>            :   /* Generate the http request */
+<span class="lineNum">    1554 </span><span class="lineCov">          1 :   for (i=0; i&lt;map-&gt;numlayers; i++) {</span>
+<span class="lineNum">    1555 </span><span class="lineCov">          1 :     if (GET_LAYER(map,map-&gt;layerorder[i])-&gt;status == MS_ON) {</span>
+<span class="lineNum">    1556 </span><span class="lineCov">          1 :       if (type == WMS_GETFEATUREINFO ) {</span>
+<span class="lineNum">    1557 </span><span class="lineCov">          1 :         if( msPrepareWMSLayerRequest(map-&gt;layerorder[i], map, GET_LAYER(map,map-&gt;layerorder[i]),</span>
+<span class="lineNum">    1558 </span>            :                                    WMS_GETFEATUREINFO,
+<span class="lineNum">    1559 </span>            :                                    MS_WMS, &amp;sLastWMSParams,
+<span class="lineNum">    1560 </span>            :                                    nClickX, nClickY, nFeatureCount, pszInfoFormat,
+<span class="lineNum">    1561 </span>            :                                    pasReqInfo, &amp;numReq) == MS_FAILURE) {
+<span class="lineNum">    1562 </span><span class="lineNoCov">          0 :           msFreeWmsParamsObj(&amp;sLastWMSParams);</span>
+<span class="lineNum">    1563 </span><span class="lineNoCov">          0 :           msFree(pasReqInfo);</span>
+<span class="lineNum">    1564 </span><span class="lineNoCov">          0 :           return MS_FAILURE;</span>
+<span class="lineNum">    1565 </span>            :         }
+<span class="lineNum">    1566 </span><span class="lineCov">          1 :       } else if (msPrepareWMSLayerRequest(map-&gt;layerorder[i], map, GET_LAYER(map,map-&gt;layerorder[i]),</span>
+<span class="lineNum">    1567 </span>            :                                           WMS_GETLEGENDGRAPHIC,
+<span class="lineNum">    1568 </span>            :                                           MS_WMS, &amp;sLastWMSParams,
+<span class="lineNum">    1569 </span>            :                                           0, 0, 0, NULL,
+<span class="lineNum">    1570 </span>            :                                           pasReqInfo, &amp;numReq) == MS_FAILURE) {
+<span class="lineNum">    1571 </span><span class="lineNoCov">          0 :         msFreeWmsParamsObj(&amp;sLastWMSParams);</span>
+<span class="lineNum">    1572 </span><span class="lineNoCov">          0 :         msFree(pasReqInfo);</span>
+<span class="lineNum">    1573 </span><span class="lineNoCov">          0 :         return MS_FAILURE;</span>
+<span class="lineNum">    1574 </span>            :       }
+<span class="lineNum">    1575 </span>            :     }
+<span class="lineNum">    1576 </span>            :   }
+<span class="lineNum">    1577 </span>            : 
+<span class="lineNum">    1578 </span><span class="lineCov">          1 :   if (msOWSExecuteRequests(pasReqInfo, numReq, map, MS_FALSE) == MS_FAILURE) {</span>
+<span class="lineNum">    1579 </span><span class="lineNoCov">          0 :     msHTTPFreeRequestObj(pasReqInfo, numReq);</span>
+<span class="lineNum">    1580 </span><span class="lineNoCov">          0 :     msFree(pasReqInfo);</span>
+<span class="lineNum">    1581 </span><span class="lineNoCov">          0 :     msFreeWmsParamsObj(&amp;sLastWMSParams);</span>
+<span class="lineNum">    1582 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1583 </span>            :   }
+<span class="lineNum">    1584 </span>            : 
+<span class="lineNum">    1585 </span><span class="lineCov">          1 :   context = msIO_getHandler( stdout );</span>
+<span class="lineNum">    1586 </span><span class="lineCov">          1 :   if( context == NULL ) {</span>
+<span class="lineNum">    1587 </span><span class="lineNoCov">          0 :     msHTTPFreeRequestObj(pasReqInfo, numReq);</span>
+<span class="lineNum">    1588 </span><span class="lineNoCov">          0 :     msFree(pasReqInfo);</span>
+<span class="lineNum">    1589 </span><span class="lineNoCov">          0 :     msFreeWmsParamsObj(&amp;sLastWMSParams);</span>
+<span class="lineNum">    1590 </span><span class="lineNoCov">          0 :     return MS_FAILURE;</span>
+<span class="lineNum">    1591 </span>            :   }
+<span class="lineNum">    1592 </span>            : 
+<span class="lineNum">    1593 </span><span class="lineCov">          1 :   msIO_printf(&quot;Content-Type: %s%c%c&quot;,pasReqInfo[0].pszContentType, 10,10);</span>
+<span class="lineNum">    1594 </span>            : 
+<span class="lineNum">    1595 </span><span class="lineCov">          1 :   if( pasReqInfo[0].pszOutputFile ) {</span>
+<span class="lineNum">    1596 </span>            :     FILE *fp;
+<span class="lineNum">    1597 </span>            :     char szBuf[MS_BUFFER_LENGTH];
+<span class="lineNum">    1598 </span>            : 
+<span class="lineNum">    1599 </span><span class="lineNoCov">          0 :     fp = fopen(pasReqInfo[0].pszOutputFile, &quot;r&quot;);</span>
+<span class="lineNum">    1600 </span><span class="lineNoCov">          0 :     if (fp) {</span>
+<span class="lineNum">    1601 </span>            :       while(1) {
+<span class="lineNum">    1602 </span>            :         size_t nSize;
+<span class="lineNum">    1603 </span>            :         nSize = fread(szBuf, sizeof(char), MS_BUFFER_LENGTH-1, fp);
+<span class="lineNum">    1604 </span><span class="lineNoCov">          0 :         if (nSize &gt; 0)</span>
+<span class="lineNum">    1605 </span><span class="lineNoCov">          0 :           msIO_contextWrite( context,</span>
+<span class="lineNum">    1606 </span>            :                              szBuf,
+<span class="lineNum">    1607 </span>            :                              nSize);
+<span class="lineNum">    1608 </span><span class="lineNoCov">          0 :         if (nSize != MS_BUFFER_LENGTH-1)</span>
+<span class="lineNum">    1609 </span>            :           break;
+<span class="lineNum">    1610 </span>            :       }
+<span class="lineNum">    1611 </span><span class="lineNoCov">          0 :       fclose(fp);</span>
+<span class="lineNum">    1612 </span><span class="lineNoCov">          0 :       if (!map-&gt;debug)</span>
+<span class="lineNum">    1613 </span><span class="lineNoCov">          0 :         unlink(pasReqInfo[0].pszOutputFile);</span>
+<span class="lineNum">    1614 </span>            :     } else {
+<span class="lineNum">    1615 </span><span class="lineNoCov">          0 :       msSetError(MS_IOERR, &quot;'%s'.&quot;,</span>
+<span class="lineNum">    1616 </span>            :                  &quot;msWMSLayerExecuteRequest()&quot;, pasReqInfo[0].pszOutputFile);
+<span class="lineNum">    1617 </span><span class="lineNoCov">          0 :       return MS_FAILURE;</span>
+<span class="lineNum">    1618 </span>            :     }
+<span class="lineNum">    1619 </span>            :   } else {
+<span class="lineNum">    1620 </span><span class="lineCov">          1 :     msIO_contextWrite( context,</span>
+<span class="lineNum">    1621 </span><span class="lineCov">          1 :                        pasReqInfo[0].result_data,</span>
+<span class="lineNum">    1622 </span>            :                        pasReqInfo[0].result_size );
+<span class="lineNum">    1623 </span>            :   }
+<span class="lineNum">    1624 </span>            : 
+<span class="lineNum">    1625 </span><span class="lineCov">          1 :   msHTTPFreeRequestObj(pasReqInfo, numReq);</span>
+<span class="lineNum">    1626 </span><span class="lineCov">          1 :   msFree(pasReqInfo);</span>
+<span class="lineNum">    1627 </span><span class="lineCov">          1 :   msFreeWmsParamsObj(&amp;sLastWMSParams);</span>
+<span class="lineNum">    1628 </span>            : 
+<span class="lineNum">    1629 </span><span class="lineCov">          1 :   return MS_SUCCESS;</span>
+<span class="lineNum">    1630 </span>            : #else
+<span class="lineNum">    1631 </span>            :   /* ------------------------------------------------------------------
+<span class="lineNum">    1632 </span>            :    * WMS CONNECTION Support not included...
+<span class="lineNum">    1633 </span>            :    * ------------------------------------------------------------------ */
+<span class="lineNum">    1634 </span>            :   msSetError(MS_WMSCONNERR, &quot;WMS CLIENT CONNECTION support is not available.&quot;,
+<span class="lineNum">    1635 </span>            :              &quot;msWMSLayerExecuteRequest()&quot;);
+<span class="lineNum">    1636 </span>            :   return(MS_FAILURE);
+<span class="lineNum">    1637 </span>            : 
+<span class="lineNum">    1638 </span>            : #endif /* USE_WMS_LYR */
+<span class="lineNum">    1639 </span>            : 
+<span class="lineNum">    1640 </span>            : }
 </pre>
       </td>
     </tr>
