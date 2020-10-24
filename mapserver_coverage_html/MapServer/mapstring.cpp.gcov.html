@@ -32,17 +32,17 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntry">524</td>
-            <td class="headerCovTableEntry">847</td>
-            <td class="headerCovTableEntryLo">61.9 %</td>
+            <td class="headerCovTableEntry">812</td>
+            <td class="headerCovTableEntryLo">64.5 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2020-10-20 08:29:08</td>
+            <td class="headerValue">2020-10-24 14:57:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">51</td>
-            <td class="headerCovTableEntry">64</td>
-            <td class="headerCovTableEntryMed">79.7 %</td>
+            <td class="headerCovTableEntry">63</td>
+            <td class="headerCovTableEntryMed">81.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -1956,577 +1956,497 @@
 <span class="lineNum">    1894 </span>            :   msSetError(MS_MISCERR, &quot;Not implemented since Iconv is not enabled.&quot;, &quot;msConvertWideStringToUTF8()&quot;);
 <span class="lineNum">    1895 </span>            :   return NULL;
 <span class="lineNum">    1896 </span>            : #endif
-<a name="1897"><span class="lineNum">    1897 </span>            : }</a>
+<span class="lineNum">    1897 </span>            : }
 <span class="lineNum">    1898 </span>            : 
-<span class="lineNum">    1899 </span><span class="lineNoCov">          0 : wchar_t* msConvertWideStringFromUTF8 (const char* string, const char* encoding)</span>
-<span class="lineNum">    1900 </span>            : {
-<span class="lineNum">    1901 </span>            : #ifdef USE_ICONV
-<span class="lineNum">    1902 </span>            :   wchar_t* output = NULL;
-<span class="lineNum">    1903 </span>            :   const char* errormessage = NULL;
-<span class="lineNum">    1904 </span>            :   iconv_t cd = NULL;
-<span class="lineNum">    1905 </span>            :   size_t nStr;
-<span class="lineNum">    1906 </span>            :   size_t nInSize;
-<span class="lineNum">    1907 </span>            :   size_t nOutSize;
-<span class="lineNum">    1908 </span>            :   size_t iconv_status = -1;
-<span class="lineNum">    1909 </span>            :   size_t nBufferSize;
-<span class="lineNum">    1910 </span>            : 
-<span class="lineNum">    1911 </span><span class="lineNoCov">          0 :   const char* pszUTF8 = NULL;</span>
-<span class="lineNum">    1912 </span><span class="lineNoCov">          0 :   wchar_t* pwszWide = NULL;</span>
-<span class="lineNum">    1913 </span>            : 
-<span class="lineNum">    1914 </span><span class="lineNoCov">          0 :   if (string != NULL) {</span>
-<span class="lineNum">    1915 </span><span class="lineNoCov">          0 :     nStr = strlen (string);</span>
-<span class="lineNum">    1916 </span><span class="lineNoCov">          0 :     nBufferSize = ((nStr * 6) + 1);</span>
-<span class="lineNum">    1917 </span><span class="lineNoCov">          0 :     output = (wchar_t*) msSmallMalloc (nBufferSize);</span>
-<span class="lineNum">    1918 </span>            : 
-<span class="lineNum">    1919 </span><span class="lineNoCov">          0 :     if (nStr == 0) {</span>
-<span class="lineNum">    1920 </span>            :       /* return an empty 8 byte string */
-<span class="lineNum">    1921 </span><span class="lineNoCov">          0 :       output[0] = '\0';</span>
-<span class="lineNum">    1922 </span><span class="lineNoCov">          0 :       return output;</span>
-<span class="lineNum">    1923 </span>            :     }
-<span class="lineNum">    1924 </span>            : 
-<span class="lineNum">    1925 </span><span class="lineNoCov">          0 :     cd = iconv_open(encoding, &quot;UTF-8&quot;);</span>
-<span class="lineNum">    1926 </span>            : 
-<span class="lineNum">    1927 </span><span class="lineNoCov">          0 :     nOutSize = nBufferSize;</span>
-<span class="lineNum">    1928 </span><span class="lineNoCov">          0 :     if ((iconv_t)-1 != cd) {</span>
-<span class="lineNum">    1929 </span><span class="lineNoCov">          0 :       nInSize = sizeof (char)*nStr;</span>
-<span class="lineNum">    1930 </span><span class="lineNoCov">          0 :       pszUTF8 = string;</span>
-<span class="lineNum">    1931 </span><span class="lineNoCov">          0 :       pwszWide = output;</span>
-<span class="lineNum">    1932 </span><span class="lineNoCov">          0 :       iconv_status = msIconv(cd, (char **)&amp;pszUTF8, &amp;nInSize, (char **)&amp;pwszWide, &amp;nOutSize);</span>
-<span class="lineNum">    1933 </span><span class="lineNoCov">          0 :       if ((size_t)-1 == iconv_status) {</span>
-<span class="lineNum">    1934 </span><span class="lineNoCov">          0 :         switch (errno) {</span>
-<span class="lineNum">    1935 </span>            :           case E2BIG:
-<span class="lineNum">    1936 </span>            :             errormessage = &quot;There is not sufficient room in buffer&quot;;
-<span class="lineNum">    1937 </span>            :             break;
-<span class="lineNum">    1938 </span><span class="lineNoCov">          0 :           case EILSEQ:</span>
-<span class="lineNum">    1939 </span>            :             errormessage = &quot;An invalid multibyte sequence has been encountered in the input&quot;;
-<span class="lineNum">    1940 </span><span class="lineNoCov">          0 :             break;</span>
-<span class="lineNum">    1941 </span><span class="lineNoCov">          0 :           case EINVAL:</span>
-<span class="lineNum">    1942 </span>            :             errormessage = &quot;An incomplete multibyte sequence has been encountered in the input&quot;;
-<span class="lineNum">    1943 </span><span class="lineNoCov">          0 :             break;</span>
-<span class="lineNum">    1944 </span><span class="lineNoCov">          0 :           default:</span>
-<span class="lineNum">    1945 </span>            :             errormessage = &quot;Unknown&quot;;
-<span class="lineNum">    1946 </span><span class="lineNoCov">          0 :             break;</span>
-<span class="lineNum">    1947 </span>            :         }
-<span class="lineNum">    1948 </span><span class="lineNoCov">          0 :         msSetError(MS_MISCERR, &quot;Unable to convert string in UTF8 to encoding '%s' %s&quot;,</span>
-<span class="lineNum">    1949 </span>            :                    &quot;msConvertWideStringFromUTF8()&quot;,
-<span class="lineNum">    1950 </span>            :                    encoding, errormessage);
-<span class="lineNum">    1951 </span><span class="lineNoCov">          0 :         iconv_close(cd);</span>
-<span class="lineNum">    1952 </span><span class="lineNoCov">          0 :         msFree(output);</span>
-<span class="lineNum">    1953 </span><span class="lineNoCov">          0 :         return NULL;</span>
-<span class="lineNum">    1954 </span>            :       }
-<span class="lineNum">    1955 </span><span class="lineNoCov">          0 :       iconv_close(cd);</span>
-<span class="lineNum">    1956 </span>            :     } else {
-<span class="lineNum">    1957 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;Encoding not supported by libiconv (%s).&quot;,</span>
-<span class="lineNum">    1958 </span>            :                  &quot;msConvertWideStringFromUTF8()&quot;,
-<span class="lineNum">    1959 </span>            :                  encoding);
-<span class="lineNum">    1960 </span><span class="lineNoCov">          0 :       msFree(output);</span>
-<span class="lineNum">    1961 </span><span class="lineNoCov">          0 :       return NULL;</span>
-<span class="lineNum">    1962 </span>            :     }
-<span class="lineNum">    1963 </span>            :   } else {
-<span class="lineNum">    1964 </span>            :     /* we were given a NULL wide string, nothing we can do here */
-<span class="lineNum">    1965 </span>            :     return NULL;
-<span class="lineNum">    1966 </span>            :   }
-<span class="lineNum">    1967 </span>            : 
-<span class="lineNum">    1968 </span>            :   /* NULL-terminate the output string */
-<span class="lineNum">    1969 </span><span class="lineNoCov">          0 :   if (nOutSize &gt;= sizeof (wchar_t))</span>
-<span class="lineNum">    1970 </span><span class="lineNoCov">          0 :     *((wchar_t *) pwszWide) = L'\0';</span>
-<span class="lineNum">    1971 </span>            : 
-<span class="lineNum">    1972 </span>            :   return output;
-<span class="lineNum">    1973 </span>            : #else
-<span class="lineNum">    1974 </span>            :   msSetError(MS_MISCERR, &quot;Not implemented since Iconv is not enabled.&quot;, &quot;msConvertWideStringFromUTF8()&quot;);
-<span class="lineNum">    1975 </span>            :   return NULL;
-<span class="lineNum">    1976 </span>            : #endif
-<span class="lineNum">    1977 </span>            : }
-<span class="lineNum">    1978 </span>            : 
-<span class="lineNum">    1979 </span>            : /*
-<span class="lineNum">    1980 </span>            : ** Returns the next glyph in string and advances *in_ptr to the next
-<span class="lineNum">    1981 </span>            : ** character.
-<span class="lineNum">    1982 </span>            : **
-<span class="lineNum">    1983 </span>            : ** If out_string is not NULL then the character (bytes) is copied to this
-<span class="lineNum">    1984 </span>            : ** buffer and null-terminated. out_string must be a pre-allocated buffer of
-<span class="lineNum">    1985 </span>            : ** at least 11 bytes.
-<span class="lineNum">    1986 </span>            : **
-<span class="lineNum">    1987 </span>            : ** The function returns the number of bytes in this glyph.
-<span class="lineNum">    1988 </span>            : **
-<span class="lineNum">    1989 </span>            : ** This function treats 3 types of glyph encodings:
-<span class="lineNum">    1990 </span>            : *   - as an html entity, for example &amp;#123; , &amp;#x1af; , or &amp;eacute;
-<span class="lineNum">    1991 </span>            : *   - as an utf8 encoded character
-<span class="lineNum">    1992 </span>            : *   - if utf8 decoding fails, as a raw character
-<span class="lineNum">    1993 </span>            : *
-<span class="lineNum">    1994 </span>            : ** This function mimics the character decoding function used in gdft.c of
-<span class="lineNum">    1995 </span>            : * libGD. It is necessary to have the same behaviour, as input strings must be
-<span class="lineNum">    1996 </span>            : * split into the same glyphs as what gd does.
-<span class="lineNum">    1997 </span>            : **
-<span class="lineNum">    1998 </span>            : ** In UTF-8, the number of leading 1 bits in the first byte specifies the
-<span class="lineNum">    1999 </span>            : ** number of bytes in the entire sequence.
-<span class="lineNum">    2000 </span>            : ** Source: http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
-<span class="lineNum">    2001 </span>            : **
-<span class="lineNum">    2002 </span>            : ** U-00000000 U-0000007F: 0xxxxxxx
-<span class="lineNum">    2003 </span>            : ** U-00000080 U-000007FF: 110xxxxx 10xxxxxx
-<span class="lineNum">    2004 </span>            : ** U-00000800 U-0000FFFF: 1110xxxx 10xxxxxx 10xxxxxx
-<span class="lineNum">    2005 </span>            : ** U-00010000 U-001FFFFF: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-<span class="lineNum">    2006 </span>            : ** U-00200000 U-03FFFFFF: 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
-<a name="2007"><span class="lineNum">    2007 </span>            : ** U-04000000 U-7FFFFFFF: 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx</a>
-<span class="lineNum">    2008 </span>            : */
-<span class="lineNum">    2009 </span><span class="lineNoCov">          0 : int msGetNextGlyph(const char **in_ptr, char *out_string)</span>
-<span class="lineNum">    2010 </span>            : {
-<span class="lineNum">    2011 </span>            :   unsigned char in;
-<span class="lineNum">    2012 </span>            :   int numbytes=0;
-<span class="lineNum">    2013 </span>            :   unsigned int unicode;
-<span class="lineNum">    2014 </span>            :   int i;
-<span class="lineNum">    2015 </span>            : 
-<span class="lineNum">    2016 </span><span class="lineNoCov">          0 :   in = (unsigned char)**in_ptr;</span>
-<span class="lineNum">    2017 </span>            : 
-<span class="lineNum">    2018 </span><span class="lineNoCov">          0 :   if (in == 0)</span>
-<span class="lineNum">    2019 </span>            :     return -1;  /* Empty string */
-<span class="lineNum">    2020 </span><span class="lineNoCov">          0 :   if((numbytes=msGetUnicodeEntity(*in_ptr,&amp;unicode))&gt;0) {</span>
-<span class="lineNum">    2021 </span><span class="lineNoCov">          0 :     if(out_string) {</span>
-<span class="lineNum">    2022 </span><span class="lineNoCov">          0 :       for(i=0; i&lt;numbytes; i++) {</span>
-<span class="lineNum">    2023 </span><span class="lineNoCov">          0 :         out_string[i]=(*in_ptr)[i];</span>
-<span class="lineNum">    2024 </span>            :       }
-<span class="lineNum">    2025 </span><span class="lineNoCov">          0 :       out_string[numbytes]='\0';</span>
-<span class="lineNum">    2026 </span>            :     }
-<span class="lineNum">    2027 </span><span class="lineNoCov">          0 :     *in_ptr+=numbytes;</span>
-<span class="lineNum">    2028 </span><span class="lineNoCov">          0 :     return numbytes;</span>
-<span class="lineNum">    2029 </span>            :   }
-<span class="lineNum">    2030 </span><span class="lineNoCov">          0 :   if (in &lt; 0xC0) {</span>
-<span class="lineNum">    2031 </span>            :     /*
-<span class="lineNum">    2032 </span>            :     * Handles properly formed UTF-8 characters between
-<span class="lineNum">    2033 </span>            :     * 0x01 and 0x7F.  Also treats \0 and naked trail
-<span class="lineNum">    2034 </span>            :     * bytes 0x80 to 0xBF as valid characters representing
-<span class="lineNum">    2035 </span>            :     * themselves.
-<span class="lineNum">    2036 </span>            :     */
-<span class="lineNum">    2037 </span>            :     /*goto end of loop to return just the char*/
-<span class="lineNum">    2038 </span><span class="lineNoCov">          0 :   } else if (in &lt; 0xE0) {</span>
-<span class="lineNum">    2039 </span><span class="lineNoCov">          0 :     if (((*in_ptr)[1]&amp; 0xC0) == 0x80) {</span>
-<span class="lineNum">    2040 </span><span class="lineNoCov">          0 :       if(out_string) {</span>
-<span class="lineNum">    2041 </span><span class="lineNoCov">          0 :         out_string[0]=in;</span>
-<span class="lineNum">    2042 </span><span class="lineNoCov">          0 :         out_string[1]=(*in_ptr)[1];</span>
-<span class="lineNum">    2043 </span><span class="lineNoCov">          0 :         out_string[2]='\0';</span>
-<span class="lineNum">    2044 </span>            :       }
-<span class="lineNum">    2045 </span><span class="lineNoCov">          0 :       *in_ptr+=2;</span>
-<span class="lineNum">    2046 </span><span class="lineNoCov">          0 :       return 2; /*110xxxxx 10xxxxxx*/</span>
-<span class="lineNum">    2047 </span>            :     }
-<span class="lineNum">    2048 </span><span class="lineNoCov">          0 :   } else if (in &lt; 0xF0) {</span>
-<span class="lineNum">    2049 </span><span class="lineNoCov">          0 :     if (((*in_ptr)[1]&amp; 0xC0) == 0x80 &amp;&amp; ((*in_ptr)[2]&amp; 0xC0) == 0x80) {</span>
-<span class="lineNum">    2050 </span><span class="lineNoCov">          0 :       if(out_string) {</span>
-<span class="lineNum">    2051 </span><span class="lineNoCov">          0 :         out_string[0]=in;</span>
-<span class="lineNum">    2052 </span><span class="lineNoCov">          0 :         *in_ptr+=numbytes;</span>
-<span class="lineNum">    2053 </span><span class="lineNoCov">          0 :         out_string[1]=(*in_ptr)[1];</span>
-<span class="lineNum">    2054 </span><span class="lineNoCov">          0 :         out_string[2]=(*in_ptr)[2];</span>
-<span class="lineNum">    2055 </span><span class="lineNoCov">          0 :         out_string[3]='\0';</span>
-<span class="lineNum">    2056 </span>            :       }
-<span class="lineNum">    2057 </span><span class="lineNoCov">          0 :       *in_ptr+=3;</span>
-<span class="lineNum">    2058 </span><span class="lineNoCov">          0 :       return 3;   /* 1110xxxx 10xxxxxx 10xxxxxx */</span>
-<span class="lineNum">    2059 </span>            :     }
-<span class="lineNum">    2060 </span><span class="lineNoCov">          0 :   } else if (in &lt; 0xF8) {</span>
-<span class="lineNum">    2061 </span><span class="lineNoCov">          0 :     if (((*in_ptr)[1]&amp; 0xC0) == 0x80 &amp;&amp; ((*in_ptr)[2]&amp; 0xC0) == 0x80</span>
-<span class="lineNum">    2062 </span><span class="lineNoCov">          0 :         &amp;&amp; ((*in_ptr)[3]&amp; 0xC0) == 0x80) {</span>
-<span class="lineNum">    2063 </span><span class="lineNoCov">          0 :       if(out_string) {</span>
-<span class="lineNum">    2064 </span><span class="lineNoCov">          0 :         out_string[0]=in;</span>
-<span class="lineNum">    2065 </span><span class="lineNoCov">          0 :         out_string[1]=(*in_ptr)[1];</span>
-<span class="lineNum">    2066 </span><span class="lineNoCov">          0 :         out_string[2]=(*in_ptr)[2];</span>
-<span class="lineNum">    2067 </span><span class="lineNoCov">          0 :         out_string[3]=(*in_ptr)[3];</span>
-<span class="lineNum">    2068 </span><span class="lineNoCov">          0 :         out_string[4]='\0';</span>
-<span class="lineNum">    2069 </span>            :       }
-<span class="lineNum">    2070 </span><span class="lineNoCov">          0 :       *in_ptr+=4;</span>
-<span class="lineNum">    2071 </span><span class="lineNoCov">          0 :       return 4;   /* 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */</span>
-<span class="lineNum">    2072 </span>            :     }
-<span class="lineNum">    2073 </span><span class="lineNoCov">          0 :   } else if (in &lt; 0xFC) {</span>
-<span class="lineNum">    2074 </span><span class="lineNoCov">          0 :     if (((*in_ptr)[1]&amp; 0xC0) == 0x80 &amp;&amp; ((*in_ptr)[2]&amp; 0xC0) == 0x80</span>
-<span class="lineNum">    2075 </span><span class="lineNoCov">          0 :         &amp;&amp; ((*in_ptr)[3]&amp; 0xC0) == 0x80 &amp;&amp; ((*in_ptr)[4]&amp; 0xC0) == 0x80) {</span>
-<span class="lineNum">    2076 </span><span class="lineNoCov">          0 :       if(out_string) {</span>
-<span class="lineNum">    2077 </span><span class="lineNoCov">          0 :         out_string[0]=in;</span>
-<span class="lineNum">    2078 </span><span class="lineNoCov">          0 :         out_string[1]=(*in_ptr)[1];</span>
-<span class="lineNum">    2079 </span><span class="lineNoCov">          0 :         out_string[2]=(*in_ptr)[2];</span>
-<span class="lineNum">    2080 </span><span class="lineNoCov">          0 :         out_string[3]=(*in_ptr)[3];</span>
-<span class="lineNum">    2081 </span><span class="lineNoCov">          0 :         out_string[4]=(*in_ptr)[4];</span>
-<span class="lineNum">    2082 </span><span class="lineNoCov">          0 :         out_string[5]='\0';</span>
-<span class="lineNum">    2083 </span>            :       }
-<span class="lineNum">    2084 </span><span class="lineNoCov">          0 :       *in_ptr+=5;</span>
-<span class="lineNum">    2085 </span><span class="lineNoCov">          0 :       return 5;   /* 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx */</span>
-<span class="lineNum">    2086 </span>            :     }
-<span class="lineNum">    2087 </span><span class="lineNoCov">          0 :   } else if (in &lt; 0xFE) {</span>
-<span class="lineNum">    2088 </span><span class="lineNoCov">          0 :     if (((*in_ptr)[1]&amp; 0xC0) == 0x80 &amp;&amp; ((*in_ptr)[2]&amp; 0xC0) == 0x80</span>
-<span class="lineNum">    2089 </span><span class="lineNoCov">          0 :         &amp;&amp; ((*in_ptr)[3]&amp; 0xC0) == 0x80 &amp;&amp; ((*in_ptr)[4]&amp; 0xC0) == 0x80</span>
-<span class="lineNum">    2090 </span><span class="lineNoCov">          0 :         &amp;&amp; ((*in_ptr)[5]&amp; 0xC0) == 0x80) {</span>
-<span class="lineNum">    2091 </span><span class="lineNoCov">          0 :       if(out_string) {</span>
-<span class="lineNum">    2092 </span><span class="lineNoCov">          0 :         out_string[0]=in;</span>
-<span class="lineNum">    2093 </span><span class="lineNoCov">          0 :         out_string[1]=(*in_ptr)[1];</span>
-<span class="lineNum">    2094 </span><span class="lineNoCov">          0 :         out_string[2]=(*in_ptr)[2];</span>
-<span class="lineNum">    2095 </span><span class="lineNoCov">          0 :         out_string[3]=(*in_ptr)[3];</span>
-<span class="lineNum">    2096 </span><span class="lineNoCov">          0 :         out_string[4]=(*in_ptr)[4];</span>
-<span class="lineNum">    2097 </span><span class="lineNoCov">          0 :         out_string[5]=(*in_ptr)[5];</span>
-<span class="lineNum">    2098 </span><span class="lineNoCov">          0 :         out_string[6]='\0';</span>
+<span class="lineNum">    1899 </span>            : /*
+<span class="lineNum">    1900 </span>            : ** Returns the next glyph in string and advances *in_ptr to the next
+<span class="lineNum">    1901 </span>            : ** character.
+<span class="lineNum">    1902 </span>            : **
+<span class="lineNum">    1903 </span>            : ** If out_string is not NULL then the character (bytes) is copied to this
+<span class="lineNum">    1904 </span>            : ** buffer and null-terminated. out_string must be a pre-allocated buffer of
+<span class="lineNum">    1905 </span>            : ** at least 11 bytes.
+<span class="lineNum">    1906 </span>            : **
+<span class="lineNum">    1907 </span>            : ** The function returns the number of bytes in this glyph.
+<span class="lineNum">    1908 </span>            : **
+<span class="lineNum">    1909 </span>            : ** This function treats 3 types of glyph encodings:
+<span class="lineNum">    1910 </span>            : *   - as an html entity, for example &amp;#123; , &amp;#x1af; , or &amp;eacute;
+<span class="lineNum">    1911 </span>            : *   - as an utf8 encoded character
+<span class="lineNum">    1912 </span>            : *   - if utf8 decoding fails, as a raw character
+<span class="lineNum">    1913 </span>            : *
+<span class="lineNum">    1914 </span>            : ** This function mimics the character decoding function used in gdft.c of
+<span class="lineNum">    1915 </span>            : * libGD. It is necessary to have the same behaviour, as input strings must be
+<span class="lineNum">    1916 </span>            : * split into the same glyphs as what gd does.
+<span class="lineNum">    1917 </span>            : **
+<span class="lineNum">    1918 </span>            : ** In UTF-8, the number of leading 1 bits in the first byte specifies the
+<span class="lineNum">    1919 </span>            : ** number of bytes in the entire sequence.
+<span class="lineNum">    1920 </span>            : ** Source: http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
+<span class="lineNum">    1921 </span>            : **
+<span class="lineNum">    1922 </span>            : ** U-00000000 U-0000007F: 0xxxxxxx
+<span class="lineNum">    1923 </span>            : ** U-00000080 U-000007FF: 110xxxxx 10xxxxxx
+<span class="lineNum">    1924 </span>            : ** U-00000800 U-0000FFFF: 1110xxxx 10xxxxxx 10xxxxxx
+<span class="lineNum">    1925 </span>            : ** U-00010000 U-001FFFFF: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+<span class="lineNum">    1926 </span>            : ** U-00200000 U-03FFFFFF: 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+<a name="1927"><span class="lineNum">    1927 </span>            : ** U-04000000 U-7FFFFFFF: 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx</a>
+<span class="lineNum">    1928 </span>            : */
+<span class="lineNum">    1929 </span><span class="lineNoCov">          0 : int msGetNextGlyph(const char **in_ptr, char *out_string)</span>
+<span class="lineNum">    1930 </span>            : {
+<span class="lineNum">    1931 </span>            :   unsigned char in;
+<span class="lineNum">    1932 </span>            :   int numbytes=0;
+<span class="lineNum">    1933 </span>            :   unsigned int unicode;
+<span class="lineNum">    1934 </span>            :   int i;
+<span class="lineNum">    1935 </span>            : 
+<span class="lineNum">    1936 </span><span class="lineNoCov">          0 :   in = (unsigned char)**in_ptr;</span>
+<span class="lineNum">    1937 </span>            : 
+<span class="lineNum">    1938 </span><span class="lineNoCov">          0 :   if (in == 0)</span>
+<span class="lineNum">    1939 </span>            :     return -1;  /* Empty string */
+<span class="lineNum">    1940 </span><span class="lineNoCov">          0 :   if((numbytes=msGetUnicodeEntity(*in_ptr,&amp;unicode))&gt;0) {</span>
+<span class="lineNum">    1941 </span><span class="lineNoCov">          0 :     if(out_string) {</span>
+<span class="lineNum">    1942 </span><span class="lineNoCov">          0 :       for(i=0; i&lt;numbytes; i++) {</span>
+<span class="lineNum">    1943 </span><span class="lineNoCov">          0 :         out_string[i]=(*in_ptr)[i];</span>
+<span class="lineNum">    1944 </span>            :       }
+<span class="lineNum">    1945 </span><span class="lineNoCov">          0 :       out_string[numbytes]='\0';</span>
+<span class="lineNum">    1946 </span>            :     }
+<span class="lineNum">    1947 </span><span class="lineNoCov">          0 :     *in_ptr+=numbytes;</span>
+<span class="lineNum">    1948 </span><span class="lineNoCov">          0 :     return numbytes;</span>
+<span class="lineNum">    1949 </span>            :   }
+<span class="lineNum">    1950 </span><span class="lineNoCov">          0 :   if (in &lt; 0xC0) {</span>
+<span class="lineNum">    1951 </span>            :     /*
+<span class="lineNum">    1952 </span>            :     * Handles properly formed UTF-8 characters between
+<span class="lineNum">    1953 </span>            :     * 0x01 and 0x7F.  Also treats \0 and naked trail
+<span class="lineNum">    1954 </span>            :     * bytes 0x80 to 0xBF as valid characters representing
+<span class="lineNum">    1955 </span>            :     * themselves.
+<span class="lineNum">    1956 </span>            :     */
+<span class="lineNum">    1957 </span>            :     /*goto end of loop to return just the char*/
+<span class="lineNum">    1958 </span><span class="lineNoCov">          0 :   } else if (in &lt; 0xE0) {</span>
+<span class="lineNum">    1959 </span><span class="lineNoCov">          0 :     if (((*in_ptr)[1]&amp; 0xC0) == 0x80) {</span>
+<span class="lineNum">    1960 </span><span class="lineNoCov">          0 :       if(out_string) {</span>
+<span class="lineNum">    1961 </span><span class="lineNoCov">          0 :         out_string[0]=in;</span>
+<span class="lineNum">    1962 </span><span class="lineNoCov">          0 :         out_string[1]=(*in_ptr)[1];</span>
+<span class="lineNum">    1963 </span><span class="lineNoCov">          0 :         out_string[2]='\0';</span>
+<span class="lineNum">    1964 </span>            :       }
+<span class="lineNum">    1965 </span><span class="lineNoCov">          0 :       *in_ptr+=2;</span>
+<span class="lineNum">    1966 </span><span class="lineNoCov">          0 :       return 2; /*110xxxxx 10xxxxxx*/</span>
+<span class="lineNum">    1967 </span>            :     }
+<span class="lineNum">    1968 </span><span class="lineNoCov">          0 :   } else if (in &lt; 0xF0) {</span>
+<span class="lineNum">    1969 </span><span class="lineNoCov">          0 :     if (((*in_ptr)[1]&amp; 0xC0) == 0x80 &amp;&amp; ((*in_ptr)[2]&amp; 0xC0) == 0x80) {</span>
+<span class="lineNum">    1970 </span><span class="lineNoCov">          0 :       if(out_string) {</span>
+<span class="lineNum">    1971 </span><span class="lineNoCov">          0 :         out_string[0]=in;</span>
+<span class="lineNum">    1972 </span><span class="lineNoCov">          0 :         *in_ptr+=numbytes;</span>
+<span class="lineNum">    1973 </span><span class="lineNoCov">          0 :         out_string[1]=(*in_ptr)[1];</span>
+<span class="lineNum">    1974 </span><span class="lineNoCov">          0 :         out_string[2]=(*in_ptr)[2];</span>
+<span class="lineNum">    1975 </span><span class="lineNoCov">          0 :         out_string[3]='\0';</span>
+<span class="lineNum">    1976 </span>            :       }
+<span class="lineNum">    1977 </span><span class="lineNoCov">          0 :       *in_ptr+=3;</span>
+<span class="lineNum">    1978 </span><span class="lineNoCov">          0 :       return 3;   /* 1110xxxx 10xxxxxx 10xxxxxx */</span>
+<span class="lineNum">    1979 </span>            :     }
+<span class="lineNum">    1980 </span><span class="lineNoCov">          0 :   } else if (in &lt; 0xF8) {</span>
+<span class="lineNum">    1981 </span><span class="lineNoCov">          0 :     if (((*in_ptr)[1]&amp; 0xC0) == 0x80 &amp;&amp; ((*in_ptr)[2]&amp; 0xC0) == 0x80</span>
+<span class="lineNum">    1982 </span><span class="lineNoCov">          0 :         &amp;&amp; ((*in_ptr)[3]&amp; 0xC0) == 0x80) {</span>
+<span class="lineNum">    1983 </span><span class="lineNoCov">          0 :       if(out_string) {</span>
+<span class="lineNum">    1984 </span><span class="lineNoCov">          0 :         out_string[0]=in;</span>
+<span class="lineNum">    1985 </span><span class="lineNoCov">          0 :         out_string[1]=(*in_ptr)[1];</span>
+<span class="lineNum">    1986 </span><span class="lineNoCov">          0 :         out_string[2]=(*in_ptr)[2];</span>
+<span class="lineNum">    1987 </span><span class="lineNoCov">          0 :         out_string[3]=(*in_ptr)[3];</span>
+<span class="lineNum">    1988 </span><span class="lineNoCov">          0 :         out_string[4]='\0';</span>
+<span class="lineNum">    1989 </span>            :       }
+<span class="lineNum">    1990 </span><span class="lineNoCov">          0 :       *in_ptr+=4;</span>
+<span class="lineNum">    1991 </span><span class="lineNoCov">          0 :       return 4;   /* 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */</span>
+<span class="lineNum">    1992 </span>            :     }
+<span class="lineNum">    1993 </span><span class="lineNoCov">          0 :   } else if (in &lt; 0xFC) {</span>
+<span class="lineNum">    1994 </span><span class="lineNoCov">          0 :     if (((*in_ptr)[1]&amp; 0xC0) == 0x80 &amp;&amp; ((*in_ptr)[2]&amp; 0xC0) == 0x80</span>
+<span class="lineNum">    1995 </span><span class="lineNoCov">          0 :         &amp;&amp; ((*in_ptr)[3]&amp; 0xC0) == 0x80 &amp;&amp; ((*in_ptr)[4]&amp; 0xC0) == 0x80) {</span>
+<span class="lineNum">    1996 </span><span class="lineNoCov">          0 :       if(out_string) {</span>
+<span class="lineNum">    1997 </span><span class="lineNoCov">          0 :         out_string[0]=in;</span>
+<span class="lineNum">    1998 </span><span class="lineNoCov">          0 :         out_string[1]=(*in_ptr)[1];</span>
+<span class="lineNum">    1999 </span><span class="lineNoCov">          0 :         out_string[2]=(*in_ptr)[2];</span>
+<span class="lineNum">    2000 </span><span class="lineNoCov">          0 :         out_string[3]=(*in_ptr)[3];</span>
+<span class="lineNum">    2001 </span><span class="lineNoCov">          0 :         out_string[4]=(*in_ptr)[4];</span>
+<span class="lineNum">    2002 </span><span class="lineNoCov">          0 :         out_string[5]='\0';</span>
+<span class="lineNum">    2003 </span>            :       }
+<span class="lineNum">    2004 </span><span class="lineNoCov">          0 :       *in_ptr+=5;</span>
+<span class="lineNum">    2005 </span><span class="lineNoCov">          0 :       return 5;   /* 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx */</span>
+<span class="lineNum">    2006 </span>            :     }
+<span class="lineNum">    2007 </span><span class="lineNoCov">          0 :   } else if (in &lt; 0xFE) {</span>
+<span class="lineNum">    2008 </span><span class="lineNoCov">          0 :     if (((*in_ptr)[1]&amp; 0xC0) == 0x80 &amp;&amp; ((*in_ptr)[2]&amp; 0xC0) == 0x80</span>
+<span class="lineNum">    2009 </span><span class="lineNoCov">          0 :         &amp;&amp; ((*in_ptr)[3]&amp; 0xC0) == 0x80 &amp;&amp; ((*in_ptr)[4]&amp; 0xC0) == 0x80</span>
+<span class="lineNum">    2010 </span><span class="lineNoCov">          0 :         &amp;&amp; ((*in_ptr)[5]&amp; 0xC0) == 0x80) {</span>
+<span class="lineNum">    2011 </span><span class="lineNoCov">          0 :       if(out_string) {</span>
+<span class="lineNum">    2012 </span><span class="lineNoCov">          0 :         out_string[0]=in;</span>
+<span class="lineNum">    2013 </span><span class="lineNoCov">          0 :         out_string[1]=(*in_ptr)[1];</span>
+<span class="lineNum">    2014 </span><span class="lineNoCov">          0 :         out_string[2]=(*in_ptr)[2];</span>
+<span class="lineNum">    2015 </span><span class="lineNoCov">          0 :         out_string[3]=(*in_ptr)[3];</span>
+<span class="lineNum">    2016 </span><span class="lineNoCov">          0 :         out_string[4]=(*in_ptr)[4];</span>
+<span class="lineNum">    2017 </span><span class="lineNoCov">          0 :         out_string[5]=(*in_ptr)[5];</span>
+<span class="lineNum">    2018 </span><span class="lineNoCov">          0 :         out_string[6]='\0';</span>
+<span class="lineNum">    2019 </span>            :       }
+<span class="lineNum">    2020 </span><span class="lineNoCov">          0 :       *in_ptr+=6;</span>
+<span class="lineNum">    2021 </span><span class="lineNoCov">          0 :       return 6;   /* 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx */</span>
+<span class="lineNum">    2022 </span>            :     }
+<span class="lineNum">    2023 </span>            :   }
+<span class="lineNum">    2024 </span>            : 
+<span class="lineNum">    2025 </span><span class="lineNoCov">          0 :   if (out_string) {</span>
+<span class="lineNum">    2026 </span><span class="lineNoCov">          0 :     out_string[0]=in;</span>
+<span class="lineNum">    2027 </span><span class="lineNoCov">          0 :     out_string[1] = '\0';   /* 0xxxxxxx */</span>
+<span class="lineNum">    2028 </span>            :   }
+<span class="lineNum">    2029 </span><span class="lineNoCov">          0 :   (*in_ptr)++;</span>
+<span class="lineNum">    2030 </span><span class="lineNoCov">          0 :   return 1;</span>
+<span class="lineNum">    2031 </span>            : }
+<span class="lineNum">    2032 </span>            : 
+<span class="lineNum">    2033 </span>            : /*
+<a name="2034"><span class="lineNum">    2034 </span>            : ** Returns the number of glyphs in string</a>
+<span class="lineNum">    2035 </span>            : */
+<span class="lineNum">    2036 </span><span class="lineNoCov">          0 : int msGetNumGlyphs(const char *in_ptr)</span>
+<span class="lineNum">    2037 </span>            : {
+<span class="lineNum">    2038 </span>            :   int numchars=0;
+<span class="lineNum">    2039 </span>            : 
+<span class="lineNum">    2040 </span><span class="lineNoCov">          0 :   while( msGetNextGlyph(&amp;in_ptr, NULL) != -1 )</span>
+<span class="lineNum">    2041 </span><span class="lineNoCov">          0 :     numchars++;</span>
+<span class="lineNum">    2042 </span>            : 
+<span class="lineNum">    2043 </span><span class="lineNoCov">          0 :   return numchars;</span>
+<span class="lineNum">    2044 </span>            : }
+<span class="lineNum">    2045 </span>            : 
+<span class="lineNum">    2046 </span>            : static int cmp_entities(const void *e1, const void *e2)
+<span class="lineNum">    2047 </span>            : {
+<span class="lineNum">    2048 </span>            :   struct mapentities_s *en1 = (struct mapentities_s *) e1;
+<span class="lineNum">    2049 </span>            :   struct mapentities_s *en2 = (struct mapentities_s *) e2;
+<span class="lineNum">    2050 </span><span class="lineCov">          1 :   return strcmp(en1-&gt;name, en2-&gt;name);</span>
+<span class="lineNum">    2051 </span>            : }
+<span class="lineNum">    2052 </span>            : /*
+<span class="lineNum">    2053 </span>            :  * this function tests if the string pointed by inptr represents
+<span class="lineNum">    2054 </span>            :  * an HTML entity, in decimal form ( e.g. &amp;#197;), in hexadecimal
+<span class="lineNum">    2055 </span>            :  * form ( e.g. &amp;#x6C34; ), or from html 4.0 spec ( e.g. &amp;eacute; )
+<span class="lineNum">    2056 </span>            :  * - returns returns 0 if the string doesn't represent such an entity.
+<span class="lineNum">    2057 </span>            :  * - if the string does start with such entity,it returns the number of
+<a name="2058"><span class="lineNum">    2058 </span>            :  * bytes occupied by said entity, and stores the unicode value in *unicode</a>
+<span class="lineNum">    2059 </span>            :  */
+<span class="lineNum">    2060 </span><span class="lineCov">          1 : int msGetUnicodeEntity(const char *inptr, unsigned int *unicode)</span>
+<span class="lineNum">    2061 </span>            : {
+<span class="lineNum">    2062 </span>            :   unsigned char *in = (unsigned char*)inptr;
+<span class="lineNum">    2063 </span>            :   int l,val=0;
+<span class="lineNum">    2064 </span><span class="lineCov">          1 :   if(*in=='&amp;') {</span>
+<span class="lineNum">    2065 </span><span class="lineCov">          1 :     in++;</span>
+<span class="lineNum">    2066 </span><span class="lineCov">          1 :     if(*in=='#') {</span>
+<span class="lineNum">    2067 </span><span class="lineCov">          1 :       in++;</span>
+<span class="lineNum">    2068 </span><span class="lineCov">          1 :       if(*in=='x'||*in=='X') {</span>
+<span class="lineNum">    2069 </span><span class="lineNoCov">          0 :         in++;</span>
+<span class="lineNum">    2070 </span><span class="lineNoCov">          0 :         for(l=3; l&lt;8; l++) {</span>
+<span class="lineNum">    2071 </span>            :           char byte;
+<span class="lineNum">    2072 </span><span class="lineNoCov">          0 :           if(*in&gt;='0'&amp;&amp;*in&lt;='9')</span>
+<span class="lineNum">    2073 </span><span class="lineNoCov">          0 :             byte = *in - '0';</span>
+<span class="lineNum">    2074 </span><span class="lineNoCov">          0 :           else if(*in&gt;='a'&amp;&amp;*in&lt;='f')</span>
+<span class="lineNum">    2075 </span><span class="lineNoCov">          0 :             byte = *in - 'a' + 10;</span>
+<span class="lineNum">    2076 </span><span class="lineNoCov">          0 :           else if(*in&gt;='A'&amp;&amp;*in&lt;='F')</span>
+<span class="lineNum">    2077 </span><span class="lineNoCov">          0 :             byte = *in - 'A' + 10;</span>
+<span class="lineNum">    2078 </span>            :           else
+<span class="lineNum">    2079 </span>            :             break;
+<span class="lineNum">    2080 </span><span class="lineNoCov">          0 :           in++;</span>
+<span class="lineNum">    2081 </span><span class="lineNoCov">          0 :           val = (val * 16) + byte;</span>
+<span class="lineNum">    2082 </span>            :         }
+<span class="lineNum">    2083 </span><span class="lineNoCov">          0 :         if(*in==';' &amp;&amp; l&gt;3 ) {</span>
+<span class="lineNum">    2084 </span><span class="lineNoCov">          0 :           *unicode=val;</span>
+<span class="lineNum">    2085 </span><span class="lineNoCov">          0 :           return ++l;</span>
+<span class="lineNum">    2086 </span>            :         }
+<span class="lineNum">    2087 </span>            :       } else {
+<span class="lineNum">    2088 </span><span class="lineCov">          1 :         for(l=2; l&lt;8; l++) {</span>
+<span class="lineNum">    2089 </span><span class="lineCov">          1 :           if(*in&gt;='0'&amp;&amp;*in&lt;='9') {</span>
+<span class="lineNum">    2090 </span><span class="lineCov">          1 :             val = val*10+*in-'0';</span>
+<span class="lineNum">    2091 </span><span class="lineCov">          1 :             in++;</span>
+<span class="lineNum">    2092 </span>            :           } else
+<span class="lineNum">    2093 </span>            :             break;
+<span class="lineNum">    2094 </span>            :         }
+<span class="lineNum">    2095 </span><span class="lineCov">          1 :         if(*in==';' &amp;&amp; l&gt;2 ) {</span>
+<span class="lineNum">    2096 </span><span class="lineCov">          1 :           *unicode=val;</span>
+<span class="lineNum">    2097 </span><span class="lineCov">          1 :           return ++l;</span>
+<span class="lineNum">    2098 </span>            :         }
 <span class="lineNum">    2099 </span>            :       }
-<span class="lineNum">    2100 </span><span class="lineNoCov">          0 :       *in_ptr+=6;</span>
-<span class="lineNum">    2101 </span><span class="lineNoCov">          0 :       return 6;   /* 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx */</span>
-<span class="lineNum">    2102 </span>            :     }
-<span class="lineNum">    2103 </span>            :   }
-<span class="lineNum">    2104 </span>            : 
-<span class="lineNum">    2105 </span><span class="lineNoCov">          0 :   if (out_string) {</span>
-<span class="lineNum">    2106 </span><span class="lineNoCov">          0 :     out_string[0]=in;</span>
-<span class="lineNum">    2107 </span><span class="lineNoCov">          0 :     out_string[1] = '\0';   /* 0xxxxxxx */</span>
-<span class="lineNum">    2108 </span>            :   }
-<span class="lineNum">    2109 </span><span class="lineNoCov">          0 :   (*in_ptr)++;</span>
-<span class="lineNum">    2110 </span><span class="lineNoCov">          0 :   return 1;</span>
-<span class="lineNum">    2111 </span>            : }
-<span class="lineNum">    2112 </span>            : 
-<span class="lineNum">    2113 </span>            : /*
-<a name="2114"><span class="lineNum">    2114 </span>            : ** Returns the number of glyphs in string</a>
-<span class="lineNum">    2115 </span>            : */
-<span class="lineNum">    2116 </span><span class="lineNoCov">          0 : int msGetNumGlyphs(const char *in_ptr)</span>
-<span class="lineNum">    2117 </span>            : {
-<span class="lineNum">    2118 </span>            :   int numchars=0;
-<span class="lineNum">    2119 </span>            : 
-<span class="lineNum">    2120 </span><span class="lineNoCov">          0 :   while( msGetNextGlyph(&amp;in_ptr, NULL) != -1 )</span>
-<span class="lineNum">    2121 </span><span class="lineNoCov">          0 :     numchars++;</span>
-<span class="lineNum">    2122 </span>            : 
-<span class="lineNum">    2123 </span><span class="lineNoCov">          0 :   return numchars;</span>
-<span class="lineNum">    2124 </span>            : }
-<span class="lineNum">    2125 </span>            : 
-<span class="lineNum">    2126 </span>            : static int cmp_entities(const void *e1, const void *e2)
-<span class="lineNum">    2127 </span>            : {
-<span class="lineNum">    2128 </span>            :   struct mapentities_s *en1 = (struct mapentities_s *) e1;
-<span class="lineNum">    2129 </span>            :   struct mapentities_s *en2 = (struct mapentities_s *) e2;
-<span class="lineNum">    2130 </span><span class="lineCov">          1 :   return strcmp(en1-&gt;name, en2-&gt;name);</span>
-<span class="lineNum">    2131 </span>            : }
-<span class="lineNum">    2132 </span>            : /*
-<span class="lineNum">    2133 </span>            :  * this function tests if the string pointed by inptr represents
-<span class="lineNum">    2134 </span>            :  * an HTML entity, in decimal form ( e.g. &amp;#197;), in hexadecimal
-<span class="lineNum">    2135 </span>            :  * form ( e.g. &amp;#x6C34; ), or from html 4.0 spec ( e.g. &amp;eacute; )
-<span class="lineNum">    2136 </span>            :  * - returns returns 0 if the string doesn't represent such an entity.
-<span class="lineNum">    2137 </span>            :  * - if the string does start with such entity,it returns the number of
-<a name="2138"><span class="lineNum">    2138 </span>            :  * bytes occupied by said entity, and stores the unicode value in *unicode</a>
-<span class="lineNum">    2139 </span>            :  */
-<span class="lineNum">    2140 </span><span class="lineCov">          1 : int msGetUnicodeEntity(const char *inptr, unsigned int *unicode)</span>
+<span class="lineNum">    2100 </span>            :     } else {
+<span class="lineNum">    2101 </span>            :       char entity_name_buf[MAP_ENTITY_NAME_LENGTH_MAX+1];
+<span class="lineNum">    2102 </span>            :       char *p;
+<span class="lineNum">    2103 </span>            :       struct mapentities_s key;
+<span class="lineNum">    2104 </span>            :       key.name = p = entity_name_buf;
+<span class="lineNum">    2105 </span><span class="lineCov">          1 :       for (l = 1; l &lt;=  MAP_ENTITY_NAME_LENGTH_MAX+1; l++) {</span>
+<span class="lineNum">    2106 </span><span class="lineCov">          1 :         if (*in == '\0') /*end of string before possible entity: return*/</span>
+<span class="lineNum">    2107 </span>            :           break;
+<span class="lineNum">    2108 </span><span class="lineCov">          1 :         if (*in == ';') { /*possible end of entity: do a lookup*/</span>
+<span class="lineNum">    2109 </span><span class="lineCov">          1 :           *p++ = '\0';</span>
+<span class="lineNum">    2110 </span>            :           const struct mapentities_s* res =
+<span class="lineNum">    2111 </span>            :             static_cast&lt;const struct mapentities_s*&gt;(bsearch(
+<span class="lineNum">    2112 </span>            :                 &amp;key,
+<span class="lineNum">    2113 </span>            :                 mapentities,
+<span class="lineNum">    2114 </span>            :                 MAP_NR_OF_ENTITIES,
+<span class="lineNum">    2115 </span>            :                 sizeof(mapentities[0]), cmp_entities));
+<span class="lineNum">    2116 </span><span class="lineCov">          1 :           if (res) {</span>
+<span class="lineNum">    2117 </span><span class="lineCov">          1 :             *unicode = res-&gt;value;</span>
+<span class="lineNum">    2118 </span><span class="lineCov">          1 :             return ++l;</span>
+<span class="lineNum">    2119 </span>            :           }
+<span class="lineNum">    2120 </span>            :           break; /*the string was of the form of an entity but didn't correspond to an existing one: return*/
+<span class="lineNum">    2121 </span>            :         }
+<span class="lineNum">    2122 </span><span class="lineCov">          1 :         *p++ = *in;</span>
+<span class="lineNum">    2123 </span><span class="lineCov">          1 :         in++;</span>
+<span class="lineNum">    2124 </span>            :       }
+<span class="lineNum">    2125 </span>            :     }
+<span class="lineNum">    2126 </span>            :   }
+<span class="lineNum">    2127 </span>            :   return 0;
+<span class="lineNum">    2128 </span>            : }
+<span class="lineNum">    2129 </span>            : 
+<span class="lineNum">    2130 </span>            : /**
+<span class="lineNum">    2131 </span>            :  * msStringIsInteger()
+<span class="lineNum">    2132 </span>            :  *
+<span class="lineNum">    2133 </span>            :  * determines whether a given string is an integer
+<span class="lineNum">    2134 </span>            :  *
+<span class="lineNum">    2135 </span>            :  * @param string the string to be tested
+<span class="lineNum">    2136 </span>            :  *
+<span class="lineNum">    2137 </span>            :  * @return MS_SUCCESS or MS_FAILURE
+<a name="2138"><span class="lineNum">    2138 </span>            :  */</a>
+<span class="lineNum">    2139 </span>            : 
+<span class="lineNum">    2140 </span><span class="lineCov">          1 : int msStringIsInteger(const char *string)</span>
 <span class="lineNum">    2141 </span>            : {
-<span class="lineNum">    2142 </span>            :   unsigned char *in = (unsigned char*)inptr;
-<span class="lineNum">    2143 </span>            :   int l,val=0;
-<span class="lineNum">    2144 </span><span class="lineCov">          1 :   if(*in=='&amp;') {</span>
-<span class="lineNum">    2145 </span><span class="lineCov">          1 :     in++;</span>
-<span class="lineNum">    2146 </span><span class="lineCov">          1 :     if(*in=='#') {</span>
-<span class="lineNum">    2147 </span><span class="lineCov">          1 :       in++;</span>
-<span class="lineNum">    2148 </span><span class="lineCov">          1 :       if(*in=='x'||*in=='X') {</span>
-<span class="lineNum">    2149 </span><span class="lineNoCov">          0 :         in++;</span>
-<span class="lineNum">    2150 </span><span class="lineNoCov">          0 :         for(l=3; l&lt;8; l++) {</span>
-<span class="lineNum">    2151 </span>            :           char byte;
-<span class="lineNum">    2152 </span><span class="lineNoCov">          0 :           if(*in&gt;='0'&amp;&amp;*in&lt;='9')</span>
-<span class="lineNum">    2153 </span><span class="lineNoCov">          0 :             byte = *in - '0';</span>
-<span class="lineNum">    2154 </span><span class="lineNoCov">          0 :           else if(*in&gt;='a'&amp;&amp;*in&lt;='f')</span>
-<span class="lineNum">    2155 </span><span class="lineNoCov">          0 :             byte = *in - 'a' + 10;</span>
-<span class="lineNum">    2156 </span><span class="lineNoCov">          0 :           else if(*in&gt;='A'&amp;&amp;*in&lt;='F')</span>
-<span class="lineNum">    2157 </span><span class="lineNoCov">          0 :             byte = *in - 'A' + 10;</span>
-<span class="lineNum">    2158 </span>            :           else
-<span class="lineNum">    2159 </span>            :             break;
-<span class="lineNum">    2160 </span><span class="lineNoCov">          0 :           in++;</span>
-<span class="lineNum">    2161 </span><span class="lineNoCov">          0 :           val = (val * 16) + byte;</span>
-<span class="lineNum">    2162 </span>            :         }
-<span class="lineNum">    2163 </span><span class="lineNoCov">          0 :         if(*in==';' &amp;&amp; l&gt;3 ) {</span>
-<span class="lineNum">    2164 </span><span class="lineNoCov">          0 :           *unicode=val;</span>
-<span class="lineNum">    2165 </span><span class="lineNoCov">          0 :           return ++l;</span>
-<span class="lineNum">    2166 </span>            :         }
-<span class="lineNum">    2167 </span>            :       } else {
-<span class="lineNum">    2168 </span><span class="lineCov">          1 :         for(l=2; l&lt;8; l++) {</span>
-<span class="lineNum">    2169 </span><span class="lineCov">          1 :           if(*in&gt;='0'&amp;&amp;*in&lt;='9') {</span>
-<span class="lineNum">    2170 </span><span class="lineCov">          1 :             val = val*10+*in-'0';</span>
-<span class="lineNum">    2171 </span><span class="lineCov">          1 :             in++;</span>
-<span class="lineNum">    2172 </span>            :           } else
-<span class="lineNum">    2173 </span>            :             break;
-<span class="lineNum">    2174 </span>            :         }
-<span class="lineNum">    2175 </span><span class="lineCov">          1 :         if(*in==';' &amp;&amp; l&gt;2 ) {</span>
-<span class="lineNum">    2176 </span><span class="lineCov">          1 :           *unicode=val;</span>
-<span class="lineNum">    2177 </span><span class="lineCov">          1 :           return ++l;</span>
-<span class="lineNum">    2178 </span>            :         }
-<span class="lineNum">    2179 </span>            :       }
-<span class="lineNum">    2180 </span>            :     } else {
-<span class="lineNum">    2181 </span>            :       char entity_name_buf[MAP_ENTITY_NAME_LENGTH_MAX+1];
-<span class="lineNum">    2182 </span>            :       char *p;
-<span class="lineNum">    2183 </span>            :       struct mapentities_s key;
-<span class="lineNum">    2184 </span>            :       key.name = p = entity_name_buf;
-<span class="lineNum">    2185 </span><span class="lineCov">          1 :       for (l = 1; l &lt;=  MAP_ENTITY_NAME_LENGTH_MAX+1; l++) {</span>
-<span class="lineNum">    2186 </span><span class="lineCov">          1 :         if (*in == '\0') /*end of string before possible entity: return*/</span>
-<span class="lineNum">    2187 </span>            :           break;
-<span class="lineNum">    2188 </span><span class="lineCov">          1 :         if (*in == ';') { /*possible end of entity: do a lookup*/</span>
-<span class="lineNum">    2189 </span><span class="lineCov">          1 :           *p++ = '\0';</span>
-<span class="lineNum">    2190 </span>            :           const struct mapentities_s* res =
-<span class="lineNum">    2191 </span>            :             static_cast&lt;const struct mapentities_s*&gt;(bsearch(
-<span class="lineNum">    2192 </span>            :                 &amp;key,
-<span class="lineNum">    2193 </span>            :                 mapentities,
-<span class="lineNum">    2194 </span>            :                 MAP_NR_OF_ENTITIES,
-<span class="lineNum">    2195 </span>            :                 sizeof(mapentities[0]), cmp_entities));
-<span class="lineNum">    2196 </span><span class="lineCov">          1 :           if (res) {</span>
-<span class="lineNum">    2197 </span><span class="lineCov">          1 :             *unicode = res-&gt;value;</span>
-<span class="lineNum">    2198 </span><span class="lineCov">          1 :             return ++l;</span>
-<span class="lineNum">    2199 </span>            :           }
-<span class="lineNum">    2200 </span>            :           break; /*the string was of the form of an entity but didn't correspond to an existing one: return*/
-<span class="lineNum">    2201 </span>            :         }
-<span class="lineNum">    2202 </span><span class="lineCov">          1 :         *p++ = *in;</span>
-<span class="lineNum">    2203 </span><span class="lineCov">          1 :         in++;</span>
-<span class="lineNum">    2204 </span>            :       }
-<span class="lineNum">    2205 </span>            :     }
-<span class="lineNum">    2206 </span>            :   }
-<span class="lineNum">    2207 </span>            :   return 0;
-<span class="lineNum">    2208 </span>            : }
-<span class="lineNum">    2209 </span>            : 
-<span class="lineNum">    2210 </span>            : /**
-<span class="lineNum">    2211 </span>            :  * msStringIsInteger()
-<span class="lineNum">    2212 </span>            :  *
-<span class="lineNum">    2213 </span>            :  * determines whether a given string is an integer
-<span class="lineNum">    2214 </span>            :  *
-<span class="lineNum">    2215 </span>            :  * @param string the string to be tested
-<span class="lineNum">    2216 </span>            :  *
-<span class="lineNum">    2217 </span>            :  * @return MS_SUCCESS or MS_FAILURE
-<a name="2218"><span class="lineNum">    2218 </span>            :  */</a>
-<span class="lineNum">    2219 </span>            : 
-<span class="lineNum">    2220 </span><span class="lineCov">          1 : int msStringIsInteger(const char *string)</span>
-<span class="lineNum">    2221 </span>            : {
-<span class="lineNum">    2222 </span>            :   int length, i;
-<span class="lineNum">    2223 </span>            : 
-<span class="lineNum">    2224 </span><span class="lineCov">          1 :   length = strlen(string);</span>
-<span class="lineNum">    2225 </span>            : 
-<span class="lineNum">    2226 </span><span class="lineCov">          1 :   if (length == 0)</span>
-<span class="lineNum">    2227 </span>            :     return MS_FAILURE;
-<span class="lineNum">    2228 </span>            : 
-<span class="lineNum">    2229 </span><span class="lineCov">          1 :   for(i=0; i&lt;length; i++) {</span>
-<span class="lineNum">    2230 </span><span class="lineCov">          1 :     if (!isdigit(string[i]))</span>
-<span class="lineNum">    2231 </span>            :       return MS_FAILURE;
-<span class="lineNum">    2232 </span>            :   }
-<span class="lineNum">    2233 </span>            : 
-<span class="lineNum">    2234 </span>            :   return MS_SUCCESS;
-<span class="lineNum">    2235 </span>            : }
-<span class="lineNum">    2236 </span>            : 
-<span class="lineNum">    2237 </span>            : /************************************************************************/
-<span class="lineNum">    2238 </span>            : /*                             msStrdup()                               */
-<span class="lineNum">    2239 </span>            : /************************************************************************/
-<span class="lineNum">    2240 </span>            : 
-<a name="2241"><span class="lineNum">    2241 </span>            : /* Safe version of msStrdup(). This function is taken from gdal/cpl. */</a>
-<span class="lineNum">    2242 </span>            : 
-<span class="lineNum">    2243 </span><span class="lineCov">          1 : char *msStrdup(const char * pszString)</span>
-<span class="lineNum">    2244 </span>            : {
-<span class="lineNum">    2245 </span>            :     size_t nStringLength; 
-<span class="lineNum">    2246 </span>            :     char *pszReturn;
-<span class="lineNum">    2247 </span>            : 
-<span class="lineNum">    2248 </span><span class="lineCov">          1 :     if (pszString == NULL)</span>
-<span class="lineNum">    2249 </span>            :         pszString = &quot;&quot;;
-<span class="lineNum">    2250 </span>            : 
-<span class="lineNum">    2251 </span><span class="lineCov">          1 :     nStringLength = strlen(pszString) + 1; /* null terminated byte */</span>
-<span class="lineNum">    2252 </span><span class="lineCov">          1 :     pszReturn = static_cast&lt;char*&gt;(malloc(nStringLength));</span>
-<span class="lineNum">    2253 </span>            : 
-<span class="lineNum">    2254 </span><span class="lineCov">          1 :     if (pszReturn == NULL) {</span>
-<span class="lineNum">    2255 </span><span class="lineNoCov">          0 :         fprintf(stderr, &quot;msSmallMalloc(): Out of memory allocating %ld bytes.\n&quot;,</span>
-<span class="lineNum">    2256 </span><span class="lineNoCov">          0 :             (long)strlen(pszString));</span>
-<span class="lineNum">    2257 </span><span class="lineNoCov">          0 :         exit(1);</span>
-<span class="lineNum">    2258 </span>            :     }
-<span class="lineNum">    2259 </span>            : 
-<span class="lineNum">    2260 </span>            :     memcpy(pszReturn, pszString, nStringLength);
-<span class="lineNum">    2261 </span>            : 
-<span class="lineNum">    2262 </span><span class="lineCov">          1 :     return pszReturn;</span>
-<span class="lineNum">    2263 </span>            : }
-<span class="lineNum">    2264 </span>            : 
-<span class="lineNum">    2265 </span>            : 
-<span class="lineNum">    2266 </span>            : /************************************************************************/
-<span class="lineNum">    2267 </span>            : /*                             msStringEscape()                         */
-<span class="lineNum">    2268 </span>            : /************************************************************************/
-<span class="lineNum">    2269 </span>            : 
-<span class="lineNum">    2270 </span>            : /* Checks if a string contains single or double quotes and escape them.
-<span class="lineNum">    2271 </span>            :    NOTE: the user must free the returned char* if it is different than the
-<a name="2272"><span class="lineNum">    2272 </span>            :    one passed in */</a>
+<span class="lineNum">    2142 </span>            :   int length, i;
+<span class="lineNum">    2143 </span>            : 
+<span class="lineNum">    2144 </span><span class="lineCov">          1 :   length = strlen(string);</span>
+<span class="lineNum">    2145 </span>            : 
+<span class="lineNum">    2146 </span><span class="lineCov">          1 :   if (length == 0)</span>
+<span class="lineNum">    2147 </span>            :     return MS_FAILURE;
+<span class="lineNum">    2148 </span>            : 
+<span class="lineNum">    2149 </span><span class="lineCov">          1 :   for(i=0; i&lt;length; i++) {</span>
+<span class="lineNum">    2150 </span><span class="lineCov">          1 :     if (!isdigit(string[i]))</span>
+<span class="lineNum">    2151 </span>            :       return MS_FAILURE;
+<span class="lineNum">    2152 </span>            :   }
+<span class="lineNum">    2153 </span>            : 
+<span class="lineNum">    2154 </span>            :   return MS_SUCCESS;
+<span class="lineNum">    2155 </span>            : }
+<span class="lineNum">    2156 </span>            : 
+<span class="lineNum">    2157 </span>            : /************************************************************************/
+<span class="lineNum">    2158 </span>            : /*                             msStrdup()                               */
+<span class="lineNum">    2159 </span>            : /************************************************************************/
+<span class="lineNum">    2160 </span>            : 
+<a name="2161"><span class="lineNum">    2161 </span>            : /* Safe version of msStrdup(). This function is taken from gdal/cpl. */</a>
+<span class="lineNum">    2162 </span>            : 
+<span class="lineNum">    2163 </span><span class="lineCov">          1 : char *msStrdup(const char * pszString)</span>
+<span class="lineNum">    2164 </span>            : {
+<span class="lineNum">    2165 </span>            :     size_t nStringLength; 
+<span class="lineNum">    2166 </span>            :     char *pszReturn;
+<span class="lineNum">    2167 </span>            : 
+<span class="lineNum">    2168 </span><span class="lineCov">          1 :     if (pszString == NULL)</span>
+<span class="lineNum">    2169 </span>            :         pszString = &quot;&quot;;
+<span class="lineNum">    2170 </span>            : 
+<span class="lineNum">    2171 </span><span class="lineCov">          1 :     nStringLength = strlen(pszString) + 1; /* null terminated byte */</span>
+<span class="lineNum">    2172 </span><span class="lineCov">          1 :     pszReturn = static_cast&lt;char*&gt;(malloc(nStringLength));</span>
+<span class="lineNum">    2173 </span>            : 
+<span class="lineNum">    2174 </span><span class="lineCov">          1 :     if (pszReturn == NULL) {</span>
+<span class="lineNum">    2175 </span><span class="lineNoCov">          0 :         fprintf(stderr, &quot;msSmallMalloc(): Out of memory allocating %ld bytes.\n&quot;,</span>
+<span class="lineNum">    2176 </span><span class="lineNoCov">          0 :             (long)strlen(pszString));</span>
+<span class="lineNum">    2177 </span><span class="lineNoCov">          0 :         exit(1);</span>
+<span class="lineNum">    2178 </span>            :     }
+<span class="lineNum">    2179 </span>            : 
+<span class="lineNum">    2180 </span>            :     memcpy(pszReturn, pszString, nStringLength);
+<span class="lineNum">    2181 </span>            : 
+<span class="lineNum">    2182 </span><span class="lineCov">          1 :     return pszReturn;</span>
+<span class="lineNum">    2183 </span>            : }
+<span class="lineNum">    2184 </span>            : 
+<span class="lineNum">    2185 </span>            : 
+<span class="lineNum">    2186 </span>            : /************************************************************************/
+<span class="lineNum">    2187 </span>            : /*                             msStringEscape()                         */
+<span class="lineNum">    2188 </span>            : /************************************************************************/
+<span class="lineNum">    2189 </span>            : 
+<span class="lineNum">    2190 </span>            : /* Checks if a string contains single or double quotes and escape them.
+<span class="lineNum">    2191 </span>            :    NOTE: the user must free the returned char* if it is different than the
+<a name="2192"><span class="lineNum">    2192 </span>            :    one passed in */</a>
+<span class="lineNum">    2193 </span>            : 
+<span class="lineNum">    2194 </span><span class="lineCov">          1 : char* msStringEscape( const char * pszString )</span>
+<span class="lineNum">    2195 </span>            : {
+<span class="lineNum">    2196 </span>            :   char *string_tmp, *string_ptr;
+<span class="lineNum">    2197 </span>            :   int i,ncharstoescape=0;
+<span class="lineNum">    2198 </span>            : 
+<span class="lineNum">    2199 </span><span class="lineCov">          1 :   if (pszString ==  NULL || strlen(pszString) == 0)</span>
+<span class="lineNum">    2200 </span><span class="lineNoCov">          0 :     return msStrdup(&quot;&quot;);</span>
+<span class="lineNum">    2201 </span>            : 
+<span class="lineNum">    2202 </span><span class="lineCov">          1 :   for (i=0; pszString[i]; i++)</span>
+<span class="lineNum">    2203 </span><span class="lineCov">          1 :     ncharstoescape += ((pszString[i] == '\&quot;')||(pszString[i] == '\''));</span>
+<span class="lineNum">    2204 </span>            :   
+<span class="lineNum">    2205 </span><span class="lineCov">          1 :   if(!ncharstoescape) {</span>
+<span class="lineNum">    2206 </span>            :     return (char*)pszString;
+<span class="lineNum">    2207 </span>            :   }
+<span class="lineNum">    2208 </span>            : 
+<span class="lineNum">    2209 </span><span class="lineCov">          1 :   string_tmp = (char*)msSmallMalloc(strlen(pszString)+ncharstoescape+1);</span>
+<span class="lineNum">    2210 </span><span class="lineCov">          1 :   for (string_ptr=(char*)pszString,i=0; *string_ptr!='\0'; ++string_ptr,++i) {</span>
+<span class="lineNum">    2211 </span><span class="lineCov">          1 :     if ( (*string_ptr == '\&quot;') || (*string_ptr == '\'') ) {</span>
+<span class="lineNum">    2212 </span><span class="lineCov">          1 :       string_tmp[i] = '\\';</span>
+<span class="lineNum">    2213 </span><span class="lineCov">          1 :       ++i;</span>
+<span class="lineNum">    2214 </span>            :     }
+<span class="lineNum">    2215 </span><span class="lineCov">          1 :     string_tmp[i] = *string_ptr;</span>
+<span class="lineNum">    2216 </span>            :   }
+<span class="lineNum">    2217 </span>            : 
+<span class="lineNum">    2218 </span><span class="lineCov">          1 :   string_tmp[i] = '\0';</span>
+<span class="lineNum">    2219 </span><span class="lineCov">          1 :   return string_tmp;</span>
+<a name="2220"><span class="lineNum">    2220 </span>            : }</a>
+<span class="lineNum">    2221 </span>            : 
+<span class="lineNum">    2222 </span><span class="lineCov">          1 : std::string msStdStringEscape( const char * pszString )</span>
+<span class="lineNum">    2223 </span>            : {
+<span class="lineNum">    2224 </span><span class="lineCov">          1 :   char* tmp = msStringEscape(pszString);</span>
+<span class="lineNum">    2225 </span><span class="lineCov">          1 :   std::string ret(tmp);</span>
+<span class="lineNum">    2226 </span><span class="lineCov">          1 :   if( tmp != pszString )</span>
+<span class="lineNum">    2227 </span><span class="lineCov">          1 :       msFree(tmp);</span>
+<span class="lineNum">    2228 </span><span class="lineCov">          1 :   return ret;</span>
+<span class="lineNum">    2229 </span>            : }
+<span class="lineNum">    2230 </span>            : 
+<span class="lineNum">    2231 </span>            : /************************************************************************/
+<span class="lineNum">    2232 </span>            : /*                             msStringInArray()                        */
+<span class="lineNum">    2233 </span>            : /************************************************************************/
+<a name="2234"><span class="lineNum">    2234 </span>            : </a>
+<span class="lineNum">    2235 </span>            : /* Check if a string is in a array */
+<span class="lineNum">    2236 </span><span class="lineCov">          1 : int msStringInArray( const char * pszString, char **array, int numelements)</span>
+<span class="lineNum">    2237 </span>            : {
+<span class="lineNum">    2238 </span>            :   int i;
+<span class="lineNum">    2239 </span><span class="lineCov">          1 :   for (i=0; i&lt;numelements; ++i) {</span>
+<span class="lineNum">    2240 </span><span class="lineCov">          1 :     if (strcasecmp(pszString, array[i])==0)</span>
+<span class="lineNum">    2241 </span>            :       return MS_TRUE;
+<span class="lineNum">    2242 </span>            :   }
+<span class="lineNum">    2243 </span>            :   return MS_FALSE;
+<a name="2244"><span class="lineNum">    2244 </span>            : }</a>
+<span class="lineNum">    2245 </span>            : 
+<span class="lineNum">    2246 </span><span class="lineCov">          1 : bool msStringInArray( const char * pszString, const std::vector&lt;std::string&gt;&amp; array)</span>
+<span class="lineNum">    2247 </span>            : {
+<span class="lineNum">    2248 </span><span class="lineCov">          1 :   for( const auto&amp; str: array ) {</span>
+<span class="lineNum">    2249 </span><span class="lineCov">          1 :     if (strcasecmp(pszString, str.c_str())==0)</span>
+<span class="lineNum">    2250 </span>            :       return true;
+<span class="lineNum">    2251 </span>            :   }
+<span class="lineNum">    2252 </span>            :   return false;
+<a name="2253"><span class="lineNum">    2253 </span>            : }</a>
+<span class="lineNum">    2254 </span>            : 
+<span class="lineNum">    2255 </span><span class="lineCov">          1 : int msLayerEncodeShapeAttributes( layerObj *layer, shapeObj *shape) {</span>
+<span class="lineNum">    2256 </span>            : 
+<span class="lineNum">    2257 </span>            : #ifdef USE_ICONV
+<span class="lineNum">    2258 </span>            :   iconv_t cd = NULL;
+<span class="lineNum">    2259 </span>            :   const char *inp;
+<span class="lineNum">    2260 </span>            :   char *outp, *out = NULL;
+<span class="lineNum">    2261 </span>            :   size_t len, bufsize, bufleft;
+<span class="lineNum">    2262 </span>            :   int i;
+<span class="lineNum">    2263 </span>            : 
+<span class="lineNum">    2264 </span><span class="lineCov">          1 :   if( !layer-&gt;encoding || !*layer-&gt;encoding || !strcasecmp(layer-&gt;encoding, &quot;UTF-8&quot;))</span>
+<span class="lineNum">    2265 </span>            :     return MS_SUCCESS;
+<span class="lineNum">    2266 </span>            : 
+<span class="lineNum">    2267 </span><span class="lineCov">          1 :   cd = iconv_open(&quot;UTF-8&quot;, layer-&gt;encoding);</span>
+<span class="lineNum">    2268 </span><span class="lineCov">          1 :   if(cd == (iconv_t)-1) {</span>
+<span class="lineNum">    2269 </span><span class="lineNoCov">          0 :     msSetError(MS_IDENTERR, &quot;Encoding not supported by libiconv (%s).&quot;,</span>
+<span class="lineNum">    2270 </span>            :                &quot;msGetEncodedString()&quot;, layer-&gt;encoding);
+<span class="lineNum">    2271 </span>            :     return MS_FAILURE;
+<span class="lineNum">    2272 </span>            :   }
 <span class="lineNum">    2273 </span>            : 
-<span class="lineNum">    2274 </span><span class="lineCov">          1 : char* msStringEscape( const char * pszString )</span>
-<span class="lineNum">    2275 </span>            : {
-<span class="lineNum">    2276 </span>            :   char *string_tmp, *string_ptr;
-<span class="lineNum">    2277 </span>            :   int i,ncharstoescape=0;
+<span class="lineNum">    2274 </span><span class="lineCov">          1 :   for(i=0;i &lt;shape-&gt;numvalues; i++) {</span>
+<span class="lineNum">    2275 </span><span class="lineCov">          1 :     if(!shape-&gt;values[i] || (len = strlen(shape-&gt;values[i]))==0) {</span>
+<span class="lineNum">    2276 </span><span class="lineNoCov">          0 :       continue;    /* Nothing to do */</span>
+<span class="lineNum">    2277 </span>            :     }
 <span class="lineNum">    2278 </span>            : 
-<span class="lineNum">    2279 </span><span class="lineCov">          1 :   if (pszString ==  NULL || strlen(pszString) == 0)</span>
-<span class="lineNum">    2280 </span><span class="lineNoCov">          0 :     return msStrdup(&quot;&quot;);</span>
-<span class="lineNum">    2281 </span>            : 
-<span class="lineNum">    2282 </span><span class="lineCov">          1 :   for (i=0; pszString[i]; i++)</span>
-<span class="lineNum">    2283 </span><span class="lineCov">          1 :     ncharstoescape += ((pszString[i] == '\&quot;')||(pszString[i] == '\''));</span>
-<span class="lineNum">    2284 </span>            :   
-<span class="lineNum">    2285 </span><span class="lineCov">          1 :   if(!ncharstoescape) {</span>
-<span class="lineNum">    2286 </span>            :     return (char*)pszString;
-<span class="lineNum">    2287 </span>            :   }
-<span class="lineNum">    2288 </span>            : 
-<span class="lineNum">    2289 </span><span class="lineCov">          1 :   string_tmp = (char*)msSmallMalloc(strlen(pszString)+ncharstoescape+1);</span>
-<span class="lineNum">    2290 </span><span class="lineCov">          1 :   for (string_ptr=(char*)pszString,i=0; *string_ptr!='\0'; ++string_ptr,++i) {</span>
-<span class="lineNum">    2291 </span><span class="lineCov">          1 :     if ( (*string_ptr == '\&quot;') || (*string_ptr == '\'') ) {</span>
-<span class="lineNum">    2292 </span><span class="lineCov">          1 :       string_tmp[i] = '\\';</span>
-<span class="lineNum">    2293 </span><span class="lineCov">          1 :       ++i;</span>
+<span class="lineNum">    2279 </span><span class="lineCov">          1 :     bufsize = len * 6 + 1; /* Each UTF-8 char can be up to 6 bytes */</span>
+<span class="lineNum">    2280 </span><span class="lineCov">          1 :     inp = shape-&gt;values[i];</span>
+<span class="lineNum">    2281 </span><span class="lineCov">          1 :     out = (char*) msSmallMalloc(bufsize);</span>
+<span class="lineNum">    2282 </span>            : 
+<span class="lineNum">    2283 </span><span class="lineCov">          1 :     strlcpy(out, shape-&gt;values[i], bufsize);</span>
+<span class="lineNum">    2284 </span><span class="lineCov">          1 :     outp = out;</span>
+<span class="lineNum">    2285 </span>            : 
+<span class="lineNum">    2286 </span><span class="lineCov">          1 :     bufleft = bufsize;</span>
+<span class="lineNum">    2287 </span>            : 
+<span class="lineNum">    2288 </span><span class="lineCov">          1 :     while (len &gt; 0) {</span>
+<span class="lineNum">    2289 </span><span class="lineCov">          1 :       const size_t iconv_status = msIconv(cd, (char**)&amp;inp, &amp;len, &amp;outp, &amp;bufleft);</span>
+<span class="lineNum">    2290 </span><span class="lineCov">          1 :       if(iconv_status == static_cast&lt;size_t&gt;(-1)) {</span>
+<span class="lineNum">    2291 </span><span class="lineNoCov">          0 :         msFree(out);</span>
+<span class="lineNum">    2292 </span><span class="lineNoCov">          0 :         continue; /* silently ignore failed conversions */</span>
+<span class="lineNum">    2293 </span>            :       }
 <span class="lineNum">    2294 </span>            :     }
-<span class="lineNum">    2295 </span><span class="lineCov">          1 :     string_tmp[i] = *string_ptr;</span>
-<span class="lineNum">    2296 </span>            :   }
-<span class="lineNum">    2297 </span>            : 
-<span class="lineNum">    2298 </span><span class="lineCov">          1 :   string_tmp[i] = '\0';</span>
-<span class="lineNum">    2299 </span><span class="lineCov">          1 :   return string_tmp;</span>
-<a name="2300"><span class="lineNum">    2300 </span>            : }</a>
-<span class="lineNum">    2301 </span>            : 
-<span class="lineNum">    2302 </span><span class="lineCov">          1 : std::string msStdStringEscape( const char * pszString )</span>
-<span class="lineNum">    2303 </span>            : {
-<span class="lineNum">    2304 </span><span class="lineCov">          1 :   char* tmp = msStringEscape(pszString);</span>
-<span class="lineNum">    2305 </span><span class="lineCov">          1 :   std::string ret(tmp);</span>
-<span class="lineNum">    2306 </span><span class="lineCov">          1 :   if( tmp != pszString )</span>
-<span class="lineNum">    2307 </span><span class="lineCov">          1 :       msFree(tmp);</span>
-<span class="lineNum">    2308 </span><span class="lineCov">          1 :   return ret;</span>
-<span class="lineNum">    2309 </span>            : }
-<span class="lineNum">    2310 </span>            : 
-<span class="lineNum">    2311 </span>            : /************************************************************************/
-<span class="lineNum">    2312 </span>            : /*                             msStringInArray()                        */
-<span class="lineNum">    2313 </span>            : /************************************************************************/
-<a name="2314"><span class="lineNum">    2314 </span>            : </a>
-<span class="lineNum">    2315 </span>            : /* Check if a string is in a array */
-<span class="lineNum">    2316 </span><span class="lineCov">          1 : int msStringInArray( const char * pszString, char **array, int numelements)</span>
-<span class="lineNum">    2317 </span>            : {
-<span class="lineNum">    2318 </span>            :   int i;
-<span class="lineNum">    2319 </span><span class="lineCov">          1 :   for (i=0; i&lt;numelements; ++i) {</span>
-<span class="lineNum">    2320 </span><span class="lineCov">          1 :     if (strcasecmp(pszString, array[i])==0)</span>
-<span class="lineNum">    2321 </span>            :       return MS_TRUE;
-<span class="lineNum">    2322 </span>            :   }
-<span class="lineNum">    2323 </span>            :   return MS_FALSE;
-<a name="2324"><span class="lineNum">    2324 </span>            : }</a>
-<span class="lineNum">    2325 </span>            : 
-<span class="lineNum">    2326 </span><span class="lineCov">          1 : bool msStringInArray( const char * pszString, const std::vector&lt;std::string&gt;&amp; array)</span>
-<span class="lineNum">    2327 </span>            : {
-<span class="lineNum">    2328 </span><span class="lineCov">          1 :   for( const auto&amp; str: array ) {</span>
-<span class="lineNum">    2329 </span><span class="lineCov">          1 :     if (strcasecmp(pszString, str.c_str())==0)</span>
-<span class="lineNum">    2330 </span>            :       return true;
-<span class="lineNum">    2331 </span>            :   }
-<span class="lineNum">    2332 </span>            :   return false;
-<a name="2333"><span class="lineNum">    2333 </span>            : }</a>
-<span class="lineNum">    2334 </span>            : 
-<span class="lineNum">    2335 </span><span class="lineCov">          1 : int msLayerEncodeShapeAttributes( layerObj *layer, shapeObj *shape) {</span>
-<span class="lineNum">    2336 </span>            : 
-<span class="lineNum">    2337 </span>            : #ifdef USE_ICONV
-<span class="lineNum">    2338 </span>            :   iconv_t cd = NULL;
-<span class="lineNum">    2339 </span>            :   const char *inp;
-<span class="lineNum">    2340 </span>            :   char *outp, *out = NULL;
-<span class="lineNum">    2341 </span>            :   size_t len, bufsize, bufleft;
-<span class="lineNum">    2342 </span>            :   int i;
-<span class="lineNum">    2343 </span>            : 
-<span class="lineNum">    2344 </span><span class="lineCov">          1 :   if( !layer-&gt;encoding || !*layer-&gt;encoding || !strcasecmp(layer-&gt;encoding, &quot;UTF-8&quot;))</span>
-<span class="lineNum">    2345 </span>            :     return MS_SUCCESS;
-<span class="lineNum">    2346 </span>            : 
-<span class="lineNum">    2347 </span><span class="lineCov">          1 :   cd = iconv_open(&quot;UTF-8&quot;, layer-&gt;encoding);</span>
-<span class="lineNum">    2348 </span><span class="lineCov">          1 :   if(cd == (iconv_t)-1) {</span>
-<span class="lineNum">    2349 </span><span class="lineNoCov">          0 :     msSetError(MS_IDENTERR, &quot;Encoding not supported by libiconv (%s).&quot;,</span>
-<span class="lineNum">    2350 </span>            :                &quot;msGetEncodedString()&quot;, layer-&gt;encoding);
-<span class="lineNum">    2351 </span>            :     return MS_FAILURE;
-<span class="lineNum">    2352 </span>            :   }
+<span class="lineNum">    2295 </span><span class="lineCov">          1 :     out[bufsize - bufleft] = '\0';</span>
+<span class="lineNum">    2296 </span><span class="lineCov">          1 :     msFree(shape-&gt;values[i]);</span>
+<span class="lineNum">    2297 </span><span class="lineCov">          1 :     shape-&gt;values[i] = out;</span>
+<span class="lineNum">    2298 </span>            :   }
+<span class="lineNum">    2299 </span><span class="lineCov">          1 :   iconv_close(cd);</span>
+<span class="lineNum">    2300 </span>            : 
+<span class="lineNum">    2301 </span>            :   return MS_SUCCESS;
+<span class="lineNum">    2302 </span>            : #else
+<span class="lineNum">    2303 </span>            :   if( !layer-&gt;encoding || !*layer-&gt;encoding || !strcasecmp(layer-&gt;encoding, &quot;UTF-8&quot;))
+<span class="lineNum">    2304 </span>            :     return MS_SUCCESS;
+<span class="lineNum">    2305 </span>            :   msSetError(MS_MISCERR, &quot;Not implemented since Iconv is not enabled.&quot;, &quot;msGetEncodedString()&quot;);
+<span class="lineNum">    2306 </span>            :   return MS_FAILURE;
+<span class="lineNum">    2307 </span>            : #endif
+<span class="lineNum">    2308 </span>            : }
+<span class="lineNum">    2309 </span>            : 
+<span class="lineNum">    2310 </span>            : /************************************************************************/
+<span class="lineNum">    2311 </span>            : /*                             msStringBuffer                           */
+<span class="lineNum">    2312 </span>            : /************************************************************************/
+<span class="lineNum">    2313 </span>            : 
+<span class="lineNum">    2314 </span>            : struct msStringBuffer
+<span class="lineNum">    2315 </span>            : {
+<span class="lineNum">    2316 </span>            :     size_t alloc_size;
+<span class="lineNum">    2317 </span>            :     size_t length;
+<span class="lineNum">    2318 </span>            :     char  *str;
+<span class="lineNum">    2319 </span>            : };
+<span class="lineNum">    2320 </span>            : 
+<span class="lineNum">    2321 </span>            : /************************************************************************/
+<span class="lineNum">    2322 </span>            : /*                         msStringBufferAlloc()                        */
+<a name="2323"><span class="lineNum">    2323 </span>            : /************************************************************************/</a>
+<span class="lineNum">    2324 </span>            : 
+<span class="lineNum">    2325 </span><span class="lineCov">          1 : msStringBuffer* msStringBufferAlloc(void)</span>
+<span class="lineNum">    2326 </span>            : {
+<span class="lineNum">    2327 </span><span class="lineCov">          1 :     return (msStringBuffer*)msSmallCalloc(sizeof(msStringBuffer), 1);</span>
+<span class="lineNum">    2328 </span>            : }
+<span class="lineNum">    2329 </span>            : 
+<span class="lineNum">    2330 </span>            : /************************************************************************/
+<span class="lineNum">    2331 </span>            : /*                         msStringBufferFree()                         */
+<a name="2332"><span class="lineNum">    2332 </span>            : /************************************************************************/</a>
+<span class="lineNum">    2333 </span>            : 
+<span class="lineNum">    2334 </span><span class="lineCov">          1 : void msStringBufferFree(msStringBuffer* sb)</span>
+<span class="lineNum">    2335 </span>            : {
+<span class="lineNum">    2336 </span><span class="lineCov">          1 :     if( sb )</span>
+<span class="lineNum">    2337 </span><span class="lineCov">          1 :         msFree(sb-&gt;str);</span>
+<span class="lineNum">    2338 </span><span class="lineCov">          1 :     msFree(sb);</span>
+<span class="lineNum">    2339 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">    2340 </span>            : 
+<span class="lineNum">    2341 </span>            : /************************************************************************/
+<span class="lineNum">    2342 </span>            : /*                       msStringBufferGetString()                      */
+<a name="2343"><span class="lineNum">    2343 </span>            : /************************************************************************/</a>
+<span class="lineNum">    2344 </span>            : 
+<span class="lineNum">    2345 </span><span class="lineCov">          1 : const char* msStringBufferGetString(msStringBuffer* sb)</span>
+<span class="lineNum">    2346 </span>            : {
+<span class="lineNum">    2347 </span><span class="lineCov">          1 :     return sb-&gt;str;</span>
+<span class="lineNum">    2348 </span>            : }
+<span class="lineNum">    2349 </span>            : 
+<span class="lineNum">    2350 </span>            : /************************************************************************/
+<span class="lineNum">    2351 </span>            : /*                   msStringBufferReleaseStringAndFree()               */
+<a name="2352"><span class="lineNum">    2352 </span>            : /************************************************************************/</a>
 <span class="lineNum">    2353 </span>            : 
-<span class="lineNum">    2354 </span><span class="lineCov">          1 :   for(i=0;i &lt;shape-&gt;numvalues; i++) {</span>
-<span class="lineNum">    2355 </span><span class="lineCov">          1 :     if(!shape-&gt;values[i] || (len = strlen(shape-&gt;values[i]))==0) {</span>
-<span class="lineNum">    2356 </span><span class="lineNoCov">          0 :       continue;    /* Nothing to do */</span>
-<span class="lineNum">    2357 </span>            :     }
-<span class="lineNum">    2358 </span>            : 
-<span class="lineNum">    2359 </span><span class="lineCov">          1 :     bufsize = len * 6 + 1; /* Each UTF-8 char can be up to 6 bytes */</span>
-<span class="lineNum">    2360 </span><span class="lineCov">          1 :     inp = shape-&gt;values[i];</span>
-<span class="lineNum">    2361 </span><span class="lineCov">          1 :     out = (char*) msSmallMalloc(bufsize);</span>
-<span class="lineNum">    2362 </span>            : 
-<span class="lineNum">    2363 </span><span class="lineCov">          1 :     strlcpy(out, shape-&gt;values[i], bufsize);</span>
-<span class="lineNum">    2364 </span><span class="lineCov">          1 :     outp = out;</span>
-<span class="lineNum">    2365 </span>            : 
-<span class="lineNum">    2366 </span><span class="lineCov">          1 :     bufleft = bufsize;</span>
+<span class="lineNum">    2354 </span><span class="lineCov">          1 : char* msStringBufferReleaseStringAndFree(msStringBuffer* sb)</span>
+<span class="lineNum">    2355 </span>            : {
+<span class="lineNum">    2356 </span><span class="lineCov">          1 :     char* str = sb-&gt;str;</span>
+<span class="lineNum">    2357 </span><span class="lineCov">          1 :     sb-&gt;str = NULL;</span>
+<span class="lineNum">    2358 </span><span class="lineCov">          1 :     sb-&gt;alloc_size = 0;</span>
+<span class="lineNum">    2359 </span><span class="lineCov">          1 :     sb-&gt;length = 0;</span>
+<span class="lineNum">    2360 </span><span class="lineCov">          1 :     msStringBufferFree(sb);</span>
+<span class="lineNum">    2361 </span><span class="lineCov">          1 :     return str;</span>
+<span class="lineNum">    2362 </span>            : }
+<span class="lineNum">    2363 </span>            : 
+<span class="lineNum">    2364 </span>            : /************************************************************************/
+<span class="lineNum">    2365 </span>            : /*                        msStringBufferAppend()                        */
+<a name="2366"><span class="lineNum">    2366 </span>            : /************************************************************************/</a>
 <span class="lineNum">    2367 </span>            : 
-<span class="lineNum">    2368 </span><span class="lineCov">          1 :     while (len &gt; 0) {</span>
-<span class="lineNum">    2369 </span><span class="lineCov">          1 :       const size_t iconv_status = msIconv(cd, (char**)&amp;inp, &amp;len, &amp;outp, &amp;bufleft);</span>
-<span class="lineNum">    2370 </span><span class="lineCov">          1 :       if(iconv_status == static_cast&lt;size_t&gt;(-1)) {</span>
-<span class="lineNum">    2371 </span><span class="lineNoCov">          0 :         msFree(out);</span>
-<span class="lineNum">    2372 </span><span class="lineNoCov">          0 :         continue; /* silently ignore failed conversions */</span>
-<span class="lineNum">    2373 </span>            :       }
-<span class="lineNum">    2374 </span>            :     }
-<span class="lineNum">    2375 </span><span class="lineCov">          1 :     out[bufsize - bufleft] = '\0';</span>
-<span class="lineNum">    2376 </span><span class="lineCov">          1 :     msFree(shape-&gt;values[i]);</span>
-<span class="lineNum">    2377 </span><span class="lineCov">          1 :     shape-&gt;values[i] = out;</span>
-<span class="lineNum">    2378 </span>            :   }
-<span class="lineNum">    2379 </span><span class="lineCov">          1 :   iconv_close(cd);</span>
-<span class="lineNum">    2380 </span>            : 
-<span class="lineNum">    2381 </span>            :   return MS_SUCCESS;
-<span class="lineNum">    2382 </span>            : #else
-<span class="lineNum">    2383 </span>            :   if( !layer-&gt;encoding || !*layer-&gt;encoding || !strcasecmp(layer-&gt;encoding, &quot;UTF-8&quot;))
-<span class="lineNum">    2384 </span>            :     return MS_SUCCESS;
-<span class="lineNum">    2385 </span>            :   msSetError(MS_MISCERR, &quot;Not implemented since Iconv is not enabled.&quot;, &quot;msGetEncodedString()&quot;);
-<span class="lineNum">    2386 </span>            :   return MS_FAILURE;
-<span class="lineNum">    2387 </span>            : #endif
-<span class="lineNum">    2388 </span>            : }
-<span class="lineNum">    2389 </span>            : 
-<span class="lineNum">    2390 </span>            : /************************************************************************/
-<span class="lineNum">    2391 </span>            : /*                             msStringBuffer                           */
-<span class="lineNum">    2392 </span>            : /************************************************************************/
-<span class="lineNum">    2393 </span>            : 
-<span class="lineNum">    2394 </span>            : struct msStringBuffer
-<span class="lineNum">    2395 </span>            : {
-<span class="lineNum">    2396 </span>            :     size_t alloc_size;
-<span class="lineNum">    2397 </span>            :     size_t length;
-<span class="lineNum">    2398 </span>            :     char  *str;
-<span class="lineNum">    2399 </span>            : };
-<span class="lineNum">    2400 </span>            : 
-<span class="lineNum">    2401 </span>            : /************************************************************************/
-<span class="lineNum">    2402 </span>            : /*                         msStringBufferAlloc()                        */
-<a name="2403"><span class="lineNum">    2403 </span>            : /************************************************************************/</a>
-<span class="lineNum">    2404 </span>            : 
-<span class="lineNum">    2405 </span><span class="lineCov">          1 : msStringBuffer* msStringBufferAlloc(void)</span>
-<span class="lineNum">    2406 </span>            : {
-<span class="lineNum">    2407 </span><span class="lineCov">          1 :     return (msStringBuffer*)msSmallCalloc(sizeof(msStringBuffer), 1);</span>
-<span class="lineNum">    2408 </span>            : }
-<span class="lineNum">    2409 </span>            : 
-<span class="lineNum">    2410 </span>            : /************************************************************************/
-<span class="lineNum">    2411 </span>            : /*                         msStringBufferFree()                         */
-<a name="2412"><span class="lineNum">    2412 </span>            : /************************************************************************/</a>
-<span class="lineNum">    2413 </span>            : 
-<span class="lineNum">    2414 </span><span class="lineCov">          1 : void msStringBufferFree(msStringBuffer* sb)</span>
-<span class="lineNum">    2415 </span>            : {
-<span class="lineNum">    2416 </span><span class="lineCov">          1 :     if( sb )</span>
-<span class="lineNum">    2417 </span><span class="lineCov">          1 :         msFree(sb-&gt;str);</span>
-<span class="lineNum">    2418 </span><span class="lineCov">          1 :     msFree(sb);</span>
-<span class="lineNum">    2419 </span><span class="lineCov">          1 : }</span>
-<span class="lineNum">    2420 </span>            : 
-<span class="lineNum">    2421 </span>            : /************************************************************************/
-<span class="lineNum">    2422 </span>            : /*                       msStringBufferGetString()                      */
-<a name="2423"><span class="lineNum">    2423 </span>            : /************************************************************************/</a>
-<span class="lineNum">    2424 </span>            : 
-<span class="lineNum">    2425 </span><span class="lineCov">          1 : const char* msStringBufferGetString(msStringBuffer* sb)</span>
-<span class="lineNum">    2426 </span>            : {
-<span class="lineNum">    2427 </span><span class="lineCov">          1 :     return sb-&gt;str;</span>
-<span class="lineNum">    2428 </span>            : }
-<span class="lineNum">    2429 </span>            : 
-<span class="lineNum">    2430 </span>            : /************************************************************************/
-<span class="lineNum">    2431 </span>            : /*                   msStringBufferReleaseStringAndFree()               */
-<a name="2432"><span class="lineNum">    2432 </span>            : /************************************************************************/</a>
-<span class="lineNum">    2433 </span>            : 
-<span class="lineNum">    2434 </span><span class="lineCov">          1 : char* msStringBufferReleaseStringAndFree(msStringBuffer* sb)</span>
-<span class="lineNum">    2435 </span>            : {
-<span class="lineNum">    2436 </span><span class="lineCov">          1 :     char* str = sb-&gt;str;</span>
-<span class="lineNum">    2437 </span><span class="lineCov">          1 :     sb-&gt;str = NULL;</span>
-<span class="lineNum">    2438 </span><span class="lineCov">          1 :     sb-&gt;alloc_size = 0;</span>
-<span class="lineNum">    2439 </span><span class="lineCov">          1 :     sb-&gt;length = 0;</span>
-<span class="lineNum">    2440 </span><span class="lineCov">          1 :     msStringBufferFree(sb);</span>
-<span class="lineNum">    2441 </span><span class="lineCov">          1 :     return str;</span>
-<span class="lineNum">    2442 </span>            : }
-<span class="lineNum">    2443 </span>            : 
-<span class="lineNum">    2444 </span>            : /************************************************************************/
-<span class="lineNum">    2445 </span>            : /*                        msStringBufferAppend()                        */
-<a name="2446"><span class="lineNum">    2446 </span>            : /************************************************************************/</a>
-<span class="lineNum">    2447 </span>            : 
-<span class="lineNum">    2448 </span><span class="lineCov">          1 : int msStringBufferAppend(msStringBuffer* sb, const char* pszAppendedString)</span>
-<span class="lineNum">    2449 </span>            : {
-<span class="lineNum">    2450 </span><span class="lineCov">          1 :     size_t nAppendLen = strlen(pszAppendedString);</span>
-<span class="lineNum">    2451 </span><span class="lineCov">          1 :     if( sb-&gt;length + nAppendLen &gt;= sb-&gt;alloc_size )</span>
-<span class="lineNum">    2452 </span>            :     {
-<span class="lineNum">    2453 </span><span class="lineCov">          1 :         size_t newAllocSize1 = sb-&gt;alloc_size + sb-&gt;alloc_size / 3;</span>
-<span class="lineNum">    2454 </span><span class="lineCov">          1 :         size_t newAllocSize2 = sb-&gt;length + nAppendLen + 1;</span>
-<span class="lineNum">    2455 </span><span class="lineCov">          1 :         size_t newAllocSize = MAX(newAllocSize1, newAllocSize2);</span>
-<span class="lineNum">    2456 </span><span class="lineCov">          1 :         void* newStr = realloc(sb-&gt;str, newAllocSize);</span>
-<span class="lineNum">    2457 </span><span class="lineCov">          1 :         if( newStr == NULL ) {</span>
-<span class="lineNum">    2458 </span><span class="lineNoCov">          0 :             msSetError(MS_MEMERR, &quot;Not enough memory&quot;, &quot;msStringBufferAppend()&quot;);</span>
-<span class="lineNum">    2459 </span><span class="lineNoCov">          0 :             return MS_FAILURE;</span>
-<span class="lineNum">    2460 </span>            :         }
-<span class="lineNum">    2461 </span><span class="lineCov">          1 :         sb-&gt;alloc_size = newAllocSize;</span>
-<span class="lineNum">    2462 </span><span class="lineCov">          1 :         sb-&gt;str = (char*) newStr;</span>
-<span class="lineNum">    2463 </span>            :     }
-<span class="lineNum">    2464 </span><span class="lineCov">          1 :     memcpy(sb-&gt;str + sb-&gt;length, pszAppendedString, nAppendLen + 1);</span>
-<span class="lineNum">    2465 </span><span class="lineCov">          1 :     sb-&gt;length += nAppendLen;</span>
-<span class="lineNum">    2466 </span><span class="lineCov">          1 :     return MS_SUCCESS;</span>
-<span class="lineNum">    2467 </span>            : }
+<span class="lineNum">    2368 </span><span class="lineCov">          1 : int msStringBufferAppend(msStringBuffer* sb, const char* pszAppendedString)</span>
+<span class="lineNum">    2369 </span>            : {
+<span class="lineNum">    2370 </span><span class="lineCov">          1 :     size_t nAppendLen = strlen(pszAppendedString);</span>
+<span class="lineNum">    2371 </span><span class="lineCov">          1 :     if( sb-&gt;length + nAppendLen &gt;= sb-&gt;alloc_size )</span>
+<span class="lineNum">    2372 </span>            :     {
+<span class="lineNum">    2373 </span><span class="lineCov">          1 :         size_t newAllocSize1 = sb-&gt;alloc_size + sb-&gt;alloc_size / 3;</span>
+<span class="lineNum">    2374 </span><span class="lineCov">          1 :         size_t newAllocSize2 = sb-&gt;length + nAppendLen + 1;</span>
+<span class="lineNum">    2375 </span><span class="lineCov">          1 :         size_t newAllocSize = MAX(newAllocSize1, newAllocSize2);</span>
+<span class="lineNum">    2376 </span><span class="lineCov">          1 :         void* newStr = realloc(sb-&gt;str, newAllocSize);</span>
+<span class="lineNum">    2377 </span><span class="lineCov">          1 :         if( newStr == NULL ) {</span>
+<span class="lineNum">    2378 </span><span class="lineNoCov">          0 :             msSetError(MS_MEMERR, &quot;Not enough memory&quot;, &quot;msStringBufferAppend()&quot;);</span>
+<span class="lineNum">    2379 </span><span class="lineNoCov">          0 :             return MS_FAILURE;</span>
+<span class="lineNum">    2380 </span>            :         }
+<span class="lineNum">    2381 </span><span class="lineCov">          1 :         sb-&gt;alloc_size = newAllocSize;</span>
+<span class="lineNum">    2382 </span><span class="lineCov">          1 :         sb-&gt;str = (char*) newStr;</span>
+<span class="lineNum">    2383 </span>            :     }
+<span class="lineNum">    2384 </span><span class="lineCov">          1 :     memcpy(sb-&gt;str + sb-&gt;length, pszAppendedString, nAppendLen + 1);</span>
+<span class="lineNum">    2385 </span><span class="lineCov">          1 :     sb-&gt;length += nAppendLen;</span>
+<span class="lineNum">    2386 </span><span class="lineCov">          1 :     return MS_SUCCESS;</span>
+<span class="lineNum">    2387 </span>            : }
 </pre>
       </td>
     </tr>

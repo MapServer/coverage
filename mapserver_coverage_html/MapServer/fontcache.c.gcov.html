@@ -31,13 +31,13 @@
             <td class="headerValue">mapserver.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">146</td>
-            <td class="headerCovTableEntry">170</td>
-            <td class="headerCovTableEntryMed">85.9 %</td>
+            <td class="headerCovTableEntry">142</td>
+            <td class="headerCovTableEntry">161</td>
+            <td class="headerCovTableEntryMed">88.2 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2020-10-20 08:29:08</td>
+            <td class="headerValue">2020-10-24 14:57:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">10</td>
@@ -256,175 +256,155 @@
 <span class="lineNum">     194 </span><span class="lineCov">          1 :   if(face-&gt;face-&gt;charmap &amp;&amp; face-&gt;face-&gt;charmap-&gt;encoding == FT_ENCODING_MS_SYMBOL) {</span>
 <span class="lineNum">     195 </span><span class="lineNoCov">          0 :     unicode |= 0xf000; /* why? */</span>
 <span class="lineNum">     196 </span>            :   }
-<span class="lineNum">     197 </span>            : #ifdef USE_THREAD
-<span class="lineNum">     198 </span><span class="lineCov">          1 :   if (use_global_ft_cache)</span>
-<span class="lineNum">     199 </span><span class="lineNoCov">          0 :     msAcquireLock(TLOCK_TTF);</span>
-<span class="lineNum">     200 </span>            : #endif   
-<span class="lineNum">     201 </span><span class="lineCov">          1 :   UT_HASH_FIND_INT(face-&gt;index_cache,&amp;unicode,ic);</span>
-<span class="lineNum">     202 </span><span class="lineCov">          1 :   if(!ic) {</span>
-<span class="lineNum">     203 </span><span class="lineCov">          1 :     ic = msSmallMalloc(sizeof(index_element));</span>
-<span class="lineNum">     204 </span><span class="lineCov">          1 :     ic-&gt;codepoint = FT_Get_Char_Index(face-&gt;face,unicode);</span>
-<span class="lineNum">     205 </span><span class="lineCov">          1 :     ic-&gt;unicode = unicode;</span>
-<span class="lineNum">     206 </span><span class="lineCov">          1 :     UT_HASH_ADD_INT(face-&gt;index_cache,unicode,ic);</span>
-<span class="lineNum">     207 </span>            :   }
-<span class="lineNum">     208 </span>            : #ifdef USE_THREAD
-<span class="lineNum">     209 </span><span class="lineCov">          1 :   if (use_global_ft_cache)</span>
-<span class="lineNum">     210 </span><span class="lineNoCov">          0 :     msReleaseLock(TLOCK_TTF);</span>
-<span class="lineNum">     211 </span>            : #endif  
-<span class="lineNum">     212 </span><span class="lineCov">          1 :   return ic-&gt;codepoint;</span>
-<span class="lineNum">     213 </span>            : }
-<span class="lineNum">     214 </span>            : 
-<a name="215"><span class="lineNum">     215 </span>            : #define MS_DEFAULT_FONT_KEY &quot;_ms_default_&quot;</a>
-<span class="lineNum">     216 </span>            : 
-<span class="lineNum">     217 </span><span class="lineCov">          1 : face_element* msGetFontFace(char *key, fontSetObj *fontset) {</span>
-<span class="lineNum">     218 </span>            :   face_element *fc;
-<span class="lineNum">     219 </span>            :   int error;
-<span class="lineNum">     220 </span><span class="lineCov">          1 :   ft_cache *cache = msGetFontCache();</span>
-<span class="lineNum">     221 </span><span class="lineCov">          1 :   if(!key) {</span>
-<span class="lineNum">     222 </span>            :     key = MS_DEFAULT_FONT_KEY;
-<span class="lineNum">     223 </span>            :   }
-<span class="lineNum">     224 </span>            : #ifdef USE_THREAD
-<span class="lineNum">     225 </span><span class="lineCov">          1 :   if (use_global_ft_cache)</span>
-<span class="lineNum">     226 </span><span class="lineNoCov">          0 :     msAcquireLock(TLOCK_TTF);</span>
-<span class="lineNum">     227 </span>            : #endif
-<span class="lineNum">     228 </span><span class="lineCov">          1 :   UT_HASH_FIND_STR(cache-&gt;face_cache,key,fc);</span>
-<span class="lineNum">     229 </span><span class="lineCov">          1 :   if(!fc) {</span>
-<span class="lineNum">     230 </span>            :     const char *fontfile = NULL;
-<span class="lineNum">     231 </span><span class="lineCov">          1 :     fc = msSmallCalloc(1,sizeof(face_element));</span>
-<span class="lineNum">     232 </span><span class="lineCov">          1 :     if(fontset &amp;&amp; strcmp(key,MS_DEFAULT_FONT_KEY)) {</span>
-<span class="lineNum">     233 </span><span class="lineCov">          1 :       fontfile = msLookupHashTable(&amp;(fontset-&gt;fonts),key);</span>
-<span class="lineNum">     234 </span><span class="lineCov">          1 :       if(!fontfile) {</span>
-<span class="lineNum">     235 </span><span class="lineCov">          1 :         msSetError(MS_MISCERR, &quot;Could not find font with key \&quot;%s\&quot; in fontset&quot;, &quot;msGetFontFace()&quot;, key);</span>
-<span class="lineNum">     236 </span><span class="lineCov">          1 :         free(fc);</span>
-<span class="lineNum">     237 </span>            : #ifdef USE_THREAD
-<span class="lineNum">     238 </span><span class="lineCov">          1 :         if (use_global_ft_cache)</span>
-<span class="lineNum">     239 </span><span class="lineNoCov">          0 :           msReleaseLock(TLOCK_TTF);</span>
-<span class="lineNum">     240 </span>            : #endif
-<span class="lineNum">     241 </span>            :         return NULL;
-<span class="lineNum">     242 </span>            :       }
-<span class="lineNum">     243 </span><span class="lineCov">          1 :       error = FT_New_Face(cache-&gt;library,fontfile,0, &amp;(fc-&gt;face));</span>
-<span class="lineNum">     244 </span>            :     } else {
-<span class="lineNum">     245 </span><span class="lineCov">          1 :       error = FT_New_Memory_Face(cache-&gt;library,dejavu_sans_condensed_ttf, dejavu_sans_condensed_ttf_len , 0, &amp;(fc-&gt;face));</span>
-<span class="lineNum">     246 </span>            :     }
-<span class="lineNum">     247 </span><span class="lineCov">          1 :     if(error) {</span>
-<span class="lineNum">     248 </span><span class="lineCov">          1 :       msSetError(MS_MISCERR, &quot;Freetype was unable to load font file \&quot;%s\&quot; for key \&quot;%s\&quot;&quot;, &quot;msGetFontFace()&quot;, fontfile, key);</span>
-<span class="lineNum">     249 </span><span class="lineCov">          1 :       free(fc);</span>
-<span class="lineNum">     250 </span>            : #ifdef USE_THREAD
-<span class="lineNum">     251 </span><span class="lineCov">          1 :       if (use_global_ft_cache)</span>
-<span class="lineNum">     252 </span><span class="lineNoCov">          0 :         msReleaseLock(TLOCK_TTF);</span>
-<span class="lineNum">     253 </span>            : #endif
-<span class="lineNum">     254 </span>            :       return NULL;
-<span class="lineNum">     255 </span>            :     }
-<span class="lineNum">     256 </span><span class="lineCov">          1 :     if(!fc-&gt;face-&gt;charmap) {</span>
-<span class="lineNum">     257 </span>            :       /* The font file has no unicode charmap, select an alternate one */
-<span class="lineNum">     258 </span><span class="lineNoCov">          0 :       if( FT_Select_Charmap(fc-&gt;face, FT_ENCODING_MS_SYMBOL) )</span>
-<span class="lineNum">     259 </span><span class="lineNoCov">          0 :         FT_Select_Charmap(fc-&gt;face, FT_ENCODING_APPLE_ROMAN);</span>
-<span class="lineNum">     260 </span>            :       /* the previous calls may have failed, we ignore as there's nothing much left to do */
-<span class="lineNum">     261 </span>            :     }
-<span class="lineNum">     262 </span><span class="lineCov">          1 :     fc-&gt;font = msStrdup(key);</span>
-<span class="lineNum">     263 </span><span class="lineCov">          1 :     UT_HASH_ADD_KEYPTR(hh,cache-&gt;face_cache,fc-&gt;font, strlen(key), fc);</span>
-<span class="lineNum">     264 </span>            :   }
-<span class="lineNum">     265 </span>            : #ifdef USE_THREAD
-<span class="lineNum">     266 </span><span class="lineCov">          1 :   if (use_global_ft_cache)</span>
-<span class="lineNum">     267 </span><span class="lineNoCov">          0 :     msReleaseLock(TLOCK_TTF);</span>
-<span class="lineNum">     268 </span>            : #endif
-<span class="lineNum">     269 </span>            :   return fc;
-<a name="270"><span class="lineNum">     270 </span>            : }</a>
-<span class="lineNum">     271 </span>            : 
-<span class="lineNum">     272 </span><span class="lineCov">          1 : glyph_element* msGetGlyphByIndex(face_element *face, unsigned int size, unsigned int codepoint) {</span>
-<span class="lineNum">     273 </span>            :   glyph_element *gc;
-<span class="lineNum">     274 </span>            :   glyph_element_key key;
-<span class="lineNum">     275 </span>            :   memset(&amp;key,0,sizeof(glyph_element_key));
-<span class="lineNum">     276 </span><span class="lineCov">          1 :   key.codepoint = codepoint;</span>
-<span class="lineNum">     277 </span><span class="lineCov">          1 :   key.size = size;</span>
-<span class="lineNum">     278 </span>            : #ifdef USE_THREAD
-<span class="lineNum">     279 </span><span class="lineCov">          1 :   if (use_global_ft_cache)</span>
-<span class="lineNum">     280 </span><span class="lineNoCov">          0 :     msAcquireLock(TLOCK_TTF);</span>
-<span class="lineNum">     281 </span>            : #endif   
-<span class="lineNum">     282 </span><span class="lineCov">          1 :   UT_HASH_FIND(hh,face-&gt;glyph_cache,&amp;key,sizeof(glyph_element_key),gc);</span>
-<span class="lineNum">     283 </span><span class="lineCov">          1 :   if(!gc) {</span>
-<span class="lineNum">     284 </span>            :     FT_Error error;
-<span class="lineNum">     285 </span><span class="lineCov">          1 :     gc = msSmallMalloc(sizeof(glyph_element));</span>
-<span class="lineNum">     286 </span><span class="lineCov">          1 :     if(MS_NINT(size * 96.0/72.0) != face-&gt;face-&gt;size-&gt;metrics.x_ppem) {</span>
-<span class="lineNum">     287 </span><span class="lineCov">          1 :       FT_Set_Pixel_Sizes(face-&gt;face,0,MS_NINT(size * 96/72.0));</span>
-<span class="lineNum">     288 </span>            :     }
-<span class="lineNum">     289 </span><span class="lineCov">          1 :     error = FT_Load_Glyph(face-&gt;face,key.codepoint,FT_LOAD_DEFAULT|FT_LOAD_NO_BITMAP|FT_LOAD_NO_HINTING|FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH);</span>
-<span class="lineNum">     290 </span><span class="lineCov">          1 :     if(error) {</span>
-<span class="lineNum">     291 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;unable to load glyph %ud for font \&quot;%s\&quot;&quot;, &quot;msGetGlyphByIndex()&quot;,key.codepoint, face-&gt;font);</span>
-<span class="lineNum">     292 </span><span class="lineNoCov">          0 :       free(gc);</span>
-<span class="lineNum">     293 </span>            : #ifdef USE_THREAD
-<span class="lineNum">     294 </span><span class="lineNoCov">          0 :       if (use_global_ft_cache)</span>
-<span class="lineNum">     295 </span><span class="lineNoCov">          0 :         msReleaseLock(TLOCK_TTF);</span>
-<span class="lineNum">     296 </span>            : #endif      
-<span class="lineNum">     297 </span>            :       return NULL;
-<span class="lineNum">     298 </span>            :     }
-<span class="lineNum">     299 </span><span class="lineCov">          1 :     gc-&gt;metrics.minx = face-&gt;face-&gt;glyph-&gt;metrics.horiBearingX / 64.0;</span>
-<span class="lineNum">     300 </span><span class="lineCov">          1 :     gc-&gt;metrics.maxx = gc-&gt;metrics.minx + face-&gt;face-&gt;glyph-&gt;metrics.width / 64.0;</span>
-<span class="lineNum">     301 </span><span class="lineCov">          1 :     gc-&gt;metrics.maxy = face-&gt;face-&gt;glyph-&gt;metrics.horiBearingY / 64.0;</span>
-<span class="lineNum">     302 </span><span class="lineCov">          1 :     gc-&gt;metrics.miny = gc-&gt;metrics.maxy - face-&gt;face-&gt;glyph-&gt;metrics.height / 64.0;</span>
-<span class="lineNum">     303 </span><span class="lineCov">          1 :     gc-&gt;metrics.advance = face-&gt;face-&gt;glyph-&gt;metrics.horiAdvance / 64.0;</span>
-<span class="lineNum">     304 </span><span class="lineCov">          1 :     gc-&gt;key = key;</span>
-<span class="lineNum">     305 </span><span class="lineCov">          1 :     UT_HASH_ADD(hh,face-&gt;glyph_cache,key,sizeof(glyph_element_key), gc);</span>
-<span class="lineNum">     306 </span>            :   }
-<span class="lineNum">     307 </span>            : #ifdef USE_THREAD
-<span class="lineNum">     308 </span><span class="lineCov">          1 :   if (use_global_ft_cache)</span>
-<span class="lineNum">     309 </span><span class="lineNoCov">          0 :     msReleaseLock(TLOCK_TTF);</span>
-<span class="lineNum">     310 </span>            : #endif  
-<span class="lineNum">     311 </span>            :   return gc;
-<a name="312"><span class="lineNum">     312 </span>            : }</a>
-<span class="lineNum">     313 </span>            : 
-<span class="lineNum">     314 </span><span class="lineCov">          1 : outline_element* msGetGlyphOutline(face_element *face, glyph_element *glyph) {</span>
-<span class="lineNum">     315 </span>            :   outline_element *oc;
-<span class="lineNum">     316 </span>            :   outline_element_key key;
-<span class="lineNum">     317 </span><span class="lineCov">          1 :   ft_cache *cache = msGetFontCache();</span>
-<span class="lineNum">     318 </span>            :   memset(&amp;key,0,sizeof(outline_element_key));
-<span class="lineNum">     319 </span><span class="lineCov">          1 :   key.glyph = glyph;</span>
+<span class="lineNum">     197 </span><span class="lineCov">          1 :   UT_HASH_FIND_INT(face-&gt;index_cache,&amp;unicode,ic);</span>
+<span class="lineNum">     198 </span><span class="lineCov">          1 :   if(!ic) {</span>
+<span class="lineNum">     199 </span><span class="lineCov">          1 :     ic = msSmallMalloc(sizeof(index_element));</span>
+<span class="lineNum">     200 </span><span class="lineCov">          1 :     ic-&gt;codepoint = FT_Get_Char_Index(face-&gt;face,unicode);</span>
+<span class="lineNum">     201 </span><span class="lineCov">          1 :     ic-&gt;unicode = unicode;</span>
+<span class="lineNum">     202 </span><span class="lineCov">          1 :     UT_HASH_ADD_INT(face-&gt;index_cache,unicode,ic);</span>
+<span class="lineNum">     203 </span>            :   }
+<span class="lineNum">     204 </span><span class="lineCov">          1 :   return ic-&gt;codepoint;</span>
+<span class="lineNum">     205 </span>            : }
+<span class="lineNum">     206 </span>            : 
+<a name="207"><span class="lineNum">     207 </span>            : #define MS_DEFAULT_FONT_KEY &quot;_ms_default_&quot;</a>
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span><span class="lineCov">          1 : face_element* msGetFontFace(char *key, fontSetObj *fontset) {</span>
+<span class="lineNum">     210 </span>            :   face_element *fc;
+<span class="lineNum">     211 </span>            :   int error;
+<span class="lineNum">     212 </span><span class="lineCov">          1 :   ft_cache *cache = msGetFontCache();</span>
+<span class="lineNum">     213 </span><span class="lineCov">          1 :   if(!key) {</span>
+<span class="lineNum">     214 </span>            :     key = MS_DEFAULT_FONT_KEY;
+<span class="lineNum">     215 </span>            :   }
+<span class="lineNum">     216 </span>            : #ifdef USE_THREAD
+<span class="lineNum">     217 </span><span class="lineCov">          1 :   if (use_global_ft_cache)</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :     msAcquireLock(TLOCK_TTF);</span>
+<span class="lineNum">     219 </span>            : #endif
+<span class="lineNum">     220 </span><span class="lineCov">          1 :   UT_HASH_FIND_STR(cache-&gt;face_cache,key,fc);</span>
+<span class="lineNum">     221 </span><span class="lineCov">          1 :   if(!fc) {</span>
+<span class="lineNum">     222 </span>            :     const char *fontfile = NULL;
+<span class="lineNum">     223 </span><span class="lineCov">          1 :     fc = msSmallCalloc(1,sizeof(face_element));</span>
+<span class="lineNum">     224 </span><span class="lineCov">          1 :     if(fontset &amp;&amp; strcmp(key,MS_DEFAULT_FONT_KEY)) {</span>
+<span class="lineNum">     225 </span><span class="lineCov">          1 :       fontfile = msLookupHashTable(&amp;(fontset-&gt;fonts),key);</span>
+<span class="lineNum">     226 </span><span class="lineCov">          1 :       if(!fontfile) {</span>
+<span class="lineNum">     227 </span><span class="lineCov">          1 :         msSetError(MS_MISCERR, &quot;Could not find font with key \&quot;%s\&quot; in fontset&quot;, &quot;msGetFontFace()&quot;, key);</span>
+<span class="lineNum">     228 </span><span class="lineCov">          1 :         free(fc);</span>
+<span class="lineNum">     229 </span>            : #ifdef USE_THREAD
+<span class="lineNum">     230 </span><span class="lineCov">          1 :         if (use_global_ft_cache)</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :           msReleaseLock(TLOCK_TTF);</span>
+<span class="lineNum">     232 </span>            : #endif
+<span class="lineNum">     233 </span>            :         return NULL;
+<span class="lineNum">     234 </span>            :       }
+<span class="lineNum">     235 </span><span class="lineCov">          1 :       error = FT_New_Face(cache-&gt;library,fontfile,0, &amp;(fc-&gt;face));</span>
+<span class="lineNum">     236 </span>            :     } else {
+<span class="lineNum">     237 </span><span class="lineCov">          1 :       error = FT_New_Memory_Face(cache-&gt;library,dejavu_sans_condensed_ttf, dejavu_sans_condensed_ttf_len , 0, &amp;(fc-&gt;face));</span>
+<span class="lineNum">     238 </span>            :     }
+<span class="lineNum">     239 </span><span class="lineCov">          1 :     if(error) {</span>
+<span class="lineNum">     240 </span><span class="lineCov">          1 :       msSetError(MS_MISCERR, &quot;Freetype was unable to load font file \&quot;%s\&quot; for key \&quot;%s\&quot;&quot;, &quot;msGetFontFace()&quot;, fontfile, key);</span>
+<span class="lineNum">     241 </span><span class="lineCov">          1 :       free(fc);</span>
+<span class="lineNum">     242 </span>            : #ifdef USE_THREAD
+<span class="lineNum">     243 </span><span class="lineCov">          1 :       if (use_global_ft_cache)</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :         msReleaseLock(TLOCK_TTF);</span>
+<span class="lineNum">     245 </span>            : #endif
+<span class="lineNum">     246 </span>            :       return NULL;
+<span class="lineNum">     247 </span>            :     }
+<span class="lineNum">     248 </span><span class="lineCov">          1 :     if(!fc-&gt;face-&gt;charmap) {</span>
+<span class="lineNum">     249 </span>            :       /* The font file has no unicode charmap, select an alternate one */
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :       if( FT_Select_Charmap(fc-&gt;face, FT_ENCODING_MS_SYMBOL) )</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :         FT_Select_Charmap(fc-&gt;face, FT_ENCODING_APPLE_ROMAN);</span>
+<span class="lineNum">     252 </span>            :       /* the previous calls may have failed, we ignore as there's nothing much left to do */
+<span class="lineNum">     253 </span>            :     }
+<span class="lineNum">     254 </span><span class="lineCov">          1 :     fc-&gt;font = msStrdup(key);</span>
+<span class="lineNum">     255 </span><span class="lineCov">          1 :     UT_HASH_ADD_KEYPTR(hh,cache-&gt;face_cache,fc-&gt;font, strlen(key), fc);</span>
+<span class="lineNum">     256 </span>            :   }
+<span class="lineNum">     257 </span>            : #ifdef USE_THREAD
+<span class="lineNum">     258 </span><span class="lineCov">          1 :   if (use_global_ft_cache)</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :     msReleaseLock(TLOCK_TTF);</span>
+<span class="lineNum">     260 </span>            : #endif
+<span class="lineNum">     261 </span>            :   return fc;
+<a name="262"><span class="lineNum">     262 </span>            : }</a>
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span><span class="lineCov">          1 : glyph_element* msGetGlyphByIndex(face_element *face, unsigned int size, unsigned int codepoint) {</span>
+<span class="lineNum">     265 </span>            :   glyph_element *gc;
+<span class="lineNum">     266 </span>            :   glyph_element_key key;
+<span class="lineNum">     267 </span>            :   memset(&amp;key,0,sizeof(glyph_element_key));
+<span class="lineNum">     268 </span><span class="lineCov">          1 :   key.codepoint = codepoint;</span>
+<span class="lineNum">     269 </span><span class="lineCov">          1 :   key.size = size;</span>
+<span class="lineNum">     270 </span><span class="lineCov">          1 :   UT_HASH_FIND(hh,face-&gt;glyph_cache,&amp;key,sizeof(glyph_element_key),gc);</span>
+<span class="lineNum">     271 </span><span class="lineCov">          1 :   if(!gc) {</span>
+<span class="lineNum">     272 </span>            :     FT_Error error;
+<span class="lineNum">     273 </span><span class="lineCov">          1 :     gc = msSmallMalloc(sizeof(glyph_element));</span>
+<span class="lineNum">     274 </span><span class="lineCov">          1 :     if(MS_NINT(size * 96.0/72.0) != face-&gt;face-&gt;size-&gt;metrics.x_ppem) {</span>
+<span class="lineNum">     275 </span><span class="lineCov">          1 :       FT_Set_Pixel_Sizes(face-&gt;face,0,MS_NINT(size * 96/72.0));</span>
+<span class="lineNum">     276 </span>            :     }
+<span class="lineNum">     277 </span><span class="lineCov">          1 :     error = FT_Load_Glyph(face-&gt;face,key.codepoint,FT_LOAD_DEFAULT|FT_LOAD_NO_BITMAP|FT_LOAD_NO_HINTING|FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH);</span>
+<span class="lineNum">     278 </span><span class="lineCov">          1 :     if(error) {</span>
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;unable to load glyph %ud for font \&quot;%s\&quot;&quot;, &quot;msGetGlyphByIndex()&quot;,key.codepoint, face-&gt;font);</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :       free(gc);</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">     282 </span>            :     }
+<span class="lineNum">     283 </span><span class="lineCov">          1 :     gc-&gt;metrics.minx = face-&gt;face-&gt;glyph-&gt;metrics.horiBearingX / 64.0;</span>
+<span class="lineNum">     284 </span><span class="lineCov">          1 :     gc-&gt;metrics.maxx = gc-&gt;metrics.minx + face-&gt;face-&gt;glyph-&gt;metrics.width / 64.0;</span>
+<span class="lineNum">     285 </span><span class="lineCov">          1 :     gc-&gt;metrics.maxy = face-&gt;face-&gt;glyph-&gt;metrics.horiBearingY / 64.0;</span>
+<span class="lineNum">     286 </span><span class="lineCov">          1 :     gc-&gt;metrics.miny = gc-&gt;metrics.maxy - face-&gt;face-&gt;glyph-&gt;metrics.height / 64.0;</span>
+<span class="lineNum">     287 </span><span class="lineCov">          1 :     gc-&gt;metrics.advance = face-&gt;face-&gt;glyph-&gt;metrics.horiAdvance / 64.0;</span>
+<span class="lineNum">     288 </span><span class="lineCov">          1 :     gc-&gt;key = key;</span>
+<span class="lineNum">     289 </span><span class="lineCov">          1 :     UT_HASH_ADD(hh,face-&gt;glyph_cache,key,sizeof(glyph_element_key), gc);</span>
+<span class="lineNum">     290 </span>            :   }
+<span class="lineNum">     291 </span>            :   return gc;
+<a name="292"><span class="lineNum">     292 </span>            : }</a>
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span><span class="lineCov">          1 : outline_element* msGetGlyphOutline(face_element *face, glyph_element *glyph) {</span>
+<span class="lineNum">     295 </span>            :   outline_element *oc;
+<span class="lineNum">     296 </span>            :   outline_element_key key;
+<span class="lineNum">     297 </span><span class="lineCov">          1 :   ft_cache *cache = msGetFontCache();</span>
+<span class="lineNum">     298 </span>            :   memset(&amp;key,0,sizeof(outline_element_key));
+<span class="lineNum">     299 </span><span class="lineCov">          1 :   key.glyph = glyph;</span>
+<span class="lineNum">     300 </span>            : #ifdef USE_THREAD
+<span class="lineNum">     301 </span><span class="lineCov">          1 :   if (use_global_ft_cache)</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :     msAcquireLock(TLOCK_TTF);</span>
+<span class="lineNum">     303 </span>            : #endif
+<span class="lineNum">     304 </span><span class="lineCov">          1 :   UT_HASH_FIND(hh,face-&gt;outline_cache,&amp;key, sizeof(outline_element_key),oc);</span>
+<span class="lineNum">     305 </span><span class="lineCov">          1 :   if(!oc) {</span>
+<span class="lineNum">     306 </span>            :     FT_Matrix matrix;
+<span class="lineNum">     307 </span>            :     FT_Vector pen;
+<span class="lineNum">     308 </span>            :     FT_Error error;
+<span class="lineNum">     309 </span><span class="lineCov">          1 :     oc = msSmallMalloc(sizeof(outline_element));</span>
+<span class="lineNum">     310 </span><span class="lineCov">          1 :     if(MS_NINT(glyph-&gt;key.size * 96.0/72.0) != face-&gt;face-&gt;size-&gt;metrics.x_ppem) {</span>
+<span class="lineNum">     311 </span><span class="lineCov">          1 :       FT_Set_Pixel_Sizes(face-&gt;face,0,MS_NINT(glyph-&gt;key.size * 96/72.0));</span>
+<span class="lineNum">     312 </span>            :     }
+<span class="lineNum">     313 </span><span class="lineCov">          1 :     matrix.xx = matrix.yy = 0x10000L;</span>
+<span class="lineNum">     314 </span><span class="lineCov">          1 :     matrix.xy = matrix.yx = 0x00000L;</span>
+<span class="lineNum">     315 </span><span class="lineCov">          1 :     pen.x = pen.y = 0;</span>
+<span class="lineNum">     316 </span><span class="lineCov">          1 :     FT_Set_Transform(face-&gt;face, &amp;matrix, &amp;pen);</span>
+<span class="lineNum">     317 </span><span class="lineCov">          1 :     error = FT_Load_Glyph(face-&gt;face,glyph-&gt;key.codepoint,FT_LOAD_DEFAULT|FT_LOAD_NO_BITMAP/*|FT_LOAD_IGNORE_TRANSFORM*/|FT_LOAD_NO_HINTING|FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH);</span>
+<span class="lineNum">     318 </span><span class="lineCov">          1 :     if(error) {</span>
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;unable to load glyph %ud for font \&quot;%s\&quot;&quot;, &quot;msGetGlyphByIndex()&quot;,glyph-&gt;key.codepoint, face-&gt;font);</span>
 <span class="lineNum">     320 </span>            : #ifdef USE_THREAD
-<span class="lineNum">     321 </span><span class="lineCov">          1 :   if (use_global_ft_cache)</span>
-<span class="lineNum">     322 </span><span class="lineNoCov">          0 :     msAcquireLock(TLOCK_TTF);</span>
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :       if (use_global_ft_cache)</span>
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :         msReleaseLock(TLOCK_TTF);</span>
 <span class="lineNum">     323 </span>            : #endif
-<span class="lineNum">     324 </span><span class="lineCov">          1 :   UT_HASH_FIND(hh,face-&gt;outline_cache,&amp;key, sizeof(outline_element_key),oc);</span>
-<span class="lineNum">     325 </span><span class="lineCov">          1 :   if(!oc) {</span>
-<span class="lineNum">     326 </span>            :     FT_Matrix matrix;
-<span class="lineNum">     327 </span>            :     FT_Vector pen;
-<span class="lineNum">     328 </span>            :     FT_Error error;
-<span class="lineNum">     329 </span><span class="lineCov">          1 :     oc = msSmallMalloc(sizeof(outline_element));</span>
-<span class="lineNum">     330 </span><span class="lineCov">          1 :     if(MS_NINT(glyph-&gt;key.size * 96.0/72.0) != face-&gt;face-&gt;size-&gt;metrics.x_ppem) {</span>
-<span class="lineNum">     331 </span><span class="lineCov">          1 :       FT_Set_Pixel_Sizes(face-&gt;face,0,MS_NINT(glyph-&gt;key.size * 96/72.0));</span>
-<span class="lineNum">     332 </span>            :     }
-<span class="lineNum">     333 </span><span class="lineCov">          1 :     matrix.xx = matrix.yy = 0x10000L;</span>
-<span class="lineNum">     334 </span><span class="lineCov">          1 :     matrix.xy = matrix.yx = 0x00000L;</span>
-<span class="lineNum">     335 </span><span class="lineCov">          1 :     pen.x = pen.y = 0;</span>
-<span class="lineNum">     336 </span><span class="lineCov">          1 :     FT_Set_Transform(face-&gt;face, &amp;matrix, &amp;pen);</span>
-<span class="lineNum">     337 </span><span class="lineCov">          1 :     error = FT_Load_Glyph(face-&gt;face,glyph-&gt;key.codepoint,FT_LOAD_DEFAULT|FT_LOAD_NO_BITMAP/*|FT_LOAD_IGNORE_TRANSFORM*/|FT_LOAD_NO_HINTING|FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH);</span>
-<span class="lineNum">     338 </span><span class="lineCov">          1 :     if(error) {</span>
-<span class="lineNum">     339 </span><span class="lineNoCov">          0 :       msSetError(MS_MISCERR, &quot;unable to load glyph %ud for font \&quot;%s\&quot;&quot;, &quot;msGetGlyphByIndex()&quot;,glyph-&gt;key.codepoint, face-&gt;font);</span>
-<span class="lineNum">     340 </span>            : #ifdef USE_THREAD
-<span class="lineNum">     341 </span><span class="lineNoCov">          0 :       if (use_global_ft_cache)</span>
-<span class="lineNum">     342 </span><span class="lineNoCov">          0 :         msReleaseLock(TLOCK_TTF);</span>
-<span class="lineNum">     343 </span>            : #endif
-<span class="lineNum">     344 </span><span class="lineNoCov">          0 :       return NULL;</span>
-<span class="lineNum">     345 </span>            :     }
-<span class="lineNum">     346 </span><span class="lineCov">          1 :     error = FT_Outline_New(cache-&gt;library, face-&gt;face-&gt;glyph-&gt;outline.n_points,</span>
-<span class="lineNum">     347 </span><span class="lineCov">          1 :         face-&gt;face-&gt;glyph-&gt;outline.n_contours, &amp;oc-&gt;outline);</span>
-<span class="lineNum">     348 </span><span class="lineCov">          1 :     FT_Outline_Copy(&amp;face-&gt;face-&gt;glyph-&gt;outline, &amp;oc-&gt;outline);</span>
-<span class="lineNum">     349 </span><span class="lineCov">          1 :     oc-&gt;key = key;</span>
-<span class="lineNum">     350 </span><span class="lineCov">          1 :     UT_HASH_ADD(hh,face-&gt;outline_cache,key,sizeof(outline_element_key), oc);</span>
-<span class="lineNum">     351 </span>            :   }
-<span class="lineNum">     352 </span>            : #ifdef USE_THREAD
-<span class="lineNum">     353 </span><span class="lineCov">          1 :   if (use_global_ft_cache)</span>
-<span class="lineNum">     354 </span><span class="lineNoCov">          0 :     msReleaseLock(TLOCK_TTF);</span>
-<span class="lineNum">     355 </span>            : #endif
-<span class="lineNum">     356 </span>            :   return oc;
-<a name="357"><span class="lineNum">     357 </span>            : }</a>
-<span class="lineNum">     358 </span>            : 
-<span class="lineNum">     359 </span><span class="lineCov">          1 : int msIsGlyphASpace(glyphObj *glyph) {</span>
-<span class="lineNum">     360 </span>            :   /* space or tab, for now */
-<span class="lineNum">     361 </span>            :   unsigned int space,tab;
-<span class="lineNum">     362 </span><span class="lineCov">          1 :   space = msGetGlyphIndex(glyph-&gt;face,0x20);</span>
-<span class="lineNum">     363 </span><span class="lineCov">          1 :   tab = msGetGlyphIndex(glyph-&gt;face,0x9);</span>
-<span class="lineNum">     364 </span><span class="lineCov">          1 :   return glyph-&gt;glyph-&gt;key.codepoint == space || glyph-&gt;glyph-&gt;key.codepoint == tab;</span>
-<span class="lineNum">     365 </span>            : }
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :       return NULL;</span>
+<span class="lineNum">     325 </span>            :     }
+<span class="lineNum">     326 </span><span class="lineCov">          1 :     error = FT_Outline_New(cache-&gt;library, face-&gt;face-&gt;glyph-&gt;outline.n_points,</span>
+<span class="lineNum">     327 </span><span class="lineCov">          1 :         face-&gt;face-&gt;glyph-&gt;outline.n_contours, &amp;oc-&gt;outline);</span>
+<span class="lineNum">     328 </span><span class="lineCov">          1 :     FT_Outline_Copy(&amp;face-&gt;face-&gt;glyph-&gt;outline, &amp;oc-&gt;outline);</span>
+<span class="lineNum">     329 </span><span class="lineCov">          1 :     oc-&gt;key = key;</span>
+<span class="lineNum">     330 </span><span class="lineCov">          1 :     UT_HASH_ADD(hh,face-&gt;outline_cache,key,sizeof(outline_element_key), oc);</span>
+<span class="lineNum">     331 </span>            :   }
+<span class="lineNum">     332 </span>            : #ifdef USE_THREAD
+<span class="lineNum">     333 </span><span class="lineCov">          1 :   if (use_global_ft_cache)</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :     msReleaseLock(TLOCK_TTF);</span>
+<span class="lineNum">     335 </span>            : #endif
+<span class="lineNum">     336 </span>            :   return oc;
+<a name="337"><span class="lineNum">     337 </span>            : }</a>
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span><span class="lineCov">          1 : int msIsGlyphASpace(glyphObj *glyph) {</span>
+<span class="lineNum">     340 </span>            :   /* space or tab, for now */
+<span class="lineNum">     341 </span>            :   unsigned int space,tab;
+<span class="lineNum">     342 </span><span class="lineCov">          1 :   space = msGetGlyphIndex(glyph-&gt;face,0x20);</span>
+<span class="lineNum">     343 </span><span class="lineCov">          1 :   tab = msGetGlyphIndex(glyph-&gt;face,0x9);</span>
+<span class="lineNum">     344 </span><span class="lineCov">          1 :   return glyph-&gt;glyph-&gt;key.codepoint == space || glyph-&gt;glyph-&gt;key.codepoint == tab;</span>
+<span class="lineNum">     345 </span>            : }
 </pre>
       </td>
     </tr>
